@@ -100,6 +100,7 @@ class Recovery(unittest.TestCase):
                 'ip': 'unused',
                 'command_delay': 0,
                 'write_enabled': True,
+                'initialize_on_connect': True,
             },
         )
     def test_failed_handshake_closes_socket_and_retries(self):
@@ -239,6 +240,7 @@ class ProtectionDefaults(unittest.TestCase):
                 'ip': 'unused',
                 'command_delay': 0,
                 'write_enabled': True,
+                'initialize_on_connect': True,
             },
         )
         with patch('spd1000x_ioc.toolkit_device.SocketSCPITransport', return_value=supply):
@@ -358,5 +360,56 @@ class ReadOnlyCommissioning(unittest.TestCase):
             supply.output,
             "Read-only commissioning must observe, not change, hardware state",
         )
+
+class ControlledWriteCommissioning(unittest.TestCase):
+    def test_writable_connection_can_skip_initialization(self):
+        supply = Supply()
+
+        # Safe state matching the physical commissioning setup.
+        supply.v = 5.0
+        supply.i = 0.05
+        supply.output = False
+        supply.timer = False
+        supply.ovp = 5.1
+        supply.ocp = 0.11
+        supply.commands.clear()
+
+        device = Device(
+            'TEST',
+            {
+                'channels': ['CH1'],
+                'ip': 'unused',
+                'command_delay': 0,
+                'write_enabled': True,
+                'initialize_on_connect': False,
+            },
+        )
+
+        with patch(
+            'spd1000x_ioc.toolkit_device.SocketSCPITransport',
+            return_value=supply,
+        ):
+            device.connect()
+
+        self.assertIsNotNone(device.t)
+        self.assertFalse(supply.closed)
+        self.assertEqual(
+            supply.commands,
+            [],
+            "Writable commissioning connection must not initialize hardware",
+        )
+
+    def test_controller_allows_explicit_write_when_enabled(self):
+        supply = Supply()
+
+        controller = Controller(
+            supply,
+            command_delay=0,
+            write_enabled=True,
+        )
+
+        controller.set_voltage(4.5)
+
+        self.assertEqual(supply.v, 4.5)
 
 if __name__ == '__main__': unittest.main()

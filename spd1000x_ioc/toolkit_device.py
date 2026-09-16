@@ -62,7 +62,10 @@ class Device(BaseDevice):
             identity = controller.identity()
             if "SPD1305X" not in identity.upper():
                 raise OSError(f"unexpected instrument identity: {identity}")
-            if controller.write_enabled:
+            if (
+                controller.write_enabled
+                and bool(self.settings.get("initialize_on_connect", False))
+            ):
                 controller.initialize_safe()
 
             return controller
