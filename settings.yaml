@@ -390,3 +390,34 @@ zaber:
     check_home:    # should it run the home routine before each move
         Shutoff: False
         Flag: True
+# Genesis Phase-I: Microwave SPD1305X proof of concept
+spd1305x:
+  module: spd1000x_ioc.toolkit_device
+  ip: 192.168.1.13
+  port: 5025
+  timeout: 5.0
+  delay: 1.0
+  command_delay: 0.05
+  channels: [CH1]
+  # These may be lowered for the experiment, but not raised above 30 V / 5 A.
+  max_voltage: 30.0
+  max_current: 5.0
+  records:
+    CH1_VC:
+      DESC: Voltage setpoint
+    CH1_VI:
+      DESC: Measured voltage
+    CH1_CC:
+      DESC: Current limit setpoint
+    CH1_CI:
+      DESC: Measured current
+    CH1_PI:
+      DESC: Measured power
+    CH1_Output:
+      DESC: Output enable
+    CH1_Mode:
+      DESC: CV or CC mode
+    CH1_OVP:
+      DESC: Overvoltage protection
+    CH1_OCP:
+      DESC: Overcurrent protection
