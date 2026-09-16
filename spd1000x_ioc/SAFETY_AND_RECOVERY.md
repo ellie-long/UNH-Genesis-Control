@@ -15,3 +15,18 @@ These are IOC command limits, not a guarantee that physical output stays below 5
 Validation: 21 offline unit tests cover bounds, NaN/infinity, rounding, configuration bypass, safe initialization, timer/output interlock, leaked-socket cleanup, disconnected writes, failed boot attempts, power-loss recovery, and fragmented replies. No physical supply was contacted. After restart, validate a power cycle with the load disconnected; confirm Connected returns, output remains OFF, and setpoints are zero before reconnecting the load.
 
 Protection headroom does not raise the output command limits, but OVP at 5.1 V permits physical voltage above 5 V before a trip. These starting margins are not a guarantee against transient trips. Existing protection pop-ups are not automatically cleared. Readback updates use process=False to avoid sending device readings back as commands.
+
+## Read-only commissioning mode
+
+Genesis Phase-I defaults the SPD1305X IOC to `write_enabled: false`.
+
+In this mode:
+
+- Instrument identity and state may be queried normally.
+- Periodic readback polling remains active.
+- Connection does not run hardware initialization writes.
+- EPICS command callbacks are rejected before reaching the instrument.
+- The controller independently blocks hardware-changing SCPI writes.
+- Unsafe hardware states are reported without automatically modifying the supply.
+
+Hardware writes must be explicitly enabled in configuration after commissioning and safety validation.

@@ -93,7 +93,15 @@ class Limits(unittest.TestCase):
 
 class Recovery(unittest.TestCase):
     def setUp(self):
-        self.d = Device('TEST', {'channels': ['CH1'], 'ip': 'unused', 'command_delay': 0})
+        self.d = Device(
+            'TEST',
+            {
+                'channels': ['CH1'],
+                'ip': 'unused',
+                'command_delay': 0,
+                'write_enabled': True,
+            },
+        )
     def test_failed_handshake_closes_socket_and_retries(self):
         bad, good = Supply(), Supply()
         bad.query = Mock(side_effect=TimeoutError('booting'))
@@ -224,11 +232,131 @@ class ProtectionDefaults(unittest.TestCase):
         supply = Supply()
         original = supply.write
         supply.write = lambda cmd: None if cmd.startswith('OVP ') else original(cmd)
-        d = Device('TEST', {'channels': ['CH1'], 'ip': 'unused', 'command_delay': 0})
+        d = Device(
+            'TEST',
+            {
+                'channels': ['CH1'],
+                'ip': 'unused',
+                'command_delay': 0,
+                'write_enabled': True,
+            },
+        )
         with patch('spd1000x_ioc.toolkit_device.SocketSCPITransport', return_value=supply):
             d.connect()
         self.assertIsNone(d.t)
         self.assertTrue(supply.closed)
         self.assertFalse(supply.output)
+
+class ReadOnlyCommissioning(unittest.TestCase):
+    def test_controller_blocks_all_writes(self):
+        supply = Supply()
+        controller = Controller(
+            supply,
+            command_delay=0,
+            write_enabled=False,
+        )
+
+        # Queries remain available.
+        self.assertIn("SPD1305X", controller.identity())
+
+        # Hardware-changing operations must be rejected.
+        operations = [
+            lambda: controller.set_voltage(1.0),
+            lambda: controller.set_current(0.05),
+            lambda: controller.set_output(False),
+            lambda: controller.set_ovp(5.1),
+            lambda: controller.set_ocp(0.11),
+        ]
+
+        for operation in operations:
+            with self.assertRaises(PermissionError):
+                operation()
+
+        self.assertEqual(
+            supply.commands,
+            [],
+            "Read-only controller must never transmit a write command",
+        )
+
+    def test_read_only_device_connects_without_initialization_writes(self):
+        supply = Supply()
+
+        # Put the simulated supply in the same safe state as the
+        # physical SPD1305X observed during commissioning.
+        supply.v = 5.0
+        supply.i = 0.05
+        supply.output = False
+        supply.timer = False
+        supply.ovp = 5.1
+        supply.ocp = 0.11
+        supply.commands.clear()
+
+        device = Device(
+            'TEST',
+            {
+                'channels': ['CH1'],
+                'ip': 'unused',
+                'command_delay': 0,
+                'write_enabled': False,
+            },
+        )
+
+        with patch(
+            'spd1000x_ioc.toolkit_device.SocketSCPITransport',
+            return_value=supply,
+        ):
+            device.connect()
+
+        self.assertIsNotNone(device.t)
+        self.assertFalse(supply.closed)
+        self.assertEqual(
+            supply.commands,
+            [],
+            "Read-only connection must not initialize or alter the supply",
+        )
+
+        # An EPICS write request must also be rejected without reaching hardware.
+        device.do_sets(4.5, 'TEST:CH1_VC')
+
+        self.assertEqual(supply.commands, [])
+        self.assertEqual(supply.v, 5.0)
+        device.pvs["Last_Error"].set.assert_called_with(
+            "Read-only mode; command not sent"
+        )
+
+    def test_unsafe_read_only_state_is_reported_without_corrective_write(self):
+        supply = Supply()
+
+        # Supply() deliberately starts in an unsafe state:
+        # 12 V, 1 A, output ON, timer ON.
+        device = Device(
+            'TEST',
+            {
+                'channels': ['CH1'],
+                'ip': 'unused',
+                'command_delay': 0,
+                'write_enabled': False,
+            },
+        )
+
+        with patch(
+            'spd1000x_ioc.toolkit_device.SocketSCPITransport',
+            return_value=supply,
+        ):
+            device.connect()
+
+        # The IOC refuses the unsafe connection, but commissioning mode
+        # must not silently modify the real instrument.
+        self.assertIsNone(device.t)
+        self.assertTrue(supply.closed)
+        self.assertEqual(
+            supply.commands,
+            [],
+            "Read-only mode must not issue corrective hardware writes",
+        )
+        self.assertTrue(
+            supply.output,
+            "Read-only commissioning must observe, not change, hardware state",
+        )
 
 if __name__ == '__main__': unittest.main()

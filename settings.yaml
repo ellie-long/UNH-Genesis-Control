@@ -398,6 +398,8 @@ spd1305x:
   timeout: 5.0
   delay: 1.0
   command_delay: 0.05
+  # Commissioning default: queries/readbacks only. Explicitly enable writes later.
+  write_enabled: false
   channels: [CH1]
   # These may be lowered for the experiment, but not raised above 30 V / 5 A.
   max_voltage: 30.0

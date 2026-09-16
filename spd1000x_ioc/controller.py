@@ -98,10 +98,12 @@ class SPD1000XController:
         max_voltage: float = HARDWARE_MAX_VOLTAGE,
         max_current: float = HARDWARE_MAX_CURRENT,
         command_delay: float = 0.05,
+        write_enabled: bool = True,
     ):
         self.transport = transport
         self.max_voltage, self.max_current = self.effective_limits(max_voltage, max_current)
         self.command_delay = _bounded("command delay", command_delay, 0, 60)
+        self.write_enabled = bool(write_enabled)
         self._lock = threading.RLock()
 
     @classmethod
@@ -114,6 +116,8 @@ class SPD1000XController:
         )
 
     def _write(self, command):
+        if not self.write_enabled:
+            raise PermissionError("Hardware writes are disabled in read-only commissioning mode")
         self.transport.write(command)
         time.sleep(self.command_delay)
 
@@ -239,7 +243,8 @@ class SPD1000XController:
             if status & (1 << 6):
                 raise ValueError("unexpected active timer")
         except ValueError:
-            self.set_output(False)
+            if self.write_enabled:
+                self.set_output(False)
             raise
         return values
 

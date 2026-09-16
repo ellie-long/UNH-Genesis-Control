@@ -57,11 +57,14 @@ class Device(BaseDevice):
                 max_voltage=float(self.settings.get("max_voltage", 30.0)),
                 max_current=float(self.settings.get("max_current", 5.0)),
                 command_delay=float(self.settings.get("command_delay", 0.05)),
+                write_enabled=bool(self.settings.get("write_enabled", False)),
             )
             identity = controller.identity()
             if "SPD1305X" not in identity.upper():
                 raise OSError(f"unexpected instrument identity: {identity}")
-            controller.initialize_safe()
+            if controller.write_enabled:
+                controller.initialize_safe()
+
             return controller
         except Exception:
             transport.close()
@@ -116,6 +119,11 @@ class Device(BaseDevice):
 
     def do_sets(self, new_value, pv):
         with self._io_lock:
+            if not bool(self.settings.get("write_enabled", False)):
+                self.pvs["Last_Error"].set(
+                    "Read-only mode; command not sent"
+                )
+                return
             if self.t is None:
                 self._set_comm(False, "Disconnected; command not sent")
                 return
