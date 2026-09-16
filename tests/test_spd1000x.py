@@ -128,7 +128,7 @@ class Recovery(unittest.TestCase):
             self.assertFalse(asyncio.run(self.d.do_reads()))
             self.assertTrue(old.closed)
             self.assertFalse(asyncio.run(self.d.do_reads()))
-            self.d.do_sets(5, 'TEST:CH1_VC')  # disconnected write is dropped
+            self.d.do_sets(5, 'TEST:VSET_CMD')  # disconnected write is dropped
             self.assertTrue(asyncio.run(self.d.do_reads()))
             self.assertEqual(new.v, 0)
             self.assertFalse(new.output)
@@ -136,7 +136,7 @@ class Recovery(unittest.TestCase):
         supply = Supply()
         with patch('spd1000x_ioc.toolkit_device.SocketSCPITransport', return_value=supply) as connect:
             self.d.connect()
-            self.d.do_sets(6, 'TEST:CH1_VC')
+            self.d.do_sets(6, 'TEST:VSET_CMD')
             self.assertEqual(connect.call_count, 1)
             self.assertFalse(supply.closed)
             self.assertEqual(supply.v, 0)
@@ -174,7 +174,7 @@ class ReadbackFeedback(unittest.TestCase):
                     pending.append((self.name, value))
                 self.value = value
 
-        for name in ['CH1_VC', 'CH1_CC', 'CH1_Output', 'CH1_OVP', 'CH1_OCP']:
+        for name in ['VSET_CMD', 'ISET_CMD', 'OUTPUT_CMD', 'OVP_CMD', 'OCP_CMD']:
             d.pvs[name] = OutputRecord(name)
         supply.commands.clear()
         for _ in range(3):
@@ -191,8 +191,8 @@ class ReadbackFeedback(unittest.TestCase):
         values = c.read_all()
         values.update(ovp=12.0, ocp=2.0)
         d._apply_readings(values)
-        d.pvs['CH1_OVP'].set.assert_called_once_with(12.0, process=False)
-        d.pvs['CH1_OCP'].set.assert_called_once_with(2.0, process=False)
+        d.pvs['OVP_CMD'].set.assert_called_once_with(12.0, process=False)
+        d.pvs['OCP_CMD'].set.assert_called_once_with(2.0, process=False)
 
     def test_installed_current_ceiling(self):
         c = Controller(Supply(), command_delay=0)
@@ -224,10 +224,10 @@ class ProtectionDefaults(unittest.TestCase):
     def test_protection_record_bounds(self):
         Device('TEST', {'channels': ['CH1'], 'ip': 'unused'})
         calls = {c.args[0]: c.kwargs for c in softioc.builder.aOut.call_args_list}
-        self.assertEqual(calls['CH1_VC']['DRVH'], 5.0)
-        self.assertEqual(calls['CH1_CC']['DRVH'], .1)
-        self.assertEqual(calls['CH1_OVP']['DRVH'], 5.1)
-        self.assertEqual(calls['CH1_OCP']['DRVH'], .11)
+        self.assertEqual(calls['VSET_CMD']['DRVH'], 5.0)
+        self.assertEqual(calls['ISET_CMD']['DRVH'], .1)
+        self.assertEqual(calls['OVP_CMD']['DRVH'], 5.1)
+        self.assertEqual(calls['OCP_CMD']['DRVH'], .11)
 
     def test_ignored_protection_write_prevents_connection(self):
         supply = Supply()
@@ -318,11 +318,11 @@ class ReadOnlyCommissioning(unittest.TestCase):
         )
 
         # An EPICS write request must also be rejected without reaching hardware.
-        device.do_sets(4.5, 'TEST:CH1_VC')
+        device.do_sets(4.5, 'TEST:VSET_CMD')
 
         self.assertEqual(supply.commands, [])
         self.assertEqual(supply.v, 5.0)
-        device.pvs["Last_Error"].set.assert_called_with(
+        device.pvs["ERROR"].set.assert_called_with(
             "Read-only mode; command not sent"
         )
 
