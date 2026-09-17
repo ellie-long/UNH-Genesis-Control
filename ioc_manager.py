@@ -10,6 +10,20 @@ import subprocess
 from threading import Thread
 import aioca
 import datetime
+import argparse
+import shlex
+
+
+def send_screen_command(screen_name, command):
+    """Send a shell command to an existing detached GNU Screen session."""
+    subprocess.run(
+        ["screen", "-S", screen_name, "-p", "0", "-X", "stuff", command],
+        check=True,
+    )
+    subprocess.run(
+        ["screen", "-S", screen_name, "-p", "0", "-X", "stuff", "\r"],
+        check=True,
+    )
 
 
 async def main():
@@ -18,8 +32,18 @@ async def main():
     Uses Unix Screen to run master_ioc for each device IOC.
     """
 
-    with open('settings.yaml') as f:  # Load settings from YAML config file
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "-s",
+        help="Settings file folder, default is here.",
+    )
+    args = parser.parse_args()
+    folder = args.s if args.s else "."
+
+    with open(f"{folder}/settings.yaml") as f:
         settings = yaml.load(f, Loader=yaml.FullLoader)
+
+    print(f"Loaded IOC manager settings from {folder}/settings.yaml.")
 
     os.environ['EPICS_CA_ADDR_LIST'] = settings['general']['epics_addr_list']
     #os.environ['EPICS_CAS_BEACON_ADDR_LIST'] = settings['general']['epics_beacon_addr_list']
@@ -133,7 +157,10 @@ class IOCManager:
         """
         name = pv_name.replace('_control', '')  # remove suffix from pv name to name screen
         if Screen(name).exists:
-            subprocess.run(["screen","-XS",name,"kill"])
+            subprocess.run(
+                ["screen", "-S", name, "-X", "quit"],
+                check=True,
+            )
             self.pvs[name].set(0)
         if name in self.screens:
             del self.screens[name]
@@ -173,11 +200,15 @@ class IOCManager:
 
     async def time_check(self, name):
         try:
-            t = await aioca.caget(f"{self.device_name}:{name}_time")
+            heartbeat_pv = self.settings[name].get(
+                "heartbeat_pv",
+                f"{self.device_name}:{name}_time",
+            )
+            t = await aioca.caget(heartbeat_pv)
             now = datetime.datetime.now().timestamp()
             self.pvs[name+'_hb'].set(int(now - float(t)))
         except aioca.CANothing as e:
-            print("Get error:", e, f"{self.device_name}:{name}_time")
+            print("Get error:", e, heartbeat_pv)
 
 class StartThread(Thread):
     '''Thread to interact with IOCs in screens. Each thread starts one ioc.'''
@@ -192,11 +223,40 @@ class StartThread(Thread):
         '''
         Start screen to run ioc, then run ioc. Wait until started, then get PV names from IOC after run.
         '''
-        screen = Screen(self.name, True)
-        screen.send_commands('bash')
-        screen.send_commands(f'python master_ioc.py -i {self.name}')
-        screen.enable_logs(f"{self.parent.settings['general']['log_dir']}/{self.name}")
-        screen.send_commands('softioc.dbl()')
+        if not Screen(self.name).exists:
+            subprocess.run(
+                ["screen", "-dmS", self.name, "bash"],
+                check=True,
+            )
+
+        # Re-create the Screen object after the detached session exists.
+        screen = Screen(self.name)
+
+        ioc_settings = self.parent.settings[self.name]
+        settings_folder = ioc_settings.get("settings_folder", ".")
+        ioc_name = ioc_settings.get("ioc", self.name)
+
+        command = (
+            "python master_ioc.py "
+            f"-s {shlex.quote(str(settings_folder))} "
+            f"-i {shlex.quote(str(ioc_name))}"
+        )
+
+        log_file = os.path.abspath(
+            f"{self.parent.settings['general']['log_dir']}/{self.name}"
+        )
+
+        subprocess.run(
+            ["screen", "-S", self.name, "-p", "0", "-X", "logfile", log_file],
+            check=True,
+        )
+        subprocess.run(
+            ["screen", "-S", self.name, "-p", "0", "-X", "log", "on"],
+            check=True,
+        )
+
+        send_screen_command(self.name, command)
+        send_screen_command(self.name, "softioc.dbl()")
 
         elapsed = 0
         pvs = []
