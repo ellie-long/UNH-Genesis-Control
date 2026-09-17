@@ -12,6 +12,7 @@ import aioca
 import datetime
 import argparse
 import shlex
+import sys
 
 
 def send_screen_command(screen_name, command):
@@ -236,8 +237,28 @@ class StartThread(Thread):
         settings_folder = ioc_settings.get("settings_folder", ".")
         ioc_name = ioc_settings.get("ioc", self.name)
 
+        env_parts = []
+
+        if ioc_settings.get("ca_server_port") is not None:
+            env_parts.append(
+                "EPICS_CAS_SERVER_PORT="
+                + shlex.quote(str(ioc_settings["ca_server_port"]))
+            )
+
+        if ioc_settings.get("pva_server_port") is not None:
+            env_parts.append(
+                "EPICS_PVA_SERVER_PORT="
+                + shlex.quote(str(ioc_settings["pva_server_port"]))
+            )
+
+        env_prefix = (
+            "env " + " ".join(env_parts) + " "
+            if env_parts else ""
+        )
+
         command = (
-            "python master_ioc.py "
+            f"{env_prefix}{shlex.quote(sys.executable)} "
+            f"{shlex.quote(os.path.abspath('master_ioc.py'))} "
             f"-s {shlex.quote(str(settings_folder))} "
             f"-i {shlex.quote(str(ioc_name))}"
         )

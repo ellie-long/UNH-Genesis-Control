@@ -30,6 +30,7 @@ import asyncio
 import curses
 import os
 import re
+import shlex
 import subprocess
 import sys
 import time
@@ -39,10 +40,15 @@ import yaml
 from screenutils import Screen
 
 # ── Paths ──────────────────────────────────────────────────────────────────────
-SETTINGS_FILE = os.path.normpath(
-    os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'settings.yaml')
+PROJECT_ROOT = os.path.normpath(
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
 )
-PROJECT_ROOT = os.path.dirname(SETTINGS_FILE)
+SETTINGS_FILE = os.path.join(
+    PROJECT_ROOT,
+    'configs',
+    'ioc_manager',
+    'settings.yaml',
+)
 
 REFRESH_SECS    = 2          # auto-refresh interval
 LOG_TAIL        = 200        # max lines kept in log view
@@ -88,47 +94,131 @@ def read_log_lines(path, n):
 def ioc_running(name):
     return Screen(name).exists
 
-def start_ioc(settings, name):
-    if ioc_running(name):
-        return f'{name}: already running'
-    lp = log_path(settings, name)
-    os.makedirs(os.path.dirname(lp), exist_ok=True)
-    subprocess.run(['screen', '-dmS', name, 'bash'], check=False)
-    time.sleep(0.5)
-    screen = Screen(name)
-    screen.send_commands(f'python {os.path.join(PROJECT_ROOT, "master_ioc.py")} -i {name}')
-    screen.enable_logs(lp)
-    screen.send_commands('softioc.dbl()')
-    return f'{name}: started'
 
-def stop_ioc(name):
-    if not ioc_running(name):
-        return f'{name}: not running'
-    subprocess.run(['screen', '-XS', name, 'kill'], check=False)
-    return f'{name}: stopped'
+def send_screen_command(screen_name, command):
+    """Send a command to an existing detached GNU Screen session."""
+    subprocess.run(
+        ['screen', '-S', screen_name, '-p', '0', '-X', 'stuff', command],
+        check=True,
+    )
+    subprocess.run(
+        ['screen', '-S', screen_name, '-p', '0', '-X', 'stuff', '\r'],
+        check=True,
+    )
 
-def restart_ioc(settings, name):
-    stop_ioc(name)
-    time.sleep(1)
-    return start_ioc(settings, name)
 
 def manager_running():
     return Screen(MANAGER_SCREEN).exists
 
+
+def manager_control_pv(settings, name):
+    prefix = settings['general']['prefix']
+    return f'{prefix}:MAN:{name}_control'
+
+
+def set_ioc_control(settings, name, value):
+    """Request IOC start/stop/reset through the Genesis IOC Manager."""
+    if not manager_running():
+        return f'{name}: IOC manager is not running'
+
+    pv = manager_control_pv(settings, name)
+
+    async def _put():
+        await aioca.caput(
+            pv,
+            value,
+            wait=True,
+            timeout=3,
+        )
+
+    try:
+        asyncio.run(_put())
+    except Exception as exc:
+        return f'{name}: manager command failed ({exc})'
+
+    labels = {
+        0: 'stop requested',
+        1: 'start requested',
+        2: 'restart requested',
+    }
+
+    return f'{name}: {labels.get(value, "command sent")}'
+
+
+def start_ioc(settings, name):
+    return set_ioc_control(settings, name, 1)
+
+
+def stop_ioc(settings, name):
+    return set_ioc_control(settings, name, 0)
+
+
+def restart_ioc(settings, name):
+    return set_ioc_control(settings, name, 2)
+
+
 def start_manager():
     if manager_running():
         return 'manager: already running'
-    subprocess.run(['screen', '-dmS', MANAGER_SCREEN, 'bash'], check=False)
+
+    settings = load_settings()
+    general = settings['general']
+
+    subprocess.run(
+        ['screen', '-dmS', MANAGER_SCREEN, 'bash'],
+        check=True,
+    )
+
     time.sleep(0.5)
-    screen = Screen(MANAGER_SCREEN)
-    screen.send_commands(f'cd {PROJECT_ROOT} && python ioc_manager.py')
+
+    env_parts = []
+
+    if general.get('manager_ca_server_port') is not None:
+        env_parts.append(
+            'EPICS_CAS_SERVER_PORT='
+            + shlex.quote(str(general['manager_ca_server_port']))
+        )
+
+    if general.get('manager_pva_server_port') is not None:
+        env_parts.append(
+            'EPICS_PVA_SERVER_PORT='
+            + shlex.quote(str(general['manager_pva_server_port']))
+        )
+
+    env_prefix = (
+        'env ' + ' '.join(env_parts) + ' '
+        if env_parts else ''
+    )
+
+    manager_script = os.path.join(PROJECT_ROOT, 'ioc_manager.py')
+    settings_dir = os.path.dirname(SETTINGS_FILE)
+
+    command = (
+        f'cd {shlex.quote(PROJECT_ROOT)} && '
+        f'{env_prefix}'
+        f'{shlex.quote(sys.executable)} '
+        f'{shlex.quote(manager_script)} '
+        f'-s {shlex.quote(settings_dir)}'
+    )
+
+    send_screen_command(MANAGER_SCREEN, command)
+
+    time.sleep(1)
+
     return 'manager: started'
+
 
 def stop_manager():
     if not manager_running():
         return 'manager: not running'
-    subprocess.run(['screen', '-XS', MANAGER_SCREEN, 'kill'], check=False)
+
+    subprocess.run(
+        ['screen', '-S', MANAGER_SCREEN, '-X', 'quit'],
+        check=True,
+    )
+
     return 'manager: stopped'
+
 
 def restart_manager():
     stop_manager()
@@ -584,8 +674,8 @@ def pv_view(stdscr, settings, name, prefix):
             last_fetch = 0.0          # force immediate refresh on next loop
         elif key == ord('d'):
             if ioc_running(name):
-                Screen(name).send_commands('dbl()')
-                status = f'Sent dbl() to {name} — refreshing…'
+                send_screen_command(name, 'softioc.dbl()')
+                status = f'Sent softioc.dbl() to {name} — refreshing…'
                 time.sleep(1)         # give the IOC a moment to write to the log
                 last_fetch = 0.0
             else:
@@ -635,7 +725,10 @@ def tui(stdscr):
         elif key == ord('s'):
             status = suspended(stdscr, lambda: start_ioc(settings, name))
         elif key == ord('x'):
-            status = suspended(stdscr, lambda: stop_ioc(name))
+            status = suspended(
+                stdscr,
+                lambda: stop_ioc(settings, name),
+            )
         elif key == ord('r'):
             status = suspended(stdscr, lambda: restart_ioc(settings, name))
         elif key == ord('l'):
@@ -655,7 +748,11 @@ def tui(stdscr):
             status = suspended(stdscr, start_all)
         elif key == ord('X'):
             def stop_all():
-                msgs = [stop_ioc(n) for n in names if ioc_running(n)]
+                msgs = [
+                    stop_ioc(settings, n)
+                    for n in names
+                    if ioc_running(n)
+                ]
                 return ' | '.join(msgs) or 'Nothing running'
             status = suspended(stdscr, stop_all)
         elif key == ord('m'):

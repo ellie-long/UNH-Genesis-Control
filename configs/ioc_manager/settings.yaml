@@ -1,9 +1,15 @@
 general:
   prefix: UNH:GEN
   log_dir: logs
+
   # Local macOS prototype: manager and child IOC use separate CA ports.
-  # Replace with the deployment network configuration on the final DAQ system.
-  epics_addr_list: "127.0.0.1:5064 127.0.0.1:5065"
+  # Replace with deployment network configuration on the final DAQ system.
+  epics_addr_list: "127.0.0.1:5064 127.0.0.1:5066"
+
+  # Local macOS prototype ports.
+  manager_ca_server_port: 5064
+  manager_pva_server_port: 5075
+
   delay: 0.5
 
 mw_spd1305x:
@@ -11,3 +17,7 @@ mw_spd1305x:
   settings_folder: configs/microwave/spd1305x
   ioc: spd1305x
   heartbeat_pv: UNH:GEN:MW:PS:MAN:spd1305x_time
+
+  # Local macOS prototype ports for this child IOC.
+  ca_server_port: 5066
+  pva_server_port: 5076

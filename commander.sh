@@ -1,2 +1,7 @@
-source venv/bin/activate
-python tools/ioc_cli.py
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$ROOT"
+
+exec python tools/ioc_cli.py
