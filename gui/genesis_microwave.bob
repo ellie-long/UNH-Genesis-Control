@@ -1,0 +1,436 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<display version="2.0.0">
+  <name>Genesis Microwave Subsystem</name>
+  <width>840</width>
+  <height>540</height>
+
+  <macros>
+    <P>UNH:GEN:MW:PS</P>
+    <M>UNH:GEN:MAN:mw_spd1305x</M>
+  </macros>
+
+  <!-- =========================================================
+       UNH HEADER
+       Primary UNH blue: #003591 = RGB(0,53,145)
+       ========================================================= -->
+  <widget type="rectangle" version="2.0.0">
+    <name>UNH_Header_Background</name>
+    <x>0</x>
+    <y>0</y>
+    <width>840</width>
+    <height>70</height>
+    <line_width>0</line_width>
+    <background_color>
+      <color red="0" green="53" blue="145" />
+    </background_color>
+  </widget>
+
+  <widget type="label" version="2.0.0">
+    <name>Title</name>
+    <text>UNH Genesis - Microwave Subsystem</text>
+    <x>20</x>
+    <y>14</y>
+    <width>560</width>
+    <height>32</height>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="22.0" />
+    </font>
+    <foreground_color>
+      <color red="255" green="255" blue="255" />
+    </foreground_color>
+    <transparent>true</transparent>
+  </widget>
+
+  <widget type="label" version="2.0.0">
+    <name>Subtitle</name>
+    <text>Phase-I subsystem overview</text>
+    <x>600</x>
+    <y>23</y>
+    <width>215</width>
+    <height>22</height>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="12.0" />
+    </font>
+    <foreground_color>
+      <color red="255" green="255" blue="255" />
+    </foreground_color>
+    <transparent>true</transparent>
+  </widget>
+
+  <!-- =========================================================
+       SPD1305X DEVICE CARD
+       ========================================================= -->
+  <widget type="rectangle" version="2.0.0">
+    <name>SPD1305X_Card</name>
+    <x>20</x>
+    <y>90</y>
+    <width>800</width>
+    <height>345</height>
+    <line_width>2</line_width>
+    <line_color>
+      <color red="0" green="53" blue="145" />
+    </line_color>
+    <background_color>
+      <color red="240" green="241" blue="244" />
+    </background_color>
+  </widget>
+
+  <!-- Dark UNH blue device heading -->
+  <widget type="rectangle" version="2.0.0">
+    <name>SPD1305X_Header_Background</name>
+    <x>20</x>
+    <y>90</y>
+    <width>800</width>
+    <height>42</height>
+    <line_width>0</line_width>
+    <background_color>
+      <color red="0" green="29" blue="82" />
+    </background_color>
+  </widget>
+
+  <widget type="label" version="2.0.0">
+    <name>SPD1305X_Title</name>
+    <text>Microwave Power Supply - Siglent SPD1305X</text>
+    <x>35</x>
+    <y>100</y>
+    <width>400</width>
+    <height>24</height>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="16.0" />
+    </font>
+    <foreground_color>
+      <color red="255" green="255" blue="255" />
+    </foreground_color>
+    <transparent>true</transparent>
+  </widget>
+
+  <widget type="label" version="2.0.0">
+    <name>SPD_Prefix</name>
+    <text>$(P)</text>
+    <x>560</x>
+    <y>102</y>
+    <width>235</width>
+    <height>20</height>
+    <horizontal_alignment>2</horizontal_alignment>
+    <foreground_color>
+      <color red="255" green="255" blue="255" />
+    </foreground_color>
+    <transparent>true</transparent>
+  </widget>
+
+  <!-- IOC MANAGEMENT -->
+  <widget type="label" version="2.0.0">
+    <name>IOC_Heading</name>
+    <text>IOC</text>
+    <x>40</x>
+    <y>150</y>
+    <width>80</width>
+    <height>22</height>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="14.0" />
+    </font>
+  </widget>
+
+  <widget type="label" version="2.0.0">
+    <name>IOC_Control_Label</name>
+    <text>Run:</text>
+    <x>40</x>
+    <y>183</y>
+    <width>70</width>
+  </widget>
+
+  <widget type="bool_button" version="2.0.0">
+    <name>IOC_Control</name>
+    <pv_name>ca://$(M)_control</pv_name>
+    <x>115</x>
+    <y>180</y>
+    <width>85</width>
+    <height>25</height>
+    <tooltip>Start or stop the SPD1305X IOC through the Genesis IOC Manager.</tooltip>
+  </widget>
+
+  <widget type="label" version="2.0.0">
+    <name>Heartbeat_Label</name>
+    <text>HB age:</text>
+    <x>40</x>
+    <y>218</y>
+    <width>70</width>
+  </widget>
+
+  <widget type="textupdate" version="2.0.0">
+    <name>Heartbeat_Readback</name>
+    <pv_name>ca://$(M)_hb</pv_name>
+    <x>115</x>
+    <y>215</y>
+    <width>85</width>
+    <precision>0</precision>
+  </widget>
+
+  <widget type="label" version="2.0.0">
+    <name>Heartbeat_Units</name>
+    <text>s</text>
+    <x>205</x>
+    <y>218</y>
+    <width>25</width>
+  </widget>
+
+  <!-- DEVICE STATUS -->
+  <widget type="label" version="2.0.0">
+    <name>Status_Heading</name>
+    <text>Device status</text>
+    <x>270</x>
+    <y>150</y>
+    <width>130</width>
+    <height>22</height>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="14.0" />
+    </font>
+  </widget>
+
+  <widget type="label" version="2.0.0">
+    <name>COMM_Label</name>
+    <text>Connected:</text>
+    <x>270</x>
+    <y>183</y>
+    <width>90</width>
+  </widget>
+
+  <widget type="led" version="2.0.0">
+    <name>COMM_LED</name>
+    <pv_name>ca://$(P):COMM</pv_name>
+    <bit>0</bit>
+    <x>365</x>
+    <y>180</y>
+    <width>26</width>
+    <height>26</height>
+    <off_color>
+      <color red="200" green="50" blue="50" />
+    </off_color>
+    <on_color>
+      <color red="30" green="160" blue="70" />
+    </on_color>
+  </widget>
+
+  <widget type="textupdate" version="2.0.0">
+    <name>COMM_Readback</name>
+    <pv_name>ca://$(P):COMM</pv_name>
+    <x>400</x>
+    <y>182</y>
+    <width>70</width>
+    <format>6</format>
+  </widget>
+
+  <widget type="label" version="2.0.0">
+    <name>Output_Label</name>
+    <text>Output:</text>
+    <x>270</x>
+    <y>218</y>
+    <width>90</width>
+  </widget>
+
+  <widget type="led" version="2.0.0">
+    <name>Output_LED</name>
+    <pv_name>ca://$(P):OUTPUT_RBV</pv_name>
+    <bit>0</bit>
+    <x>365</x>
+    <y>215</y>
+    <width>26</width>
+    <height>26</height>
+    <off_color>
+      <color red="170" green="170" blue="170" />
+    </off_color>
+    <on_color>
+      <color red="30" green="160" blue="70" />
+    </on_color>
+  </widget>
+
+  <widget type="textupdate" version="2.0.0">
+    <name>Output_Readback</name>
+    <pv_name>ca://$(P):OUTPUT_RBV</pv_name>
+    <x>400</x>
+    <y>217</y>
+    <width>70</width>
+    <format>6</format>
+  </widget>
+
+  <widget type="label" version="2.0.0">
+    <name>Mode_Label</name>
+    <text>Mode:</text>
+    <x>270</x>
+    <y>253</y>
+    <width>90</width>
+  </widget>
+
+  <widget type="textupdate" version="2.0.0">
+    <name>Mode_Readback</name>
+    <pv_name>ca://$(P):MODE_RBV</pv_name>
+    <x>365</x>
+    <y>252</y>
+    <width>105</width>
+    <format>6</format>
+  </widget>
+
+  <!-- MEASUREMENTS -->
+  <widget type="label" version="2.0.0">
+    <name>Measurements_Heading</name>
+    <text>Measurements</text>
+    <x>520</x>
+    <y>150</y>
+    <width>140</width>
+    <height>22</height>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="14.0" />
+    </font>
+  </widget>
+
+  <widget type="label" version="2.0.0">
+    <name>Voltage_Label</name>
+    <text>Voltage:</text>
+    <x>520</x>
+    <y>183</y>
+    <width>80</width>
+  </widget>
+
+  <widget type="textupdate" version="2.0.0">
+    <name>Voltage_Readback</name>
+    <pv_name>ca://$(P):VMEAS</pv_name>
+    <x>605</x>
+    <y>180</y>
+    <width>100</width>
+    <precision>3</precision>
+  </widget>
+
+  <widget type="label" version="2.0.0">
+    <name>Voltage_Units</name>
+    <text>V</text>
+    <x>715</x>
+    <y>183</y>
+    <width>25</width>
+  </widget>
+
+  <widget type="label" version="2.0.0">
+    <name>Current_Label</name>
+    <text>Current:</text>
+    <x>520</x>
+    <y>218</y>
+    <width>80</width>
+  </widget>
+
+  <widget type="textupdate" version="2.0.0">
+    <name>Current_Readback</name>
+    <pv_name>ca://$(P):IMEAS</pv_name>
+    <x>605</x>
+    <y>215</y>
+    <width>100</width>
+    <precision>3</precision>
+  </widget>
+
+  <widget type="label" version="2.0.0">
+    <name>Current_Units</name>
+    <text>A</text>
+    <x>715</x>
+    <y>218</y>
+    <width>25</width>
+  </widget>
+
+  <widget type="label" version="2.0.0">
+    <name>Power_Label</name>
+    <text>Power:</text>
+    <x>520</x>
+    <y>253</y>
+    <width>80</width>
+  </widget>
+
+  <widget type="textupdate" version="2.0.0">
+    <name>Power_Readback</name>
+    <pv_name>ca://$(P):PMEAS</pv_name>
+    <x>605</x>
+    <y>250</y>
+    <width>100</width>
+    <precision>3</precision>
+  </widget>
+
+  <widget type="label" version="2.0.0">
+    <name>Power_Units</name>
+    <text>W</text>
+    <x>715</x>
+    <y>253</y>
+    <width>25</width>
+  </widget>
+
+  <!-- ERROR -->
+  <widget type="label" version="2.0.0">
+    <name>Error_Label</name>
+    <text>Last error:</text>
+    <x>40</x>
+    <y>305</y>
+    <width>90</width>
+  </widget>
+
+  <widget type="textupdate" version="2.0.0">
+    <name>Error_Readback</name>
+    <pv_name>ca://$(P):ERROR</pv_name>
+    <x>135</x>
+    <y>302</y>
+    <width>645</width>
+    <format>6</format>
+  </widget>
+
+  <!-- NAVIGATION -->
+  <widget type="action_button" version="3.0.0">
+    <name>Open_SPD1305X</name>
+    <actions>
+      <action type="open_display">
+        <file>genesis_mw_spd1305x.bob</file>
+        <target>window</target>
+        <description>Open SPD1305X device screen</description>
+      </action>
+    </actions>
+    <text>Open SPD1305X Device Controls</text>
+    <x>40</x>
+    <y>355</y>
+    <width>260</width>
+    <height>40</height>
+    <tooltip>Open the detailed Genesis SPD1305X control and diagnostic screen.</tooltip>
+  </widget>
+
+  <widget type="label" version="2.0.0">
+    <name>Overview_Note</name>
+    <text>Subsystem view is for status and navigation. Detailed hardware commands remain on the device screen.</text>
+    <x>325</x>
+    <y>360</y>
+    <width>455</width>
+    <height>35</height>
+    <wrap_words>true</wrap_words>
+  </widget>
+
+  <!-- =========================================================
+       FUTURE MICROWAVE DEVICES
+       ========================================================= -->
+  <widget type="rectangle" version="2.0.0">
+    <name>Future_Device_Card</name>
+    <x>20</x>
+    <y>455</y>
+    <width>800</width>
+    <height>60</height>
+    <line_color>
+      <color red="0" green="53" blue="145" />
+    </line_color>
+    <background_color>
+      <color red="255" green="255" blue="255" />
+    </background_color>
+  </widget>
+
+  <widget type="label" version="2.0.0">
+    <name>Future_Device_Label</name>
+    <text>Additional Microwave devices will be added here as Phase-I IOC integrations are completed.</text>
+    <x>40</x>
+    <y>474</y>
+    <width>750</width>
+    <height>24</height>
+    <foreground_color>
+      <color red="92" green="104" blue="116" />
+    </foreground_color>
+  </widget>
+
+</display>
