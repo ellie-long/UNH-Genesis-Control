@@ -17,6 +17,18 @@ spd1305x:
   - CH1
   max_voltage: 30.0
   max_current: 5.0
+  archive_records:
+    - VSET_RBV
+    - VMEAS
+    - ISET_RBV
+    - IMEAS
+    - PMEAS
+    - OUTPUT_RBV
+    - MODE_RBV
+    - OVP_RBV
+    - OCP_RBV
+    - COMM
+    - ERROR
   records:
     VSET_CMD:
       DESC: Voltage setpoint command

@@ -2,11 +2,10 @@ general:
   prefix: UNH:GEN
   log_dir: logs
 
-  # Local macOS prototype: manager and child IOC use separate CA ports.
+  # Local macOS prototype: each local CA server uses a distinct port.
   # Replace with deployment network configuration on the final DAQ system.
-  epics_addr_list: "127.0.0.1:5064 127.0.0.1:5066"
+  epics_addr_list: "127.0.0.1:5064 127.0.0.1:5066 127.0.0.1:5067"
 
-  # Local macOS prototype ports.
   manager_ca_server_port: 5064
   manager_pva_server_port: 5075
 
@@ -18,6 +17,16 @@ mw_spd1305x:
   ioc: spd1305x
   heartbeat_pv: UNH:GEN:MW:PS:MAN:spd1305x_time
 
-  # Local macOS prototype ports for this child IOC.
+  # Local macOS prototype ports.
   ca_server_port: 5066
   pva_server_port: 5076
+
+archiver:
+  autostart: false
+  settings_folder: configs/archiver
+  ioc: archiver
+  heartbeat_pv: UNH:GEN:MAN:archiver_time
+
+  # Local macOS prototype ports.
+  ca_server_port: 5067
+  pva_server_port: 5077

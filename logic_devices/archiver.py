@@ -140,11 +140,13 @@ class Device(BaseDevice):
             for pv in pv_list:
                 try:
                     # Initialize PV state
+                    writer, file_handle = self._get_csv_writer(pv)
                     self.monitored_pvs[pv] = {
                         'value': None,
                         'timestamp': None,
                         'last_write': datetime.now(),
-                        'writer': self._get_csv_writer(pv)
+                        'writer': writer,
+                        'file_handle': file_handle,
                     }
 
                     # Create monitor
@@ -198,44 +200,132 @@ class Device(BaseDevice):
             status = 0
         return
 
+    def _resolve_ioc_settings(self, name):
+        """Resolve an IOC-manager entry to its device configuration."""
+        manager_entry = self.full_settings[name]
+
+        settings_folder = manager_entry.get('settings_folder')
+        ioc_name = manager_entry.get('ioc', name)
+
+        # Genesis modular configuration:
+        # IOC Manager -> settings_folder/settings.yaml -> device IOC entry
+        if settings_folder:
+            settings_path = Path(settings_folder) / 'settings.yaml'
+
+            if not settings_path.exists():
+                print(
+                    f"Warning: Settings file for {name} not found: "
+                    f"{settings_path}"
+                )
+                return None, None
+
+            with open(settings_path, 'r') as f:
+                device_config = yaml.load(f, Loader=yaml.FullLoader)
+
+            if not device_config:
+                print(f"Warning: Empty device settings for {name}")
+                return None, None
+
+            prefix = device_config.get('general', {}).get('prefix')
+
+            if not prefix:
+                print(f"Warning: No general.prefix configured for {name}")
+                return None, None
+
+            if ioc_name not in device_config:
+                print(
+                    f"Warning: IOC '{ioc_name}' not found in "
+                    f"{settings_path}"
+                )
+                return None, None
+
+            return prefix, device_config[ioc_name]
+
+        # Backward-compatible James toolkit behavior:
+        # device data are directly in the common settings file.
+        prefix = self.full_settings['general']['prefix']
+        return prefix, manager_entry
+
+
     async def _discover_pvs(self):
-        """Discover PVs from running IOCs"""
+        """Discover archive PVs from running IOC Manager entries."""
         pv_list = []
 
-        # Get all PVs from the IOC manager
         try:
-            # Use full settings to get all IOCs
             if not self.full_settings:
                 print("Warning: No full settings available for PV discovery")
                 return []
 
-            # List all IOCs that are running
+            manager_prefix = self.full_settings['general']['prefix']
+
+            # Determine which managed IOCs are currently running.
             ioc_list = []
-            prefix = self.full_settings['general']['prefix']
             group = []
+
             for name in self.full_settings.keys():
                 if name in ['general', 'archiver']:
                     continue
-                group.append(self._ping_pv(f"{prefix}:MAN:{name}_control",name,ioc_list))
 
-            await asyncio.gather(*group)  # Run group concurrently
-            print("list",ioc_list)
+                group.append(
+                    self._ping_pv(
+                        f"{manager_prefix}:MAN:{name}_control",
+                        name,
+                        ioc_list,
+                    )
+                )
 
-            # For each running IOC, get its PVs
-            print(f"Archiver found {len(ioc_list)} running IOCs: {', '.join(ioc_list)}")
+            if group:
+                await asyncio.gather(*group)
 
-            for ioc in ioc_list:
-                if ioc in self.full_settings:
-                    ioc_settings = self.full_settings[ioc]
-                    if 'records' in ioc_settings:
-                        for pv in ioc_settings['records']:
-                            pv_list.append(f"{prefix}:{pv}")
+            print(
+                f"Archiver found {len(ioc_list)} running IOCs: "
+                f"{', '.join(ioc_list)}"
+            )
+
+            for name in ioc_list:
+                prefix, ioc_settings = self._resolve_ioc_settings(name)
+
+                if not prefix or not ioc_settings:
+                    continue
+
+                records = ioc_settings.get('records', {})
+
+                # Genesis devices may explicitly choose which records are
+                # archival data. If omitted, preserve James's behavior and
+                # archive every configured record.
+                archive_records = ioc_settings.get(
+                    'archive_records',
+                    list(records.keys()),
+                )
+
+                for record in archive_records:
+                    if record not in records:
+                        print(
+                            f"Warning: Archive record '{record}' is not "
+                            f"defined for {name}"
+                        )
+                        continue
+
+                    pv_list.append(f"{prefix}:{record}")
+
+                # Also preserve the device heartbeat when configured by
+                # the IOC Manager.
+                heartbeat_pv = self.full_settings[name].get('heartbeat_pv')
+                if heartbeat_pv:
+                    pv_list.append(heartbeat_pv)
 
         except Exception as e:
             print(f"Error discovering PVs: {e}")
 
-        print(f"Archiver discovered {len(pv_list)} valid PVs to monitor")
+        # Deduplicate while preserving configuration order.
+        pv_list = list(dict.fromkeys(pv_list))
+
+        print(
+            f"Archiver discovered {len(pv_list)} valid PVs to monitor"
+        )
+
         return pv_list
+
 
     def _create_monitor_callback(self, pv_name):
         """Create a callback function for a specific PV"""
@@ -298,28 +388,22 @@ class Device(BaseDevice):
             print(f"Error handling update for {pv_name}: {e}")
 
     def _get_csv_writer(self, pv_name):
-        """Get or create CSV writer for a PV"""
-        # Create filename based on PV name and date
+        """Open the current daily CSV and return writer plus file handle."""
         safe_pv_name = pv_name.replace(':', '_').replace('/', '_')
         date_str = datetime.now().strftime('%Y-%m-%d')
         filename = self.archive_path / f"{safe_pv_name}_{date_str}.csv"
 
-        # Check if file exists
         file_exists = filename.exists()
 
-        # Open file and create writer
         file_handle = open(filename, 'a', newline='')
         writer = csv.writer(file_handle)
 
-        # Write header if new file
         if not file_exists:
             writer.writerow(['Timestamp', 'Value'])
+            file_handle.flush()
 
-        # Store file handle for cleanup
-        if pv_name in self.monitored_pvs:
-            self.monitored_pvs[pv_name]['file_handle'] = file_handle
+        return writer, file_handle
 
-        return writer
 
     def _write_value(self, pv_name, value, timestamp):
         """Write value to CSV file"""
@@ -335,7 +419,9 @@ class Device(BaseDevice):
                 if date_str not in current_file:
                     # Close old file and create new one
                     pv_data['file_handle'].close()
-                    pv_data['writer'] = self._get_csv_writer(pv_name)
+                    writer, file_handle = self._get_csv_writer(pv_name)
+                    pv_data['writer'] = writer
+                    pv_data['file_handle'] = file_handle
 
             # Write data
             pv_data['writer'].writerow([

@@ -1,0 +1,26 @@
+general:
+  prefix: UNH:GEN
+  log_dir: logs
+
+  # Local macOS prototype: archiver must find manager + device IOCs.
+  epics_addr_list: "127.0.0.1:5064 127.0.0.1:5066 127.0.0.1:5067"
+
+  delay: 0.5
+
+archiver:
+  module: logic_devices.archiver
+  autostart: false
+
+  archive_path: archive/data
+  settings_file: configs/ioc_manager/settings.yaml
+
+  # Write on >=1% relative change.
+  deadband: 0.01
+
+  # Force archival opportunity every 5 minutes when updates arrive.
+  time_increment: 300
+
+  delay: 5
+
+  channels:
+  - None
