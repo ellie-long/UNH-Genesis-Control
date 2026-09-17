@@ -69,7 +69,7 @@
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Connection_Readback</name>
-    <pv_name>ca://$(P):COMM</pv_name>
+    <pv_name>pva://$(P):COMM</pv_name>
     <x>145</x>
     <y>115</y>
     <width>180</width>
@@ -84,7 +84,7 @@
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Error_Readback</name>
-    <pv_name>ca://$(P):ERROR</pv_name>
+    <pv_name>pva://$(P):ERROR</pv_name>
     <x>145</x>
     <y>150</y>
     <width>510</width>
@@ -99,7 +99,7 @@
   </widget>
   <widget type="slide_button" version="2.0.0">
     <name>Output_Control</name>
-    <pv_name>ca://$(P):OUTPUT_CMD</pv_name>
+    <pv_name>pva://$(P):OUTPUT_CMD</pv_name>
     <label />
     <x>145</x>
     <y>195</y>
@@ -115,7 +115,7 @@
         <exp bool_exp="!(pv0 == 1 &amp;&amp; pvSev0 == 0)">
           <value>false</value>
         </exp>
-        <pv_name>ca://$(P):COMM</pv_name>
+        <pv_name>pva://$(P):COMM</pv_name>
       </rule>
     </rules>
   </widget>
@@ -128,7 +128,7 @@
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Mode_Readback</name>
-    <pv_name>ca://$(P):MODE_RBV</pv_name>
+    <pv_name>pva://$(P):MODE_RBV</pv_name>
     <x>420</x>
     <y>195</y>
     <width>100</width>
@@ -156,7 +156,7 @@
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Voltage_Readback</name>
-    <pv_name>ca://$(P):VMEAS</pv_name>
+    <pv_name>pva://$(P):VMEAS</pv_name>
     <x>145</x>
     <y>285</y>
     <width>120</width>
@@ -178,7 +178,7 @@
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Current_Readback</name>
-    <pv_name>ca://$(P):IMEAS</pv_name>
+    <pv_name>pva://$(P):IMEAS</pv_name>
     <x>420</x>
     <y>285</y>
     <width>120</width>
@@ -200,7 +200,7 @@
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Power_Readback</name>
-    <pv_name>ca://$(P):PMEAS</pv_name>
+    <pv_name>pva://$(P):PMEAS</pv_name>
     <x>145</x>
     <y>320</y>
     <width>120</width>
@@ -235,7 +235,7 @@
   </widget>
   <widget type="textentry" version="3.0.0">
     <name>Voltage_Setpoint</name>
-    <pv_name>ca://$(P):VSET_CMD</pv_name>
+    <pv_name>pva://$(P):VSET_CMD</pv_name>
     <x>145</x>
     <y>410</y>
     <width>120</width>
@@ -249,7 +249,7 @@
         <exp bool_exp="!(pv0 == 1 &amp;&amp; pvSev0 == 0)">
           <value>false</value>
         </exp>
-        <pv_name>ca://$(P):COMM</pv_name>
+        <pv_name>pva://$(P):COMM</pv_name>
       </rule>
     </rules>
     <tooltip>Controller enforces code-only ceilings. Rejected requests appear in Last error. Values refresh on the next successful poll.</tooltip>
@@ -270,7 +270,7 @@
   </widget>
   <widget type="textentry" version="3.0.0">
     <name>Current_Setpoint</name>
-    <pv_name>ca://$(P):ISET_CMD</pv_name>
+    <pv_name>pva://$(P):ISET_CMD</pv_name>
     <x>420</x>
     <y>410</y>
     <width>120</width>
@@ -284,7 +284,7 @@
         <exp bool_exp="!(pv0 == 1 &amp;&amp; pvSev0 == 0)">
           <value>false</value>
         </exp>
-        <pv_name>ca://$(P):COMM</pv_name>
+        <pv_name>pva://$(P):COMM</pv_name>
       </rule>
     </rules>
     <tooltip>Controller enforces code-only ceilings. Rejected requests appear in Last error. Values refresh on the next successful poll.</tooltip>
@@ -305,7 +305,7 @@
   </widget>
   <widget type="textentry" version="3.0.0">
     <name>OVP_Setpoint</name>
-    <pv_name>ca://$(P):OVP_CMD</pv_name>
+    <pv_name>pva://$(P):OVP_CMD</pv_name>
     <x>145</x>
     <y>445</y>
     <width>120</width>
@@ -319,7 +319,7 @@
         <exp bool_exp="!(pv0 == 1 &amp;&amp; pvSev0 == 0)">
           <value>false</value>
         </exp>
-        <pv_name>ca://$(P):COMM</pv_name>
+        <pv_name>pva://$(P):COMM</pv_name>
       </rule>
     </rules>
     <tooltip>Protection trip threshold. Applied only when writes are enabled; hardware readback is shown below.</tooltip>
@@ -340,7 +340,7 @@
   </widget>
   <widget type="textentry" version="3.0.0">
     <name>OCP_Setpoint</name>
-    <pv_name>ca://$(P):OCP_CMD</pv_name>
+    <pv_name>pva://$(P):OCP_CMD</pv_name>
     <x>420</x>
     <y>445</y>
     <width>120</width>
@@ -354,7 +354,7 @@
         <exp bool_exp="!(pv0 == 1 &amp;&amp; pvSev0 == 0)">
           <value>false</value>
         </exp>
-        <pv_name>ca://$(P):COMM</pv_name>
+        <pv_name>pva://$(P):COMM</pv_name>
       </rule>
     </rules>
     <tooltip>Protection trip threshold. Applied only when writes are enabled; hardware readback is shown below.</tooltip>
@@ -388,7 +388,7 @@
     <y>520</y>
     <width>120</width>
     <height>25</height>
-    <pv_name>ca://$(P):VSET_CMD.DRVH</pv_name>
+    <pv_name>pva://$(P):VSET_CMD.DRVH</pv_name>
     <precision>3</precision>
     <show_units>false</show_units>
   </widget>
@@ -414,7 +414,7 @@
     <y>520</y>
     <width>120</width>
     <height>25</height>
-    <pv_name>ca://$(P):ISET_CMD.DRVH</pv_name>
+    <pv_name>pva://$(P):ISET_CMD.DRVH</pv_name>
     <precision>3</precision>
     <show_units>false</show_units>
   </widget>
@@ -482,7 +482,7 @@
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Output_RBV</name>
-    <pv_name>ca://$(P):OUTPUT_RBV</pv_name>
+    <pv_name>pva://$(P):OUTPUT_RBV</pv_name>
     <x>145</x>
     <y>710</y>
     <width>120</width>
@@ -498,7 +498,7 @@
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>VSET_RBV</name>
-    <pv_name>ca://$(P):VSET_RBV</pv_name>
+    <pv_name>pva://$(P):VSET_RBV</pv_name>
     <x>145</x>
     <y>745</y>
     <width>120</width>
@@ -521,7 +521,7 @@
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>ISET_RBV</name>
-    <pv_name>ca://$(P):ISET_RBV</pv_name>
+    <pv_name>pva://$(P):ISET_RBV</pv_name>
     <x>420</x>
     <y>745</y>
     <width>120</width>
@@ -544,7 +544,7 @@
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>OVP_RBV</name>
-    <pv_name>ca://$(P):OVP_RBV</pv_name>
+    <pv_name>pva://$(P):OVP_RBV</pv_name>
     <x>145</x>
     <y>780</y>
     <width>120</width>
@@ -567,7 +567,7 @@
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>OCP_RBV</name>
-    <pv_name>ca://$(P):OCP_RBV</pv_name>
+    <pv_name>pva://$(P):OCP_RBV</pv_name>
     <x>420</x>
     <y>780</y>
     <width>120</width>

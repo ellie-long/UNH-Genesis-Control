@@ -141,7 +141,7 @@
 
   <widget type="bool_button" version="2.0.0">
     <name>IOC_Control</name>
-    <pv_name>ca://$(M)_control</pv_name>
+    <pv_name>pva://$(M)_control</pv_name>
     <x>115</x>
     <y>180</y>
     <width>85</width>
@@ -159,7 +159,7 @@
 
   <widget type="textupdate" version="2.0.0">
     <name>Heartbeat_Readback</name>
-    <pv_name>ca://$(M)_hb</pv_name>
+    <pv_name>pva://$(M)_hb</pv_name>
     <x>115</x>
     <y>215</y>
     <width>85</width>
@@ -197,7 +197,7 @@
 
   <widget type="led" version="2.0.0">
     <name>COMM_LED</name>
-    <pv_name>ca://$(P):COMM</pv_name>
+    <pv_name>pva://$(P):COMM</pv_name>
     <bit>0</bit>
     <x>365</x>
     <y>180</y>
@@ -213,7 +213,7 @@
 
   <widget type="textupdate" version="2.0.0">
     <name>COMM_Readback</name>
-    <pv_name>ca://$(P):COMM</pv_name>
+    <pv_name>pva://$(P):COMM</pv_name>
     <x>400</x>
     <y>182</y>
     <width>70</width>
@@ -230,7 +230,7 @@
 
   <widget type="led" version="2.0.0">
     <name>Output_LED</name>
-    <pv_name>ca://$(P):OUTPUT_RBV</pv_name>
+    <pv_name>pva://$(P):OUTPUT_RBV</pv_name>
     <bit>0</bit>
     <x>365</x>
     <y>215</y>
@@ -246,7 +246,7 @@
 
   <widget type="textupdate" version="2.0.0">
     <name>Output_Readback</name>
-    <pv_name>ca://$(P):OUTPUT_RBV</pv_name>
+    <pv_name>pva://$(P):OUTPUT_RBV</pv_name>
     <x>400</x>
     <y>217</y>
     <width>70</width>
@@ -263,7 +263,7 @@
 
   <widget type="textupdate" version="2.0.0">
     <name>Mode_Readback</name>
-    <pv_name>ca://$(P):MODE_RBV</pv_name>
+    <pv_name>pva://$(P):MODE_RBV</pv_name>
     <x>365</x>
     <y>252</y>
     <width>105</width>
@@ -293,7 +293,7 @@
 
   <widget type="textupdate" version="2.0.0">
     <name>Voltage_Readback</name>
-    <pv_name>ca://$(P):VMEAS</pv_name>
+    <pv_name>pva://$(P):VMEAS</pv_name>
     <x>605</x>
     <y>180</y>
     <width>100</width>
@@ -318,7 +318,7 @@
 
   <widget type="textupdate" version="2.0.0">
     <name>Current_Readback</name>
-    <pv_name>ca://$(P):IMEAS</pv_name>
+    <pv_name>pva://$(P):IMEAS</pv_name>
     <x>605</x>
     <y>215</y>
     <width>100</width>
@@ -343,7 +343,7 @@
 
   <widget type="textupdate" version="2.0.0">
     <name>Power_Readback</name>
-    <pv_name>ca://$(P):PMEAS</pv_name>
+    <pv_name>pva://$(P):PMEAS</pv_name>
     <x>605</x>
     <y>250</y>
     <width>100</width>
@@ -369,7 +369,7 @@
 
   <widget type="textupdate" version="2.0.0">
     <name>Error_Readback</name>
-    <pv_name>ca://$(P):ERROR</pv_name>
+    <pv_name>pva://$(P):ERROR</pv_name>
     <x>135</x>
     <y>302</y>
     <width>645</width>
