@@ -54,6 +54,8 @@ smc100a:
     - SWEEP_ARM_RBV
     - COMM
     - ERROR
+    - LAST_EVENT
+    - LAST_OK
 
   records:
     FREQ_CMD:
@@ -118,3 +120,9 @@ smc100a:
       DESC: SMC100A communication state
     ERROR:
       DESC: Last SMC100A IOC or instrument error
+
+    LAST_EVENT:
+      DESC: Most recent SMC100A diagnostic event
+
+    LAST_OK:
+      DESC: Last successful SMC100A read timestamp

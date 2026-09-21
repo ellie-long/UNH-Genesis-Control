@@ -40,13 +40,35 @@ class GenesisBaseDevice(BaseDevice):
 
         super().__init__(device_name, settings)
 
-        # Standard Genesis communication-health PVs.
+        # Standard Genesis device-health PVs.
+        #
+        # COMM:
+        #   Current communication state.
+        #
+        # ERROR:
+        #   Current active device/communication fault. Cleared when healthy.
+        #
+        # LAST_EVENT:
+        #   Most recent diagnostic event. Retained after recovery.
+        #
+        # LAST_OK:
+        #   Unix timestamp of the most recent successful hardware read.
+
         self.pvs["COMM"] = builder.boolIn(
             "COMM",
             ZNAM="Disconnected",
             ONAM="Connected",
+            ZSV="MAJOR",
+            OSV="NO_ALARM",
         )
+
         self.pvs["ERROR"] = builder.stringIn("ERROR")
+        self.pvs["LAST_EVENT"] = builder.stringIn("LAST_EVENT")
+
+        self.pvs["LAST_OK"] = builder.aIn(
+            "LAST_OK",
+            PREC=3,
+        )
 
         self._set_comm(False)
 
@@ -55,8 +77,23 @@ class GenesisBaseDevice(BaseDevice):
     # ------------------------------------------------------------------
 
     def _set_comm(self, connected: bool, message: str = ""):
+        """Update current communication state and active fault."""
+
         self.pvs["COMM"].set(1 if connected else 0)
+
+        if connected:
+            self.pvs["ERROR"].set("")
+            return
+
         self.pvs["ERROR"].set(str(message)[:39])
+
+    def record_event(self, message: str):
+        """Record the most recent non-fault operational event."""
+
+        message = str(message)[:39]
+
+        if message:
+            self.pvs["LAST_EVENT"].set(message)
 
     def _close_connection(self):
         connection = getattr(self, "t", None)
@@ -172,8 +209,8 @@ class GenesisBaseDevice(BaseDevice):
         """
 
         if not bool(self.settings.get("write_enabled", False)):
-            self.pvs["ERROR"].set(
-                "Read-only mode; command not sent"
+            self.record_event(
+                "Write blocked: read-only mode"
             )
 
             if pv_name in self.pvs:

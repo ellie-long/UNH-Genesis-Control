@@ -287,12 +287,19 @@ class Device(ScpiDevice):
     # ------------------------------------------------------------------
 
     def _channel_pvs(self, channel):
-        """The SMC100A is one physical device, so all records share health."""
+        """Return SMC measurement/control PVs affected by device health."""
+
+        health_pvs = {
+            "COMM",
+            "ERROR",
+            "LAST_EVENT",
+            "LAST_OK",
+        }
 
         return [
             name
             for name in self.pvs
-            if name not in ("COMM", "ERROR")
+            if name not in health_pvs
         ]
 
     # ------------------------------------------------------------------

@@ -240,6 +240,13 @@ class ScpiDevice(GenesisBaseDevice):
             )
 
     def _channel_pvs(self, channel):
+        health_pvs = {
+            "COMM",
+            "ERROR",
+            "LAST_EVENT",
+            "LAST_OK",
+        }
+
         return [
             name
             for name in self.pvs
@@ -247,7 +254,7 @@ class ScpiDevice(GenesisBaseDevice):
                 name == channel
                 or name.startswith(channel + "_")
             )
-            and name not in ("COMM", "ERROR")
+            and name not in health_pvs
         ]
 
     def _handle_read_error(self, channels=None):
@@ -263,6 +270,7 @@ class ScpiDevice(GenesisBaseDevice):
             for name in self._channel_pvs(channel):
                 self.remove_alarm(name)
 
+        self.pvs["LAST_OK"].set(time.time())
         self._set_comm(True)
 
     async def do_reads(self):
