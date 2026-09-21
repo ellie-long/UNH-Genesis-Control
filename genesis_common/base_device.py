@@ -53,6 +53,9 @@ class GenesisBaseDevice(BaseDevice):
         #
         # LAST_OK:
         #   Unix timestamp of the most recent successful hardware read.
+        # WRITE_ENABLED:
+        #   Static IOC configuration state. 0 means hardware writes are
+        #   blocked by the Genesis write gate.
 
         self.pvs["COMM"] = builder.boolIn(
             "COMM",
@@ -68,6 +71,16 @@ class GenesisBaseDevice(BaseDevice):
         self.pvs["LAST_OK"] = builder.aIn(
             "LAST_OK",
             PREC=3,
+        )
+
+        self.pvs["WRITE_ENABLED"] = builder.boolIn(
+            "WRITE_ENABLED",
+            ZNAM="Read-only",
+            ONAM="Writes enabled",
+        )
+
+        self.pvs["WRITE_ENABLED"].set(
+            1 if bool(self.settings.get("write_enabled", False)) else 0
         )
 
         self._set_comm(False)

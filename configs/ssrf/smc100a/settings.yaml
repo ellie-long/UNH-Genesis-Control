@@ -56,6 +56,7 @@ smc100a:
     - ERROR
     - LAST_EVENT
     - LAST_OK
+    - WRITE_ENABLED
 
   records:
     FREQ_CMD:
@@ -126,3 +127,6 @@ smc100a:
 
     LAST_OK:
       DESC: Last successful SMC100A read timestamp
+
+    WRITE_ENABLED:
+      DESC: SMC100A hardware write permission

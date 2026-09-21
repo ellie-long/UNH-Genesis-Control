@@ -294,6 +294,7 @@ class Device(ScpiDevice):
             "ERROR",
             "LAST_EVENT",
             "LAST_OK",
+            "WRITE_ENABLED",
         }
 
         return [

@@ -245,6 +245,7 @@ class ScpiDevice(GenesisBaseDevice):
             "ERROR",
             "LAST_EVENT",
             "LAST_OK",
+            "WRITE_ENABLED",
         }
 
         return [
