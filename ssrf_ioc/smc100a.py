@@ -258,14 +258,14 @@ class Device(ScpiDevice):
 
         self.pvs["SWEEP_ARM_CMD"] = builder.boolOut(
             "SWEEP_ARM_CMD",
-            ZNAM="CW",
+            ZNAM="DISARMED",
             ONAM="ARMED",
             on_update_name=self.do_sets,
         )
 
         self.pvs["SWEEP_ARM_RBV"] = builder.boolIn(
             "SWEEP_ARM_RBV",
-            ZNAM="CW",
+            ZNAM="DISARMED",
             ONAM="ARMED",
         )
 

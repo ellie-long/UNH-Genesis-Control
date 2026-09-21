@@ -1,0 +1,1172 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<display version="2.0.0">
+  <name>Genesis ssRF - Rohde &amp; Schwarz SMC100A</name>
+  <width>1040</width>
+  <height>910</height>
+  <macros>
+    <P>UNH:GEN:SSRF:GEN</P>
+  </macros>
+  <widget type="rectangle" version="2.0.0">
+    <name>Header_Background</name>
+    <x>0</x>
+    <y>0</y>
+    <width>1040</width>
+    <height>70</height>
+    <line_width>0</line_width>
+    <background_color>
+      <color red="0" green="53" blue="145" />
+    </background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Title</name>
+    <x>20</x>
+    <y>13</y>
+    <width>570</width>
+    <height>32</height>
+    <text>UNH Genesis - ssRF SMC100A</text>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="22.0" />
+    </font>
+    <foreground_color>
+      <color red="255" green="255" blue="255" />
+    </foreground_color>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Subtitle</name>
+    <x>730</x>
+    <y>18</y>
+    <width>280</width>
+    <height>24</height>
+    <text>Phase-I RF generator control</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="12.0" />
+    </font>
+    <foreground_color>
+      <color red="255" green="255" blue="255" />
+    </foreground_color>
+    <horizontal_alignment>2</horizontal_alignment>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>Status_Card</name>
+    <x>20</x>
+    <y>90</y>
+    <width>1000</width>
+    <height>155</height>
+    <line_width>2</line_width>
+    <line_color>
+      <color red="0" green="53" blue="145" />
+    </line_color>
+    <background_color>
+      <color red="240" green="241" blue="244" />
+    </background_color>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>Status_Header</name>
+    <x>20</x>
+    <y>90</y>
+    <width>1000</width>
+    <height>38</height>
+    <line_width>0</line_width>
+    <background_color>
+      <color red="0" green="29" blue="82" />
+    </background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Status_Title</name>
+    <x>35</x>
+    <y>97</y>
+    <width>970</width>
+    <height>24</height>
+    <text>DEVICE STATUS / COMMISSIONING</text>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="15.0" />
+    </font>
+    <foreground_color>
+      <color red="255" green="255" blue="255" />
+    </foreground_color>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>COMM_Label</name>
+    <x>40</x>
+    <y>145</y>
+    <width>100</width>
+    <height>24</height>
+    <text>Connection:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>COMM_LED</name>
+    <x>145</x>
+    <y>142</y>
+    <width>26</width>
+    <height>26</height>
+    <pv_name>pva://$(P):COMM</pv_name>
+    <bit>0</bit>
+    <off_color>
+      <color red="200" green="50" blue="50" />
+    </off_color>
+    <on_color>
+      <color red="30" green="160" blue="70" />
+    </on_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>COMM_Value</name>
+    <x>180</x>
+    <y>143</y>
+    <width>115</width>
+    <height>25</height>
+    <pv_name>pva://$(P):COMM</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Write_Label</name>
+    <x>325</x>
+    <y>145</y>
+    <width>95</width>
+    <height>24</height>
+    <text>Write mode:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>Write_LED</name>
+    <x>425</x>
+    <y>142</y>
+    <width>26</width>
+    <height>26</height>
+    <pv_name>pva://$(P):WRITE_ENABLED</pv_name>
+    <bit>0</bit>
+    <off_color>
+      <color red="210" green="130" blue="20" />
+    </off_color>
+    <on_color>
+      <color red="30" green="160" blue="70" />
+    </on_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Write_Value</name>
+    <x>460</x>
+    <y>143</y>
+    <width>150</width>
+    <height>25</height>
+    <pv_name>pva://$(P):WRITE_ENABLED</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>LastOK_Label</name>
+    <x>650</x>
+    <y>145</y>
+    <width>115</width>
+    <height>24</height>
+    <text>Last OK (Unix):</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>LastOK_Value</name>
+    <x>770</x>
+    <y>143</y>
+    <width>220</width>
+    <height>25</height>
+    <pv_name>pva://$(P):LAST_OK</pv_name>
+    <precision>3</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>IDN_Label</name>
+    <x>40</x>
+    <y>182</y>
+    <width>100</width>
+    <height>24</height>
+    <text>Instrument:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>IDN_Value</name>
+    <x>145</x>
+    <y>180</y>
+    <width>845</width>
+    <height>25</height>
+    <pv_name>pva://$(P):IDN</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Error_Label</name>
+    <x>40</x>
+    <y>215</y>
+    <width>100</width>
+    <height>24</height>
+    <text>Active fault:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Error_Value</name>
+    <x>145</x>
+    <y>213</y>
+    <width>350</width>
+    <height>25</height>
+    <pv_name>pva://$(P):ERROR</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Event_Label</name>
+    <x>520</x>
+    <y>215</y>
+    <width>90</width>
+    <height>24</height>
+    <text>Last event:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Event_Value</name>
+    <x>615</x>
+    <y>213</y>
+    <width>375</width>
+    <height>25</height>
+    <pv_name>pva://$(P):LAST_EVENT</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>RF_Card</name>
+    <x>20</x>
+    <y>265</y>
+    <width>490</width>
+    <height>235</height>
+    <line_width>2</line_width>
+    <line_color>
+      <color red="0" green="53" blue="145" />
+    </line_color>
+    <background_color>
+      <color red="240" green="241" blue="244" />
+    </background_color>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>RF_Header</name>
+    <x>20</x>
+    <y>265</y>
+    <width>490</width>
+    <height>38</height>
+    <line_width>0</line_width>
+    <background_color>
+      <color red="0" green="29" blue="82" />
+    </background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>RF_Title</name>
+    <x>35</x>
+    <y>272</y>
+    <width>460</width>
+    <height>24</height>
+    <text>RF CARRIER</text>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="15.0" />
+    </font>
+    <foreground_color>
+      <color red="255" green="255" blue="255" />
+    </foreground_color>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>RF_Param</name>
+    <x>40</x>
+    <y>315</y>
+    <width>120</width>
+    <height>24</height>
+    <text>Parameter</text>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>RF_CMD_H</name>
+    <x>190</x>
+    <y>315</y>
+    <width>100</width>
+    <height>24</height>
+    <text>Command</text>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>RF_RBV_H</name>
+    <x>325</x>
+    <y>315</y>
+    <width>100</width>
+    <height>24</height>
+    <text>Readback</text>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Freq_Label</name>
+    <x>40</x>
+    <y>350</y>
+    <width>120</width>
+    <height>24</height>
+    <text>Frequency</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>Freq_CMD</name>
+    <x>175</x>
+    <y>347</y>
+    <width>120</width>
+    <height>25</height>
+    <pv_name>pva://$(P):FREQ_CMD</pv_name>
+    <precision>6</precision>
+    <enabled>false</enabled>
+    <rules>
+      <rule name="Connected and hardware writes enabled" prop_id="enabled" out_exp="false">
+        <exp bool_exp="pv0 == 1 &amp;&amp; pv1 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pvSev1 == 0">
+          <value>true</value>
+        </exp>
+        <exp bool_exp="!(pv0 == 1 &amp;&amp; pv1 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pvSev1 == 0)">
+          <value>false</value>
+        </exp>
+        <pv_name>pva://$(P):COMM</pv_name>
+        <pv_name>pva://$(P):WRITE_ENABLED</pv_name>
+      </rule>
+    </rules>
+    <tooltip>SMC100A carrier frequency command in MHz.</tooltip>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Freq_RBV</name>
+    <x>315</x>
+    <y>347</y>
+    <width>120</width>
+    <height>25</height>
+    <pv_name>pva://$(P):FREQ_RBV</pv_name>
+    <precision>6</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Freq_Units</name>
+    <x>445</x>
+    <y>350</y>
+    <width>45</width>
+    <height>24</height>
+    <text>MHz</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Level_Label</name>
+    <x>40</x>
+    <y>390</y>
+    <width>120</width>
+    <height>24</height>
+    <text>RF level</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>Level_CMD</name>
+    <x>175</x>
+    <y>387</y>
+    <width>120</width>
+    <height>25</height>
+    <pv_name>pva://$(P):LEVEL_CMD</pv_name>
+    <precision>2</precision>
+    <enabled>false</enabled>
+    <rules>
+      <rule name="Connected and hardware writes enabled" prop_id="enabled" out_exp="false">
+        <exp bool_exp="pv0 == 1 &amp;&amp; pv1 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pvSev1 == 0">
+          <value>true</value>
+        </exp>
+        <exp bool_exp="!(pv0 == 1 &amp;&amp; pv1 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pvSev1 == 0)">
+          <value>false</value>
+        </exp>
+        <pv_name>pva://$(P):COMM</pv_name>
+        <pv_name>pva://$(P):WRITE_ENABLED</pv_name>
+      </rule>
+    </rules>
+    <tooltip>SMC100A RF power level command in dBm.</tooltip>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Level_RBV</name>
+    <x>315</x>
+    <y>387</y>
+    <width>120</width>
+    <height>25</height>
+    <pv_name>pva://$(P):LEVEL_RBV</pv_name>
+    <precision>2</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Level_Units</name>
+    <x>445</x>
+    <y>390</y>
+    <width>45</width>
+    <height>24</height>
+    <text>dBm</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>RFOut_Label</name>
+    <x>40</x>
+    <y>430</y>
+    <width>120</width>
+    <height>24</height>
+    <text>RF output</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="slide_button" version="2.0.0">
+    <name>RFOut_CMD</name>
+    <x>175</x>
+    <y>427</y>
+    <width>120</width>
+    <height>25</height>
+    <pv_name>pva://$(P):RF_CMD</pv_name>
+    <label />
+    <enabled>false</enabled>
+    <rules>
+      <rule name="Connected and hardware writes enabled" prop_id="enabled" out_exp="false">
+        <exp bool_exp="pv0 == 1 &amp;&amp; pv1 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pvSev1 == 0">
+          <value>true</value>
+        </exp>
+        <exp bool_exp="!(pv0 == 1 &amp;&amp; pv1 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pvSev1 == 0)">
+          <value>false</value>
+        </exp>
+        <pv_name>pva://$(P):COMM</pv_name>
+        <pv_name>pva://$(P):WRITE_ENABLED</pv_name>
+      </rule>
+    </rules>
+    <tooltip>RF output command. IOC write gate must be enabled.</tooltip>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>RFOut_LED</name>
+    <x>340</x>
+    <y>427</y>
+    <width>26</width>
+    <height>26</height>
+    <pv_name>pva://$(P):RF_RBV</pv_name>
+    <bit>0</bit>
+    <off_color>
+      <color red="170" green="170" blue="170" />
+    </off_color>
+    <on_color>
+      <color red="30" green="160" blue="70" />
+    </on_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>RFOut_RBV</name>
+    <x>375</x>
+    <y>428</y>
+    <width>70</width>
+    <height>25</height>
+    <pv_name>pva://$(P):RF_RBV</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>FM_Card</name>
+    <x>530</x>
+    <y>265</y>
+    <width>490</width>
+    <height>235</height>
+    <line_width>2</line_width>
+    <line_color>
+      <color red="0" green="53" blue="145" />
+    </line_color>
+    <background_color>
+      <color red="240" green="241" blue="244" />
+    </background_color>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>FM_Header</name>
+    <x>530</x>
+    <y>265</y>
+    <width>490</width>
+    <height>38</height>
+    <line_width>0</line_width>
+    <background_color>
+      <color red="0" green="29" blue="82" />
+    </background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>FM_Title</name>
+    <x>545</x>
+    <y>272</y>
+    <width>460</width>
+    <height>24</height>
+    <text>FREQUENCY MODULATION</text>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="15.0" />
+    </font>
+    <foreground_color>
+      <color red="255" green="255" blue="255" />
+    </foreground_color>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>FM_Param</name>
+    <x>550</x>
+    <y>315</y>
+    <width>120</width>
+    <height>24</height>
+    <text>Parameter</text>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>FM_CMD_H</name>
+    <x>700</x>
+    <y>315</y>
+    <width>100</width>
+    <height>24</height>
+    <text>Command</text>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>FM_RBV_H</name>
+    <x>835</x>
+    <y>315</y>
+    <width>100</width>
+    <height>24</height>
+    <text>Readback</text>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>FMState_Label</name>
+    <x>550</x>
+    <y>350</y>
+    <width>120</width>
+    <height>24</height>
+    <text>FM</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="slide_button" version="2.0.0">
+    <name>FMState_CMD</name>
+    <x>685</x>
+    <y>347</y>
+    <width>120</width>
+    <height>25</height>
+    <pv_name>pva://$(P):FM_CMD</pv_name>
+    <label />
+    <enabled>false</enabled>
+    <rules>
+      <rule name="Connected and hardware writes enabled" prop_id="enabled" out_exp="false">
+        <exp bool_exp="pv0 == 1 &amp;&amp; pv1 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pvSev1 == 0">
+          <value>true</value>
+        </exp>
+        <exp bool_exp="!(pv0 == 1 &amp;&amp; pv1 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pvSev1 == 0)">
+          <value>false</value>
+        </exp>
+        <pv_name>pva://$(P):COMM</pv_name>
+        <pv_name>pva://$(P):WRITE_ENABLED</pv_name>
+      </rule>
+    </rules>
+    <tooltip>Frequency modulation enable command.</tooltip>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>FMState_LED</name>
+    <x>850</x>
+    <y>347</y>
+    <width>26</width>
+    <height>26</height>
+    <pv_name>pva://$(P):FM_RBV</pv_name>
+    <bit>0</bit>
+    <off_color>
+      <color red="170" green="170" blue="170" />
+    </off_color>
+    <on_color>
+      <color red="30" green="160" blue="70" />
+    </on_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>FMState_RBV</name>
+    <x>885</x>
+    <y>348</y>
+    <width>70</width>
+    <height>25</height>
+    <pv_name>pva://$(P):FM_RBV</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>FMSource_Label</name>
+    <x>550</x>
+    <y>390</y>
+    <width>120</width>
+    <height>24</height>
+    <text>FM source</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="slide_button" version="2.0.0">
+    <name>FMSource_CMD</name>
+    <x>685</x>
+    <y>387</y>
+    <width>120</width>
+    <height>25</height>
+    <pv_name>pva://$(P):FM_SOURCE_CMD</pv_name>
+    <label />
+    <enabled>false</enabled>
+    <rules>
+      <rule name="Connected and hardware writes enabled" prop_id="enabled" out_exp="false">
+        <exp bool_exp="pv0 == 1 &amp;&amp; pv1 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pvSev1 == 0">
+          <value>true</value>
+        </exp>
+        <exp bool_exp="!(pv0 == 1 &amp;&amp; pv1 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pvSev1 == 0)">
+          <value>false</value>
+        </exp>
+        <pv_name>pva://$(P):COMM</pv_name>
+        <pv_name>pva://$(P):WRITE_ENABLED</pv_name>
+      </rule>
+    </rules>
+    <tooltip>FM source: 0 = INT, 1 = EXT.</tooltip>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>FMSource_RBV</name>
+    <x>835</x>
+    <y>387</y>
+    <width>120</width>
+    <height>25</height>
+    <pv_name>pva://$(P):FM_SOURCE_RBV</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>FMDev_Label</name>
+    <x>550</x>
+    <y>430</y>
+    <width>120</width>
+    <height>24</height>
+    <text>Deviation</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>FMDev_CMD</name>
+    <x>685</x>
+    <y>427</y>
+    <width>120</width>
+    <height>25</height>
+    <pv_name>pva://$(P):FM_DEV_CMD</pv_name>
+    <precision>3</precision>
+    <enabled>false</enabled>
+    <rules>
+      <rule name="Connected and hardware writes enabled" prop_id="enabled" out_exp="false">
+        <exp bool_exp="pv0 == 1 &amp;&amp; pv1 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pvSev1 == 0">
+          <value>true</value>
+        </exp>
+        <exp bool_exp="!(pv0 == 1 &amp;&amp; pv1 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pvSev1 == 0)">
+          <value>false</value>
+        </exp>
+        <pv_name>pva://$(P):COMM</pv_name>
+        <pv_name>pva://$(P):WRITE_ENABLED</pv_name>
+      </rule>
+    </rules>
+    <tooltip>FM deviation command in kHz.</tooltip>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>FMDev_RBV</name>
+    <x>835</x>
+    <y>427</y>
+    <width>120</width>
+    <height>25</height>
+    <pv_name>pva://$(P):FM_DEV_RBV</pv_name>
+    <precision>3</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>FMDev_Units</name>
+    <x>965</x>
+    <y>430</y>
+    <width>45</width>
+    <height>24</height>
+    <text>kHz</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>Sweep_Card</name>
+    <x>20</x>
+    <y>520</y>
+    <width>1000</width>
+    <height>275</height>
+    <line_width>2</line_width>
+    <line_color>
+      <color red="0" green="53" blue="145" />
+    </line_color>
+    <background_color>
+      <color red="240" green="241" blue="244" />
+    </background_color>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>Sweep_Header</name>
+    <x>20</x>
+    <y>520</y>
+    <width>1000</width>
+    <height>38</height>
+    <line_width>0</line_width>
+    <background_color>
+      <color red="0" green="29" blue="82" />
+    </background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Sweep_Title</name>
+    <x>35</x>
+    <y>527</y>
+    <width>970</width>
+    <height>24</height>
+    <text>POWER SWEEP / BLAST PARAMETERS</text>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="15.0" />
+    </font>
+    <foreground_color>
+      <color red="255" green="255" blue="255" />
+    </foreground_color>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Sweep_Param</name>
+    <x>40</x>
+    <y>570</y>
+    <width>120</width>
+    <height>24</height>
+    <text>Parameter</text>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Sweep_CMD_H</name>
+    <x>185</x>
+    <y>570</y>
+    <width>100</width>
+    <height>24</height>
+    <text>Command</text>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Sweep_RBV_H</name>
+    <x>325</x>
+    <y>570</y>
+    <width>100</width>
+    <height>24</height>
+    <text>Readback</text>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>SweepStart_Label</name>
+    <x>40</x>
+    <y>605</y>
+    <width>120</width>
+    <height>24</height>
+    <text>Start level</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>SweepStart_CMD</name>
+    <x>175</x>
+    <y>602</y>
+    <width>120</width>
+    <height>25</height>
+    <pv_name>pva://$(P):SWEEP_START_CMD</pv_name>
+    <precision>2</precision>
+    <enabled>false</enabled>
+    <rules>
+      <rule name="Connected and hardware writes enabled" prop_id="enabled" out_exp="false">
+        <exp bool_exp="pv0 == 1 &amp;&amp; pv1 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pvSev1 == 0">
+          <value>true</value>
+        </exp>
+        <exp bool_exp="!(pv0 == 1 &amp;&amp; pv1 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pvSev1 == 0)">
+          <value>false</value>
+        </exp>
+        <pv_name>pva://$(P):COMM</pv_name>
+        <pv_name>pva://$(P):WRITE_ENABLED</pv_name>
+      </rule>
+    </rules>
+    <tooltip>Power sweep start level in dBm.</tooltip>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>SweepStart_RBV</name>
+    <x>315</x>
+    <y>602</y>
+    <width>120</width>
+    <height>25</height>
+    <pv_name>pva://$(P):SWEEP_START_RBV</pv_name>
+    <precision>2</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>SweepStart_Units</name>
+    <x>445</x>
+    <y>605</y>
+    <width>45</width>
+    <height>24</height>
+    <text>dBm</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>SweepStop_Label</name>
+    <x>40</x>
+    <y>645</y>
+    <width>120</width>
+    <height>24</height>
+    <text>Stop level</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>SweepStop_CMD</name>
+    <x>175</x>
+    <y>642</y>
+    <width>120</width>
+    <height>25</height>
+    <pv_name>pva://$(P):SWEEP_STOP_CMD</pv_name>
+    <precision>2</precision>
+    <enabled>false</enabled>
+    <rules>
+      <rule name="Connected and hardware writes enabled" prop_id="enabled" out_exp="false">
+        <exp bool_exp="pv0 == 1 &amp;&amp; pv1 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pvSev1 == 0">
+          <value>true</value>
+        </exp>
+        <exp bool_exp="!(pv0 == 1 &amp;&amp; pv1 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pvSev1 == 0)">
+          <value>false</value>
+        </exp>
+        <pv_name>pva://$(P):COMM</pv_name>
+        <pv_name>pva://$(P):WRITE_ENABLED</pv_name>
+      </rule>
+    </rules>
+    <tooltip>Power sweep stop level in dBm.</tooltip>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>SweepStop_RBV</name>
+    <x>315</x>
+    <y>642</y>
+    <width>120</width>
+    <height>25</height>
+    <pv_name>pva://$(P):SWEEP_STOP_RBV</pv_name>
+    <precision>2</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>SweepStop_Units</name>
+    <x>445</x>
+    <y>645</y>
+    <width>45</width>
+    <height>24</height>
+    <text>dBm</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>SweepStep_Label</name>
+    <x>540</x>
+    <y>605</y>
+    <width>100</width>
+    <height>24</height>
+    <text>Step</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>SweepStep_CMD</name>
+    <x>650</x>
+    <y>602</y>
+    <width>120</width>
+    <height>25</height>
+    <pv_name>pva://$(P):SWEEP_STEP_CMD</pv_name>
+    <precision>2</precision>
+    <enabled>false</enabled>
+    <rules>
+      <rule name="Connected and hardware writes enabled" prop_id="enabled" out_exp="false">
+        <exp bool_exp="pv0 == 1 &amp;&amp; pv1 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pvSev1 == 0">
+          <value>true</value>
+        </exp>
+        <exp bool_exp="!(pv0 == 1 &amp;&amp; pv1 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pvSev1 == 0)">
+          <value>false</value>
+        </exp>
+        <pv_name>pva://$(P):COMM</pv_name>
+        <pv_name>pva://$(P):WRITE_ENABLED</pv_name>
+      </rule>
+    </rules>
+    <tooltip>Power sweep step size in dB.</tooltip>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>SweepStep_RBV</name>
+    <x>790</x>
+    <y>602</y>
+    <width>120</width>
+    <height>25</height>
+    <pv_name>pva://$(P):SWEEP_STEP_RBV</pv_name>
+    <precision>2</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>SweepStep_Units</name>
+    <x>920</x>
+    <y>605</y>
+    <width>40</width>
+    <height>24</height>
+    <text>dB</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>SweepDwell_Label</name>
+    <x>540</x>
+    <y>645</y>
+    <width>100</width>
+    <height>24</height>
+    <text>Dwell</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>SweepDwell_CMD</name>
+    <x>650</x>
+    <y>642</y>
+    <width>120</width>
+    <height>25</height>
+    <pv_name>pva://$(P):SWEEP_DWELL_CMD</pv_name>
+    <precision>2</precision>
+    <enabled>false</enabled>
+    <rules>
+      <rule name="Connected and hardware writes enabled" prop_id="enabled" out_exp="false">
+        <exp bool_exp="pv0 == 1 &amp;&amp; pv1 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pvSev1 == 0">
+          <value>true</value>
+        </exp>
+        <exp bool_exp="!(pv0 == 1 &amp;&amp; pv1 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pvSev1 == 0)">
+          <value>false</value>
+        </exp>
+        <pv_name>pva://$(P):COMM</pv_name>
+        <pv_name>pva://$(P):WRITE_ENABLED</pv_name>
+      </rule>
+    </rules>
+    <tooltip>Power sweep dwell time in ms.</tooltip>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>SweepDwell_RBV</name>
+    <x>790</x>
+    <y>642</y>
+    <width>120</width>
+    <height>25</height>
+    <pv_name>pva://$(P):SWEEP_DWELL_RBV</pv_name>
+    <precision>2</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>SweepDwell_Units</name>
+    <x>920</x>
+    <y>645</y>
+    <width>40</width>
+    <height>24</height>
+    <text>ms</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>SweepArm_Label</name>
+    <x>40</x>
+    <y>705</y>
+    <width>120</width>
+    <height>24</height>
+    <text>Sweep arm</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="slide_button" version="2.0.0">
+    <name>SweepArm_CMD</name>
+    <x>175</x>
+    <y>702</y>
+    <width>120</width>
+    <height>25</height>
+    <pv_name>pva://$(P):SWEEP_ARM_CMD</pv_name>
+    <label />
+    <enabled>false</enabled>
+    <rules>
+      <rule name="Connected and hardware writes enabled" prop_id="enabled" out_exp="false">
+        <exp bool_exp="pv0 == 1 &amp;&amp; pv1 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pvSev1 == 0">
+          <value>true</value>
+        </exp>
+        <exp bool_exp="!(pv0 == 1 &amp;&amp; pv1 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pvSev1 == 0)">
+          <value>false</value>
+        </exp>
+        <pv_name>pva://$(P):COMM</pv_name>
+        <pv_name>pva://$(P):WRITE_ENABLED</pv_name>
+      </rule>
+    </rules>
+    <tooltip>Arm or disarm the SMC100A power sweep.</tooltip>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>SweepArm_LED</name>
+    <x>340</x>
+    <y>702</y>
+    <width>26</width>
+    <height>26</height>
+    <pv_name>pva://$(P):SWEEP_ARM_RBV</pv_name>
+    <bit>0</bit>
+    <off_color>
+      <color red="170" green="170" blue="170" />
+    </off_color>
+    <on_color>
+      <color red="30" green="160" blue="70" />
+    </on_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>SweepArm_RBV</name>
+    <x>375</x>
+    <y>703</y>
+    <width>70</width>
+    <height>25</height>
+    <pv_name>pva://$(P):SWEEP_ARM_RBV</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Trigger_Label</name>
+    <x>540</x>
+    <y>705</y>
+    <width>100</width>
+    <height>24</height>
+    <text>Trigger sweep</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="bool_button" version="2.0.0">
+    <name>SweepTrigger_CMD</name>
+    <x>650</x>
+    <y>700</y>
+    <width>145</width>
+    <height>28</height>
+    <pv_name>pva://$(P):SWEEP_TRIGGER_CMD</pv_name>
+    <enabled>false</enabled>
+    <rules>
+      <rule name="Connected and hardware writes enabled" prop_id="enabled" out_exp="false">
+        <exp bool_exp="pv0 == 1 &amp;&amp; pv1 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pvSev1 == 0">
+          <value>true</value>
+        </exp>
+        <exp bool_exp="!(pv0 == 1 &amp;&amp; pv1 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pvSev1 == 0)">
+          <value>false</value>
+        </exp>
+        <pv_name>pva://$(P):COMM</pv_name>
+        <pv_name>pva://$(P):WRITE_ENABLED</pv_name>
+      </rule>
+    </rules>
+    <tooltip>Momentary sweep trigger command. Controller returns the command PV to zero.</tooltip>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Safety_Note</name>
+    <x>40</x>
+    <y>755</y>
+    <width>920</width>
+    <height>24</height>
+    <text>Command widgets are enabled only when COMM = Connected and WRITE_ENABLED = Writes enabled.</text>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="12.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>Footer_BG</name>
+    <x>20</x>
+    <y>815</y>
+    <width>1000</width>
+    <height>65</height>
+    <line_width>1</line_width>
+    <line_color>
+      <color red="0" green="53" blue="145" />
+    </line_color>
+    <background_color>
+      <color red="240" green="241" blue="244" />
+    </background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Footer_Title</name>
+    <x>40</x>
+    <y>828</y>
+    <width>300</width>
+    <height>22</height>
+    <text>Genesis Phase-I commissioning mode</text>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Footer_Text</name>
+    <x>40</x>
+    <y>852</y>
+    <width>920</width>
+    <height>20</height>
+    <text>Simulator/read-only operation first. Hardware writes remain blocked by the IOC until explicitly enabled.</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="11.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+</display>

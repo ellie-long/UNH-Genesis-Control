@@ -120,10 +120,10 @@ smc100a:
     COMM:
       DESC: SMC100A communication state
     ERROR:
-      DESC: Last SMC100A IOC or instrument error
+      DESC: Current SMC100A IOC or instrument fault
 
     LAST_EVENT:
-      DESC: Most recent SMC100A diagnostic event
+      DESC: Most recent SMC100A operational event
 
     LAST_OK:
       DESC: Last successful SMC100A read timestamp
