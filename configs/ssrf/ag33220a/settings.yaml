@@ -1,0 +1,117 @@
+general:
+  prefix: UNH:GEN:SSRF:TRIG
+  log_dir: logs
+  epics_addr_list: None
+  delay: 0.5
+
+ag33220a:
+  module: ssrf_ioc.ag33220a
+  autostart: false
+
+  # Simulator first. Physical Agilent commissioning comes later.
+  ip: 127.0.0.1
+  port: 5026
+  timeout: 2.0
+  settle: 0.0
+
+  delay: 1.0
+
+  # Safe Genesis commissioning defaults.
+  write_enabled: false
+  initialize_on_connect: false
+
+  # Physically one instrument.
+  channels:
+    - TRIG
+
+  # Initial operating limits carried over from Farooq's IOC.
+  pulse_freq_limit_hz:
+    - 0.001
+    - 1000.0
+
+  ampl_limit_vpp:
+    - 0.0
+    - 5.0
+
+  offset_limit_v:
+    - -5.0
+    - 5.0
+
+  width_limit_s:
+    - 0.000001
+    - 1.0
+
+  archive_records:
+    - PULSE_FREQ_RBV
+    - AMPL_RBV
+    - OFFSET_RBV
+    - WIDTH_RBV
+    - NCYC_RBV
+    - BURST_RBV
+    - OUTPUT_RBV
+    - FUNCTION
+    - COMM
+    - ERROR
+    - LAST_EVENT
+    - LAST_OK
+    - WRITE_ENABLED
+
+  records:
+    IDN:
+      DESC: Agilent 33220A identification
+
+    FUNCTION:
+      DESC: Agilent waveform function
+
+    PULSE_FREQ_CMD:
+      DESC: Trigger pulse repetition rate command
+    PULSE_FREQ_RBV:
+      DESC: Trigger pulse repetition rate readback
+
+    AMPL_CMD:
+      DESC: Trigger pulse amplitude command
+    AMPL_RBV:
+      DESC: Trigger pulse amplitude readback
+
+    OFFSET_CMD:
+      DESC: Trigger pulse offset command
+    OFFSET_RBV:
+      DESC: Trigger pulse offset readback
+
+    WIDTH_CMD:
+      DESC: Trigger pulse width command
+    WIDTH_RBV:
+      DESC: Trigger pulse width readback
+
+    NCYC_CMD:
+      DESC: Burst cycle count command
+    NCYC_RBV:
+      DESC: Burst cycle count readback
+
+    BURST_CMD:
+      DESC: BUS-triggered burst mode command
+    BURST_RBV:
+      DESC: Burst mode readback
+
+    OUTPUT_CMD:
+      DESC: Agilent output enable command
+    OUTPUT_RBV:
+      DESC: Agilent output state readback
+
+    FIRE_CMD:
+      DESC: Fire one configured Agilent burst
+
+    COMM:
+      DESC: Agilent 33220A communication state
+
+    ERROR:
+      DESC: Current Agilent IOC or instrument fault
+
+    LAST_EVENT:
+      DESC: Most recent Agilent operational event
+
+    LAST_OK:
+      DESC: Last successful Agilent read timestamp
+
+    WRITE_ENABLED:
+      DESC: Agilent hardware write permission
