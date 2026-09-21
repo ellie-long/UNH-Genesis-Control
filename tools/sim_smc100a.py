@@ -15,6 +15,7 @@ and unknown queries answer "0", exactly as a real instrument tolerates.
 """
 import argparse
 import logging
+import socket
 import socketserver
 import threading
 
@@ -121,18 +122,41 @@ class State:
 
 
 class Handler(socketserver.StreamRequestHandler):
+    def setup(self):
+        super().setup()
+        self.server.register_client(self.request)
+
+    def finish(self):
+        try:
+            self.server.unregister_client(self.request)
+        finally:
+            super().finish()
+
     def handle(self):
         log.info("client connected %s", self.client_address)
+
         for raw in self.rfile:
             for part in raw.decode("ascii", "replace").split(";"):
                 try:
                     reply = self.server.state.handle(part)
-                except Exception as exc:                      # bad argument -> error queue
-                    self.server.state.errors.append(f'-113,"Undefined header;{exc}"')
+                except Exception as exc:
+                    # Bad argument -> simulated instrument error queue.
+                    self.server.state.errors.append(
+                        f'-113,"Undefined header;{exc}"'
+                    )
                     reply = None
-                log.debug("%-28s -> %s", part.strip(), reply)
+
+                log.debug(
+                    "%-28s -> %s",
+                    part.strip(),
+                    reply,
+                )
+
                 if reply is not None:
-                    self.wfile.write((reply + "\n").encode("ascii"))
+                    self.wfile.write(
+                        (reply + "\n").encode("ascii")
+                    )
+
         log.info("client disconnected")
 
 
@@ -141,8 +165,45 @@ class Server(socketserver.ThreadingTCPServer):
     daemon_threads = True
 
     def __init__(self, addr, state):
+        self._clients = set()
+        self._clients_lock = threading.Lock()
+
         super().__init__(addr, Handler)
+
         self.state = state
+
+    def register_client(self, client):
+        """Track an active simulator TCP connection."""
+
+        with self._clients_lock:
+            self._clients.add(client)
+
+    def unregister_client(self, client):
+        """Remove a finished simulator TCP connection."""
+
+        with self._clients_lock:
+            self._clients.discard(client)
+
+    def drop_clients(self):
+        """Force-disconnect all active clients.
+
+        Intended for software resilience testing. This simulates loss of
+        the instrument/network connection without modifying instrument state.
+        """
+
+        with self._clients_lock:
+            clients = list(self._clients)
+
+        for client in clients:
+            try:
+                client.shutdown(socket.SHUT_RDWR)
+            except OSError:
+                pass
+
+            try:
+                client.close()
+            except OSError:
+                pass
 
 
 def serve(host="127.0.0.1", port=5025):
