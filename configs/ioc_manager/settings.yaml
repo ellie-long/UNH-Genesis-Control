@@ -4,7 +4,7 @@ general:
 
   # Local macOS prototype: each local CA server uses a distinct port.
   # Replace with deployment network configuration on the final DAQ system.
-  epics_addr_list: "127.0.0.1:5064 127.0.0.1:5066 127.0.0.1:5067"
+  epics_addr_list: "127.0.0.1:5064 127.0.0.1:5066 127.0.0.1:5067 127.0.0.1:5068"
 
   manager_ca_server_port: 5064
   manager_pva_server_port: 5075
@@ -20,6 +20,16 @@ mw_spd1305x:
   # Local macOS prototype ports.
   ca_server_port: 5066
   pva_server_port: 5076
+
+ssrf_smc100a:
+  autostart: false
+  settings_folder: configs/ssrf/smc100a
+  ioc: smc100a
+  heartbeat_pv: UNH:GEN:SSRF:GEN:MAN:smc100a_time
+
+  # Local macOS prototype ports.
+  ca_server_port: 5068
+  pva_server_port: 5078
 
 archiver:
   autostart: false
