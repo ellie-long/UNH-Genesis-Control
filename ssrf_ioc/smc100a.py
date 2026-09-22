@@ -256,6 +256,22 @@ class Device(ScpiDevice):
             **self.analog,
         )
 
+        # Power sweep shape.
+        # Genesis ssRF burns use TRI:
+        #     start -> target -> start
+        self.pvs["SWEEP_SHAPE_CMD"] = builder.boolOut(
+            "SWEEP_SHAPE_CMD",
+            ZNAM="SAW",
+            ONAM="TRI",
+            on_update_name=self.do_sets,
+        )
+
+        self.pvs["SWEEP_SHAPE_RBV"] = builder.boolIn(
+            "SWEEP_SHAPE_RBV",
+            ZNAM="SAW",
+            ONAM="TRI",
+        )
+
         self.pvs["SWEEP_ARM_CMD"] = builder.boolOut(
             "SWEEP_ARM_CMD",
             ZNAM="DISARMED",
@@ -351,6 +367,7 @@ class Device(ScpiDevice):
             "SWEEP_STOP_RBV": sweep["stop_dbm"],
             "SWEEP_STEP_RBV": sweep["step_db"],
             "SWEEP_DWELL_RBV": sweep["dwell_ms"],
+            "SWEEP_SHAPE_RBV": int(sweep["shape"].startswith("TRI")),
             "SWEEP_ARM_RBV": int(state["pow_mode"] == "SWE"),
         }
 
@@ -368,6 +385,7 @@ class Device(ScpiDevice):
             "SWEEP_STOP_RBV": sweep["stop_dbm"],
             "SWEEP_STEP_RBV": sweep["step_db"],
             "SWEEP_DWELL_RBV": sweep["dwell_ms"],
+            "SWEEP_SHAPE_RBV": int(sweep["shape"].startswith("TRI")),
             "SWEEP_ARM_RBV": int(state["pow_mode"] == "SWE"),
         }
 
@@ -390,6 +408,7 @@ class Device(ScpiDevice):
             "SWEEP_STOP_CMD": sweep["stop_dbm"],
             "SWEEP_STEP_CMD": sweep["step_db"],
             "SWEEP_DWELL_CMD": sweep["dwell_ms"],
+            "SWEEP_SHAPE_CMD": int(sweep["shape"].startswith("TRI")),
             "SWEEP_ARM_CMD": int(state["pow_mode"] == "SWE"),
         }
 
@@ -514,6 +533,18 @@ class Device(ScpiDevice):
 
                 self.store("SWEEP_DWELL_CMD", confirmed)
 
+            elif pv_name == "SWEEP_SHAPE_CMD":
+                shape = "TRI" if bool(new_value) else "SAW"
+
+                confirmed = self.t.set_sweep(
+                    shape=shape
+                )["shape"]
+
+                self.store(
+                    "SWEEP_SHAPE_CMD",
+                    int(confirmed.startswith("TRI")),
+                )
+
             elif pv_name == "SWEEP_ARM_CMD":
                 confirmed = self.t.arm_sweep(
                     bool(new_value)
@@ -635,6 +666,11 @@ class DeviceConnection(ScpiConnection):
             "dwell_ms": (
                 self.query_float("SWE:POW:DWEL?")
                 * 1e3
+            ),
+            "shape": (
+                self.query("SWE:POW:SHAP?")
+                .strip()
+                .upper()
             ),
         }
 

@@ -165,32 +165,45 @@ class TestSMC100AController(unittest.TestCase):
         )
 
     def test_sweep_round_trip(self):
+        start_dbm = -120.0
+        stop_dbm = -40.0
+        step_db = stop_dbm - start_dbm
+        dwell_ms = 90.0
+
         sweep = self.connection.set_sweep(
-            start_dbm=-120.0,
-            stop_dbm=-30.0,
-            step_db=2.0,
-            dwell_ms=20.0,
+            start_dbm=start_dbm,
+            stop_dbm=stop_dbm,
+            step_db=step_db,
+            dwell_ms=dwell_ms,
+            shape="TRI",
         )
 
         self.assertAlmostEqual(
             sweep["start_dbm"],
-            -120.0,
+            start_dbm,
             places=2,
         )
+
         self.assertAlmostEqual(
             sweep["stop_dbm"],
-            -30.0,
+            stop_dbm,
             places=2,
         )
+
         self.assertAlmostEqual(
             sweep["step_db"],
-            2.0,
+            step_db,
             places=2,
         )
+
         self.assertAlmostEqual(
             sweep["dwell_ms"],
-            20.0,
+            dwell_ms,
             places=1,
+        )
+
+        self.assertTrue(
+            sweep["shape"].startswith("TRI")
         )
 
     def test_arm_trigger_and_disarm(self):

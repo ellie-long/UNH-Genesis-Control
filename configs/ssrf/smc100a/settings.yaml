@@ -51,6 +51,7 @@ smc100a:
     - SWEEP_STOP_RBV
     - SWEEP_STEP_RBV
     - SWEEP_DWELL_RBV
+    - SWEEP_SHAPE_RBV
     - SWEEP_ARM_RBV
     - COMM
     - ERROR
@@ -108,6 +109,11 @@ smc100a:
       DESC: Power sweep dwell command
     SWEEP_DWELL_RBV:
       DESC: Power sweep dwell readback
+
+    SWEEP_SHAPE_CMD:
+      DESC: Power sweep shape command
+    SWEEP_SHAPE_RBV:
+      DESC: Power sweep shape readback
 
     SWEEP_ARM_CMD:
       DESC: Power sweep arm command
