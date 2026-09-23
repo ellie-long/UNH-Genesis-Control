@@ -18,13 +18,498 @@ Those responsibilities belong to higher Genesis layers.
 
 import logging
 import math
+import time
 
-from genesis_common.visa_base import VisaConnection
+from softioc import alarm, builder
+
+from genesis_common.visa_base import VisaConnection, VisaDevice
 
 
 log = logging.getLogger(__name__)
 
 MAX_ARB_POINTS = 8192
+
+
+
+class Device(VisaDevice):
+    """EPICS-facing Genesis Keysight WaveGen device."""
+
+    # Assigned after DeviceConnection is defined.
+    connection_class = None
+
+    READBACK_PVS = (
+        "OUTPUT_RBV",
+        "PERIOD_RBV",
+        "VHIGH_RBV",
+        "VLOW_RBV",
+    )
+
+    def _create_pvs(self):
+        # --------------------------------------------------------------
+        # Identity
+        # --------------------------------------------------------------
+
+        self.pvs["IDN"] = builder.stringIn(
+            "IDN"
+        )
+
+        # --------------------------------------------------------------
+        # WaveGen output
+        # --------------------------------------------------------------
+
+        self.pvs["OUTPUT_CMD"] = builder.boolOut(
+            "OUTPUT_CMD",
+            ZNAM="OFF",
+            ONAM="ON",
+            on_update_name=self.do_sets,
+        )
+
+        self.pvs["OUTPUT_RBV"] = builder.boolIn(
+            "OUTPUT_RBV",
+            ZNAM="OFF",
+            ONAM="ON",
+        )
+
+        # --------------------------------------------------------------
+        # Waveform period
+        # --------------------------------------------------------------
+
+        self.pvs["PERIOD_CMD"] = builder.aOut(
+            "PERIOD_CMD",
+            EGU="s",
+            PREC=6,
+            on_update_name=self.do_sets,
+            **self.analog,
+        )
+
+        self.pvs["PERIOD_RBV"] = builder.aIn(
+            "PERIOD_RBV",
+            EGU="s",
+            PREC=6,
+            **self.analog,
+        )
+
+        # --------------------------------------------------------------
+        # Physical waveform voltage scale
+        # --------------------------------------------------------------
+
+        self.pvs["VHIGH_CMD"] = builder.aOut(
+            "VHIGH_CMD",
+            EGU="V",
+            PREC=4,
+            on_update_name=self.do_sets,
+            **self.analog,
+        )
+
+        self.pvs["VHIGH_RBV"] = builder.aIn(
+            "VHIGH_RBV",
+            EGU="V",
+            PREC=4,
+            **self.analog,
+        )
+
+        self.pvs["VLOW_CMD"] = builder.aOut(
+            "VLOW_CMD",
+            EGU="V",
+            PREC=4,
+            on_update_name=self.do_sets,
+            **self.analog,
+        )
+
+        self.pvs["VLOW_RBV"] = builder.aIn(
+            "VLOW_RBV",
+            EGU="V",
+            PREC=4,
+            **self.analog,
+        )
+
+    def _post_connect(self):
+        """Validate identity and synchronize startup readbacks.
+
+        This method performs reads only. IOC connection must not modify
+        physical WaveGen state.
+        """
+
+        if self.t is None:
+            return
+
+        identity = self.t.idn()
+
+        identity_upper = identity.upper()
+
+        if (
+            "KEYSIGHT" not in identity_upper
+            and "AGILENT" not in identity_upper
+        ):
+            raise OSError(
+                "unexpected instrument identity: "
+                f"{identity}"
+            )
+
+        self.pvs["IDN"].set(
+            identity[:39]
+        )
+
+        state = self.t.read_state()
+
+        self._apply_state(state)
+
+    def read_all(self, channel, index):
+        """Perform one scalar polling cycle."""
+
+        state = self.t.read_state()
+
+        # Synchronize operator command widgets with confirmed hardware
+        # state without causing another write callback.
+        self._sync_commands(state)
+
+        return {
+            "OUTPUT_RBV": int(
+                state["output_on"]
+            ),
+            "PERIOD_RBV": state[
+                "period_s"
+            ],
+            "VHIGH_RBV": state[
+                "vhigh_v"
+            ],
+            "VLOW_RBV": state[
+                "vlow_v"
+            ],
+        }
+
+    def _apply_state(self, state):
+        """Apply startup state to command and readback PVs."""
+
+        readbacks = {
+            "OUTPUT_RBV": int(
+                state["output_on"]
+            ),
+            "PERIOD_RBV": state[
+                "period_s"
+            ],
+            "VHIGH_RBV": state[
+                "vhigh_v"
+            ],
+            "VLOW_RBV": state[
+                "vlow_v"
+            ],
+        }
+
+        for name, value in readbacks.items():
+            self.pvs[name].set(value)
+
+        self._sync_commands(state)
+
+    def _sync_commands(self, state):
+        """Synchronize command PVs to confirmed hardware state."""
+
+        values = {
+            "OUTPUT_CMD": int(
+                state["output_on"]
+            ),
+            "PERIOD_CMD": state[
+                "period_s"
+            ],
+            "VHIGH_CMD": state[
+                "vhigh_v"
+            ],
+            "VLOW_CMD": state[
+                "vlow_v"
+            ],
+        }
+
+        for name, value in values.items():
+            self.store(
+                name,
+                value,
+            )
+
+    def _set_readback_alarm(self, fault):
+        severity = (
+            alarm.MAJOR_ALARM
+            if fault
+            else alarm.NO_ALARM
+        )
+
+        condition = (
+            alarm.READ_ALARM
+            if fault
+            else alarm.NO_ALARM
+        )
+
+        for name in self.READBACK_PVS:
+            self.pvs[name].set_alarm(
+                severity=severity,
+                alarm=condition,
+            )
+
+    async def do_reads(self):
+        """Poll hardware while keeping the IOC alive on disconnect."""
+
+        if self.t is None:
+            if not self.reconnect():
+                return False
+
+        if self.t is None:
+            return False
+
+        try:
+            readings = self.read_all(
+                None,
+                0,
+            )
+
+            for name, value in readings.items():
+                self.pvs[name].set(
+                    value
+                )
+
+            self._set_readback_alarm(
+                False
+            )
+
+            self._set_comm(
+                True
+            )
+
+            self.pvs["LAST_OK"].set(
+                time.time()
+            )
+
+            return True
+
+        except Exception as exc:
+            message = str(exc)
+
+            log.warning(
+                "%s: WaveGen read failed: %s",
+                self.device_name,
+                message,
+            )
+
+            self._set_comm(
+                False,
+                message,
+            )
+
+            self._set_readback_alarm(
+                True
+            )
+
+            # Next polling cycle enters Genesis reconnect/backoff.
+            self._close_connection()
+
+            return False
+
+    def do_sets(self, new_value, pv):
+        """Handle operator commands through the Genesis write gate."""
+
+        pv_name = pv.removeprefix(
+            self.device_name + ":"
+        )
+
+        if not self.can_write(
+            pv_name
+        ):
+            return
+
+        try:
+            if pv_name == "OUTPUT_CMD":
+                confirmed = (
+                    self.t.set_output(
+                        bool(new_value)
+                    )
+                )
+
+                self.store(
+                    "OUTPUT_CMD",
+                    int(confirmed),
+                )
+
+                self.pvs[
+                    "OUTPUT_RBV"
+                ].set(
+                    int(confirmed)
+                )
+
+                self.record_event(
+                    "WaveGen output "
+                    + (
+                        "ON"
+                        if confirmed
+                        else "OFF"
+                    )
+                )
+
+            elif pv_name == "PERIOD_CMD":
+                value = float(
+                    new_value
+                )
+
+                if (
+                    not math.isfinite(value)
+                    or value <= 0
+                ):
+                    raise ValueError(
+                        "period must be finite "
+                        "and positive"
+                    )
+
+                confirmed = (
+                    self.t.set_period_s(
+                        value
+                    )
+                )
+
+                self.store(
+                    "PERIOD_CMD",
+                    confirmed,
+                )
+
+                self.pvs[
+                    "PERIOD_RBV"
+                ].set(
+                    confirmed
+                )
+
+                self.record_event(
+                    "WaveGen period updated"
+                )
+
+            elif pv_name == "VHIGH_CMD":
+                value = float(
+                    new_value
+                )
+
+                if not math.isfinite(
+                    value
+                ):
+                    raise ValueError(
+                        "VHIGH must be finite"
+                    )
+
+                current = (
+                    self.t.read_state()
+                )
+
+                if value <= current[
+                    "vlow_v"
+                ]:
+                    raise ValueError(
+                        "VHIGH must exceed VLOW"
+                    )
+
+                confirmed = (
+                    self.t.set_vhigh_v(
+                        value
+                    )
+                )
+
+                self.store(
+                    "VHIGH_CMD",
+                    confirmed,
+                )
+
+                self.pvs[
+                    "VHIGH_RBV"
+                ].set(
+                    confirmed
+                )
+
+                self.record_event(
+                    "WaveGen VHIGH updated"
+                )
+
+            elif pv_name == "VLOW_CMD":
+                value = float(
+                    new_value
+                )
+
+                if not math.isfinite(
+                    value
+                ):
+                    raise ValueError(
+                        "VLOW must be finite"
+                    )
+
+                current = (
+                    self.t.read_state()
+                )
+
+                if value >= current[
+                    "vhigh_v"
+                ]:
+                    raise ValueError(
+                        "VLOW must be below VHIGH"
+                    )
+
+                confirmed = (
+                    self.t.set_vlow_v(
+                        value
+                    )
+                )
+
+                self.store(
+                    "VLOW_CMD",
+                    confirmed,
+                )
+
+                self.pvs[
+                    "VLOW_RBV"
+                ].set(
+                    confirmed
+                )
+
+                self.record_event(
+                    "WaveGen VLOW updated"
+                )
+
+            else:
+                raise ValueError(
+                    "unknown WaveGen command PV: "
+                    f"{pv_name}"
+                )
+
+            self.pvs[
+                pv_name
+            ].set_alarm(
+                severity=alarm.NO_ALARM,
+                alarm=alarm.NO_ALARM,
+            )
+
+            self._set_comm(
+                True
+            )
+
+        except Exception as exc:
+            message = str(exc)
+
+            log.error(
+                "%s: command %s failed: %s",
+                self.device_name,
+                pv_name,
+                message,
+            )
+
+            self._set_comm(
+                False,
+                message,
+            )
+
+            self.record_event(
+                f"{pv_name} failed"
+            )
+
+            if pv_name in self.pvs:
+                self.pvs[
+                    pv_name
+                ].set_alarm(
+                    severity=alarm.MAJOR_ALARM,
+                    alarm=alarm.WRITE_ALARM,
+                )
+
+            self._close_connection()
 
 
 class DeviceConnection(VisaConnection):
@@ -445,3 +930,6 @@ class DeviceConnection(VisaConnection):
             )
 
         return False
+
+# Bind the EPICS-facing device to the validated Keysight connection.
+Device.connection_class = DeviceConnection
