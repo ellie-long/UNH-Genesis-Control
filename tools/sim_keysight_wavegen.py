@@ -1,10 +1,13 @@
 """
 Minimal Keysight WaveGen SCPI simulator for Genesis development.
 
-This simulator intentionally implements only the scalar command subset
-currently used by ssrf_ioc.keysight_wavegen.DeviceConnection.
+Supports the scalar WaveGen interface plus arbitrary-waveform transfer
+through either:
 
-It listens on a raw TCP socket so PyVISA-py can connect using:
+    - IEEE-488.2 binary blocks
+    - ASCII value lists
+
+It listens on a raw TCP socket so PyVISA-py can connect with:
 
     TCPIP0::127.0.0.1::<port>::SOCKET
 """
@@ -14,6 +17,7 @@ from __future__ import annotations
 import argparse
 import logging
 import socketserver
+import struct
 import threading
 
 
@@ -44,6 +48,9 @@ class WaveGenState:
         self.output_mode = "NORM"
         self.invert = False
 
+        self.arb_values = []
+        self.last_transfer = None
+
         self.errors = []
 
     def push_error(self, message):
@@ -59,13 +66,21 @@ class WaveGenState:
 
 
 class WaveGenSCPI:
-    def __init__(self, state=None, verbose=False):
+    def __init__(
+        self,
+        state=None,
+        verbose=False,
+    ):
         self.state = state or WaveGenState()
         self.verbose = bool(verbose)
 
     @staticmethod
     def _bool_value(value):
-        value = str(value).strip().upper()
+        value = (
+            str(value)
+            .strip()
+            .upper()
+        )
 
         if value in ("1", "ON"):
             return True
@@ -96,7 +111,10 @@ class WaveGenSCPI:
 
             except Exception as exc:
                 message = f'-100,"{exc}"'
-                self.state.push_error(message)
+
+                self.state.push_error(
+                    message
+                )
 
                 if self.verbose:
                     log.debug(
@@ -119,7 +137,11 @@ class WaveGenSCPI:
 
         return reply
 
-    def _execute_locked(self, raw, upper):
+    def _execute_locked(
+        self,
+        raw,
+        upper,
+    ):
         s = self.state
 
         # ----------------------------------------------------------
@@ -132,7 +154,7 @@ class WaveGenSCPI:
         if upper == "*OPC?":
             return "1"
 
-        if upper in ("*CLS",):
+        if upper == "*CLS":
             s.errors.clear()
             return None
 
@@ -149,12 +171,18 @@ class WaveGenSCPI:
         if upper == ":WGEN:FUNC?":
             return s.function
 
-        if upper.startswith(":WGEN:FUNC "):
-            value = raw.split(None, 1)[1].strip().upper()
+        if upper.startswith(
+            ":WGEN:FUNC "
+        ):
+            value = (
+                raw.split(None, 1)[1]
+                .strip()
+                .upper()
+            )
 
             if value != "ARB":
                 raise ValueError(
-                    "simulator currently supports ARB only"
+                    "simulator supports ARB only"
                 )
 
             s.function = value
@@ -165,11 +193,24 @@ class WaveGenSCPI:
         # ----------------------------------------------------------
 
         if upper == ":WGEN:OUTP?":
-            return "1" if s.output_on else "0"
+            return (
+                "1"
+                if s.output_on
+                else "0"
+            )
 
-        if upper.startswith(":WGEN:OUTP "):
-            value = raw.split(None, 1)[1]
-            s.output_on = self._bool_value(value)
+        if upper.startswith(
+            ":WGEN:OUTP "
+        ):
+            value = raw.split(
+                None,
+                1,
+            )[1]
+
+            s.output_on = (
+                self._bool_value(value)
+            )
+
             return None
 
         # ----------------------------------------------------------
@@ -179,9 +220,14 @@ class WaveGenSCPI:
         if upper == ":WGEN:PER?":
             return f"{s.period_s:.12g}"
 
-        if upper.startswith(":WGEN:PER "):
+        if upper.startswith(
+            ":WGEN:PER "
+        ):
             value = float(
-                raw.split(None, 1)[1]
+                raw.split(
+                    None,
+                    1,
+                )[1]
             )
 
             if value <= 0:
@@ -203,8 +249,12 @@ class WaveGenSCPI:
             ":WGEN:VOLT:HIGH "
         ):
             s.vhigh_v = float(
-                raw.split(None, 1)[1]
+                raw.split(
+                    None,
+                    1,
+                )[1]
             )
+
             return None
 
         if upper == ":WGEN:VOLT:LOW?":
@@ -214,96 +264,381 @@ class WaveGenSCPI:
             ":WGEN:VOLT:LOW "
         ):
             s.vlow_v = float(
-                raw.split(None, 1)[1]
+                raw.split(
+                    None,
+                    1,
+                )[1]
             )
+
             return None
 
         # ----------------------------------------------------------
-        # ARB preparation commands from Chhetra's controller
+        # ARB preparation/configuration
         # ----------------------------------------------------------
 
         if upper.startswith(
             ":FUNC:ARB:FILT "
         ):
             s.arb_filter = (
-                raw.split(None, 1)[1]
+                raw.split(
+                    None,
+                    1,
+                )[1]
                 .strip()
                 .upper()
             )
+
             return None
 
         if upper.startswith(
             ":WGEN:ARB:INTERPOLATE "
         ):
-            value = raw.split(None, 1)[1]
-            s.interpolate = self._bool_value(
-                value
+            value = raw.split(
+                None,
+                1,
+            )[1]
+
+            s.interpolate = (
+                self._bool_value(value)
             )
+
             return None
 
         if upper.startswith(
             ":WGEN:OUTP:LOAD "
         ):
             s.load = (
-                raw.split(None, 1)[1]
+                raw.split(
+                    None,
+                    1,
+                )[1]
                 .strip()
                 .upper()
             )
+
             return None
 
         if upper.startswith(
             ":WGEN:OUTP:MODE "
         ):
             s.output_mode = (
-                raw.split(None, 1)[1]
+                raw.split(
+                    None,
+                    1,
+                )[1]
                 .strip()
                 .upper()
             )
+
             return None
 
         if upper.startswith(
             ":WGEN:OUTP:INV "
         ):
-            value = raw.split(None, 1)[1]
-            s.invert = self._bool_value(
-                value
+            value = raw.split(
+                None,
+                1,
+            )[1]
+
+            s.invert = (
+                self._bool_value(value)
             )
+
+            return None
+
+        # ----------------------------------------------------------
+        # ARB waveform data
+        # ----------------------------------------------------------
+
+        if upper == (
+            ":WGEN:ARB:DATA:CLEAR"
+        ):
+            s.arb_values = []
+            s.last_transfer = None
+
+            return None
+
+        if upper == (
+            ":WGEN:ARB:DATA:"
+            "ATTRIBUTE:POINTS?"
+        ):
+            return str(
+                len(s.arb_values)
+            )
+
+        # ASCII waveform transfer.
+        if upper.startswith(
+            ":WGEN:ARB:DATA "
+        ):
+            payload = raw.split(
+                None,
+                1,
+            )[1]
+
+            values = [
+                float(value)
+                for value
+                in payload.split(",")
+                if value.strip()
+            ]
+
+            if not values:
+                raise ValueError(
+                    "ARB upload contained "
+                    "no samples"
+                )
+
+            s.arb_values = values
+            s.last_transfer = "ascii"
+
             return None
 
         raise ValueError(
-            f"unsupported SCPI command: {raw}"
+            "unsupported SCPI command: "
+            f"{raw}"
         )
+
+    def load_binary_arb(
+        self,
+        payload,
+    ):
+        """Load little-endian float32 ARB payload."""
+
+        if len(payload) % 4:
+            raise ValueError(
+                "binary ARB payload is "
+                "not float32 aligned"
+            )
+
+        values = [
+            item[0]
+            for item
+            in struct.iter_unpack(
+                "<f",
+                payload,
+            )
+        ]
+
+        if not values:
+            raise ValueError(
+                "binary ARB upload contained "
+                "no samples"
+            )
+
+        with self.state.lock:
+            self.state.arb_values = (
+                values
+            )
+
+            self.state.last_transfer = (
+                "binary"
+            )
+
+        if self.verbose:
+            log.debug(
+                "binary ARB upload -> "
+                "%d points",
+                len(values),
+            )
 
 
 class WaveGenTCPHandler(
-    socketserver.StreamRequestHandler
+    socketserver.BaseRequestHandler
 ):
+    BINARY_PREFIX = (
+        b":WGEN:ARB:DATA "
+    )
+
     def handle(self):
-        simulator = self.server.simulator
+        simulator = (
+            self.server.simulator
+        )
+
+        buffer = bytearray()
 
         while True:
-            raw = self.rfile.readline()
+            chunk = self.request.recv(
+                65536
+            )
 
-            if not raw:
+            if not chunk:
                 return
 
-            try:
-                command = raw.decode(
-                    "ascii"
-                ).strip("\r\n")
+            buffer.extend(chunk)
 
-            except UnicodeDecodeError:
-                return
+            while buffer:
 
-            reply = simulator.execute(command)
+                # --------------------------------------------------
+                # IEEE-488.2 definite-length binary block:
+                #
+                # :WGEN:ARB:DATA #<N><LEN><PAYLOAD>
+                # --------------------------------------------------
 
-            if reply is not None:
-                self.wfile.write(
-                    (str(reply) + "\n").encode(
+                prefix = self.BINARY_PREFIX
+
+                if buffer.startswith(
+                    prefix
+                ):
+                    prefix_len = len(
+                        prefix
+                    )
+
+                    if (
+                        len(buffer)
+                        <= prefix_len
+                    ):
+                        break
+
+                    if (
+                        buffer[
+                            prefix_len:
+                            prefix_len + 1
+                        ]
+                        == b"#"
+                    ):
+                        if (
+                            len(buffer)
+                            < prefix_len + 2
+                        ):
+                            break
+
+                        digit_raw = bytes(
+                            buffer[
+                                prefix_len + 1:
+                                prefix_len + 2
+                            ]
+                        )
+
+                        try:
+                            ndigits = int(
+                                digit_raw.decode(
+                                    "ascii"
+                                )
+                            )
+
+                        except ValueError:
+                            return
+
+                        if ndigits <= 0:
+                            return
+
+                        header_end = (
+                            prefix_len
+                            + 2
+                            + ndigits
+                        )
+
+                        if (
+                            len(buffer)
+                            < header_end
+                        ):
+                            break
+
+                        length_raw = bytes(
+                            buffer[
+                                prefix_len + 2:
+                                header_end
+                            ]
+                        )
+
+                        try:
+                            payload_len = int(
+                                length_raw.decode(
+                                    "ascii"
+                                )
+                            )
+
+                        except ValueError:
+                            return
+
+                        total = (
+                            header_end
+                            + payload_len
+                        )
+
+                        if len(buffer) < total:
+                            break
+
+                        payload = bytes(
+                            buffer[
+                                header_end:
+                                total
+                            ]
+                        )
+
+                        del buffer[:total]
+
+                        # PyVISA may append the
+                        # configured terminator.
+                        while (
+                            buffer
+                            and buffer[:1]
+                            in (
+                                b"\r",
+                                b"\n",
+                            )
+                        ):
+                            del buffer[:1]
+
+                        try:
+                            simulator.load_binary_arb(
+                                payload
+                            )
+
+                        except Exception as exc:
+                            simulator.state.push_error(
+                                f'-100,"{exc}"'
+                            )
+
+                        continue
+
+                # --------------------------------------------------
+                # Normal line-oriented SCPI / ASCII ARB
+                # --------------------------------------------------
+
+                newline = buffer.find(
+                    b"\n"
+                )
+
+                if newline < 0:
+                    break
+
+                raw = bytes(
+                    buffer[:newline]
+                )
+
+                del buffer[
+                    :newline + 1
+                ]
+
+                raw = raw.rstrip(
+                    b"\r"
+                )
+
+                if not raw:
+                    continue
+
+                try:
+                    command = raw.decode(
                         "ascii"
                     )
+
+                except UnicodeDecodeError:
+                    return
+
+                reply = simulator.execute(
+                    command
                 )
-                self.wfile.flush()
+
+                if reply is not None:
+                    self.request.sendall(
+                        (
+                            str(reply)
+                            + "\n"
+                        ).encode(
+                            "ascii"
+                        )
+                    )
 
 
 class WaveGenTCPServer(
@@ -330,6 +665,8 @@ def start_server(
     port=0,
     verbose=False,
 ):
+    """Start simulator in a background thread."""
+
     simulator = WaveGenSCPI(
         verbose=verbose
     )
@@ -346,7 +683,11 @@ def start_server(
 
     thread.start()
 
-    return server, thread, simulator
+    return (
+        server,
+        thread,
+        simulator,
+    )
 
 
 def main():
@@ -384,16 +725,24 @@ def main():
         ),
     )
 
-    server, _, _ = start_server(
-        host=args.host,
-        port=args.port,
-        verbose=args.verbose,
+    simulator = WaveGenSCPI(
+        verbose=args.verbose
     )
 
-    host, port = server.server_address
+    server = WaveGenTCPServer(
+        (
+            args.host,
+            args.port,
+        ),
+        simulator,
+    )
+
+    host, port = (
+        server.server_address
+    )
 
     print(
-        f"Keysight WaveGen simulator "
+        "Keysight WaveGen simulator "
         f"listening on {host}:{port}"
     )
 

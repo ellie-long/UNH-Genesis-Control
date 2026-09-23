@@ -29,6 +29,8 @@ class FakeVisaResource:
             '+0,"No error"',
         ]
 
+        self.fail_binary_write = False
+
     def write(self, command):
         self.writes.append(command)
         return len(command)
@@ -68,6 +70,11 @@ class FakeVisaResource:
         datatype="f",
         is_big_endian=False,
     ):
+        if self.fail_binary_write:
+            raise RuntimeError(
+                "synthetic binary transfer failure"
+            )
+
         self.binary_writes.append(
             (
                 command,
@@ -242,6 +249,36 @@ class TestVisaConnection(unittest.TestCase):
 
         self.assertIsNone(
             self.connection.rm
+        )
+
+    def test_binary_failure_can_preserve_connection(self):
+        self.rm.resource.fail_binary_write = True
+
+        with self.assertRaises(OSError):
+            self.connection.write_binary_values(
+                ":WGEN:ARB:DATA ",
+                [-1.0, 0.0, 1.0],
+                datatype="f",
+                is_big_endian=False,
+                close_on_error=False,
+            )
+
+        self.assertIsNotNone(
+            self.connection.handle
+        )
+
+        self.assertIsNotNone(
+            self.connection.rm
+        )
+
+        self.assertEqual(
+            self.connection.idn(),
+            (
+                "Keysight Technologies,"
+                "DSOX3024T,"
+                "MY57252012,"
+                "TEST"
+            ),
         )
 
 

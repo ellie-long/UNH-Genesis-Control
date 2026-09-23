@@ -202,6 +202,7 @@ class VisaConnection:
         values,
         datatype="f",
         is_big_endian=False,
+        close_on_error=True,
     ):
         """Write an IEEE binary block through PyVISA."""
 
@@ -224,7 +225,8 @@ class VisaConnection:
                 return result
 
             except Exception as exc:
-                self.close()
+                if close_on_error:
+                    self.close()
 
                 raise OSError(
                     f"binary write {command!r} to "
