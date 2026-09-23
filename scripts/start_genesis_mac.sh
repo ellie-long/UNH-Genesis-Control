@@ -8,10 +8,13 @@ set -euo pipefail
 #   1. IOC Manager
 #   2. Microwave SPD1305X IOC
 #   3. ssRF SMC100A IOC
-#   4. EPICS archiver
-#   5. Enables archiving
-#   6. Verifies the live device IOCs
-#   7. Launches Phoebus with Genesis PVA settings
+#   4. Keysight WaveGen IOC
+#   5. NMR switch IOC
+#   6. ssRF switch IOC
+#   7. EPICS archiver
+#   8. Enables archiving
+#   9. Verifies the live device IOCs
+#  10. Launches Phoebus with Genesis PVA settings
 #
 # Default hardware mode is intentionally READ-ONLY.
 # ================================================================
@@ -30,6 +33,9 @@ MAIN_GUI="${REPO_ROOT}/gui/genesis_ssrf_smc100a.bob"
 
 MW_SETTINGS="${REPO_ROOT}/configs/microwave/spd1305x/settings.yaml"
 SMC_SETTINGS="${REPO_ROOT}/configs/ssrf/smc100a/settings.yaml"
+WGEN_SETTINGS="${REPO_ROOT}/configs/ssrf/keysight_wavegen/settings.yaml"
+NMR_SWITCH_SETTINGS="${REPO_ROOT}/configs/ssrf/nmr_switch/settings.yaml"
+RF_SWITCH_SETTINGS="${REPO_ROOT}/configs/ssrf/rf_switch/settings.yaml"
 
 echo
 echo "============================================================"
@@ -138,11 +144,23 @@ check_read_only_config \
     "ssRF SMC100A" \
     "${SMC_SETTINGS}"
 
+check_read_only_config \
+    "Keysight WaveGen" \
+    "${WGEN_SETTINGS}"
+
+check_read_only_config \
+    "NMR RF switch" \
+    "${NMR_SWITCH_SETTINGS}"
+
+check_read_only_config \
+    "ssRF switch" \
+    "${RF_SWITCH_SETTINGS}"
+
 # ----------------------------------------------------------------
 # EPICS Channel Access environment for Python tools / archiver
 # ----------------------------------------------------------------
 
-export EPICS_CA_ADDR_LIST="127.0.0.1:5064 127.0.0.1:5066 127.0.0.1:5067 127.0.0.1:5068"
+export EPICS_CA_ADDR_LIST="127.0.0.1:5064 127.0.0.1:5066 127.0.0.1:5067 127.0.0.1:5068 127.0.0.1:5070 127.0.0.1:5071 127.0.0.1:5072"
 export EPICS_CA_AUTO_ADDR_LIST=NO
 
 # ----------------------------------------------------------------
@@ -202,6 +220,9 @@ PY
 
 start_managed_ioc "mw_spd1305x"
 start_managed_ioc "ssrf_smc100a"
+start_managed_ioc "ssrf_keysight_wavegen"
+start_managed_ioc "ssrf_nmr_switch"
+start_managed_ioc "ssrf_rf_switch"
 start_managed_ioc "archiver"
 
 # Allow EPICS records to settle.
@@ -246,6 +267,15 @@ async def main():
         "SMC100A manager":
             await get("UNH:GEN:MAN:ssrf_smc100a_control"),
 
+        "WaveGen manager":
+            await get("UNH:GEN:MAN:ssrf_keysight_wavegen_control"),
+
+        "NMR switch manager":
+            await get("UNH:GEN:MAN:ssrf_nmr_switch_control"),
+
+        "ssRF switch manager":
+            await get("UNH:GEN:MAN:ssrf_rf_switch_control"),
+
         "Microwave COMM":
             await get("UNH:GEN:MW:PS:COMM"),
 
@@ -266,6 +296,39 @@ async def main():
 
         "SMC sweep arm":
             await get("UNH:GEN:SSRF:GEN:SWEEP_ARM_RBV"),
+
+        "WaveGen COMM":
+            await get("UNH:GEN:SSRF:WGEN:COMM"),
+
+        "WaveGen writes":
+            await get("UNH:GEN:SSRF:WGEN:WRITE_ENABLED"),
+
+        "WaveGen output":
+            await get("UNH:GEN:SSRF:WGEN:OUTPUT_RBV"),
+
+        "NMR switch COMM":
+            await get("UNH:GEN:SSRF:NMR_SW:COMM"),
+
+        "NMR switch writes":
+            await get("UNH:GEN:SSRF:NMR_SW:WRITE_ENABLED"),
+
+        "NMR switch mask":
+            await get("UNH:GEN:SSRF:NMR_SW:MASK_RBV"),
+
+        "NMR switch state":
+            await get("UNH:GEN:SSRF:NMR_SW:STATE_RBV"),
+
+        "ssRF switch COMM":
+            await get("UNH:GEN:SSRF:RF_SW:COMM"),
+
+        "ssRF switch writes":
+            await get("UNH:GEN:SSRF:RF_SW:WRITE_ENABLED"),
+
+        "ssRF switch mask":
+            await get("UNH:GEN:SSRF:RF_SW:MASK_RBV"),
+
+        "ssRF switch state":
+            await get("UNH:GEN:SSRF:RF_SW:STATE_RBV"),
 
         "Archive status":
             await get("UNH:GEN:Archive_Status"),
@@ -310,6 +373,44 @@ async def main():
         if value is not None and int(value) != 0:
             print(f"WARNING: {key} is active.")
 
+    if values["WaveGen COMM"] is not None \
+            and int(values["WaveGen COMM"]) != 1:
+        print(
+            "WARNING: WaveGen IOC is running but "
+            "instrument COMM is not connected."
+        )
+
+    if values["WaveGen writes"] is not None \
+            and int(values["WaveGen writes"]) != 0:
+        print("WARNING: WaveGen hardware writes are enabled.")
+
+    if values["WaveGen output"] is not None \
+            and int(values["WaveGen output"]) != 0:
+        print("WARNING: WaveGen physical output is ON.")
+
+    for label in ("NMR", "ssRF"):
+        comm = values[f"{label} switch COMM"]
+        writes = values[f"{label} switch writes"]
+        mask = values[f"{label} switch mask"]
+
+        if comm is not None and int(comm) != 1:
+            print(
+                f"WARNING: {label} switch IOC is running "
+                "but hardware COMM is not connected."
+            )
+
+        if writes is not None and int(writes) != 0:
+            print(
+                f"WARNING: {label} switch hardware writes "
+                "are enabled."
+            )
+
+        if mask is not None and int(mask) in (1, 2):
+            print(
+                f"WARNING: {label} switch is in MIXED state "
+                f"(mask {mask})."
+            )
+
     if values["Archive status"] is not None \
             and int(values["Archive status"]) != 1:
         print("WARNING: Archiver is not active.")
@@ -351,6 +452,9 @@ echo "============================================================"
 echo
 echo "Microwave IOC : read-only"
 echo "SMC100A IOC   : read-only"
+echo "WaveGen IOC   : read-only"
+echo "NMR switch IOC: read-only"
+echo "ssRF switch IOC: read-only"
 echo "Phoebus GUI   : gui/genesis_ssrf_smc100a.bob"
 echo "Phoebus PVs   : PVAccess"
 echo "Archiver      : enabled"

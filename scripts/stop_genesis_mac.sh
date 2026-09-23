@@ -53,7 +53,7 @@ fi
 # EPICS Channel Access
 # ----------------------------------------------------------------
 
-export EPICS_CA_ADDR_LIST="127.0.0.1:5064 127.0.0.1:5066 127.0.0.1:5067 127.0.0.1:5068"
+export EPICS_CA_ADDR_LIST="127.0.0.1:5064 127.0.0.1:5066 127.0.0.1:5067 127.0.0.1:5068 127.0.0.1:5070 127.0.0.1:5071 127.0.0.1:5072"
 export EPICS_CA_AUTO_ADDR_LIST=NO
 
 # ----------------------------------------------------------------
@@ -180,6 +180,62 @@ async def main():
 asyncio.run(main())
 PY
     fi
+
+    if screen_session_exists "ssrf_keysight_wavegen"; then
+        echo "[CHECK] Keysight WaveGen safe state"
+
+        python - <<'PY'
+import asyncio
+import sys
+from aioca import caget
+
+P = "UNH:GEN:SSRF:WGEN"
+
+
+async def main():
+    try:
+        comm = await caget(
+            f"{P}:COMM",
+            timeout=3,
+        )
+        output = await caget(
+            f"{P}:OUTPUT_RBV",
+            timeout=3,
+        )
+
+    except Exception as exc:
+        print(
+            "ERROR: Could not verify WaveGen state: "
+            f"{exc}"
+        )
+        print("Shutdown aborted.")
+        sys.exit(1)
+
+    print(f"WaveGen COMM       = {comm}")
+    print(f"WaveGen OUTPUT_RBV = {output}")
+
+    if int(comm) != 1:
+        print(
+            "ERROR: WaveGen communication is not healthy."
+        )
+        print(
+            "Cannot verify physical WaveGen output state."
+        )
+        sys.exit(1)
+
+    if int(output) != 0:
+        print("ERROR: WaveGen physical output is ON.")
+        print(
+            "Turn it OFF before shutting down Genesis."
+        )
+        sys.exit(1)
+
+    print("[OK] WaveGen output confirmed OFF.")
+
+
+asyncio.run(main())
+PY
+    fi
 fi
 
 # ----------------------------------------------------------------
@@ -228,7 +284,13 @@ PY
 }
 
 # Keep the archiver alive while device IOCs shut down.
+#
+# RF-producing devices are stopped before switch-monitoring IOCs.
+# Stopping the switch IOCs does NOT issue a route command.
 stop_managed_ioc "ssrf_smc100a"
+stop_managed_ioc "ssrf_keysight_wavegen"
+stop_managed_ioc "ssrf_nmr_switch"
+stop_managed_ioc "ssrf_rf_switch"
 stop_managed_ioc "mw_spd1305x"
 stop_managed_ioc "archiver"
 
@@ -253,7 +315,7 @@ echo
 SCREEN_LIST="$(screen -ls 2>&1 || true)"
 
 if grep -E \
-    '\.(ioc-manager|mw_spd1305x|ssrf_smc100a|archiver)[[:space:]]' \
+    '\.(ioc-manager|mw_spd1305x|ssrf_smc100a|ssrf_keysight_wavegen|ssrf_nmr_switch|ssrf_rf_switch|archiver)[[:space:]]' \
     <<< "${SCREEN_LIST}" >/dev/null; then
 
     echo "WARNING: Genesis screen sessions remain:"
