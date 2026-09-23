@@ -1,0 +1,1217 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<display version="2.0.0">
+  <name>Genesis ssRF Subsystem</name>
+  <width>1180</width>
+  <height>870</height>
+  <widget type="rectangle" version="2.0.0">
+    <name>Header_Background</name>
+    <x>0</x>
+    <y>0</y>
+    <width>1180</width>
+    <height>70</height>
+    <line_width>0</line_width>
+    <line_color>
+      <color red="0" green="53" blue="145" />
+    </line_color>
+    <background_color>
+      <color red="0" green="53" blue="145" />
+    </background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Title</name>
+    <x>20</x>
+    <y>13</y>
+    <width>800</width>
+    <height>32</height>
+    <text>UNH Genesis - ssRF Subsystem</text>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="22.0" />
+    </font>
+    <foreground_color>
+      <color red="255" green="255" blue="255" />
+    </foreground_color>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Subtitle</name>
+    <x>830</x>
+    <y>18</y>
+    <width>320</width>
+    <height>24</height>
+    <text>Phase-I subsystem overview</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="12.0" />
+    </font>
+    <foreground_color>
+      <color red="255" green="255" blue="255" />
+    </foreground_color>
+    <horizontal_alignment>2</horizontal_alignment>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>System_Status</name>
+    <x>20</x>
+    <y>90</y>
+    <width>1140</width>
+    <height>120</height>
+    <line_width>2</line_width>
+    <line_color>
+      <color red="0" green="53" blue="145" />
+    </line_color>
+    <background_color>
+      <color red="240" green="241" blue="244" />
+    </background_color>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>System_Status_Header</name>
+    <x>20</x>
+    <y>90</y>
+    <width>1140</width>
+    <height>38</height>
+    <line_width>0</line_width>
+    <line_color>
+      <color red="0" green="29" blue="82" />
+    </line_color>
+    <background_color>
+      <color red="0" green="29" blue="82" />
+    </background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>System_Status_Title</name>
+    <x>35</x>
+    <y>97</y>
+    <width>1110</width>
+    <height>24</height>
+    <text>SYSTEM STATUS</text>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="15.0" />
+    </font>
+    <foreground_color>
+      <color red="255" green="255" blue="255" />
+    </foreground_color>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Status_0_Name</name>
+    <x>45</x>
+    <y>140</y>
+    <width>125</width>
+    <height>24</height>
+    <text>SMC100A</text>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>Status_0_COMM_LED</name>
+    <x>175</x>
+    <y>137</y>
+    <width>26</width>
+    <height>26</height>
+    <pv_name>pva://UNH:GEN:SSRF:GEN:COMM</pv_name>
+    <bit>0</bit>
+    <off_color>
+      <color red="200" green="50" blue="50" />
+    </off_color>
+    <on_color>
+      <color red="30" green="160" blue="70" />
+    </on_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Status_0_COMM</name>
+    <x>210</x>
+    <y>138</y>
+    <width>90</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:SSRF:GEN:COMM</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Status_0_HB_Label</name>
+    <x>45</x>
+    <y>175</y>
+    <width>70</width>
+    <height>24</height>
+    <text>IOC HB:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Status_0_HB</name>
+    <x>115</x>
+    <y>173</y>
+    <width>75</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:MAN:ssrf_smc100a_hb</pv_name>
+    <precision>0</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Status_0_HB_Unit</name>
+    <x>195</x>
+    <y>175</y>
+    <width>20</width>
+    <height>24</height>
+    <text>s</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Status_1_Name</name>
+    <x>320</x>
+    <y>140</y>
+    <width>125</width>
+    <height>24</height>
+    <text>WaveGen</text>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>Status_1_COMM_LED</name>
+    <x>450</x>
+    <y>137</y>
+    <width>26</width>
+    <height>26</height>
+    <pv_name>pva://UNH:GEN:SSRF:WGEN:COMM</pv_name>
+    <bit>0</bit>
+    <off_color>
+      <color red="200" green="50" blue="50" />
+    </off_color>
+    <on_color>
+      <color red="30" green="160" blue="70" />
+    </on_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Status_1_COMM</name>
+    <x>485</x>
+    <y>138</y>
+    <width>90</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:SSRF:WGEN:COMM</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Status_1_HB_Label</name>
+    <x>320</x>
+    <y>175</y>
+    <width>70</width>
+    <height>24</height>
+    <text>IOC HB:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Status_1_HB</name>
+    <x>390</x>
+    <y>173</y>
+    <width>75</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:MAN:ssrf_keysight_wavegen_hb</pv_name>
+    <precision>0</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Status_1_HB_Unit</name>
+    <x>470</x>
+    <y>175</y>
+    <width>20</width>
+    <height>24</height>
+    <text>s</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Status_2_Name</name>
+    <x>595</x>
+    <y>140</y>
+    <width>125</width>
+    <height>24</height>
+    <text>NMR Switch</text>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>Status_2_COMM_LED</name>
+    <x>725</x>
+    <y>137</y>
+    <width>26</width>
+    <height>26</height>
+    <pv_name>pva://UNH:GEN:SSRF:NMR_SW:COMM</pv_name>
+    <bit>0</bit>
+    <off_color>
+      <color red="200" green="50" blue="50" />
+    </off_color>
+    <on_color>
+      <color red="30" green="160" blue="70" />
+    </on_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Status_2_COMM</name>
+    <x>760</x>
+    <y>138</y>
+    <width>90</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:SSRF:NMR_SW:COMM</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Status_2_HB_Label</name>
+    <x>595</x>
+    <y>175</y>
+    <width>70</width>
+    <height>24</height>
+    <text>IOC HB:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Status_2_HB</name>
+    <x>665</x>
+    <y>173</y>
+    <width>75</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:MAN:ssrf_nmr_switch_hb</pv_name>
+    <precision>0</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Status_2_HB_Unit</name>
+    <x>745</x>
+    <y>175</y>
+    <width>20</width>
+    <height>24</height>
+    <text>s</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Status_3_Name</name>
+    <x>870</x>
+    <y>140</y>
+    <width>125</width>
+    <height>24</height>
+    <text>ssRF Switch</text>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>Status_3_COMM_LED</name>
+    <x>1000</x>
+    <y>137</y>
+    <width>26</width>
+    <height>26</height>
+    <pv_name>pva://UNH:GEN:SSRF:RF_SW:COMM</pv_name>
+    <bit>0</bit>
+    <off_color>
+      <color red="200" green="50" blue="50" />
+    </off_color>
+    <on_color>
+      <color red="30" green="160" blue="70" />
+    </on_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Status_3_COMM</name>
+    <x>1035</x>
+    <y>138</y>
+    <width>90</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:SSRF:RF_SW:COMM</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Status_3_HB_Label</name>
+    <x>870</x>
+    <y>175</y>
+    <width>70</width>
+    <height>24</height>
+    <text>IOC HB:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Status_3_HB</name>
+    <x>940</x>
+    <y>173</y>
+    <width>75</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:MAN:ssrf_rf_switch_hb</pv_name>
+    <precision>0</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Status_3_HB_Unit</name>
+    <x>1020</x>
+    <y>175</y>
+    <width>20</width>
+    <height>24</height>
+    <text>s</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>SMC_Card</name>
+    <x>20</x>
+    <y>230</y>
+    <width>555</width>
+    <height>280</height>
+    <line_width>2</line_width>
+    <line_color>
+      <color red="0" green="53" blue="145" />
+    </line_color>
+    <background_color>
+      <color red="240" green="241" blue="244" />
+    </background_color>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>SMC_Card_Header</name>
+    <x>20</x>
+    <y>230</y>
+    <width>555</width>
+    <height>38</height>
+    <line_width>0</line_width>
+    <line_color>
+      <color red="0" green="29" blue="82" />
+    </line_color>
+    <background_color>
+      <color red="0" green="29" blue="82" />
+    </background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>SMC_Card_Title</name>
+    <x>35</x>
+    <y>237</y>
+    <width>525</width>
+    <height>24</height>
+    <text>RF SOURCE - R&amp;S SMC100A</text>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="15.0" />
+    </font>
+    <foreground_color>
+      <color red="255" green="255" blue="255" />
+    </foreground_color>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>SMC_FREQ_RBV_L</name>
+    <x>45</x>
+    <y>282</y>
+    <width>115</width>
+    <height>24</height>
+    <text>Frequency:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>SMC_FREQ_RBV_V</name>
+    <x>165</x>
+    <y>280</y>
+    <width>125</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:SSRF:GEN:FREQ_RBV</pv_name>
+    <precision>3</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>SMC_FREQ_RBV_U</name>
+    <x>298</x>
+    <y>282</y>
+    <width>45</width>
+    <height>24</height>
+    <text>MHz</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>SMC_LEVEL_RBV_L</name>
+    <x>45</x>
+    <y>313</y>
+    <width>115</width>
+    <height>24</height>
+    <text>RF level:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>SMC_LEVEL_RBV_V</name>
+    <x>165</x>
+    <y>311</y>
+    <width>125</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:SSRF:GEN:LEVEL_RBV</pv_name>
+    <precision>2</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>SMC_LEVEL_RBV_U</name>
+    <x>298</x>
+    <y>313</y>
+    <width>45</width>
+    <height>24</height>
+    <text>dBm</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>SMC_RF_RBV_L</name>
+    <x>45</x>
+    <y>344</y>
+    <width>115</width>
+    <height>24</height>
+    <text>RF output:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>SMC_RF_RBV_V</name>
+    <x>165</x>
+    <y>342</y>
+    <width>125</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:SSRF:GEN:RF_RBV</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>SMC_FM_RBV_L</name>
+    <x>45</x>
+    <y>375</y>
+    <width>115</width>
+    <height>24</height>
+    <text>FM:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>SMC_FM_RBV_V</name>
+    <x>165</x>
+    <y>373</y>
+    <width>125</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:SSRF:GEN:FM_RBV</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>SMC_FM_SOURCE_RBV_L</name>
+    <x>45</x>
+    <y>406</y>
+    <width>115</width>
+    <height>24</height>
+    <text>FM source:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>SMC_FM_SOURCE_RBV_V</name>
+    <x>165</x>
+    <y>404</y>
+    <width>125</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:SSRF:GEN:FM_SOURCE_RBV</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>SMC_SWEEP_ARM_RBV_L</name>
+    <x>45</x>
+    <y>437</y>
+    <width>115</width>
+    <height>24</height>
+    <text>Sweep armed:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>SMC_SWEEP_ARM_RBV_V</name>
+    <x>165</x>
+    <y>435</y>
+    <width>125</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:SSRF:GEN:SWEEP_ARM_RBV</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>SMC_Write_Label</name>
+    <x>350</x>
+    <y>282</y>
+    <width>85</width>
+    <height>24</height>
+    <text>Write gate:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>SMC_Write_LED</name>
+    <x>435</x>
+    <y>278</y>
+    <width>26</width>
+    <height>26</height>
+    <pv_name>pva://UNH:GEN:SSRF:GEN:WRITE_ENABLED</pv_name>
+    <bit>0</bit>
+    <off_color>
+      <color red="210" green="130" blue="20" />
+    </off_color>
+    <on_color>
+      <color red="30" green="160" blue="70" />
+    </on_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>SMC_Write_Value</name>
+    <x>468</x>
+    <y>280</y>
+    <width>80</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:SSRF:GEN:WRITE_ENABLED</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Open_SMC</name>
+    <x>350</x>
+    <y>442</y>
+    <width>190</width>
+    <height>34</height>
+    <actions>
+      <action type="open_display">
+        <file>genesis_ssrf_smc100a.bob</file>
+        <target>window</target>
+        <description>Open Open SMC100A Controls</description>
+      </action>
+    </actions>
+    <text>Open SMC100A Controls</text>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>WaveGen_Card</name>
+    <x>600</x>
+    <y>230</y>
+    <width>560</width>
+    <height>280</height>
+    <line_width>2</line_width>
+    <line_color>
+      <color red="0" green="53" blue="145" />
+    </line_color>
+    <background_color>
+      <color red="240" green="241" blue="244" />
+    </background_color>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>WaveGen_Card_Header</name>
+    <x>600</x>
+    <y>230</y>
+    <width>560</width>
+    <height>38</height>
+    <line_width>0</line_width>
+    <line_color>
+      <color red="0" green="29" blue="82" />
+    </line_color>
+    <background_color>
+      <color red="0" green="29" blue="82" />
+    </background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>WaveGen_Card_Title</name>
+    <x>615</x>
+    <y>237</y>
+    <width>530</width>
+    <height>24</height>
+    <text>EXTERNAL FM - KEYSIGHT WAVEGEN</text>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="15.0" />
+    </font>
+    <foreground_color>
+      <color red="255" green="255" blue="255" />
+    </foreground_color>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>WG_OUTPUT_RBV_L</name>
+    <x>625</x>
+    <y>282</y>
+    <width>120</width>
+    <height>24</height>
+    <text>Output:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>WG_OUTPUT_RBV_V</name>
+    <x>750</x>
+    <y>280</y>
+    <width>125</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:SSRF:WGEN:OUTPUT_RBV</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>WG_PERIOD_RBV_L</name>
+    <x>625</x>
+    <y>313</y>
+    <width>120</width>
+    <height>24</height>
+    <text>Period:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>WG_PERIOD_RBV_V</name>
+    <x>750</x>
+    <y>311</y>
+    <width>125</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:SSRF:WGEN:PERIOD_RBV</pv_name>
+    <precision>6</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>WG_PERIOD_RBV_U</name>
+    <x>883</x>
+    <y>313</y>
+    <width>35</width>
+    <height>24</height>
+    <text>s</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>WG_VHIGH_RBV_L</name>
+    <x>625</x>
+    <y>344</y>
+    <width>120</width>
+    <height>24</height>
+    <text>High voltage:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>WG_VHIGH_RBV_V</name>
+    <x>750</x>
+    <y>342</y>
+    <width>125</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:SSRF:WGEN:VHIGH_RBV</pv_name>
+    <precision>4</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>WG_VHIGH_RBV_U</name>
+    <x>883</x>
+    <y>344</y>
+    <width>35</width>
+    <height>24</height>
+    <text>V</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>WG_VLOW_RBV_L</name>
+    <x>625</x>
+    <y>375</y>
+    <width>120</width>
+    <height>24</height>
+    <text>Low voltage:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>WG_VLOW_RBV_V</name>
+    <x>750</x>
+    <y>373</y>
+    <width>125</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:SSRF:WGEN:VLOW_RBV</pv_name>
+    <precision>4</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>WG_VLOW_RBV_U</name>
+    <x>883</x>
+    <y>375</y>
+    <width>35</width>
+    <height>24</height>
+    <text>V</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>WG_WAVEFORM_POINTS_L</name>
+    <x>625</x>
+    <y>406</y>
+    <width>120</width>
+    <height>24</height>
+    <text>Staged points:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>WG_WAVEFORM_POINTS_V</name>
+    <x>750</x>
+    <y>404</y>
+    <width>125</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:SSRF:WGEN:WAVEFORM_POINTS</pv_name>
+    <precision>0</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>WG_ARB_POINTS_RBV_L</name>
+    <x>625</x>
+    <y>437</y>
+    <width>120</width>
+    <height>24</height>
+    <text>Loaded points:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>WG_ARB_POINTS_RBV_V</name>
+    <x>750</x>
+    <y>435</y>
+    <width>125</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:SSRF:WGEN:ARB_POINTS_RBV</pv_name>
+    <precision>0</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>WG_Ready_L</name>
+    <x>935</x>
+    <y>282</y>
+    <width>75</width>
+    <height>24</height>
+    <text>Waveform:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>WG_Ready_LED</name>
+    <x>1015</x>
+    <y>278</y>
+    <width>26</width>
+    <height>26</height>
+    <pv_name>pva://UNH:GEN:SSRF:WGEN:WAVEFORM_READY</pv_name>
+    <bit>0</bit>
+    <off_color>
+      <color red="210" green="130" blue="20" />
+    </off_color>
+    <on_color>
+      <color red="30" green="160" blue="70" />
+    </on_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>WG_Ready_V</name>
+    <x>1048</x>
+    <y>280</y>
+    <width>95</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:SSRF:WGEN:WAVEFORM_READY</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>WG_Write_L</name>
+    <x>935</x>
+    <y>322</y>
+    <width>75</width>
+    <height>24</height>
+    <text>Write gate:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>WG_Write_LED</name>
+    <x>1015</x>
+    <y>318</y>
+    <width>26</width>
+    <height>26</height>
+    <pv_name>pva://UNH:GEN:SSRF:WGEN:WRITE_ENABLED</pv_name>
+    <bit>0</bit>
+    <off_color>
+      <color red="210" green="130" blue="20" />
+    </off_color>
+    <on_color>
+      <color red="30" green="160" blue="70" />
+    </on_color>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Open_WaveGen</name>
+    <x>935</x>
+    <y>442</y>
+    <width>200</width>
+    <height>34</height>
+    <actions>
+      <action type="open_display">
+        <file>genesis_ssrf_wavegen.bob</file>
+        <target>window</target>
+        <description>Open Open WaveGen Controls</description>
+      </action>
+    </actions>
+    <text>Open WaveGen Controls</text>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>Switch_Card</name>
+    <x>20</x>
+    <y>530</y>
+    <width>1140</width>
+    <height>270</height>
+    <line_width>2</line_width>
+    <line_color>
+      <color red="0" green="53" blue="145" />
+    </line_color>
+    <background_color>
+      <color red="240" green="241" blue="244" />
+    </background_color>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>Switch_Card_Header</name>
+    <x>20</x>
+    <y>530</y>
+    <width>1140</width>
+    <height>38</height>
+    <line_width>0</line_width>
+    <line_color>
+      <color red="0" green="29" blue="82" />
+    </line_color>
+    <background_color>
+      <color red="0" green="29" blue="82" />
+    </background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Switch_Card_Title</name>
+    <x>35</x>
+    <y>537</y>
+    <width>1110</width>
+    <height>24</height>
+    <text>RF ROUTING - MINI-CIRCUITS SWITCHES</text>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="15.0" />
+    </font>
+    <foreground_color>
+      <color red="255" green="255" blue="255" />
+    </foreground_color>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>NMR_SW_Title</name>
+    <x>45</x>
+    <y>585</y>
+    <width>300</width>
+    <height>24</height>
+    <text>NMR / Receiver Protection Switch</text>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>NMR_STATE_RBV_L</name>
+    <x>45</x>
+    <y>620</y>
+    <width>85</width>
+    <height>24</height>
+    <text>State:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>NMR_STATE_RBV_V</name>
+    <x>135</x>
+    <y>618</y>
+    <width>180</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:SSRF:NMR_SW:STATE_RBV</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>NMR_MASK_RBV_L</name>
+    <x>45</x>
+    <y>651</y>
+    <width>85</width>
+    <height>24</height>
+    <text>Mask:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>NMR_MASK_RBV_V</name>
+    <x>135</x>
+    <y>649</y>
+    <width>180</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:SSRF:NMR_SW:MASK_RBV</pv_name>
+    <precision>0</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>NMR_MODEL_L</name>
+    <x>45</x>
+    <y>682</y>
+    <width>85</width>
+    <height>24</height>
+    <text>Model:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>NMR_MODEL_V</name>
+    <x>135</x>
+    <y>680</y>
+    <width>180</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:SSRF:NMR_SW:MODEL</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>NMR_SERIAL_L</name>
+    <x>45</x>
+    <y>713</y>
+    <width>85</width>
+    <height>24</height>
+    <text>Serial:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>NMR_SERIAL_V</name>
+    <x>135</x>
+    <y>711</y>
+    <width>180</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:SSRF:NMR_SW:SERIAL</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>NMR_Write_L</name>
+    <x>340</x>
+    <y>620</y>
+    <width>85</width>
+    <height>24</height>
+    <text>Write gate:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>NMR_Write_LED</name>
+    <x>430</x>
+    <y>616</y>
+    <width>26</width>
+    <height>26</height>
+    <pv_name>pva://UNH:GEN:SSRF:NMR_SW:WRITE_ENABLED</pv_name>
+    <bit>0</bit>
+    <off_color>
+      <color red="210" green="130" blue="20" />
+    </off_color>
+    <on_color>
+      <color red="30" green="160" blue="70" />
+    </on_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>RF_SW_Title</name>
+    <x>610</x>
+    <y>585</y>
+    <width>270</width>
+    <height>24</height>
+    <text>ssRF / Burn Path Switch</text>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>RF_STATE_RBV_L</name>
+    <x>610</x>
+    <y>620</y>
+    <width>85</width>
+    <height>24</height>
+    <text>State:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>RF_STATE_RBV_V</name>
+    <x>700</x>
+    <y>618</y>
+    <width>180</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:SSRF:RF_SW:STATE_RBV</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>RF_MASK_RBV_L</name>
+    <x>610</x>
+    <y>651</y>
+    <width>85</width>
+    <height>24</height>
+    <text>Mask:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>RF_MASK_RBV_V</name>
+    <x>700</x>
+    <y>649</y>
+    <width>180</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:SSRF:RF_SW:MASK_RBV</pv_name>
+    <precision>0</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>RF_MODEL_L</name>
+    <x>610</x>
+    <y>682</y>
+    <width>85</width>
+    <height>24</height>
+    <text>Model:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>RF_MODEL_V</name>
+    <x>700</x>
+    <y>680</y>
+    <width>180</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:SSRF:RF_SW:MODEL</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>RF_SERIAL_L</name>
+    <x>610</x>
+    <y>713</y>
+    <width>85</width>
+    <height>24</height>
+    <text>Serial:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>RF_SERIAL_V</name>
+    <x>700</x>
+    <y>711</y>
+    <width>180</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:SSRF:RF_SW:SERIAL</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>RF_Write_L</name>
+    <x>905</x>
+    <y>620</y>
+    <width>85</width>
+    <height>24</height>
+    <text>Write gate:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>RF_Write_LED</name>
+    <x>995</x>
+    <y>616</y>
+    <width>26</width>
+    <height>26</height>
+    <pv_name>pva://UNH:GEN:SSRF:RF_SW:WRITE_ENABLED</pv_name>
+    <bit>0</bit>
+    <off_color>
+      <color red="210" green="130" blue="20" />
+    </off_color>
+    <on_color>
+      <color red="30" green="160" blue="70" />
+    </on_color>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Open_Switches</name>
+    <x>905</x>
+    <y>735</y>
+    <width>205</width>
+    <height>34</height>
+    <actions>
+      <action type="open_display">
+        <file>genesis_ssrf_switches.bob</file>
+        <target>window</target>
+        <description>Open Open Switch Controls</description>
+      </action>
+    </actions>
+    <text>Open Switch Controls</text>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Safety_Note</name>
+    <x>30</x>
+    <y>818</y>
+    <width>1120</width>
+    <height>38</height>
+    <text>Phase-I commissioning: read-only startup is the default. MIXED switch masks (1 or 2) are unsafe. Burn permission/interlock logic is not yet implemented on this screen.</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="12.0" />
+    </font>
+    <foreground_color>
+      <color red="105" green="115" blue="125" />
+    </foreground_color>
+    <wrap_words>true</wrap_words>
+    <transparent>true</transparent>
+  </widget>
+</display>

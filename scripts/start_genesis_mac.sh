@@ -29,7 +29,7 @@ PHOEBUS_BIN="/Applications/CSS_Phoebus.app/Contents/MacOS/main.command"
 PHOEBUS_SETTINGS="${REPO_ROOT}/configs/phoebus/genesis_mac_settings.ini"
 # Temporary Phase-I commissioning entry screen.
 # Replace this with the future integrated Genesis overview GUI.
-MAIN_GUI="${REPO_ROOT}/gui/genesis_ssrf_smc100a.bob"
+MAIN_GUI="${REPO_ROOT}/gui/genesis_ssrf.bob"
 
 MW_SETTINGS="${REPO_ROOT}/configs/microwave/spd1305x/settings.yaml"
 SMC_SETTINGS="${REPO_ROOT}/configs/ssrf/smc100a/settings.yaml"
@@ -455,7 +455,7 @@ echo "SMC100A IOC   : read-only"
 echo "WaveGen IOC   : read-only"
 echo "NMR switch IOC: read-only"
 echo "ssRF switch IOC: read-only"
-echo "Phoebus GUI   : gui/genesis_ssrf_smc100a.bob"
+echo "Phoebus GUI   : gui/genesis_ssrf.bob"
 echo "Phoebus PVs   : PVAccess"
 echo "Archiver      : enabled"
 echo

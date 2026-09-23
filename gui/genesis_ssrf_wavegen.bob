@@ -1,0 +1,729 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<display version="2.0.0">
+  <name>Genesis ssRF - Keysight WaveGen</name>
+  <width>1040</width>
+  <height>800</height>
+  <widget type="rectangle" version="2.0.0">
+    <name>Header_Background</name>
+    <x>0</x>
+    <y>0</y>
+    <width>1040</width>
+    <height>70</height>
+    <line_width>0</line_width>
+    <line_color>
+      <color red="0" green="53" blue="145" />
+    </line_color>
+    <background_color>
+      <color red="0" green="53" blue="145" />
+    </background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Title</name>
+    <x>20</x>
+    <y>13</y>
+    <width>660</width>
+    <height>32</height>
+    <text>UNH Genesis - Keysight WaveGen</text>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="22.0" />
+    </font>
+    <foreground_color>
+      <color red="255" green="255" blue="255" />
+    </foreground_color>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Subtitle</name>
+    <x>690</x>
+    <y>18</y>
+    <width>320</width>
+    <height>24</height>
+    <text>External FM waveform control</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="12.0" />
+    </font>
+    <foreground_color>
+      <color red="255" green="255" blue="255" />
+    </foreground_color>
+    <horizontal_alignment>2</horizontal_alignment>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>WG_Status</name>
+    <x>20</x>
+    <y>90</y>
+    <width>1000</width>
+    <height>175</height>
+    <line_width>2</line_width>
+    <line_color>
+      <color red="0" green="53" blue="145" />
+    </line_color>
+    <background_color>
+      <color red="240" green="241" blue="244" />
+    </background_color>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>WG_Status_Header</name>
+    <x>20</x>
+    <y>90</y>
+    <width>1000</width>
+    <height>38</height>
+    <line_width>0</line_width>
+    <line_color>
+      <color red="0" green="29" blue="82" />
+    </line_color>
+    <background_color>
+      <color red="0" green="29" blue="82" />
+    </background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>WG_Status_Title</name>
+    <x>35</x>
+    <y>97</y>
+    <width>970</width>
+    <height>24</height>
+    <text>DEVICE STATUS / COMMISSIONING</text>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="15.0" />
+    </font>
+    <foreground_color>
+      <color red="255" green="255" blue="255" />
+    </foreground_color>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>WG_COMM_L</name>
+    <x>40</x>
+    <y>145</y>
+    <width>100</width>
+    <height>24</height>
+    <text>Connection:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>WG_COMM_LED</name>
+    <x>145</x>
+    <y>142</y>
+    <width>26</width>
+    <height>26</height>
+    <pv_name>pva://UNH:GEN:SSRF:WGEN:COMM</pv_name>
+    <bit>0</bit>
+    <off_color>
+      <color red="200" green="50" blue="50" />
+    </off_color>
+    <on_color>
+      <color red="30" green="160" blue="70" />
+    </on_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>WG_COMM_V</name>
+    <x>180</x>
+    <y>143</y>
+    <width>110</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:SSRF:WGEN:COMM</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>WG_WRITE_L</name>
+    <x>325</x>
+    <y>145</y>
+    <width>95</width>
+    <height>24</height>
+    <text>Write mode:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>WG_WRITE_LED</name>
+    <x>425</x>
+    <y>142</y>
+    <width>26</width>
+    <height>26</height>
+    <pv_name>pva://UNH:GEN:SSRF:WGEN:WRITE_ENABLED</pv_name>
+    <bit>0</bit>
+    <off_color>
+      <color red="210" green="130" blue="20" />
+    </off_color>
+    <on_color>
+      <color red="30" green="160" blue="70" />
+    </on_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>WG_WRITE_V</name>
+    <x>460</x>
+    <y>143</y>
+    <width>150</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:SSRF:WGEN:WRITE_ENABLED</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>WG_LASTOK_L</name>
+    <x>650</x>
+    <y>145</y>
+    <width>80</width>
+    <height>24</height>
+    <text>Last OK:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>WG_LASTOK_V</name>
+    <x>735</x>
+    <y>143</y>
+    <width>240</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:SSRF:WGEN:LAST_OK</pv_name>
+    <precision>3</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>WG_IDN_L</name>
+    <x>40</x>
+    <y>182</y>
+    <width>100</width>
+    <height>24</height>
+    <text>Instrument:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>WG_IDN_V</name>
+    <x>145</x>
+    <y>180</y>
+    <width>830</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:SSRF:WGEN:IDN</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>WG_ERROR_L</name>
+    <x>40</x>
+    <y>217</y>
+    <width>100</width>
+    <height>24</height>
+    <text>Fault:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>WG_ERROR_V</name>
+    <x>145</x>
+    <y>215</y>
+    <width>350</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:SSRF:WGEN:ERROR</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>WG_EVENT_L</name>
+    <x>520</x>
+    <y>217</y>
+    <width>95</width>
+    <height>24</height>
+    <text>Last event:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>WG_EVENT_V</name>
+    <x>615</x>
+    <y>215</y>
+    <width>360</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:SSRF:WGEN:LAST_EVENT</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>WG_Control</name>
+    <x>20</x>
+    <y>285</y>
+    <width>1000</width>
+    <height>250</height>
+    <line_width>2</line_width>
+    <line_color>
+      <color red="0" green="53" blue="145" />
+    </line_color>
+    <background_color>
+      <color red="240" green="241" blue="244" />
+    </background_color>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>WG_Control_Header</name>
+    <x>20</x>
+    <y>285</y>
+    <width>1000</width>
+    <height>38</height>
+    <line_width>0</line_width>
+    <line_color>
+      <color red="0" green="29" blue="82" />
+    </line_color>
+    <background_color>
+      <color red="0" green="29" blue="82" />
+    </background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>WG_Control_Title</name>
+    <x>35</x>
+    <y>292</y>
+    <width>970</width>
+    <height>24</height>
+    <text>SCALAR CONTROL</text>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="15.0" />
+    </font>
+    <foreground_color>
+      <color red="255" green="255" blue="255" />
+    </foreground_color>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>OUTPUT_CMD_Label</name>
+    <x>55</x>
+    <y>348</y>
+    <width>115</width>
+    <height>24</height>
+    <text>Output:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="bool_button" version="2.0.0">
+    <name>OUTPUT_CMD_Control</name>
+    <x>175</x>
+    <y>345</y>
+    <width>125</width>
+    <height>30</height>
+    <pv_name>pva://UNH:GEN:SSRF:WGEN:OUTPUT_CMD</pv_name>
+    <enabled>false</enabled>
+    <rules>
+      <rule name="Connected and hardware writes enabled" prop_id="enabled" out_exp="false">
+        <exp bool_exp="pv0 == 1 &amp;&amp; pv1 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pvSev1 == 0">
+          <value>true</value>
+        </exp>
+        <exp bool_exp="!(pv0 == 1 &amp;&amp; pv1 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pvSev1 == 0)">
+          <value>false</value>
+        </exp>
+        <pv_name>pva://UNH:GEN:SSRF:WGEN:COMM</pv_name>
+        <pv_name>pva://UNH:GEN:SSRF:WGEN:WRITE_ENABLED</pv_name>
+      </rule>
+    </rules>
+    <tooltip>IOC write gate must be explicitly enabled.</tooltip>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>OUTPUT_RBV_Label</name>
+    <x>350</x>
+    <y>348</y>
+    <width>90</width>
+    <height>24</height>
+    <text>Readback:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>OUTPUT_RBV_Value</name>
+    <x>445</x>
+    <y>345</y>
+    <width>145</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:SSRF:WGEN:OUTPUT_RBV</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>PERIOD_CMD_Label</name>
+    <x>55</x>
+    <y>393</y>
+    <width>115</width>
+    <height>24</height>
+    <text>Period:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>PERIOD_CMD_Control</name>
+    <x>175</x>
+    <y>390</y>
+    <width>125</width>
+    <height>28</height>
+    <pv_name>pva://UNH:GEN:SSRF:WGEN:PERIOD_CMD</pv_name>
+    <precision>6</precision>
+    <enabled>false</enabled>
+    <rules>
+      <rule name="Connected and hardware writes enabled" prop_id="enabled" out_exp="false">
+        <exp bool_exp="pv0 == 1 &amp;&amp; pv1 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pvSev1 == 0">
+          <value>true</value>
+        </exp>
+        <exp bool_exp="!(pv0 == 1 &amp;&amp; pv1 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pvSev1 == 0)">
+          <value>false</value>
+        </exp>
+        <pv_name>pva://UNH:GEN:SSRF:WGEN:COMM</pv_name>
+        <pv_name>pva://UNH:GEN:SSRF:WGEN:WRITE_ENABLED</pv_name>
+      </rule>
+    </rules>
+    <tooltip>IOC write gate must be explicitly enabled.</tooltip>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>PERIOD_RBV_Label</name>
+    <x>350</x>
+    <y>393</y>
+    <width>90</width>
+    <height>24</height>
+    <text>Readback:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>PERIOD_RBV_Value</name>
+    <x>445</x>
+    <y>390</y>
+    <width>145</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:SSRF:WGEN:PERIOD_RBV</pv_name>
+    <precision>6</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>PERIOD_RBV_Units</name>
+    <x>600</x>
+    <y>393</y>
+    <width>40</width>
+    <height>24</height>
+    <text>s</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>VHIGH_CMD_Label</name>
+    <x>55</x>
+    <y>438</y>
+    <width>115</width>
+    <height>24</height>
+    <text>High voltage:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>VHIGH_CMD_Control</name>
+    <x>175</x>
+    <y>435</y>
+    <width>125</width>
+    <height>28</height>
+    <pv_name>pva://UNH:GEN:SSRF:WGEN:VHIGH_CMD</pv_name>
+    <precision>4</precision>
+    <enabled>false</enabled>
+    <rules>
+      <rule name="Connected and hardware writes enabled" prop_id="enabled" out_exp="false">
+        <exp bool_exp="pv0 == 1 &amp;&amp; pv1 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pvSev1 == 0">
+          <value>true</value>
+        </exp>
+        <exp bool_exp="!(pv0 == 1 &amp;&amp; pv1 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pvSev1 == 0)">
+          <value>false</value>
+        </exp>
+        <pv_name>pva://UNH:GEN:SSRF:WGEN:COMM</pv_name>
+        <pv_name>pva://UNH:GEN:SSRF:WGEN:WRITE_ENABLED</pv_name>
+      </rule>
+    </rules>
+    <tooltip>IOC write gate must be explicitly enabled.</tooltip>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>VHIGH_RBV_Label</name>
+    <x>350</x>
+    <y>438</y>
+    <width>90</width>
+    <height>24</height>
+    <text>Readback:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>VHIGH_RBV_Value</name>
+    <x>445</x>
+    <y>435</y>
+    <width>145</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:SSRF:WGEN:VHIGH_RBV</pv_name>
+    <precision>4</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>VHIGH_RBV_Units</name>
+    <x>600</x>
+    <y>438</y>
+    <width>40</width>
+    <height>24</height>
+    <text>V</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>VLOW_CMD_Label</name>
+    <x>55</x>
+    <y>483</y>
+    <width>115</width>
+    <height>24</height>
+    <text>Low voltage:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>VLOW_CMD_Control</name>
+    <x>175</x>
+    <y>480</y>
+    <width>125</width>
+    <height>28</height>
+    <pv_name>pva://UNH:GEN:SSRF:WGEN:VLOW_CMD</pv_name>
+    <precision>4</precision>
+    <enabled>false</enabled>
+    <rules>
+      <rule name="Connected and hardware writes enabled" prop_id="enabled" out_exp="false">
+        <exp bool_exp="pv0 == 1 &amp;&amp; pv1 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pvSev1 == 0">
+          <value>true</value>
+        </exp>
+        <exp bool_exp="!(pv0 == 1 &amp;&amp; pv1 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pvSev1 == 0)">
+          <value>false</value>
+        </exp>
+        <pv_name>pva://UNH:GEN:SSRF:WGEN:COMM</pv_name>
+        <pv_name>pva://UNH:GEN:SSRF:WGEN:WRITE_ENABLED</pv_name>
+      </rule>
+    </rules>
+    <tooltip>IOC write gate must be explicitly enabled.</tooltip>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>VLOW_RBV_Label</name>
+    <x>350</x>
+    <y>483</y>
+    <width>90</width>
+    <height>24</height>
+    <text>Readback:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>VLOW_RBV_Value</name>
+    <x>445</x>
+    <y>480</y>
+    <width>145</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:SSRF:WGEN:VLOW_RBV</pv_name>
+    <precision>4</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>VLOW_RBV_Units</name>
+    <x>600</x>
+    <y>483</y>
+    <width>40</width>
+    <height>24</height>
+    <text>V</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>WG_Waveform</name>
+    <x>20</x>
+    <y>555</y>
+    <width>1000</width>
+    <height>185</height>
+    <line_width>2</line_width>
+    <line_color>
+      <color red="0" green="53" blue="145" />
+    </line_color>
+    <background_color>
+      <color red="240" green="241" blue="244" />
+    </background_color>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>WG_Waveform_Header</name>
+    <x>20</x>
+    <y>555</y>
+    <width>1000</width>
+    <height>38</height>
+    <line_width>0</line_width>
+    <line_color>
+      <color red="0" green="29" blue="82" />
+    </line_color>
+    <background_color>
+      <color red="0" green="29" blue="82" />
+    </background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>WG_Waveform_Title</name>
+    <x>35</x>
+    <y>562</y>
+    <width>970</width>
+    <height>24</height>
+    <text>ARB WAVEFORM STAGING</text>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="15.0" />
+    </font>
+    <foreground_color>
+      <color red="255" green="255" blue="255" />
+    </foreground_color>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>WAVEFORM_POINTS_L</name>
+    <x>55</x>
+    <y>615</y>
+    <width>115</width>
+    <height>24</height>
+    <text>Staged points:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>WAVEFORM_POINTS_V</name>
+    <x>175</x>
+    <y>613</y>
+    <width>120</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:SSRF:WGEN:WAVEFORM_POINTS</pv_name>
+    <precision>0</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>ARB_POINTS_RBV_L</name>
+    <x>55</x>
+    <y>652</y>
+    <width>115</width>
+    <height>24</height>
+    <text>Loaded points:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>ARB_POINTS_RBV_V</name>
+    <x>175</x>
+    <y>650</y>
+    <width>120</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:SSRF:WGEN:ARB_POINTS_RBV</pv_name>
+    <precision>0</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>WAVEFORM_ID_L</name>
+    <x>360</x>
+    <y>615</y>
+    <width>115</width>
+    <height>24</height>
+    <text>Waveform ID:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>WAVEFORM_ID_V</name>
+    <x>480</x>
+    <y>613</y>
+    <width>120</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:SSRF:WGEN:WAVEFORM_ID</pv_name>
+    <precision>0</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>WAVEFORM_READY_L</name>
+    <x>360</x>
+    <y>652</y>
+    <width>115</width>
+    <height>24</height>
+    <text>Ready:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>WAVEFORM_READY_V</name>
+    <x>480</x>
+    <y>650</y>
+    <width>120</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:SSRF:WGEN:WAVEFORM_READY</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Load_Label</name>
+    <x>680</x>
+    <y>615</y>
+    <width>165</width>
+    <height>24</height>
+    <text>Commit staged waveform:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="bool_button" version="2.0.0">
+    <name>Load_Control</name>
+    <x>845</x>
+    <y>608</y>
+    <width>130</width>
+    <height>30</height>
+    <pv_name>pva://UNH:GEN:SSRF:WGEN:LOAD_CMD</pv_name>
+    <enabled>false</enabled>
+    <rules>
+      <rule name="Connected and hardware writes enabled" prop_id="enabled" out_exp="false">
+        <exp bool_exp="pv0 == 1 &amp;&amp; pv1 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pvSev1 == 0">
+          <value>true</value>
+        </exp>
+        <exp bool_exp="!(pv0 == 1 &amp;&amp; pv1 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pvSev1 == 0)">
+          <value>false</value>
+        </exp>
+        <pv_name>pva://UNH:GEN:SSRF:WGEN:COMM</pv_name>
+        <pv_name>pva://UNH:GEN:SSRF:WGEN:WRITE_ENABLED</pv_name>
+      </rule>
+    </rules>
+    <tooltip>Loads the waveform already staged in IOC memory. This does not generate waveform samples.</tooltip>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Waveform_Note</name>
+    <x>55</x>
+    <y>695</y>
+    <width>910</width>
+    <height>35</height>
+    <text>WAVEFORM_CMD is intentionally not edited manually here. Normalized samples [-1,1] are staged by Python/analysis/ML code; LOAD_CMD performs the explicit hardware upload.</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="11.0" />
+    </font>
+    <foreground_color>
+      <color red="105" green="115" blue="125" />
+    </foreground_color>
+    <wrap_words>true</wrap_words>
+    <transparent>true</transparent>
+  </widget>
+</display>

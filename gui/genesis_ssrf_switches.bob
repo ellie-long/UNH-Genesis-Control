@@ -1,0 +1,829 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<display version="2.0.0">
+  <name>Genesis ssRF - RF Switches</name>
+  <width>1100</width>
+  <height>820</height>
+  <widget type="rectangle" version="2.0.0">
+    <name>Header_Background</name>
+    <x>0</x>
+    <y>0</y>
+    <width>1100</width>
+    <height>70</height>
+    <line_width>0</line_width>
+    <line_color>
+      <color red="0" green="53" blue="145" />
+    </line_color>
+    <background_color>
+      <color red="0" green="53" blue="145" />
+    </background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Title</name>
+    <x>20</x>
+    <y>13</y>
+    <width>720</width>
+    <height>32</height>
+    <text>UNH Genesis - Mini-Circuits RF Switches</text>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="22.0" />
+    </font>
+    <foreground_color>
+      <color red="255" green="255" blue="255" />
+    </foreground_color>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Subtitle</name>
+    <x>750</x>
+    <y>18</y>
+    <width>320</width>
+    <height>24</height>
+    <text>NMR protection and ssRF routing</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="12.0" />
+    </font>
+    <foreground_color>
+      <color red="255" green="255" blue="255" />
+    </foreground_color>
+    <horizontal_alignment>2</horizontal_alignment>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>NMR_Switch</name>
+    <x>20</x>
+    <y>90</y>
+    <width>510</width>
+    <height>640</height>
+    <line_width>2</line_width>
+    <line_color>
+      <color red="0" green="53" blue="145" />
+    </line_color>
+    <background_color>
+      <color red="240" green="241" blue="244" />
+    </background_color>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>NMR_Switch_Header</name>
+    <x>20</x>
+    <y>90</y>
+    <width>510</width>
+    <height>38</height>
+    <line_width>0</line_width>
+    <line_color>
+      <color red="0" green="29" blue="82" />
+    </line_color>
+    <background_color>
+      <color red="0" green="29" blue="82" />
+    </background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>NMR_Switch_Title</name>
+    <x>35</x>
+    <y>97</y>
+    <width>480</width>
+    <height>24</height>
+    <text>NMR / Receiver Protection Switch</text>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="15.0" />
+    </font>
+    <foreground_color>
+      <color red="255" green="255" blue="255" />
+    </foreground_color>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>NMR_Switch_IOC_L</name>
+    <x>45</x>
+    <y>150</y>
+    <width>90</width>
+    <height>24</height>
+    <text>IOC running:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>NMR_Switch_IOC_V</name>
+    <x>140</x>
+    <y>148</y>
+    <width>80</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:MAN:ssrf_nmr_switch_control</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>NMR_Switch_HB_L</name>
+    <x>255</x>
+    <y>150</y>
+    <width>65</width>
+    <height>24</height>
+    <text>HB age:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>NMR_Switch_HB_V</name>
+    <x>325</x>
+    <y>148</y>
+    <width>75</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:MAN:ssrf_nmr_switch_hb</pv_name>
+    <precision>0</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>NMR_Switch_HB_U</name>
+    <x>405</x>
+    <y>150</y>
+    <width>20</width>
+    <height>24</height>
+    <text>s</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>NMR_Switch_COMM_L</name>
+    <x>45</x>
+    <y>190</y>
+    <width>90</width>
+    <height>24</height>
+    <text>Connection:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>NMR_Switch_COMM_LED</name>
+    <x>140</x>
+    <y>186</y>
+    <width>26</width>
+    <height>26</height>
+    <pv_name>pva://UNH:GEN:SSRF:NMR_SW:COMM</pv_name>
+    <bit>0</bit>
+    <off_color>
+      <color red="200" green="50" blue="50" />
+    </off_color>
+    <on_color>
+      <color red="30" green="160" blue="70" />
+    </on_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>NMR_Switch_COMM_V</name>
+    <x>175</x>
+    <y>188</y>
+    <width>100</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:SSRF:NMR_SW:COMM</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>NMR_Switch_WRITE_L</name>
+    <x>295</x>
+    <y>190</y>
+    <width>85</width>
+    <height>24</height>
+    <text>Write mode:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>NMR_Switch_WRITE_LED</name>
+    <x>385</x>
+    <y>186</y>
+    <width>26</width>
+    <height>26</height>
+    <pv_name>pva://UNH:GEN:SSRF:NMR_SW:WRITE_ENABLED</pv_name>
+    <bit>0</bit>
+    <off_color>
+      <color red="210" green="130" blue="20" />
+    </off_color>
+    <on_color>
+      <color red="30" green="160" blue="70" />
+    </on_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>NMR_Switch_WRITE_V</name>
+    <x>420</x>
+    <y>188</y>
+    <width>90</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:SSRF:NMR_SW:WRITE_ENABLED</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>NMR_Switch_MODEL_L</name>
+    <x>45</x>
+    <y>235</y>
+    <width>90</width>
+    <height>24</height>
+    <text>Model:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>NMR_Switch_MODEL_V</name>
+    <x>140</x>
+    <y>233</y>
+    <width>330</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:SSRF:NMR_SW:MODEL</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>NMR_Switch_SERIAL_L</name>
+    <x>45</x>
+    <y>273</y>
+    <width>90</width>
+    <height>24</height>
+    <text>Serial:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>NMR_Switch_SERIAL_V</name>
+    <x>140</x>
+    <y>271</y>
+    <width>330</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:SSRF:NMR_SW:SERIAL</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>NMR_Switch_STATE_RBV_L</name>
+    <x>45</x>
+    <y>311</y>
+    <width>90</width>
+    <height>24</height>
+    <text>State:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>NMR_Switch_STATE_RBV_V</name>
+    <x>140</x>
+    <y>309</y>
+    <width>330</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:SSRF:NMR_SW:STATE_RBV</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>NMR_Switch_MASK_RBV_L</name>
+    <x>45</x>
+    <y>349</y>
+    <width>90</width>
+    <height>24</height>
+    <text>Mask:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>NMR_Switch_MASK_RBV_V</name>
+    <x>140</x>
+    <y>347</y>
+    <width>330</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:SSRF:NMR_SW:MASK_RBV</pv_name>
+    <precision>0</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>NMR_Switch_CMD_L</name>
+    <x>45</x>
+    <y>405</y>
+    <width>105</width>
+    <height>24</height>
+    <text>Route command:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="bool_button" version="2.0.0">
+    <name>NMR_Switch_PORT_CMD</name>
+    <x>155</x>
+    <y>398</y>
+    <width>145</width>
+    <height>30</height>
+    <pv_name>pva://UNH:GEN:SSRF:NMR_SW:PORT_CMD</pv_name>
+    <enabled>false</enabled>
+    <rules>
+      <rule name="Connected and hardware writes enabled" prop_id="enabled" out_exp="false">
+        <exp bool_exp="pv0 == 1 &amp;&amp; pv1 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pvSev1 == 0">
+          <value>true</value>
+        </exp>
+        <exp bool_exp="!(pv0 == 1 &amp;&amp; pv1 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pvSev1 == 0)">
+          <value>false</value>
+        </exp>
+        <pv_name>pva://UNH:GEN:SSRF:NMR_SW:COMM</pv_name>
+        <pv_name>pva://UNH:GEN:SSRF:NMR_SW:WRITE_ENABLED</pv_name>
+      </rule>
+    </rules>
+    <tooltip>0 = PORT1, 1 = PORT2. Command executes only when COMM=Connected and writes are enabled.</tooltip>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>NMR_Switch_CMD_Note</name>
+    <x>45</x>
+    <y>440</y>
+    <width>450</width>
+    <height>24</height>
+    <text>PORT1 = command value 0    |    PORT2 = command value 1</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="11.0" />
+    </font>
+    <foreground_color>
+      <color red="105" green="115" blue="125" />
+    </foreground_color>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>NMR_Switch_ERR_L</name>
+    <x>45</x>
+    <y>487</y>
+    <width>95</width>
+    <height>24</height>
+    <text>Active fault:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>NMR_Switch_ERR_V</name>
+    <x>145</x>
+    <y>485</y>
+    <width>340</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:SSRF:NMR_SW:ERROR</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>NMR_Switch_EVENT_L</name>
+    <x>45</x>
+    <y>528</y>
+    <width>95</width>
+    <height>24</height>
+    <text>Last event:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>NMR_Switch_EVENT_V</name>
+    <x>145</x>
+    <y>526</y>
+    <width>340</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:SSRF:NMR_SW:LAST_EVENT</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>NMR_Switch_OK_L</name>
+    <x>45</x>
+    <y>569</y>
+    <width>95</width>
+    <height>24</height>
+    <text>Last OK:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>NMR_Switch_OK_V</name>
+    <x>145</x>
+    <y>567</y>
+    <width>210</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:SSRF:NMR_SW:LAST_OK</pv_name>
+    <precision>3</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>NMR_Switch_Safety</name>
+    <x>45</x>
+    <y>625</y>
+    <width>450</width>
+    <height>55</height>
+    <text>Masks 1 or 2 mean MIXED state and are treated as unsafe. Startup and reconnect never move the physical switch.</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="11.0" />
+    </font>
+    <foreground_color>
+      <color red="105" green="115" blue="125" />
+    </foreground_color>
+    <wrap_words>true</wrap_words>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>RF_Switch</name>
+    <x>570</x>
+    <y>90</y>
+    <width>510</width>
+    <height>640</height>
+    <line_width>2</line_width>
+    <line_color>
+      <color red="0" green="53" blue="145" />
+    </line_color>
+    <background_color>
+      <color red="240" green="241" blue="244" />
+    </background_color>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>RF_Switch_Header</name>
+    <x>570</x>
+    <y>90</y>
+    <width>510</width>
+    <height>38</height>
+    <line_width>0</line_width>
+    <line_color>
+      <color red="0" green="29" blue="82" />
+    </line_color>
+    <background_color>
+      <color red="0" green="29" blue="82" />
+    </background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>RF_Switch_Title</name>
+    <x>585</x>
+    <y>97</y>
+    <width>480</width>
+    <height>24</height>
+    <text>ssRF / Burn Path Switch</text>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="15.0" />
+    </font>
+    <foreground_color>
+      <color red="255" green="255" blue="255" />
+    </foreground_color>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>RF_Switch_IOC_L</name>
+    <x>595</x>
+    <y>150</y>
+    <width>90</width>
+    <height>24</height>
+    <text>IOC running:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>RF_Switch_IOC_V</name>
+    <x>690</x>
+    <y>148</y>
+    <width>80</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:MAN:ssrf_rf_switch_control</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>RF_Switch_HB_L</name>
+    <x>805</x>
+    <y>150</y>
+    <width>65</width>
+    <height>24</height>
+    <text>HB age:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>RF_Switch_HB_V</name>
+    <x>875</x>
+    <y>148</y>
+    <width>75</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:MAN:ssrf_rf_switch_hb</pv_name>
+    <precision>0</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>RF_Switch_HB_U</name>
+    <x>955</x>
+    <y>150</y>
+    <width>20</width>
+    <height>24</height>
+    <text>s</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>RF_Switch_COMM_L</name>
+    <x>595</x>
+    <y>190</y>
+    <width>90</width>
+    <height>24</height>
+    <text>Connection:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>RF_Switch_COMM_LED</name>
+    <x>690</x>
+    <y>186</y>
+    <width>26</width>
+    <height>26</height>
+    <pv_name>pva://UNH:GEN:SSRF:RF_SW:COMM</pv_name>
+    <bit>0</bit>
+    <off_color>
+      <color red="200" green="50" blue="50" />
+    </off_color>
+    <on_color>
+      <color red="30" green="160" blue="70" />
+    </on_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>RF_Switch_COMM_V</name>
+    <x>725</x>
+    <y>188</y>
+    <width>100</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:SSRF:RF_SW:COMM</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>RF_Switch_WRITE_L</name>
+    <x>845</x>
+    <y>190</y>
+    <width>85</width>
+    <height>24</height>
+    <text>Write mode:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>RF_Switch_WRITE_LED</name>
+    <x>935</x>
+    <y>186</y>
+    <width>26</width>
+    <height>26</height>
+    <pv_name>pva://UNH:GEN:SSRF:RF_SW:WRITE_ENABLED</pv_name>
+    <bit>0</bit>
+    <off_color>
+      <color red="210" green="130" blue="20" />
+    </off_color>
+    <on_color>
+      <color red="30" green="160" blue="70" />
+    </on_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>RF_Switch_WRITE_V</name>
+    <x>970</x>
+    <y>188</y>
+    <width>90</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:SSRF:RF_SW:WRITE_ENABLED</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>RF_Switch_MODEL_L</name>
+    <x>595</x>
+    <y>235</y>
+    <width>90</width>
+    <height>24</height>
+    <text>Model:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>RF_Switch_MODEL_V</name>
+    <x>690</x>
+    <y>233</y>
+    <width>330</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:SSRF:RF_SW:MODEL</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>RF_Switch_SERIAL_L</name>
+    <x>595</x>
+    <y>273</y>
+    <width>90</width>
+    <height>24</height>
+    <text>Serial:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>RF_Switch_SERIAL_V</name>
+    <x>690</x>
+    <y>271</y>
+    <width>330</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:SSRF:RF_SW:SERIAL</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>RF_Switch_STATE_RBV_L</name>
+    <x>595</x>
+    <y>311</y>
+    <width>90</width>
+    <height>24</height>
+    <text>State:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>RF_Switch_STATE_RBV_V</name>
+    <x>690</x>
+    <y>309</y>
+    <width>330</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:SSRF:RF_SW:STATE_RBV</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>RF_Switch_MASK_RBV_L</name>
+    <x>595</x>
+    <y>349</y>
+    <width>90</width>
+    <height>24</height>
+    <text>Mask:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>RF_Switch_MASK_RBV_V</name>
+    <x>690</x>
+    <y>347</y>
+    <width>330</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:SSRF:RF_SW:MASK_RBV</pv_name>
+    <precision>0</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>RF_Switch_CMD_L</name>
+    <x>595</x>
+    <y>405</y>
+    <width>105</width>
+    <height>24</height>
+    <text>Route command:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="bool_button" version="2.0.0">
+    <name>RF_Switch_PORT_CMD</name>
+    <x>705</x>
+    <y>398</y>
+    <width>145</width>
+    <height>30</height>
+    <pv_name>pva://UNH:GEN:SSRF:RF_SW:PORT_CMD</pv_name>
+    <enabled>false</enabled>
+    <rules>
+      <rule name="Connected and hardware writes enabled" prop_id="enabled" out_exp="false">
+        <exp bool_exp="pv0 == 1 &amp;&amp; pv1 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pvSev1 == 0">
+          <value>true</value>
+        </exp>
+        <exp bool_exp="!(pv0 == 1 &amp;&amp; pv1 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pvSev1 == 0)">
+          <value>false</value>
+        </exp>
+        <pv_name>pva://UNH:GEN:SSRF:RF_SW:COMM</pv_name>
+        <pv_name>pva://UNH:GEN:SSRF:RF_SW:WRITE_ENABLED</pv_name>
+      </rule>
+    </rules>
+    <tooltip>0 = PORT1, 1 = PORT2. Command executes only when COMM=Connected and writes are enabled.</tooltip>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>RF_Switch_CMD_Note</name>
+    <x>595</x>
+    <y>440</y>
+    <width>450</width>
+    <height>24</height>
+    <text>PORT1 = command value 0    |    PORT2 = command value 1</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="11.0" />
+    </font>
+    <foreground_color>
+      <color red="105" green="115" blue="125" />
+    </foreground_color>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>RF_Switch_ERR_L</name>
+    <x>595</x>
+    <y>487</y>
+    <width>95</width>
+    <height>24</height>
+    <text>Active fault:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>RF_Switch_ERR_V</name>
+    <x>695</x>
+    <y>485</y>
+    <width>340</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:SSRF:RF_SW:ERROR</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>RF_Switch_EVENT_L</name>
+    <x>595</x>
+    <y>528</y>
+    <width>95</width>
+    <height>24</height>
+    <text>Last event:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>RF_Switch_EVENT_V</name>
+    <x>695</x>
+    <y>526</y>
+    <width>340</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:SSRF:RF_SW:LAST_EVENT</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>RF_Switch_OK_L</name>
+    <x>595</x>
+    <y>569</y>
+    <width>95</width>
+    <height>24</height>
+    <text>Last OK:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>RF_Switch_OK_V</name>
+    <x>695</x>
+    <y>567</y>
+    <width>210</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:SSRF:RF_SW:LAST_OK</pv_name>
+    <precision>3</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>RF_Switch_Safety</name>
+    <x>595</x>
+    <y>625</y>
+    <width>450</width>
+    <height>55</height>
+    <text>Masks 1 or 2 mean MIXED state and are treated as unsafe. Startup and reconnect never move the physical switch.</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="11.0" />
+    </font>
+    <foreground_color>
+      <color red="105" green="115" blue="125" />
+    </foreground_color>
+    <wrap_words>true</wrap_words>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Switch_Global_Note</name>
+    <x>35</x>
+    <y>755</y>
+    <width>1030</width>
+    <height>45</height>
+    <text>These controls operate individual hardware switches only. They are NOT burn authorization. The coordinated safety interlock and burn sequencer are milestone 5A/5B.</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="12.0" />
+    </font>
+    <foreground_color>
+      <color red="105" green="115" blue="125" />
+    </foreground_color>
+    <wrap_words>true</wrap_words>
+    <transparent>true</transparent>
+  </widget>
+</display>
