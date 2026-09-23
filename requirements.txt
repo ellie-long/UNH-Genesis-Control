@@ -6,3 +6,5 @@ screenutils
 pyModbusTCP~=0.3.0
 simple_pid
 psutil
+pyvisa~=1.16.2
+pyvisa-py~=0.8.1
