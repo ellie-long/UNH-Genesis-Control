@@ -20,6 +20,8 @@ import logging
 import math
 import time
 
+import numpy as np
+
 from softioc import alarm, builder
 
 from genesis_common.visa_base import VisaConnection, VisaDevice
@@ -123,6 +125,143 @@ class Device(VisaDevice):
             **self.analog,
         )
 
+        # --------------------------------------------------------------
+        # Waveform staging
+        #
+        # WAVEFORM_CMD only stages data in IOC memory.
+        # It never writes to the Keysight.
+        #
+        # LOAD_CMD is the explicit hardware commit operation.
+        # --------------------------------------------------------------
+
+        self._staged_waveform = np.array(
+            [],
+            dtype=np.float32,
+        )
+
+        self._waveform_id = 0
+
+        self.pvs["WAVEFORM_CMD"] = builder.WaveformOut(
+            "WAVEFORM_CMD",
+            length=MAX_ARB_POINTS,
+            datatype="float32",
+            on_update_name=self.stage_waveform,
+        )
+
+        self.pvs["WAVEFORM_POINTS"] = builder.longIn(
+            "WAVEFORM_POINTS",
+            LOPR=0,
+            HOPR=MAX_ARB_POINTS,
+        )
+
+        self.pvs["LOAD_CMD"] = builder.boolOut(
+            "LOAD_CMD",
+            ZNAM="Idle",
+            ONAM="Load",
+            on_update_name=self.do_sets,
+        )
+
+        self.pvs["ARB_POINTS_RBV"] = builder.longIn(
+            "ARB_POINTS_RBV",
+            LOPR=0,
+            HOPR=MAX_ARB_POINTS,
+        )
+
+        self.pvs["WAVEFORM_READY"] = builder.boolIn(
+            "WAVEFORM_READY",
+            ZNAM="Not ready",
+            ONAM="Ready",
+        )
+
+        self.pvs["WAVEFORM_ID"] = builder.longIn(
+            "WAVEFORM_ID",
+            LOPR=0,
+        )
+
+    def stage_waveform(self, new_value, pv):
+        """Stage normalized waveform samples in IOC memory only."""
+
+        try:
+            values = np.asarray(
+                new_value,
+                dtype=np.float32,
+            ).reshape(-1)
+
+            if len(values) < 2:
+                raise ValueError(
+                    "waveform requires at least 2 points"
+                )
+
+            if len(values) > MAX_ARB_POINTS:
+                raise ValueError(
+                    "waveform exceeds "
+                    f"{MAX_ARB_POINTS} points"
+                )
+
+            if not np.all(
+                np.isfinite(values)
+            ):
+                raise ValueError(
+                    "waveform contains non-finite values"
+                )
+
+            if np.any(values < -1.0) or np.any(
+                values > 1.0
+            ):
+                raise ValueError(
+                    "waveform samples must be "
+                    "normalized to [-1, 1]"
+                )
+
+            self._staged_waveform = (
+                values.copy()
+            )
+
+            self.pvs[
+                "WAVEFORM_POINTS"
+            ].set(
+                len(values)
+            )
+
+            # A newly staged waveform has not yet been
+            # committed to the instrument.
+            self.pvs[
+                "WAVEFORM_READY"
+            ].set(0)
+
+            self.record_event(
+                f"Waveform staged: {len(values)} pts"
+            )
+
+            self.pvs[
+                "WAVEFORM_CMD"
+            ].set_alarm(
+                severity=alarm.NO_ALARM,
+                alarm=alarm.NO_ALARM,
+            )
+
+        except Exception as exc:
+            self.pvs[
+                "WAVEFORM_READY"
+            ].set(0)
+
+            self.record_event(
+                "Waveform staging failed"
+            )
+
+            self.pvs[
+                "WAVEFORM_CMD"
+            ].set_alarm(
+                severity=alarm.MAJOR_ALARM,
+                alarm=alarm.WRITE_ALARM,
+            )
+
+            log.error(
+                "%s: waveform staging failed: %s",
+                self.device_name,
+                exc,
+            )
+
     def _post_connect(self):
         """Validate identity and synchronize startup readbacks.
 
@@ -153,6 +292,11 @@ class Device(VisaDevice):
         state = self.t.read_state()
 
         self._apply_state(state)
+
+        # Connection/reconnection alone does not prove that the staged
+        # waveform matches the instrument's currently loaded ARB.
+        self.pvs["WAVEFORM_READY"].set(0)
+        self.pvs["ARB_POINTS_RBV"].set(0)
 
     def read_all(self, channel, index):
         """Perform one scalar polling cycle."""
@@ -312,10 +456,96 @@ class Device(VisaDevice):
         if not self.can_write(
             pv_name
         ):
+            if pv_name == "LOAD_CMD":
+                self.store(
+                    "LOAD_CMD",
+                    0,
+                )
+
             return
 
         try:
-            if pv_name == "OUTPUT_CMD":
+            if pv_name == "LOAD_CMD":
+                # LOAD_CMD is momentary. A zero write means idle.
+                if not bool(new_value):
+                    self.store(
+                        "LOAD_CMD",
+                        0,
+                    )
+                    return
+
+                if len(
+                    self._staged_waveform
+                ) < 2:
+                    raise ValueError(
+                        "no valid waveform staged"
+                    )
+
+                # Use confirmed hardware scalar settings rather than
+                # potentially stale command-PV values.
+                state = self.t.read_state()
+
+                result = self.t.upload_arb(
+                    values=self._staged_waveform,
+                    period_s=state[
+                        "period_s"
+                    ],
+                    vhigh_v=state[
+                        "vhigh_v"
+                    ],
+                    vlow_v=state[
+                        "vlow_v"
+                    ],
+                )
+
+                confirmed_points = int(
+                    result[
+                        "arb_points"
+                    ]
+                )
+
+                if confirmed_points != len(
+                    self._staged_waveform
+                ):
+                    raise OSError(
+                        "WaveGen ARB point-count "
+                        "verification failed"
+                    )
+
+                self.pvs[
+                    "ARB_POINTS_RBV"
+                ].set(
+                    confirmed_points
+                )
+
+                self.pvs[
+                    "WAVEFORM_READY"
+                ].set(1)
+
+                self._waveform_id += 1
+
+                self.pvs[
+                    "WAVEFORM_ID"
+                ].set(
+                    self._waveform_id
+                )
+
+                # upload_arb() also confirms the scalar state.
+                self._apply_state(
+                    result
+                )
+
+                self.store(
+                    "LOAD_CMD",
+                    0,
+                )
+
+                self.record_event(
+                    "Waveform loaded: "
+                    f"{confirmed_points} pts"
+                )
+
+            elif pv_name == "OUTPUT_CMD":
                 confirmed = (
                     self.t.set_output(
                         bool(new_value)
@@ -484,6 +714,16 @@ class Device(VisaDevice):
 
         except Exception as exc:
             message = str(exc)
+
+            if pv_name == "LOAD_CMD":
+                self.store(
+                    "LOAD_CMD",
+                    0,
+                )
+
+                self.pvs[
+                    "WAVEFORM_READY"
+                ].set(0)
 
             log.error(
                 "%s: command %s failed: %s",

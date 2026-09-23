@@ -38,6 +38,10 @@ keysight_wavegen:
     - LAST_EVENT
     - LAST_OK
     - WRITE_ENABLED
+    - WAVEFORM_POINTS
+    - ARB_POINTS_RBV
+    - WAVEFORM_READY
+    - WAVEFORM_ID
 
   records:
     IDN:
@@ -76,3 +80,21 @@ keysight_wavegen:
 
     WRITE_ENABLED:
       DESC: WaveGen hardware write permission
+
+    WAVEFORM_CMD:
+      DESC: Staged normalized FM waveform
+
+    WAVEFORM_POINTS:
+      DESC: Number of staged waveform points
+
+    LOAD_CMD:
+      DESC: Commit staged waveform to WaveGen
+
+    ARB_POINTS_RBV:
+      DESC: Instrument-confirmed ARB point count
+
+    WAVEFORM_READY:
+      DESC: Verified waveform upload state
+
+    WAVEFORM_ID:
+      DESC: Successful waveform upload counter
