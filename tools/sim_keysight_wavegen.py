@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import argparse
 import logging
+import socket
 import socketserver
 import struct
 import threading
@@ -654,10 +655,95 @@ class WaveGenTCPServer(
     ):
         self.simulator = simulator
 
+        self._clients = set()
+        self._clients_lock = (
+            threading.Lock()
+        )
+
         super().__init__(
             server_address,
             WaveGenTCPHandler,
         )
+
+    def register_client(
+        self,
+        client,
+    ):
+        """Track an active simulator TCP connection."""
+
+        with self._clients_lock:
+            self._clients.add(client)
+
+    def unregister_client(
+        self,
+        client,
+    ):
+        """Stop tracking a simulator TCP connection."""
+
+        with self._clients_lock:
+            self._clients.discard(client)
+
+    def process_request(
+        self,
+        request,
+        client_address,
+    ):
+        """Register a client before its handler thread starts."""
+
+        self.register_client(request)
+
+        try:
+            return super().process_request(
+                request,
+                client_address,
+            )
+
+        except Exception:
+            self.unregister_client(
+                request
+            )
+            raise
+
+    def shutdown_request(
+        self,
+        request,
+    ):
+        """Remove a client after its handler finishes."""
+
+        try:
+            super().shutdown_request(
+                request
+            )
+
+        finally:
+            self.unregister_client(
+                request
+            )
+
+    def drop_clients(self):
+        """Force-disconnect all active simulator clients."""
+
+        with self._clients_lock:
+            clients = list(
+                self._clients
+            )
+
+        for client in clients:
+            try:
+                client.shutdown(
+                    socket.SHUT_RDWR
+                )
+            except OSError:
+                pass
+
+            try:
+                client.close()
+            except OSError:
+                pass
+
+            self.unregister_client(
+                client
+            )
 
 
 def start_server(
