@@ -53,7 +53,7 @@ fi
 # EPICS Channel Access
 # ----------------------------------------------------------------
 
-export EPICS_CA_ADDR_LIST="127.0.0.1:5064 127.0.0.1:5066 127.0.0.1:5067 127.0.0.1:5068 127.0.0.1:5070 127.0.0.1:5071 127.0.0.1:5072"
+export EPICS_CA_ADDR_LIST="127.0.0.1:5064 127.0.0.1:5066 127.0.0.1:5067 127.0.0.1:5068 127.0.0.1:5070 127.0.0.1:5071 127.0.0.1:5072 127.0.0.1:5073"
 export EPICS_CA_AUTO_ADDR_LIST=NO
 
 # ----------------------------------------------------------------
@@ -291,6 +291,7 @@ stop_managed_ioc "ssrf_smc100a"
 stop_managed_ioc "ssrf_keysight_wavegen"
 stop_managed_ioc "ssrf_nmr_switch"
 stop_managed_ioc "ssrf_rf_switch"
+stop_managed_ioc "ssrf_interlock"
 stop_managed_ioc "mw_spd1305x"
 stop_managed_ioc "archiver"
 
@@ -315,7 +316,7 @@ echo
 SCREEN_LIST="$(screen -ls 2>&1 || true)"
 
 if grep -E \
-    '\.(ioc-manager|mw_spd1305x|ssrf_smc100a|ssrf_keysight_wavegen|ssrf_nmr_switch|ssrf_rf_switch|archiver)[[:space:]]' \
+    '\.(ioc-manager|mw_spd1305x|ssrf_smc100a|ssrf_keysight_wavegen|ssrf_nmr_switch|ssrf_rf_switch|ssrf_interlock|archiver)[[:space:]]' \
     <<< "${SCREEN_LIST}" >/dev/null; then
 
     echo "WARNING: Genesis screen sessions remain:"

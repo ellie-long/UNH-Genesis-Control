@@ -2,7 +2,7 @@
 <display version="2.0.0">
   <name>Genesis ssRF Subsystem</name>
   <width>1180</width>
-  <height>870</height>
+  <height>1020</height>
   <widget type="rectangle" version="2.0.0">
     <name>Header_Background</name>
     <x>0</x>
@@ -1198,13 +1198,276 @@
     </actions>
     <text>Open Switch Controls</text>
   </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>Safety_Interlock_Card</name>
+    <x>20</x>
+    <y>790</y>
+    <width>1140</width>
+    <height>165</height>
+    <line_width>2</line_width>
+    <line_color>
+      <color red="0" green="53" blue="145" />
+    </line_color>
+    <background_color>
+      <color red="240" green="241" blue="244" />
+    </background_color>
+  </widget>
+
+  <widget type="rectangle" version="2.0.0">
+    <name>Safety_Interlock_Header</name>
+    <x>20</x>
+    <y>790</y>
+    <width>1140</width>
+    <height>38</height>
+    <line_width>0</line_width>
+    <background_color>
+      <color red="0" green="29" blue="82" />
+    </background_color>
+  </widget>
+
+  <widget type="label" version="2.0.0">
+    <name>Safety_Interlock_Title</name>
+    <x>35</x>
+    <y>797</y>
+    <width>500</width>
+    <height>24</height>
+    <text>ssRF SAFETY INTERLOCK</text>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="15.0" />
+    </font>
+    <foreground_color>
+      <color red="255" green="255" blue="255" />
+    </foreground_color>
+    <transparent>true</transparent>
+  </widget>
+
+  <widget type="label" version="2.0.0">
+    <name>ILK_Manager_Label</name>
+    <x>40</x>
+    <y>842</y>
+    <width>75</width>
+    <height>24</height>
+    <text>Managed:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+
+  <widget type="led" version="2.0.0">
+    <name>ILK_Manager_LED</name>
+    <x>115</x>
+    <y>839</y>
+    <width>26</width>
+    <height>26</height>
+    <pv_name>pva://UNH:GEN:MAN:ssrf_interlock_control</pv_name>
+    <bit>0</bit>
+    <off_color>
+      <color red="200" green="50" blue="50" />
+    </off_color>
+    <on_color>
+      <color red="30" green="160" blue="70" />
+    </on_color>
+  </widget>
+
+  <widget type="label" version="2.0.0">
+    <name>ILK_Inputs_Label</name>
+    <x>175</x>
+    <y>842</y>
+    <width>75</width>
+    <height>24</height>
+    <text>Inputs OK:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+
+  <widget type="led" version="2.0.0">
+    <name>ILK_Inputs_LED</name>
+    <x>250</x>
+    <y>839</y>
+    <width>26</width>
+    <height>26</height>
+    <pv_name>pva://UNH:GEN:SSRF:ILK:INPUTS_OK</pv_name>
+    <bit>0</bit>
+    <off_color>
+      <color red="200" green="50" blue="50" />
+    </off_color>
+    <on_color>
+      <color red="30" green="160" blue="70" />
+    </on_color>
+  </widget>
+
+  <widget type="label" version="2.0.0">
+    <name>ILK_OK_Label</name>
+    <x>315</x>
+    <y>842</y>
+    <width>95</width>
+    <height>24</height>
+    <text>Interlock OK:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+
+  <widget type="led" version="2.0.0">
+    <name>ILK_OK_LED</name>
+    <x>410</x>
+    <y>839</y>
+    <width>26</width>
+    <height>26</height>
+    <pv_name>pva://UNH:GEN:SSRF:ILK:INTERLOCK_OK</pv_name>
+    <bit>0</bit>
+    <off_color>
+      <color red="200" green="50" blue="50" />
+    </off_color>
+    <on_color>
+      <color red="30" green="160" blue="70" />
+    </on_color>
+  </widget>
+
+  <widget type="label" version="2.0.0">
+    <name>ILK_State_Label</name>
+    <x>475</x>
+    <y>842</y>
+    <width>55</width>
+    <height>24</height>
+    <text>State:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+
+  <widget type="textupdate" version="2.0.0">
+    <name>ILK_State</name>
+    <x>530</x>
+    <y>840</y>
+    <width>180</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:SSRF:ILK:STATE</pv_name>
+    <format>6</format>
+  </widget>
+
+  <widget type="label" version="2.0.0">
+    <name>ILK_NMR_Permit_Label</name>
+    <x>40</x>
+    <y>881</y>
+    <width>145</width>
+    <height>24</height>
+    <text>NMR connect permit:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+
+  <widget type="led" version="2.0.0">
+    <name>ILK_NMR_Permit_LED</name>
+    <x>185</x>
+    <y>878</y>
+    <width>26</width>
+    <height>26</height>
+    <pv_name>pva://UNH:GEN:SSRF:ILK:NMR_CONNECT_PERMIT</pv_name>
+    <bit>0</bit>
+    <off_color>
+      <color red="200" green="50" blue="50" />
+    </off_color>
+    <on_color>
+      <color red="30" green="160" blue="70" />
+    </on_color>
+  </widget>
+
+  <widget type="label" version="2.0.0">
+    <name>ILK_SSRF_Permit_Label</name>
+    <x>250</x>
+    <y>881</y>
+    <width>145</width>
+    <height>24</height>
+    <text>ssRF connect permit:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+
+  <widget type="led" version="2.0.0">
+    <name>ILK_SSRF_Permit_LED</name>
+    <x>395</x>
+    <y>878</y>
+    <width>26</width>
+    <height>26</height>
+    <pv_name>pva://UNH:GEN:SSRF:ILK:SSRF_CONNECT_PERMIT</pv_name>
+    <bit>0</bit>
+    <off_color>
+      <color red="200" green="50" blue="50" />
+    </off_color>
+    <on_color>
+      <color red="30" green="160" blue="70" />
+    </on_color>
+  </widget>
+
+  <widget type="label" version="2.0.0">
+    <name>ILK_RF_Permit_Label</name>
+    <x>465</x>
+    <y>881</y>
+    <width>125</width>
+    <height>24</height>
+    <text>RF enable permit:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+
+  <widget type="led" version="2.0.0">
+    <name>ILK_RF_Permit_LED</name>
+    <x>590</x>
+    <y>878</y>
+    <width>26</width>
+    <height>26</height>
+    <pv_name>pva://UNH:GEN:SSRF:ILK:RF_ENABLE_PERMIT</pv_name>
+    <bit>0</bit>
+    <off_color>
+      <color red="200" green="50" blue="50" />
+    </off_color>
+    <on_color>
+      <color red="30" green="160" blue="70" />
+    </on_color>
+  </widget>
+
+  <widget type="label" version="2.0.0">
+    <name>ILK_Reason_Label</name>
+    <x>40</x>
+    <y>920</y>
+    <width>65</width>
+    <height>24</height>
+    <text>Reason:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+
+  <widget type="textupdate" version="2.0.0">
+    <name>ILK_Reason</name>
+    <x>105</x>
+    <y>918</y>
+    <width>800</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:SSRF:ILK:REASON</pv_name>
+    <format>6</format>
+  </widget>
+
   <widget type="label" version="2.0.0">
     <name>Safety_Note</name>
     <x>30</x>
-    <y>818</y>
+    <y>970</y>
     <width>1120</width>
     <height>38</height>
-    <text>Phase-I commissioning: read-only startup is the default. MIXED switch masks (1 or 2) are unsafe. Burn permission/interlock logic is not yet implemented on this screen.</text>
+    <text>Phase-I commissioning: read-only startup remains the default. Interlock permits are derived from confirmed hardware readbacks. MIXED switch masks (1 or 2) and unavailable inputs fail closed.</text>
     <font>
       <font family="Liberation Sans" style="REGULAR" size="12.0" />
     </font>

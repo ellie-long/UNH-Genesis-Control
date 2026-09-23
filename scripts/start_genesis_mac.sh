@@ -160,7 +160,7 @@ check_read_only_config \
 # EPICS Channel Access environment for Python tools / archiver
 # ----------------------------------------------------------------
 
-export EPICS_CA_ADDR_LIST="127.0.0.1:5064 127.0.0.1:5066 127.0.0.1:5067 127.0.0.1:5068 127.0.0.1:5070 127.0.0.1:5071 127.0.0.1:5072"
+export EPICS_CA_ADDR_LIST="127.0.0.1:5064 127.0.0.1:5066 127.0.0.1:5067 127.0.0.1:5068 127.0.0.1:5070 127.0.0.1:5071 127.0.0.1:5072 127.0.0.1:5073"
 export EPICS_CA_AUTO_ADDR_LIST=NO
 
 # ----------------------------------------------------------------
@@ -223,6 +223,7 @@ start_managed_ioc "ssrf_smc100a"
 start_managed_ioc "ssrf_keysight_wavegen"
 start_managed_ioc "ssrf_nmr_switch"
 start_managed_ioc "ssrf_rf_switch"
+start_managed_ioc "ssrf_interlock"
 start_managed_ioc "archiver"
 
 # Allow EPICS records to settle.
@@ -275,6 +276,30 @@ async def main():
 
         "ssRF switch manager":
             await get("UNH:GEN:MAN:ssrf_rf_switch_control"),
+
+        "Interlock manager":
+            await get("UNH:GEN:MAN:ssrf_interlock_control"),
+
+        "Interlock inputs":
+            await get("UNH:GEN:SSRF:ILK:INPUTS_OK"),
+
+        "Interlock OK":
+            await get("UNH:GEN:SSRF:ILK:INTERLOCK_OK"),
+
+        "Interlock state":
+            await get("UNH:GEN:SSRF:ILK:STATE"),
+
+        "NMR connect permit":
+            await get("UNH:GEN:SSRF:ILK:NMR_CONNECT_PERMIT"),
+
+        "ssRF connect permit":
+            await get("UNH:GEN:SSRF:ILK:SSRF_CONNECT_PERMIT"),
+
+        "RF enable permit":
+            await get("UNH:GEN:SSRF:ILK:RF_ENABLE_PERMIT"),
+
+        "Interlock reason":
+            await get("UNH:GEN:SSRF:ILK:REASON"),
 
         "Microwave COMM":
             await get("UNH:GEN:MW:PS:COMM"),
@@ -411,6 +436,23 @@ async def main():
                 f"(mask {mask})."
             )
 
+    if values["Interlock inputs"] is None:
+        print("WARNING: ssRF interlock inputs could not be read.")
+    elif int(values["Interlock inputs"]) != 1:
+        print(
+            "WARNING: ssRF interlock does not have valid "
+            "confirmed hardware inputs."
+        )
+
+    if values["Interlock OK"] is None:
+        print("WARNING: ssRF interlock state could not be read.")
+    elif int(values["Interlock OK"]) != 1:
+        print(
+            "WARNING: ssRF INTERLOCK IS BLOCKED: "
+            f"{values['Interlock state']} - "
+            f"{values['Interlock reason']}"
+        )
+
     if values["Archive status"] is not None \
             and int(values["Archive status"]) != 1:
         print("WARNING: Archiver is not active.")
@@ -455,6 +497,7 @@ echo "SMC100A IOC   : read-only"
 echo "WaveGen IOC   : read-only"
 echo "NMR switch IOC: read-only"
 echo "ssRF switch IOC: read-only"
+echo "ssRF interlock : managed safety logic"
 echo "Phoebus GUI   : gui/genesis_ssrf.bob"
 echo "Phoebus PVs   : PVAccess"
 echo "Archiver      : enabled"
