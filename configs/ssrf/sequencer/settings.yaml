@@ -72,3 +72,9 @@ ssrf_sequencer:
       DESC: Sequencer burn readiness state
     REASON:
       DESC: Sequencer burn readiness reason
+    EXECUTION_ENABLED:
+      DESC: ssRF execution layer enabled state
+    EXECUTION_STATE:
+      DESC: ssRF execution layer state
+    EXECUTION_REASON:
+      DESC: ssRF execution layer status reason

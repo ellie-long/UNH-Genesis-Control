@@ -25,6 +25,11 @@ from logic_devices.ssrf_sequence_core import (
 )
 
 
+from logic_devices.ssrf_epics_io import EpicsIO
+from logic_devices.ssrf_sequence_executor import (
+    SequenceExecutor,
+)
+
 STATE_UNKNOWN = "UNKNOWN"
 STATE_INVALID = "INVALID_PARAMETERS"
 STATE_BLOCKED = "BLOCKED"
@@ -43,6 +48,24 @@ class Device:
         self.settings = settings
 
         self.pvs = {}
+
+        # 5B.6C inactive execution layer.
+        #
+        # This gate is deliberately hard-coded False.
+        # There is no EPICS PV or operator control that can enable it.
+        self._execution_io = EpicsIO(
+            execution_enabled=False,
+        )
+
+        self._abort_requested = False
+
+        self._executor = SequenceExecutor(
+            read=self._execution_io.read,
+            write=self._execution_io.write,
+            sleep=self._execution_io.sleep,
+            readiness_check=self._executor_readiness,
+            abort_requested=self._executor_abort_requested,
+        )
 
         self._create_pvs()
 
@@ -183,7 +206,35 @@ class Device:
             "REASON"
         )
 
+        # ------------------------------------------------------------
+        # Future active-execution status.
+        #
+        # Status only in 5B.6C. No START / ABORT controls exist.
+        # ------------------------------------------------------------
+
+        self.pvs["EXECUTION_ENABLED"] = builder.boolIn(
+            "EXECUTION_ENABLED",
+            ZNAM="Disabled",
+            ONAM="Enabled",
+        )
+
+        self.pvs["EXECUTION_STATE"] = builder.stringIn(
+            "EXECUTION_STATE"
+        )
+
+        self.pvs["EXECUTION_REASON"] = builder.stringIn(
+            "EXECUTION_REASON"
+        )
+
         # Initialize fail-closed.
+        self.pvs["EXECUTION_ENABLED"].set(0)
+        self.pvs["EXECUTION_STATE"].set(
+            "DISABLED"
+        )
+        self.pvs["EXECUTION_REASON"].set(
+            "Inactive: no start control"
+        )
+
         self.pvs["PARAMETERS_OK"].set(0)
         self.pvs["READY"].set(0)
         self.pvs["STATE"].set(
@@ -268,6 +319,30 @@ class Device:
     # ------------------------------------------------------------
     # EPICS reads
     # ------------------------------------------------------------
+
+    async def _executor_readiness(self):
+        """Evaluate live burn readiness for the future executor."""
+
+        inputs = await self._read_burn_readiness_inputs()
+
+        decision = evaluate_burn_readiness(
+            inputs
+        )
+
+        return (
+            bool(decision.ready),
+            decision.reason,
+        )
+
+    async def _executor_abort_requested(self):
+        """Return the internal abort flag.
+
+        No operator ABORT control exists in 5B.6C.
+        """
+
+        return bool(
+            self._abort_requested
+        )
 
     async def _read_int(
         self,
