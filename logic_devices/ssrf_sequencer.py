@@ -843,6 +843,13 @@ class Device:
         )
 
         if not parameters_ok:
+            # Any loss of burn readiness invalidates a previously
+            # granted one-shot authorization.  A new ARM is required
+            # after the fault is corrected.
+            self._set_execution_armed(
+                False
+            )
+
             self.pvs["READY"].set(0)
             self.pvs["STATE"].set(
                 STATE_INVALID
@@ -861,6 +868,12 @@ class Device:
             )
 
         except Exception as exc:
+            # Communication/input loss is fail-closed.  Do not allow
+            # an arm granted before the fault to survive recovery.
+            self._set_execution_armed(
+                False
+            )
+
             self.pvs["READY"].set(0)
             self.pvs["STATE"].set(
                 STATE_UNKNOWN
@@ -877,6 +890,14 @@ class Device:
         decision = evaluate_burn_readiness(
             inputs
         )
+
+        if not decision.ready:
+            # Includes communication faults, unsafe initial outputs,
+            # invalid switch state and interlock/readiness loss.
+            # Recovery never restores a previously granted arm.
+            self._set_execution_armed(
+                False
+            )
 
         self.pvs["READY"].set(
             int(decision.ready)

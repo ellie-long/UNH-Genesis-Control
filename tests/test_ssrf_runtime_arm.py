@@ -131,5 +131,22 @@ class TestSsrfRuntimeArm(unittest.TestCase):
         )
 
 
+    def test_readiness_loss_revokes_arm(self):
+        self.assertIn(
+            "Any loss of burn readiness invalidates",
+            self.seq,
+        )
+
+        self.assertIn(
+            "Communication/input loss is fail-closed",
+            self.seq,
+        )
+
+        self.assertIn(
+            "Recovery never restores a previously granted arm",
+            self.seq,
+        )
+
+
 if __name__ == "__main__":
     unittest.main()
