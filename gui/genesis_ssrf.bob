@@ -2,7 +2,7 @@
 <display version="2.0.0">
   <name>Genesis ssRF Subsystem</name>
   <width>1180</width>
-  <height>1020</height>
+  <height>1180</height>
   <widget type="rectangle" version="2.0.0">
     <name>Header_Background</name>
     <x>0</x>
@@ -1461,10 +1461,277 @@
     <format>6</format>
   </widget>
 
+  <widget type="rectangle" version="2.0.0">
+    <name>SEQ_Panel</name>
+    <x>20</x>
+    <y>955</y>
+    <width>1140</width>
+    <height>155</height>
+    <line_width>2</line_width>
+    <line_color>
+      <color red="0" green="53" blue="145" />
+    </line_color>
+    <background_color>
+      <color red="240" green="241" blue="244" />
+    </background_color>
+  </widget>
+
+  <widget type="rectangle" version="2.0.0">
+    <name>SEQ_Header</name>
+    <x>20</x>
+    <y>955</y>
+    <width>1140</width>
+    <height>38</height>
+    <line_width>0</line_width>
+    <line_color>
+      <color red="0" green="29" blue="82" />
+    </line_color>
+    <background_color>
+      <color red="0" green="29" blue="82" />
+    </background_color>
+  </widget>
+
+  <widget type="label" version="2.0.0">
+    <name>SEQ_Title</name>
+    <x>35</x>
+    <y>962</y>
+    <width>1110</width>
+    <height>24</height>
+    <text>BURN SEQUENCER - READ-ONLY PREFLIGHT</text>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="15.0" />
+    </font>
+    <foreground_color>
+      <color red="255" green="255" blue="255" />
+    </foreground_color>
+    <transparent>true</transparent>
+  </widget>
+
+  <widget type="label" version="2.0.0">
+    <name>SEQ_Manager_Label</name>
+    <x>40</x>
+    <y>1005</y>
+    <width>70</width>
+    <height>24</height>
+    <text>Managed:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+
+  <widget type="led" version="2.0.0">
+    <name>SEQ_Manager_LED</name>
+    <x>110</x>
+    <y>1002</y>
+    <width>26</width>
+    <height>26</height>
+    <pv_name>pva://UNH:GEN:MAN:ssrf_sequencer_control</pv_name>
+    <bit>0</bit>
+    <off_color>
+      <color red="200" green="50" blue="50" />
+    </off_color>
+    <on_color>
+      <color red="30" green="160" blue="70" />
+    </on_color>
+  </widget>
+
+  <widget type="label" version="2.0.0">
+    <name>SEQ_Params_Label</name>
+    <x>165</x>
+    <y>1005</y>
+    <width>85</width>
+    <height>24</height>
+    <text>Params OK:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+
+  <widget type="led" version="2.0.0">
+    <name>SEQ_Params_LED</name>
+    <x>250</x>
+    <y>1002</y>
+    <width>26</width>
+    <height>26</height>
+    <pv_name>pva://UNH:GEN:SSRF:SEQ:PARAMETERS_OK</pv_name>
+    <bit>0</bit>
+    <off_color>
+      <color red="200" green="50" blue="50" />
+    </off_color>
+    <on_color>
+      <color red="30" green="160" blue="70" />
+    </on_color>
+  </widget>
+
+  <widget type="label" version="2.0.0">
+    <name>SEQ_Ready_Label</name>
+    <x>305</x>
+    <y>1005</y>
+    <width>55</width>
+    <height>24</height>
+    <text>Ready:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+
+  <widget type="led" version="2.0.0">
+    <name>SEQ_Ready_LED</name>
+    <x>360</x>
+    <y>1002</y>
+    <width>26</width>
+    <height>26</height>
+    <pv_name>pva://UNH:GEN:SSRF:SEQ:READY</pv_name>
+    <bit>0</bit>
+    <off_color>
+      <color red="210" green="130" blue="20" />
+    </off_color>
+    <on_color>
+      <color red="30" green="160" blue="70" />
+    </on_color>
+  </widget>
+
+  <widget type="label" version="2.0.0">
+    <name>SEQ_State_Label</name>
+    <x>415</x>
+    <y>1005</y>
+    <width>45</width>
+    <height>24</height>
+    <text>State:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+
+  <widget type="textupdate" version="2.0.0">
+    <name>SEQ_State</name>
+    <x>460</x>
+    <y>1003</y>
+    <width>180</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:SSRF:SEQ:STATE</pv_name>
+    <format>6</format>
+  </widget>
+
+  <widget type="label" version="2.0.0">
+    <name>SEQ_Step_Label</name>
+    <x>675</x>
+    <y>1005</y>
+    <width>70</width>
+    <height>24</height>
+    <text>Step:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+
+  <widget type="textupdate" version="2.0.0">
+    <name>SEQ_Step</name>
+    <x>745</x>
+    <y>1003</y>
+    <width>80</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:SSRF:SEQ:SWEEP_STEP_DB</pv_name>
+    <precision>2</precision>
+  </widget>
+
+  <widget type="label" version="2.0.0">
+    <name>SEQ_Step_Unit</name>
+    <x>830</x>
+    <y>1005</y>
+    <width>30</width>
+    <height>24</height>
+    <text>dB</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+
+  <widget type="label" version="2.0.0">
+    <name>SEQ_Dwell_Label</name>
+    <x>875</x>
+    <y>1005</y>
+    <width>75</width>
+    <height>24</height>
+    <text>Dwell:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+
+  <widget type="textupdate" version="2.0.0">
+    <name>SEQ_Dwell</name>
+    <x>950</x>
+    <y>1003</y>
+    <width>85</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:SSRF:SEQ:SWEEP_DWELL_MS</pv_name>
+    <precision>1</precision>
+  </widget>
+
+  <widget type="label" version="2.0.0">
+    <name>SEQ_Dwell_Unit</name>
+    <x>1040</x>
+    <y>1005</y>
+    <width>30</width>
+    <height>24</height>
+    <text>ms</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+
+  <widget type="label" version="2.0.0">
+    <name>SEQ_Reason_Label</name>
+    <x>40</x>
+    <y>1044</y>
+    <width>60</width>
+    <height>24</height>
+    <text>Reason:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+
+  <widget type="textupdate" version="2.0.0">
+    <name>SEQ_Reason</name>
+    <x>100</x>
+    <y>1042</y>
+    <width>1000</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:SSRF:SEQ:REASON</pv_name>
+    <format>6</format>
+  </widget>
+
+  <widget type="label" version="2.0.0">
+    <name>SEQ_Mode_Note</name>
+    <x>40</x>
+    <y>1077</y>
+    <width>1080</width>
+    <height>22</height>
+    <text>Read-only preflight only: no burn START/ABORT control and no hardware-write path are enabled in this milestone.</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="11.0" />
+    </font>
+    <foreground_color>
+      <color red="105" green="115" blue="125" />
+    </foreground_color>
+    <transparent>true</transparent>
+  </widget>
+
   <widget type="label" version="2.0.0">
     <name>Safety_Note</name>
     <x>30</x>
-    <y>970</y>
+    <y>1130</y>
     <width>1120</width>
     <height>38</height>
     <text>Phase-I commissioning: read-only startup remains the default. Interlock permits are derived from confirmed hardware readbacks. MIXED switch masks (1 or 2) and unavailable inputs fail closed.</text>

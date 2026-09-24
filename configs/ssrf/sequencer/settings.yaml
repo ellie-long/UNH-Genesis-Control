@@ -27,6 +27,22 @@ ssrf_sequencer:
   channels:
   - None
 
+  archive_records:
+  - CARRIER_MHZ
+  - START_LEVEL_DBM
+  - TARGET_LEVEL_DBM
+  - FM_DEV_KHZ
+  - FM_PERIOD_S
+  - VHIGH_V
+  - VLOW_V
+  - FM_REPEATS
+  - SWEEP_STEP_DB
+  - SWEEP_DWELL_MS
+  - PARAMETERS_OK
+  - READY
+  - STATE
+  - REASON
+
   records:
     CARRIER_MHZ:
       DESC: SMC carrier frequency

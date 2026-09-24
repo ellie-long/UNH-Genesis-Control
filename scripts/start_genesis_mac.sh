@@ -160,7 +160,7 @@ check_read_only_config \
 # EPICS Channel Access environment for Python tools / archiver
 # ----------------------------------------------------------------
 
-export EPICS_CA_ADDR_LIST="127.0.0.1:5064 127.0.0.1:5066 127.0.0.1:5067 127.0.0.1:5068 127.0.0.1:5070 127.0.0.1:5071 127.0.0.1:5072 127.0.0.1:5073"
+export EPICS_CA_ADDR_LIST="127.0.0.1:5064 127.0.0.1:5066 127.0.0.1:5067 127.0.0.1:5068 127.0.0.1:5070 127.0.0.1:5071 127.0.0.1:5072 127.0.0.1:5073 127.0.0.1:5074"
 export EPICS_CA_AUTO_ADDR_LIST=NO
 
 # ----------------------------------------------------------------
@@ -224,6 +224,7 @@ start_managed_ioc "ssrf_keysight_wavegen"
 start_managed_ioc "ssrf_nmr_switch"
 start_managed_ioc "ssrf_rf_switch"
 start_managed_ioc "ssrf_interlock"
+start_managed_ioc "ssrf_sequencer"
 start_managed_ioc "archiver"
 
 # Allow EPICS records to settle.
@@ -300,6 +301,21 @@ async def main():
 
         "Interlock reason":
             await get("UNH:GEN:SSRF:ILK:REASON"),
+
+        "Sequencer manager":
+            await get("UNH:GEN:MAN:ssrf_sequencer_control"),
+
+        "Sequencer parameters":
+            await get("UNH:GEN:SSRF:SEQ:PARAMETERS_OK"),
+
+        "Sequencer ready":
+            await get("UNH:GEN:SSRF:SEQ:READY"),
+
+        "Sequencer state":
+            await get("UNH:GEN:SSRF:SEQ:STATE"),
+
+        "Sequencer reason":
+            await get("UNH:GEN:SSRF:SEQ:REASON"),
 
         "Microwave COMM":
             await get("UNH:GEN:MW:PS:COMM"),
@@ -498,6 +514,7 @@ echo "WaveGen IOC   : read-only"
 echo "NMR switch IOC: read-only"
 echo "ssRF switch IOC: read-only"
 echo "ssRF interlock : managed safety logic"
+echo "ssRF sequencer : managed read-only preflight"
 echo "Phoebus GUI   : gui/genesis_ssrf.bob"
 echo "Phoebus PVs   : PVAccess"
 echo "Archiver      : enabled"
