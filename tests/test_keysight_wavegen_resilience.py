@@ -98,7 +98,7 @@ class KeysightHealthHarness(Device):
         ]
 
         self.pvs = {
-            # Genesis health contract
+            # Genesis health behavior
             "COMM": FakePV(0),
             "ERROR": FakePV(""),
             "LAST_EVENT": FakePV(""),

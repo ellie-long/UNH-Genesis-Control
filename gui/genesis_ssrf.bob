@@ -1497,7 +1497,7 @@
     <y>962</y>
     <width>1110</width>
     <height>24</height>
-    <text>BURN SEQUENCER - READ-ONLY PREFLIGHT</text>
+    <text>BURN SEQUENCER - BURN READINESS</text>
     <font>
       <font family="Liberation Sans" style="BOLD" size="15.0" />
     </font>
@@ -1718,7 +1718,7 @@
     <y>1077</y>
     <width>1080</width>
     <height>22</height>
-    <text>Read-only preflight only: no burn START/ABORT control and no hardware-write path are enabled in this milestone.</text>
+    <text>Read-only burn readiness only: no burn START/ABORT control and no hardware-write path are enabled in this milestone.</text>
     <font>
       <font family="Liberation Sans" style="REGULAR" size="11.0" />
     </font>

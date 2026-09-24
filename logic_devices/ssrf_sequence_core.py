@@ -44,7 +44,7 @@ class BurnParameters:
 
 
 @dataclass(frozen=True)
-class PreflightInputs:
+class BurnReadinessInputs:
     smc_comm: int
     smc_write_enabled: int
     smc_rf: int
@@ -69,7 +69,7 @@ class PreflightInputs:
 
 
 @dataclass(frozen=True)
-class PreflightDecision:
+class BurnReadinessDecision:
     ready: int
     reason: str
 
@@ -121,9 +121,9 @@ def validate_parameters(
     return True, "parameters valid"
 
 
-def evaluate_preflight(
-    s: PreflightInputs,
-) -> PreflightDecision:
+def evaluate_burn_readiness(
+    s: BurnReadinessInputs,
+) -> BurnReadinessDecision:
     """
     Decide whether a burn sequence may begin.
 
@@ -140,7 +140,7 @@ def evaluate_preflight(
 
     for name, value in communications.items():
         if int(value) != 1:
-            return PreflightDecision(
+            return BurnReadinessDecision(
                 0,
                 f"{name} disconnected",
             )
@@ -154,66 +154,66 @@ def evaluate_preflight(
 
     for name, value in write_gates.items():
         if int(value) != 1:
-            return PreflightDecision(
+            return BurnReadinessDecision(
                 0,
                 f"{name} writes disabled",
             )
 
     if int(s.interlock_inputs_ok) != 1:
-        return PreflightDecision(
+        return BurnReadinessDecision(
             0,
             "interlock inputs invalid",
         )
 
     if int(s.interlock_ok) != 1:
-        return PreflightDecision(
+        return BurnReadinessDecision(
             0,
             "interlock blocked",
         )
 
     if int(s.smc_rf) != 0:
-        return PreflightDecision(
+        return BurnReadinessDecision(
             0,
             "SMC RF must be off",
         )
 
     if int(s.smc_fm) != 0:
-        return PreflightDecision(
+        return BurnReadinessDecision(
             0,
             "SMC FM must be off",
         )
 
     if int(s.smc_sweep_arm) != 0:
-        return PreflightDecision(
+        return BurnReadinessDecision(
             0,
             "SMC sweep must be disarmed",
         )
 
     if int(s.wavegen_output) != 0:
-        return PreflightDecision(
+        return BurnReadinessDecision(
             0,
             "WaveGen output must be off",
         )
 
     if int(s.waveform_points) < 2:
-        return PreflightDecision(
+        return BurnReadinessDecision(
             0,
             "no valid waveform staged",
         )
 
     if int(s.nmr_mask) not in (PORT1_MASK, PORT2_MASK):
-        return PreflightDecision(
+        return BurnReadinessDecision(
             0,
             "NMR switch mixed/unknown",
         )
 
     if int(s.ssrf_mask) != PORT2_MASK:
-        return PreflightDecision(
+        return BurnReadinessDecision(
             0,
             "ssRF path must start disconnected",
         )
 
-    return PreflightDecision(
+    return BurnReadinessDecision(
         1,
-        "preflight ready",
+        "burn ready",
     )

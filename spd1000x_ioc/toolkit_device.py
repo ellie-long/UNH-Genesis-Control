@@ -12,7 +12,7 @@ from .controller import SPD1000XController, SocketSCPITransport
 
 
 class Device(BaseDevice):
-    """Expose the SPD1305X through the Genesis EPICS PV contract."""
+    """Expose the SPD1305X through the Genesis EPICS PV interface."""
 
     def _create_pvs(self):
         self._io_lock = threading.RLock()

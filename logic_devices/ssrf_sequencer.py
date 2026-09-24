@@ -4,7 +4,7 @@ Genesis Phase-I ssRF burn sequencer.
 5B.4 stage:
 - publishes burn parameters and derived values
 - reads live device/interlock state
-- evaluates preflight readiness
+- evaluates burn readiness
 - performs NO EPICS writes to hardware
 
 Hardware sequencing is intentionally not implemented yet.
@@ -19,8 +19,8 @@ from softioc import builder
 
 from logic_devices.ssrf_sequence_core import (
     BurnParameters,
-    PreflightInputs,
-    evaluate_preflight,
+    BurnReadinessInputs,
+    evaluate_burn_readiness,
     validate_parameters,
 )
 
@@ -32,7 +32,7 @@ STATE_READY = "READY"
 
 
 class Device:
-    """Read-only Genesis ssRF sequencer/preflight IOC."""
+    """Read-only Genesis ssRF sequencer burn-readiness IOC."""
 
     def __init__(
         self,
@@ -162,7 +162,7 @@ class Device:
             PREC=3,
         )
 
-        # Preflight result.
+        # Burn readiness result.
         self.pvs["PARAMETERS_OK"] = builder.boolIn(
             "PARAMETERS_OK",
             ZNAM="Invalid",
@@ -280,7 +280,7 @@ class Device:
 
         return int(value)
 
-    async def _read_preflight_inputs(self):
+    async def _read_burn_readiness_inputs(self):
         names = {
             "smc_comm":
                 "UNH:GEN:SSRF:GEN:COMM",
@@ -333,7 +333,7 @@ class Device:
             ]
         )
 
-        return PreflightInputs(
+        return BurnReadinessInputs(
             **dict(
                 zip(
                     keys,
@@ -381,7 +381,7 @@ class Device:
         # cannot be read.
         try:
             inputs = (
-                await self._read_preflight_inputs()
+                await self._read_burn_readiness_inputs()
             )
 
         except Exception as exc:
@@ -398,7 +398,7 @@ class Device:
 
             return True
 
-        decision = evaluate_preflight(
+        decision = evaluate_burn_readiness(
             inputs
         )
 

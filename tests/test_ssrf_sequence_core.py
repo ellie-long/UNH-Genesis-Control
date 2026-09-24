@@ -3,8 +3,8 @@ import unittest
 
 from logic_devices.ssrf_sequence_core import (
     BurnParameters,
-    PreflightInputs,
-    evaluate_preflight,
+    BurnReadinessInputs,
+    evaluate_burn_readiness,
     validate_parameters,
 )
 
@@ -23,7 +23,7 @@ def good_params():
 
 
 def good_state():
-    return PreflightInputs(
+    return BurnReadinessInputs(
         smc_comm=1,
         smc_write_enabled=1,
         smc_rf=0,
@@ -106,108 +106,108 @@ class TestBurnParameters(unittest.TestCase):
         self.assertFalse(ok)
 
 
-class TestPreflight(unittest.TestCase):
+class TestBurnReadiness(unittest.TestCase):
 
     def test_nmr_live_start_allowed(self):
-        d = evaluate_preflight(
+        d = evaluate_burn_readiness(
             good_state()
         )
 
         self.assertEqual(d.ready, 1)
 
     def test_safe_idle_start_allowed(self):
-        s = PreflightInputs(
+        s = BurnReadinessInputs(
             **{
                 **good_state().__dict__,
                 "nmr_mask": 3,
             }
         )
 
-        d = evaluate_preflight(s)
+        d = evaluate_burn_readiness(s)
 
         self.assertEqual(d.ready, 1)
 
     def test_ssrf_connected_start_blocked(self):
-        s = PreflightInputs(
+        s = BurnReadinessInputs(
             **{
                 **good_state().__dict__,
                 "ssrf_mask": 0,
             }
         )
 
-        d = evaluate_preflight(s)
+        d = evaluate_burn_readiness(s)
 
         self.assertEqual(d.ready, 0)
 
     def test_mixed_nmr_blocked(self):
-        s = PreflightInputs(
+        s = BurnReadinessInputs(
             **{
                 **good_state().__dict__,
                 "nmr_mask": 1,
             }
         )
 
-        d = evaluate_preflight(s)
+        d = evaluate_burn_readiness(s)
 
         self.assertEqual(d.ready, 0)
 
     def test_rf_on_blocked(self):
-        s = PreflightInputs(
+        s = BurnReadinessInputs(
             **{
                 **good_state().__dict__,
                 "smc_rf": 1,
             }
         )
 
-        d = evaluate_preflight(s)
+        d = evaluate_burn_readiness(s)
 
         self.assertEqual(d.ready, 0)
 
     def test_wavegen_on_blocked(self):
-        s = PreflightInputs(
+        s = BurnReadinessInputs(
             **{
                 **good_state().__dict__,
                 "wavegen_output": 1,
             }
         )
 
-        d = evaluate_preflight(s)
+        d = evaluate_burn_readiness(s)
 
         self.assertEqual(d.ready, 0)
 
     def test_missing_waveform_blocked(self):
-        s = PreflightInputs(
+        s = BurnReadinessInputs(
             **{
                 **good_state().__dict__,
                 "waveform_points": 0,
             }
         )
 
-        d = evaluate_preflight(s)
+        d = evaluate_burn_readiness(s)
 
         self.assertEqual(d.ready, 0)
 
     def test_write_gate_blocked(self):
-        s = PreflightInputs(
+        s = BurnReadinessInputs(
             **{
                 **good_state().__dict__,
                 "smc_write_enabled": 0,
             }
         )
 
-        d = evaluate_preflight(s)
+        d = evaluate_burn_readiness(s)
 
         self.assertEqual(d.ready, 0)
 
     def test_interlock_blocked(self):
-        s = PreflightInputs(
+        s = BurnReadinessInputs(
             **{
                 **good_state().__dict__,
                 "interlock_ok": 0,
             }
         )
 
-        d = evaluate_preflight(s)
+        d = evaluate_burn_readiness(s)
 
         self.assertEqual(d.ready, 0)
 
