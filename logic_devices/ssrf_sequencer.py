@@ -1,13 +1,10 @@
 """
 Genesis Phase-I ssRF burn sequencer.
 
-5B.4 stage:
-- publishes burn parameters and derived values
-- reads live device/interlock state
-- evaluates burn readiness
-- performs NO EPICS writes to hardware
-
-Hardware sequencing is intentionally not implemented yet.
+The normal Genesis profile remains read-only.  The dedicated
+localhost simulator commissioning profile may expose guarded
+START/ABORT controls and execute the frozen burn plan through
+the narrow EpicsIO boundary.
 """
 
 from __future__ import annotations
@@ -29,11 +26,21 @@ from logic_devices.ssrf_epics_io import EpicsIO
 from logic_devices.ssrf_sequence_executor import (
     SequenceExecutor,
 )
+from logic_devices.ssrf_sequence_plan import (
+    build_burn_plan,
+)
 
 STATE_UNKNOWN = "UNKNOWN"
 STATE_INVALID = "INVALID_PARAMETERS"
 STATE_BLOCKED = "BLOCKED"
 STATE_READY = "READY"
+
+EXEC_STATE_DISABLED = "DISABLED"
+EXEC_STATE_IDLE = "IDLE"
+EXEC_STATE_RUNNING = "RUNNING"
+EXEC_STATE_COMPLETE = "COMPLETE"
+EXEC_STATE_FAILED = "FAILED"
+EXEC_STATE_ABORTED = "ABORTED"
 
 
 class Device:
@@ -49,15 +56,18 @@ class Device:
 
         self.pvs = {}
 
-        # 5B.6C inactive execution layer.
-        #
-        # This gate is deliberately hard-coded False.
-        # There is no EPICS PV or operator control that can enable it.
+        # Execution remains disabled by default.  Only the dedicated
+        # localhost simulator profile currently sets execution_enabled.
         self._execution_io = EpicsIO(
-            execution_enabled=False,
+            execution_enabled=self.settings.get(
+                "execution_enabled",
+                False,
+            ),
         )
 
+        self._start_requested = False
         self._abort_requested = False
+        self._execution_task = None
 
         self._executor = SequenceExecutor(
             read=self._execution_io.read,
@@ -207,9 +217,11 @@ class Device:
         )
 
         # ------------------------------------------------------------
-        # Future active-execution status.
+        # Active-execution status.
         #
-        # Status only in 5B.6C. No START / ABORT controls exist.
+        # START / ABORT records exist only when execution was explicitly
+        # enabled at process startup.  The normal Genesis profile therefore
+        # has no operator execution controls at all.
         # ------------------------------------------------------------
 
         self.pvs["EXECUTION_ENABLED"] = builder.boolIn(
@@ -226,13 +238,47 @@ class Device:
             "EXECUTION_REASON"
         )
 
-        # Initialize fail-closed.
-        self.pvs["EXECUTION_ENABLED"].set(0)
-        self.pvs["EXECUTION_STATE"].set(
-            "DISABLED"
+        execution_enabled = (
+            self._execution_io.execution_enabled
         )
-        self.pvs["EXECUTION_REASON"].set(
-            "Inactive: no start control"
+
+        if execution_enabled:
+            self.pvs["START_CMD"] = builder.boolOut(
+                "START_CMD",
+                ZNAM="IDLE",
+                ONAM="START",
+                always_update=True,
+                on_update_name=self._execution_command,
+            )
+
+            self.pvs["ABORT_CMD"] = builder.boolOut(
+                "ABORT_CMD",
+                ZNAM="IDLE",
+                ONAM="ABORT",
+                always_update=True,
+                on_update_name=self._execution_command,
+            )
+
+            self.pvs["START_CMD"].set(
+                0,
+                process=False,
+            )
+            self.pvs["ABORT_CMD"].set(
+                0,
+                process=False,
+            )
+
+        self.pvs["EXECUTION_ENABLED"].set(
+            int(execution_enabled)
+        )
+
+        self._set_execution_status(
+            EXEC_STATE_IDLE
+            if execution_enabled
+            else EXEC_STATE_DISABLED,
+            "Simulator execution idle"
+            if execution_enabled
+            else "Inactive: execution disabled",
         )
 
         self.pvs["PARAMETERS_OK"].set(0)
@@ -251,6 +297,214 @@ class Device:
     def connect(self):
         """Logic IOC: no physical device connection is required."""
         return True
+
+    # ------------------------------------------------------------
+    # Execution control
+    # ------------------------------------------------------------
+
+    def _set_execution_status(
+        self,
+        state,
+        reason,
+    ):
+        """Publish bounded EPICS execution status strings."""
+
+        self.pvs["EXECUTION_STATE"].set(
+            str(state)[:39]
+        )
+
+        self.pvs["EXECUTION_REASON"].set(
+            str(reason)[:39]
+        )
+
+    def _reset_momentary_command(
+        self,
+        name,
+    ):
+        if name in self.pvs:
+            self.pvs[name].set(
+                0,
+                process=False,
+            )
+
+    def _execution_command(
+        self,
+        new_value,
+        pv,
+    ):
+        """Latch START / ABORT requests without doing EPICS I/O here."""
+
+        pv_name = pv.removeprefix(
+            self.device_name + ":"
+        )
+
+        if pv_name not in (
+            "START_CMD",
+            "ABORT_CMD",
+        ):
+            return
+
+        # Commands are momentary regardless of acceptance.
+        self._reset_momentary_command(
+            pv_name
+        )
+
+        if not bool(new_value):
+            return
+
+        if not self._execution_io.execution_enabled:
+            self._set_execution_status(
+                EXEC_STATE_DISABLED,
+                "Execution disabled",
+            )
+            return
+
+        running = (
+            self._execution_task is not None
+            and not self._execution_task.done()
+        )
+
+        if pv_name == "START_CMD":
+            if running or self._start_requested:
+                self._set_execution_status(
+                    EXEC_STATE_RUNNING,
+                    "Sequence already running",
+                )
+                return
+
+            # Operator START is accepted only from the most recently
+            # published READY state.  The executor performs another
+            # independent live readiness check immediately before writes.
+            if not bool(
+                self.pvs["READY"].get()
+            ):
+                self._set_execution_status(
+                    EXEC_STATE_IDLE,
+                    "Start blocked: burn not ready",
+                )
+                return
+
+            self._abort_requested = False
+            self._start_requested = True
+
+            self._set_execution_status(
+                EXEC_STATE_IDLE,
+                "Start requested",
+            )
+            return
+
+        # ABORT_CMD
+        if running or self._start_requested:
+            self._abort_requested = True
+
+            self._set_execution_status(
+                EXEC_STATE_RUNNING,
+                "Abort requested",
+            )
+        else:
+            self._set_execution_status(
+                EXEC_STATE_IDLE,
+                "No sequence running",
+            )
+
+    def _service_execution_request(self):
+        """Start one background execution task from the IOC async loop."""
+
+        if not self._start_requested:
+            return
+
+        if (
+            self._execution_task is not None
+            and not self._execution_task.done()
+        ):
+            return
+
+        self._execution_task = asyncio.create_task(
+            self._run_requested_sequence()
+        )
+
+    async def _run_requested_sequence(self):
+        """Build and execute one frozen burn plan."""
+
+        self._start_requested = False
+
+        try:
+            # An abort arriving after START but before the async task begins
+            # must cause no writes.
+            if self._abort_requested:
+                self._set_execution_status(
+                    EXEC_STATE_ABORTED,
+                    "Aborted before start",
+                )
+                return
+
+            ready, reason = (
+                await self._executor_readiness()
+            )
+
+            if not ready:
+                self._set_execution_status(
+                    EXEC_STATE_IDLE,
+                    "Start blocked: "
+                    + str(reason),
+                )
+                return
+
+            parameters = self._parameters()
+
+            waveform_points = int(
+                await self._execution_io.read(
+                    "UNH:GEN:SSRF:WGEN:"
+                    "WAVEFORM_POINTS"
+                )
+            )
+
+            waveform_id_before = int(
+                await self._execution_io.read(
+                    "UNH:GEN:SSRF:WGEN:"
+                    "WAVEFORM_ID"
+                )
+            )
+
+            plan = build_burn_plan(
+                parameters,
+                waveform_points,
+                waveform_id_before,
+            )
+
+            self._set_execution_status(
+                EXEC_STATE_RUNNING,
+                "Burn sequence running",
+            )
+
+            result = await self._executor.run(
+                plan
+            )
+
+            final_reason = (
+                result.reason
+                if result.reason
+                else (
+                    "Burn sequence complete"
+                    if result.ok
+                    else "Burn sequence failed"
+                )
+            )
+
+            self._set_execution_status(
+                result.state,
+                final_reason,
+            )
+
+        except Exception as exc:
+            self._set_execution_status(
+                EXEC_STATE_FAILED,
+                str(exc),
+            )
+
+        finally:
+            self._abort_requested = False
+            self._execution_task = None
 
     # ------------------------------------------------------------
     # Parameter handling
@@ -422,6 +676,10 @@ class Device:
     # ------------------------------------------------------------
 
     async def do_reads(self):
+        # START callbacks only latch a request.  Actual async execution
+        # begins here on the IOC dispatcher event loop.
+        self._service_execution_request()
+
         # Parameter validation is entirely local.
         parameters = self._parameters()
 

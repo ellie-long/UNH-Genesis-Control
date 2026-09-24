@@ -10,7 +10,7 @@ SEQUENCER = (
     / "ssrf_sequencer.py"
 )
 
-CONFIG = (
+SAFE_CONFIG = (
     ROOT
     / "configs"
     / "ssrf"
@@ -22,49 +22,45 @@ CONFIG = (
 class TestInactiveExecution(unittest.TestCase):
     def setUp(self):
         self.source = SEQUENCER.read_text()
-        self.config = CONFIG.read_text()
+        self.config = SAFE_CONFIG.read_text()
 
-    def test_execution_gate_is_hard_disabled(self):
+    def test_execution_defaults_disabled(self):
         self.assertIn(
-            "EpicsIO(\n"
-            "            execution_enabled=False,",
+            '"execution_enabled",\n'
+            '                False,',
             self.source,
         )
 
-    def test_executor_is_constructed(self):
-        self.assertIn(
-            "SequenceExecutor(",
-            self.source,
+    def test_safe_config_does_not_enable_execution(self):
+        self.assertNotIn(
+            "execution_enabled: true",
+            self.config,
         )
 
-    def test_executor_is_never_run(self):
-        self.assertNotIn(
-            "._executor.run(",
-            self.source,
-        )
-        self.assertNotIn(
-            "await self._executor.run(",
-            self.source,
-        )
-
-    def test_no_start_control(self):
-        self.assertNotIn(
-            "START_CMD",
-            self.source,
-        )
+    def test_safe_config_has_no_start_control(self):
         self.assertNotIn(
             "START_CMD",
             self.config,
         )
 
-    def test_no_abort_control(self):
-        self.assertNotIn(
-            "ABORT_CMD",
-            self.source,
-        )
+    def test_safe_config_has_no_abort_control(self):
         self.assertNotIn(
             "ABORT_CMD",
             self.config,
+        )
+
+    def test_controls_are_conditional_in_source(self):
+        self.assertIn(
+            "if execution_enabled:",
+            self.source,
+        )
+        self.assertIn(
+            'self.pvs["START_CMD"]',
+            self.source,
+        )
+        self.assertIn(
+            'self.pvs["ABORT_CMD"]',
+            self.source,
         )
 
     def test_no_direct_caput_in_sequencer(self):
@@ -73,28 +69,23 @@ class TestInactiveExecution(unittest.TestCase):
             self.source,
         )
 
-    def test_status_pvs_exist(self):
-        for name in (
-            "EXECUTION_ENABLED",
-            "EXECUTION_STATE",
-            "EXECUTION_REASON",
-        ):
-            self.assertIn(
-                name,
-                self.source,
-            )
-            self.assertIn(
-                name,
-                self.config,
-            )
-
-    def test_initial_state_disabled(self):
+    def test_epics_io_remains_execution_boundary(self):
         self.assertIn(
-            '"DISABLED"',
+            "self._execution_io.read(",
             self.source,
         )
         self.assertIn(
-            '"Inactive: no start control"',
+            "self._executor.run(",
+            self.source,
+        )
+
+    def test_safe_disabled_status_still_exists(self):
+        self.assertIn(
+            "EXEC_STATE_DISABLED",
+            self.source,
+        )
+        self.assertIn(
+            "Inactive: execution disabled",
             self.source,
         )
 

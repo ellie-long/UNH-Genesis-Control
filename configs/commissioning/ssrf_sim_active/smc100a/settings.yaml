@@ -1,0 +1,138 @@
+general:
+  prefix: UNH:GEN:SSRF:GEN
+  log_dir: logs
+  epics_addr_list: None
+  delay: 0.5
+
+smc100a:
+  module: ssrf_ioc.smc100a
+  autostart: false
+
+  # Simulator first. Do NOT change this to the real SMC yet.
+  ip: 127.0.0.1
+  port: 5025
+  timeout: 2.0
+
+  # Farooq's original SCPI layer stored this setting but did not
+  # apply it. Our Genesis common transport does apply it.
+  # Keep it at zero initially so we preserve his tested timing.
+  settle: 0.0
+
+  delay: 1.0
+
+  # Safe commissioning defaults.
+  write_enabled: true
+  initialize_on_connect: false
+
+  # BaseDevice currently expects a channels field.
+  # The SMC is physically a single device; Genesis PV names themselves
+  # are flat below UNH:GEN:SSRF:GEN.
+  channels:
+    - SMC
+
+  # Initial limits carried over from Farooq's deployment.
+  # These can only be changed deliberately after hardware review.
+  freq_limit_mhz:
+    - 0.1
+    - 3200.0
+
+  level_limit_dbm:
+    - -145.0
+    - 10.0
+
+  archive_records:
+    - FREQ_RBV
+    - LEVEL_RBV
+    - RF_RBV
+    - FM_RBV
+    - FM_SOURCE_RBV
+    - FM_DEV_RBV
+    - SWEEP_START_RBV
+    - SWEEP_STOP_RBV
+    - SWEEP_STEP_RBV
+    - SWEEP_DWELL_RBV
+    - SWEEP_SHAPE_RBV
+    - SWEEP_ARM_RBV
+    - COMM
+    - ERROR
+    - LAST_EVENT
+    - LAST_OK
+    - WRITE_ENABLED
+
+  records:
+    FREQ_CMD:
+      DESC: RF carrier frequency command
+    FREQ_RBV:
+      DESC: RF carrier frequency readback
+
+    LEVEL_CMD:
+      DESC: RF output level command
+    LEVEL_RBV:
+      DESC: RF output level readback
+
+    RF_CMD:
+      DESC: RF output command
+    RF_RBV:
+      DESC: RF output state readback
+
+    FM_CMD:
+      DESC: FM enable command
+    FM_RBV:
+      DESC: FM enable readback
+
+    FM_SOURCE_CMD:
+      DESC: FM source command
+    FM_SOURCE_RBV:
+      DESC: FM source readback
+
+    FM_DEV_CMD:
+      DESC: FM deviation command
+    FM_DEV_RBV:
+      DESC: FM deviation readback
+
+    SWEEP_START_CMD:
+      DESC: Power sweep start level command
+    SWEEP_START_RBV:
+      DESC: Power sweep start level readback
+
+    SWEEP_STOP_CMD:
+      DESC: Power sweep stop level command
+    SWEEP_STOP_RBV:
+      DESC: Power sweep stop level readback
+
+    SWEEP_STEP_CMD:
+      DESC: Power sweep step command
+    SWEEP_STEP_RBV:
+      DESC: Power sweep step readback
+
+    SWEEP_DWELL_CMD:
+      DESC: Power sweep dwell command
+    SWEEP_DWELL_RBV:
+      DESC: Power sweep dwell readback
+
+    SWEEP_SHAPE_CMD:
+      DESC: Power sweep shape command
+    SWEEP_SHAPE_RBV:
+      DESC: Power sweep shape readback
+
+    SWEEP_ARM_CMD:
+      DESC: Power sweep arm command
+    SWEEP_ARM_RBV:
+      DESC: Power sweep arm state
+
+    SWEEP_TRIGGER_CMD:
+      DESC: Trigger one armed SMC power sweep
+
+    COMM:
+      DESC: SMC100A communication state
+    ERROR:
+      DESC: Current SMC100A IOC or instrument fault
+
+    LAST_EVENT:
+      DESC: Most recent SMC100A operational event
+
+    LAST_OK:
+      DESC: Last successful SMC100A read timestamp
+
+    WRITE_ENABLED:
+      DESC: SMC100A hardware write permission

@@ -167,6 +167,18 @@ class SequenceExecutor:
             self.sleep(float(seconds))
         )
 
+    async def _abort_now(self):
+        """Return the current cooperative abort state."""
+
+        if self.abort_requested is None:
+            return False
+
+        return bool(
+            await self._maybe_await(
+                self.abort_requested()
+            )
+        )
+
     # ------------------------------------------------------------
     # Comparison / verification
     # ------------------------------------------------------------
@@ -633,7 +645,20 @@ class SequenceExecutor:
 
         try:
             for step in nominal_steps:
+                # ABORT is checked before every nominal step.
+                #
+                # This prevents any new nominal action from beginning
+                # after the operator has requested cleanup.  Cleanup
+                # itself deliberately bypasses this gate.
+                if await self._abort_now():
+                    self._current_step = step.name
+
+                    raise SequenceAbortError(
+                        "abort requested"
+                    )
+
                 await self._execute_step(step)
+
                 self._completed.append(
                     step.name
                 )

@@ -1,0 +1,88 @@
+general:
+  prefix: UNH:GEN:SSRF:SEQ
+  log_dir: logs
+
+  # Read-only EPICS inputs used by the sequencer burn readiness.
+  epics_addr_list: 127.0.0.1:5068 127.0.0.1:5070 127.0.0.1:5071 127.0.0.1:5072 127.0.0.1:5073
+
+  delay: 0.2
+
+ssrf_sequencer:
+  module: logic_devices.ssrf_sequencer
+  autostart: false
+  delay: 0.2
+
+  # Active execution is permitted only by the dedicated
+  # localhost simulator commissioning profile.
+  execution_enabled: true
+
+  # Initial commissioning parameters only.
+  # These do not cause hardware writes in 5B.4.
+  carrier_mhz: 33.0
+  start_level_dbm: -120.0
+  target_level_dbm: -22.0
+  fm_deviation_khz: 10.0
+
+  fm_period_s: 0.010
+  vhigh_v: 1.0
+  vlow_v: -1.0
+  fm_repeats: 10
+
+  channels:
+  - None
+
+  archive_records:
+  - CARRIER_MHZ
+  - START_LEVEL_DBM
+  - TARGET_LEVEL_DBM
+  - FM_DEV_KHZ
+  - FM_PERIOD_S
+  - VHIGH_V
+  - VLOW_V
+  - FM_REPEATS
+  - SWEEP_STEP_DB
+  - SWEEP_DWELL_MS
+  - PARAMETERS_OK
+  - READY
+  - STATE
+  - REASON
+
+  records:
+    CARRIER_MHZ:
+      DESC: SMC carrier frequency
+    START_LEVEL_DBM:
+      DESC: SMC sweep start level
+    TARGET_LEVEL_DBM:
+      DESC: SMC target RF level
+    FM_DEV_KHZ:
+      DESC: SMC external FM deviation
+    FM_PERIOD_S:
+      DESC: Keysight waveform period
+    VHIGH_V:
+      DESC: Keysight waveform high voltage
+    VLOW_V:
+      DESC: Keysight waveform low voltage
+    FM_REPEATS:
+      DESC: FM waveform repeats per burn
+    SWEEP_STEP_DB:
+      DESC: Derived SMC sweep step
+    SWEEP_DWELL_MS:
+      DESC: Derived SMC sweep dwell
+    PARAMETERS_OK:
+      DESC: Burn parameters valid
+    READY:
+      DESC: Burn readiness status
+    STATE:
+      DESC: Sequencer burn readiness state
+    REASON:
+      DESC: Sequencer burn readiness reason
+    EXECUTION_ENABLED:
+      DESC: ssRF execution layer enabled state
+    EXECUTION_STATE:
+      DESC: ssRF execution layer state
+    EXECUTION_REASON:
+      DESC: ssRF execution layer status reason
+    START_CMD:
+      DESC: Start guarded simulator burn
+    ABORT_CMD:
+      DESC: Request burn abort and cleanup
