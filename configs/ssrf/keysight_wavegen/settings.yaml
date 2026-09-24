@@ -1,5 +1,6 @@
 general:
   prefix: UNH:GEN:SSRF:WGEN
+  access_security_file: configs/access_security/ssrf_commands.acf
   log_dir: logs
   epics_addr_list: None
   delay: 0.5
@@ -49,21 +50,25 @@ keysight_wavegen:
 
     OUTPUT_CMD:
       DESC: WaveGen output command
+      ASG: GENESIS_SSRF_CMD
     OUTPUT_RBV:
       DESC: WaveGen output state readback
 
     PERIOD_CMD:
       DESC: FM waveform period command
+      ASG: GENESIS_SSRF_CMD
     PERIOD_RBV:
       DESC: FM waveform period readback
 
     VHIGH_CMD:
       DESC: WaveGen high voltage command
+      ASG: GENESIS_SSRF_CMD
     VHIGH_RBV:
       DESC: WaveGen high voltage readback
 
     VLOW_CMD:
       DESC: WaveGen low voltage command
+      ASG: GENESIS_SSRF_CMD
     VLOW_RBV:
       DESC: WaveGen low voltage readback
 
@@ -83,12 +88,14 @@ keysight_wavegen:
 
     WAVEFORM_CMD:
       DESC: Staged normalized FM waveform
+      ASG: GENESIS_SSRF_CMD
 
     WAVEFORM_POINTS:
       DESC: Number of staged waveform points
 
     LOAD_CMD:
       DESC: Commit staged waveform to WaveGen
+      ASG: GENESIS_SSRF_CMD
 
     ARB_POINTS_RBV:
       DESC: Instrument-confirmed ARB point count

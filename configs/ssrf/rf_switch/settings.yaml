@@ -1,5 +1,6 @@
 general:
   prefix: UNH:GEN:SSRF:RF_SW
+  access_security_file: configs/access_security/ssrf_commands.acf
   log_dir: logs
   epics_addr_list: None
   delay: 0.5
@@ -43,6 +44,7 @@ minicircuits_switch:
 
     PORT_CMD:
       DESC: ssRF route command
+      ASG: GENESIS_SSRF_CMD
 
     MASK_RBV:
       DESC: ssRF switch SWPORT mask

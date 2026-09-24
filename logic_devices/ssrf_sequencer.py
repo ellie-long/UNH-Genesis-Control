@@ -22,6 +22,10 @@ from logic_devices.ssrf_sequence_core import (
 )
 
 
+from genesis_common.execution_authorization import (
+    validate_execution_authorization,
+)
+
 from logic_devices.ssrf_epics_io import EpicsIO
 from logic_devices.ssrf_sequence_executor import (
     SequenceExecutor,
@@ -58,16 +62,42 @@ class Device:
 
         # Execution remains disabled by default.  Only the dedicated
         # localhost simulator profile currently sets execution_enabled.
-        self._execution_io = EpicsIO(
-            execution_enabled=self.settings.get(
+        execution_enabled = bool(
+            self.settings.get(
                 "execution_enabled",
                 False,
-            ),
+            )
+        )
+
+        self._execution_mode = (
+            validate_execution_authorization(
+                execution_enabled=execution_enabled,
+                execution_mode=self.settings.get(
+                    "execution_mode"
+                ),
+                required_os_user=self.settings.get(
+                    "required_os_user"
+                ),
+            )
+        )
+
+        self._execution_io = EpicsIO(
+            execution_enabled=execution_enabled,
         )
 
         self._start_requested = False
         self._abort_requested = False
         self._execution_task = None
+
+        # Runtime execution authorization is one-shot.
+        #
+        # It is deliberately independent of:
+        #   - static execution_enabled
+        #   - device WRITE_ENABLED
+        #   - hardware/interlock readiness
+        #
+        # IOC startup always begins DISARMED.
+        self._execution_armed = False
 
         self._executor = SequenceExecutor(
             read=self._execution_io.read,
@@ -230,6 +260,12 @@ class Device:
             ONAM="Enabled",
         )
 
+        self.pvs["EXECUTION_ARMED"] = builder.boolIn(
+            "EXECUTION_ARMED",
+            ZNAM="Disarmed",
+            ONAM="Armed",
+        )
+
         self.pvs["EXECUTION_STATE"] = builder.stringIn(
             "EXECUTION_STATE"
         )
@@ -243,6 +279,22 @@ class Device:
         )
 
         if execution_enabled:
+            self.pvs["ARM_CMD"] = builder.boolOut(
+                "ARM_CMD",
+                ZNAM="IDLE",
+                ONAM="ARM",
+                always_update=True,
+                on_update_name=self._execution_command,
+            )
+
+            self.pvs["DISARM_CMD"] = builder.boolOut(
+                "DISARM_CMD",
+                ZNAM="IDLE",
+                ONAM="DISARM",
+                always_update=True,
+                on_update_name=self._execution_command,
+            )
+
             self.pvs["START_CMD"] = builder.boolOut(
                 "START_CMD",
                 ZNAM="IDLE",
@@ -259,6 +311,14 @@ class Device:
                 on_update_name=self._execution_command,
             )
 
+            self.pvs["ARM_CMD"].set(
+                0,
+                process=False,
+            )
+            self.pvs["DISARM_CMD"].set(
+                0,
+                process=False,
+            )
             self.pvs["START_CMD"].set(
                 0,
                 process=False,
@@ -271,6 +331,8 @@ class Device:
         self.pvs["EXECUTION_ENABLED"].set(
             int(execution_enabled)
         )
+
+        self.pvs["EXECUTION_ARMED"].set(0)
 
         self._set_execution_status(
             EXEC_STATE_IDLE
@@ -317,6 +379,25 @@ class Device:
             str(reason)[:39]
         )
 
+    def _set_execution_armed(
+        self,
+        armed,
+    ):
+        """Set the one-shot runtime execution arm."""
+
+        self._execution_armed = bool(
+            armed
+        )
+
+        if "EXECUTION_ARMED" in self.pvs:
+            self.pvs[
+                "EXECUTION_ARMED"
+            ].set(
+                int(
+                    self._execution_armed
+                )
+            )
+
     def _reset_momentary_command(
         self,
         name,
@@ -339,6 +420,8 @@ class Device:
         )
 
         if pv_name not in (
+            "ARM_CMD",
+            "DISARM_CMD",
             "START_CMD",
             "ABORT_CMD",
         ):
@@ -364,11 +447,58 @@ class Device:
             and not self._execution_task.done()
         )
 
+        if pv_name == "ARM_CMD":
+            if running or self._start_requested:
+                self._set_execution_status(
+                    EXEC_STATE_RUNNING,
+                    "Cannot arm while sequence running",
+                )
+                return
+
+            self._set_execution_armed(
+                True
+            )
+
+            self._set_execution_status(
+                EXEC_STATE_IDLE,
+                "Execution armed",
+            )
+            return
+
+        if pv_name == "DISARM_CMD":
+            self._set_execution_armed(
+                False
+            )
+
+            # A disarm during or immediately before execution
+            # also requests the existing graceful abort path.
+            if running or self._start_requested:
+                self._abort_requested = True
+
+                self._set_execution_status(
+                    EXEC_STATE_RUNNING,
+                    "Disarmed; abort requested",
+                )
+            else:
+                self._set_execution_status(
+                    EXEC_STATE_IDLE,
+                    "Execution disarmed",
+                )
+
+            return
+
         if pv_name == "START_CMD":
             if running or self._start_requested:
                 self._set_execution_status(
                     EXEC_STATE_RUNNING,
                     "Sequence already running",
+                )
+                return
+
+            if not self._execution_armed:
+                self._set_execution_status(
+                    EXEC_STATE_IDLE,
+                    "Start blocked: execution not armed",
                 )
                 return
 
@@ -384,6 +514,12 @@ class Device:
                 )
                 return
 
+            # One successful START request consumes the arm.
+            # Another sequence always requires an explicit re-arm.
+            self._set_execution_armed(
+                False
+            )
+
             self._abort_requested = False
             self._start_requested = True
 
@@ -394,6 +530,13 @@ class Device:
             return
 
         # ABORT_CMD
+        #
+        # Abort is always available and always removes any
+        # authorization for a subsequent sequence.
+        self._set_execution_armed(
+            False
+        )
+
         if running or self._start_requested:
             self._abort_requested = True
 

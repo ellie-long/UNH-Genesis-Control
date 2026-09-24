@@ -7,6 +7,10 @@ import importlib
 import os
 import datetime
 
+from genesis_common.access_security import (
+    configure_access_security,
+)
+
 
 async def main():
     """
@@ -25,6 +29,24 @@ async def main():
     builder.SetDeviceName(device_name)
 
     d = DeviceIOC(device_name, ioc, settings)
+
+    # Access Security must be configured before iocInit().
+    #
+    # DeviceIOC has already created the records and applied any configured
+    # ASG fields at this point.
+    access_security_file = configure_access_security(
+        settings,
+        project_root=os.path.dirname(
+            os.path.abspath(__file__)
+        ),
+    )
+
+    if access_security_file is not None:
+        print(
+            "EPICS Access Security policy: "
+            f"{access_security_file}"
+        )
+
     builder.LoadDatabase()
     softioc.iocInit(dispatcher)
 

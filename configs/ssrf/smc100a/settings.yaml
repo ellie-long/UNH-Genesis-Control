@@ -1,5 +1,6 @@
 general:
   prefix: UNH:GEN:SSRF:GEN
+  access_security_file: configs/access_security/ssrf_commands.acf
   log_dir: logs
   epics_addr_list: None
   delay: 0.5
@@ -62,66 +63,79 @@ smc100a:
   records:
     FREQ_CMD:
       DESC: RF carrier frequency command
+      ASG: GENESIS_SSRF_CMD
     FREQ_RBV:
       DESC: RF carrier frequency readback
 
     LEVEL_CMD:
       DESC: RF output level command
+      ASG: GENESIS_SSRF_CMD
     LEVEL_RBV:
       DESC: RF output level readback
 
     RF_CMD:
       DESC: RF output command
+      ASG: GENESIS_SSRF_CMD
     RF_RBV:
       DESC: RF output state readback
 
     FM_CMD:
       DESC: FM enable command
+      ASG: GENESIS_SSRF_CMD
     FM_RBV:
       DESC: FM enable readback
 
     FM_SOURCE_CMD:
       DESC: FM source command
+      ASG: GENESIS_SSRF_CMD
     FM_SOURCE_RBV:
       DESC: FM source readback
 
     FM_DEV_CMD:
       DESC: FM deviation command
+      ASG: GENESIS_SSRF_CMD
     FM_DEV_RBV:
       DESC: FM deviation readback
 
     SWEEP_START_CMD:
       DESC: Power sweep start level command
+      ASG: GENESIS_SSRF_CMD
     SWEEP_START_RBV:
       DESC: Power sweep start level readback
 
     SWEEP_STOP_CMD:
       DESC: Power sweep stop level command
+      ASG: GENESIS_SSRF_CMD
     SWEEP_STOP_RBV:
       DESC: Power sweep stop level readback
 
     SWEEP_STEP_CMD:
       DESC: Power sweep step command
+      ASG: GENESIS_SSRF_CMD
     SWEEP_STEP_RBV:
       DESC: Power sweep step readback
 
     SWEEP_DWELL_CMD:
       DESC: Power sweep dwell command
+      ASG: GENESIS_SSRF_CMD
     SWEEP_DWELL_RBV:
       DESC: Power sweep dwell readback
 
     SWEEP_SHAPE_CMD:
       DESC: Power sweep shape command
+      ASG: GENESIS_SSRF_CMD
     SWEEP_SHAPE_RBV:
       DESC: Power sweep shape readback
 
     SWEEP_ARM_CMD:
       DESC: Power sweep arm command
+      ASG: GENESIS_SSRF_CMD
     SWEEP_ARM_RBV:
       DESC: Power sweep arm state
 
     SWEEP_TRIGGER_CMD:
       DESC: Trigger one armed SMC power sweep
+      ASG: GENESIS_SSRF_CMD
 
     COMM:
       DESC: SMC100A communication state

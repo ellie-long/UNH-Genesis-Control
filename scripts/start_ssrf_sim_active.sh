@@ -242,10 +242,10 @@ async def main():
             "WaveGen output is ON"
         )
 
-    if int(values["nmr_mask"]) != 3:
+    if int(values["nmr_mask"]) not in (0, 3):
         failures.append(
-            "NMR switch is not disconnected "
-            "(expected mask 3)"
+            "NMR switch mask is not a safe "
+            "handoff state (expected 0 or 3)"
         )
 
     if int(values["ssrf_mask"]) != 3:
@@ -763,13 +763,30 @@ async def main():
         values["WaveGen output"]
     ) == 0
 
-    assert int(values["NMR mask"]) == 3
-    assert int(values["ssRF mask"]) == 3
+    nmr_mask = int(
+        values["NMR mask"]
+    )
+
+    ssrf_mask = int(
+        values["ssRF mask"]
+    )
+
+    interlock_state = str(
+        values["interlock state"]
+    )
+
+    assert nmr_mask in (0, 3)
+    assert ssrf_mask == 3
+
+    if nmr_mask == 0:
+        assert interlock_state == "NMR_LIVE"
+    else:
+        assert interlock_state == "SAFE_IDLE"
 
     print()
     print(
         "[PASS] simulator-active deployment "
-        "is running in safe idle"
+        "is running in a safe non-burning state"
     )
 
 
@@ -782,5 +799,5 @@ echo "============================================================"
 echo " SIMULATOR-ACTIVE HANDOFF COMPLETE"
 echo "============================================================"
 echo
-echo "Execution is permitted by configuration,"
-echo "but there is still NO START control."
+echo "Execution is permitted by configuration."
+echo "A burn requires explicit one-shot ARM + START."

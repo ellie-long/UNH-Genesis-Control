@@ -1,0 +1,25 @@
+# Genesis Phase-I ssRF command access policy.
+#
+# DEFAULT preserves normal read/write behavior for records that are not
+# explicitly placed in the protected command group.
+#
+# GENESIS_SSRF_CMD protects direct hardware command records.  Reads remain
+# available to all clients, but writes require the dedicated sequencer CA
+# identity.
+
+UAG(GENESIS_SSRF_SEQUENCER) {
+    genesis_ssrf_sequencer
+}
+
+ASG(DEFAULT) {
+    RULE(1, READ)
+    RULE(1, WRITE, TRAPWRITE)
+}
+
+ASG(GENESIS_SSRF_CMD) {
+    RULE(1, READ)
+
+    RULE(1, WRITE, TRAPWRITE) {
+        UAG(GENESIS_SSRF_SEQUENCER)
+    }
+}

@@ -1718,7 +1718,7 @@
     <y>1077</y>
     <width>1080</width>
     <height>22</height>
-    <text>Read-only burn readiness only: no burn START/ABORT control and no hardware-write path are enabled in this milestone.</text>
+    <text>Normal deployment is read-only. Burn execution is available only in the dedicated commissioning profile with one-shot ARM + START.</text>
     <font>
       <font family="Liberation Sans" style="REGULAR" size="11.0" />
     </font>
