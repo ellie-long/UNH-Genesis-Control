@@ -1,0 +1,4 @@
+# Machine-specific exported fit-constant files live here. Git tracks this folder (via this
+# .gitignore) but ignores everything inside it, since the calibration is per-machine / per-run.
+*
+!.gitignore

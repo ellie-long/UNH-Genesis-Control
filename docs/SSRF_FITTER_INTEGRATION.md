@@ -1,0 +1,205 @@
+# Genesis Phase-I ssRF Fitter Integration
+
+## Purpose
+
+Integrate the existing UNH deuteron NMR fitter and adaptive ssRF waveform
+generation into the Genesis Phase-I architecture without allowing analysis
+software to bypass EPICS safety, interlocks, authorization, or the ssRF
+sequencer.
+
+Authoritative reference source:
+
+`Genesis-Mission-ssRF-Controller-main_Utsav.zip`
+
+The reference implementation contains:
+
+- `online_fitter/` — live/offline spin-1 NMR fitting
+- `Keysight/ssRF_sweep_height.py` — adaptive ssRF waveform generation
+- `Keysight/deuts.py` — legacy waveform-physics helper
+- direct Keysight/device-control code used by the older prototype
+
+Only the hardware-independent fitting and waveform mathematics are reused
+in the Genesis analysis layer.
+
+## Genesis architecture
+
+```text
+NMR acquisition
+      |
+      v
+online_fitter
+      |
+      v
+validated FitSnapshot
+      |
+      v
+ssrf_analysis.waveform_planner
+      |
+      v
+validated WaveformPlan
+      |
+      v
+WaveGen waveform staging
+      |
+      v
+Genesis sequencer
+      |
+      v
+Genesis interlock / authorization
+      |
+      v
+Keysight + SMC100A + RF switches
+```
+
+Analysis determines what waveform should be used.
+
+Analysis does not determine whether hardware is allowed to execute it.
+
+The Genesis sequencer and interlock remain authoritative for all hardware
+execution.
+
+## Imported fitter
+
+The authoritative `online_fitter` package was copied source-identically
+into the Genesis repository.
+
+Core dependencies:
+
+- Python
+- NumPy
+- SciPy
+
+GUI dependencies are treated separately from the core fitter.
+
+The fitter supports:
+
+- baseline
+- equilibrium
+- ssRF / hole-burn
+- frequency hopping
+- no-NMR operation
+
+The live fitter protocol remains loopback-only.
+
+Default fitter input port:
+
+`127.0.0.1:8777`
+
+Default fit-result publisher:
+
+`127.0.0.1:8778`
+
+## Adaptive waveform planner
+
+Genesis provides:
+
+`ssrf_analysis/waveform_planner.py`
+
+It reproduces the adaptive waveform mathematics from the authoritative
+`Keysight/ssRF_sweep_height.py` implementation while removing:
+
+- PyVISA communication
+- direct Keysight writes
+- RF output control
+- switch control
+- continuous burn loops
+- automatic burn execution
+
+The planner supports:
+
+- ND3
+- deuterated butanol
+- Enhancement
+- Suppression
+- Zero
+
+It produces:
+
+- 8192 normalized ARB samples
+- physical-voltage representation
+- peak and shoulder frequency regions
+- height-weighting arrays
+- waveform period
+- WaveGen voltage bounds
+- fitter provenance information
+
+Regression tests compare the Genesis waveform directly against the
+authoritative implementation.
+
+## Current validated constants
+
+The authoritative prototype currently uses:
+
+```text
+WaveGen ARB points = 8192
+Waveform period    = 0.010 s
+VHIGH              = +0.7 V
+VLOW               = -0.7 V
+```
+
+Normalized samples supplied to the Genesis WaveGen IOC remain:
+
+```text
+[-1, +1]
+```
+
+## Important unresolved hardware item
+
+The authoritative source numerically maps frequency offset in MHz to
+WaveGen voltage.
+
+That numerical convention is preserved for source equivalence but is NOT
+yet independently hardware-verified in Genesis.
+
+Therefore:
+
+`scaling_verified_for_hardware = False`
+
+The physical relationship among:
+
+- NMR frequency offset
+- WaveGen voltage
+- SMC100A external-FM deviation
+
+must be confirmed during physical commissioning before real ssRF burns.
+
+## Safety boundary
+
+The fitter and waveform planner may never directly perform:
+
+- `LOAD_CMD`
+- WaveGen output enable
+- SMC RF enable
+- SMC FM enable
+- RF-switch changes
+- NMR-switch changes
+- ARM
+- START
+- burn execution
+
+Those operations belong to the existing Genesis controlled execution path.
+
+## Current milestone status
+
+Validated:
+
+- authoritative fitter source located
+- fitter source imported source-identically
+- SciPy environment dependency installed
+- fitter imports successfully
+- loopback-only fitter server verified
+- non-loopback binding rejected
+- legacy `deuts.py` preserved source-identically
+- adaptive waveform planner extracted
+- six material/case waveform combinations match authoritative source
+- live measured-height waveform path matches authoritative source
+- uncalibrated fit input is rejected
+- existing ssRF safety/sequencer regression tests remain passing
+
+Next:
+
+1. fitter-result subscriber
+2. safe `WAVEFORM_CMD` staging bridge
+3. simulator validation
+4. metadata / event logging
+5. operator helper integration
