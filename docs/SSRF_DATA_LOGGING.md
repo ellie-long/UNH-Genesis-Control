@@ -243,3 +243,68 @@ Next:
 1. persist larger NMR/fit/waveform arrays as session data products
 2. reference those products from event metadata
 3. visualize session data and event state together
+
+## 5C.4A-4A scientific session data products
+
+Genesis provides:
+
+    ssrf_analysis/session_data.py
+
+The structured JSONL event layer remains metadata-oriented.
+
+Larger scientific arrays are stored separately as numeric NPZ session
+products under:
+
+    archive/sessions/ssrf/<session_id>/
+
+Possible products include:
+
+    fit_data.npz
+    waveform_data.npz
+
+`fit_data.npz` may contain:
+
+    freqs_mhz
+    data
+    total_fit
+    I_plus_primary
+    I_minus_primary
+    I_plus_secondary
+    I_minus_secondary
+    raw
+
+`waveform_data.npz` contains:
+
+    f_peak_mhz
+    f_shoulder_mhz
+    peak_weights
+    shoulder_weights
+    control_time_s
+    control_offset_mhz
+    normalized_samples
+    physical_voltage_v
+
+The adaptive waveform data product is required to contain exactly:
+
+    8192 samples
+
+Session IDs are validated before filesystem use.
+
+NPZ files are read with:
+
+    allow_pickle = False
+
+Object arrays and non-finite numeric values are rejected.
+
+Processed/fitted frequency-domain arrays must match the frequency-axis
+length whenever both are present.
+
+The raw NMR array is allowed to have a different representation and length.
+
+This layer performs no EPICS or hardware access.
+
+Next:
+
+1. connect fitter runtime sessions to NPZ persistence
+2. reference NPZ paths from structured JSONL events
+3. use both layers in the live visualization framework
