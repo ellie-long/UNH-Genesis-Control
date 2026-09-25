@@ -125,3 +125,47 @@ Next:
 2. define burn/session records
 3. correlate later sequencer execution and fault events
 4. expose structured data to the live visualization layer
+
+## 5C.4A-2 fitter-runtime event integration
+
+The one-shot fitter runtime now writes structured subsystem events using one
+shared `session_id`.
+
+Successful dry-run sequence:
+
+    session_started
+        -> fit_received
+        -> waveform_planned
+        -> dry_run_completed
+        -> session_completed
+
+Controlled staging uses:
+
+    session_started
+        -> fit_received
+        -> waveform_planned
+        -> waveform_staged
+        -> session_completed
+
+Failures produce:
+
+    session_failed
+
+The event runtime was validated using a real TCP/NDJSON fitter message on:
+
+    127.0.0.1:8778
+
+A single calibrated ND3 fitter message produced one five-event correlated
+session and recorded an 8192-point adaptive waveform.
+
+No IOC was required for the dry-run validation and no EPICS write occurred.
+
+Event logging remains metadata-only. Large NMR and waveform arrays are not
+duplicated into JSONL.
+
+Next:
+
+1. derive a compact session/burn record from the append-only event stream
+2. add before-NMR and after-NMR correlation fields
+3. later attach sequencer execution and fault events
+4. expose the correlated records to visualization

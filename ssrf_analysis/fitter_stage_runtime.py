@@ -12,6 +12,9 @@ With --stage:
   UNH:GEN:SSRF:WGEN:WAVEFORM_CMD
 - the process exits after one accepted fit message
 
+Structured event logging is enabled by default and writes append-only JSONL
+metadata under archive/events/ssrf. Event logging has no EPICS authority.
+
 This module has no authority for LOAD, OUTPUT, SMC, switches, ARM, START,
 or burn execution.
 """
@@ -21,16 +24,22 @@ from __future__ import annotations
 import argparse
 import asyncio
 import json
+from pathlib import Path
+from typing import Any, Mapping
 
 import aioca
 
+from ssrf_analysis.event_logger import (
+    DEFAULT_EVENT_DIR,
+    JsonlEventLogger,
+    new_session_id,
+)
 from ssrf_analysis.fitter_waveform_bridge import (
     DEFAULT_FIT_PUBLISH_HOST,
     DEFAULT_FIT_PUBLISH_PORT,
     FitWaveformBridge,
     iter_fit_messages,
 )
-
 from ssrf_analysis.waveform_stager import (
     WAVEFORM_CMD_PV,
     WaveformStager,
@@ -97,6 +106,161 @@ class DryRunWriter:
         self.calls += 1
 
 
+def _safe_len(value: Any) -> int | None:
+    if value is None:
+        return None
+
+    try:
+        return int(len(value))
+    except TypeError:
+        return None
+
+
+def _fit_event_data(
+    message: Mapping[str, Any],
+) -> dict[str, Any]:
+    constants = message.get(
+        "constants"
+    )
+
+    if not isinstance(
+        constants,
+        Mapping,
+    ):
+        constants = {}
+
+    return {
+        "fit_ts": message.get("ts"),
+        "fit_type": message.get("fit_type"),
+        "mode": message.get("mode"),
+        "material": message.get("material"),
+        "model": message.get("model"),
+        "npts": message.get("npts"),
+        "constants_good": (
+            message.get("constants_good")
+        ),
+        "constants_source": (
+            constants.get("source")
+        ),
+        "omegD_mhz": (
+            constants.get("omegD")
+        ),
+        "r": constants.get("r"),
+        "red_chisq": (
+            message.get(
+                "red_chisq",
+                constants.get("red_chisq"),
+            )
+        ),
+        "processed_points": _safe_len(
+            message.get("data")
+        ),
+        "raw_points": _safe_len(
+            message.get("raw")
+        ),
+    }
+
+
+def _plan_event_data(
+    plan,
+) -> dict[str, Any]:
+    return {
+        "material": plan.material,
+        "case": plan.case,
+        "fit_ts": plan.fit_ts,
+        "fit_type": plan.fit_type,
+        "omegD_mhz": plan.omegD_mhz,
+        "frequency_shift_mhz": (
+            plan.frequency_shift_mhz
+        ),
+        "waveform_points": (
+            plan.waveform_points
+        ),
+        "peak_time_fraction": (
+            plan.peak_time_fraction
+        ),
+        "period_s": plan.period_s,
+        "vhigh_v": plan.vhigh_v,
+        "vlow_v": plan.vlow_v,
+        "used_measured_heights": (
+            plan.used_measured_heights
+        ),
+        "scaling_verified_for_hardware": (
+            plan.scaling_verified_for_hardware
+        ),
+    }
+
+
+class EventLoggingStager:
+    """
+    Decorate the validated WaveformStager with metadata-only event records.
+
+    This wrapper does not gain any additional EPICS authority.
+    """
+
+    def __init__(
+        self,
+        *,
+        stager,
+        logger: JsonlEventLogger | None,
+        session_id: str,
+        mode: str,
+    ):
+        self.stager = stager
+        self.logger = logger
+        self.session_id = session_id
+        self.mode = mode
+
+    def _emit(
+        self,
+        event_type: str,
+        data: Mapping[str, Any],
+    ):
+        if self.logger is None:
+            return None
+
+        return self.logger.append(
+            event_type=event_type,
+            source="fitter_stage_runtime",
+            session_id=self.session_id,
+            data=data,
+        )
+
+    async def stage(
+        self,
+        plan,
+    ):
+        self._emit(
+            "waveform_planned",
+            _plan_event_data(plan),
+        )
+
+        receipt = await self.stager.stage(
+            plan
+        )
+
+        event_type = (
+            "waveform_staged"
+            if self.mode == "stage"
+            else "dry_run_completed"
+        )
+
+        self._emit(
+            event_type,
+            {
+                "pv": receipt.pv,
+                "points": receipt.points,
+                "minimum": receipt.minimum,
+                "maximum": receipt.maximum,
+                "material": receipt.material,
+                "case": receipt.case,
+                "fit_ts": receipt.fit_ts,
+            },
+        )
+
+        return receipt
+
+
 def build_parser():
     parser = argparse.ArgumentParser(
         description=(
@@ -159,6 +323,32 @@ def build_parser():
         ),
     )
 
+    parser.add_argument(
+        "--event-dir",
+        default=str(DEFAULT_EVENT_DIR),
+        help=(
+            "Directory for append-only ssRF JSONL "
+            "event records."
+        ),
+    )
+
+    parser.add_argument(
+        "--session-id",
+        default=None,
+        help=(
+            "Optional explicit correlation/session ID. "
+            "Generated automatically when omitted."
+        ),
+    )
+
+    parser.add_argument(
+        "--no-event-log",
+        action="store_true",
+        help=(
+            "Disable JSONL event logging for this run."
+        ),
+    )
+
     return parser
 
 
@@ -166,9 +356,21 @@ def make_summary(
     *,
     result,
     mode,
+    session_id,
+    event_logging,
+    event_dir,
 ):
     return {
         "mode": mode,
+        "session_id": session_id,
+        "event_logging": bool(
+            event_logging
+        ),
+        "event_dir": (
+            str(event_dir)
+            if event_logging
+            else None
+        ),
         "pv": result.receipt.pv,
         "points": result.receipt.points,
         "minimum": result.receipt.minimum,
@@ -188,71 +390,189 @@ def make_summary(
 
 
 def run_once(args):
-    if args.stage:
-        writer = EpicsWaveformWriter(
-            timeout_s=args.epics_timeout,
+    session_id = (
+        str(args.session_id).strip()
+        if args.session_id is not None
+        else new_session_id()
+    )
+
+    if not session_id:
+        raise ValueError(
+            "session_id must not be empty"
         )
-        mode = "stage"
-    else:
-        writer = DryRunWriter()
-        mode = "dry-run"
 
-    bridge = FitWaveformBridge(
-        stager=WaveformStager(
-            write=writer
-        ),
-        case=args.case,
-        polarization=args.polarization,
-        high_polarization=(
-            args.high_polarization
-        ),
+    event_logging = (
+        not bool(args.no_event_log)
     )
 
-    messages = iter_fit_messages(
-        host=args.host,
-        port=args.port,
-        connect_timeout_s=(
-            args.connect_timeout
-        ),
+    logger = (
+        JsonlEventLogger(
+            directory=Path(
+                args.event_dir
+            )
+        )
+        if event_logging
+        else None
     )
+
+    mode = (
+        "stage"
+        if args.stage
+        else "dry-run"
+    )
+
+    def emit(
+        event_type,
+        data,
+        *,
+        level="INFO",
+    ):
+        if logger is None:
+            return None
+
+        return logger.append(
+            event_type=event_type,
+            source="fitter_stage_runtime",
+            session_id=session_id,
+            level=level,
+            data=data,
+        )
+
+    emit(
+        "session_started",
+        {
+            "mode": mode,
+            "case": args.case,
+            "publisher_host": args.host,
+            "publisher_port": args.port,
+            "polarization": args.polarization,
+            "high_polarization": (
+                args.high_polarization
+            ),
+        },
+    )
+
+    messages = None
 
     try:
-        message = next(messages)
-    except StopIteration as exc:
-        raise RuntimeError(
-            "fitter publisher closed before "
-            "sending a fit message"
-        ) from exc
+        if args.stage:
+            writer = EpicsWaveformWriter(
+                timeout_s=args.epics_timeout,
+            )
+        else:
+            writer = DryRunWriter()
+
+        stager = EventLoggingStager(
+            stager=WaveformStager(
+                write=writer
+            ),
+            logger=logger,
+            session_id=session_id,
+            mode=mode,
+        )
+
+        bridge = FitWaveformBridge(
+            stager=stager,
+            case=args.case,
+            polarization=args.polarization,
+            high_polarization=(
+                args.high_polarization
+            ),
+        )
+
+        messages = iter_fit_messages(
+            host=args.host,
+            port=args.port,
+            connect_timeout_s=(
+                args.connect_timeout
+            ),
+        )
+
+        try:
+            message = next(messages)
+        except StopIteration as exc:
+            raise RuntimeError(
+                "fitter publisher closed before "
+                "sending a fit message"
+            ) from exc
+
+        emit(
+            "fit_received",
+            _fit_event_data(message),
+        )
+
+        result = asyncio.run(
+            bridge.process_message(
+                message
+            )
+        )
+
+        emit(
+            "session_completed",
+            {
+                "status": "success",
+                "mode": mode,
+                "material": (
+                    result.plan.material
+                ),
+                "case": result.plan.case,
+                "points": (
+                    result.receipt.points
+                ),
+            },
+        )
+
+        summary = make_summary(
+            result=result,
+            mode=mode,
+            session_id=session_id,
+            event_logging=event_logging,
+            event_dir=args.event_dir,
+        )
+
+        print(
+            json.dumps(
+                summary,
+                indent=2,
+                sort_keys=True,
+            )
+        )
+
+        return result
+
+    except Exception as exc:
+        if logger is not None:
+            try:
+                emit(
+                    "session_failed",
+                    {
+                        "status": "failed",
+                        "mode": mode,
+                        "error_type": (
+                            type(exc).__name__
+                        ),
+                        "error": str(exc),
+                    },
+                    level="ERROR",
+                )
+            except Exception as log_exc:
+                raise RuntimeError(
+                    "runtime failed and failure "
+                    "event could not be written"
+                ) from log_exc
+
+        raise
+
     finally:
-        close = getattr(
-            messages,
-            "close",
-            None,
-        )
+        if messages is not None:
+            close = getattr(
+                messages,
+                "close",
+                None,
+            )
 
-    result = asyncio.run(
-        bridge.process_message(
-            message
-        )
-    )
-
-    if close is not None:
-        close()
-
-    summary = make_summary(
-        result=result,
-        mode=mode,
-    )
-
-    print(
-        json.dumps(
-            summary,
-            indent=2,
-            sort_keys=True,
-        )
-    )
-
-    return result
+            if close is not None:
+                close()
 
 
 def main(argv=None):
