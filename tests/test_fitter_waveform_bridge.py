@@ -74,6 +74,26 @@ def fit_message(
     }
 
 
+def _explicit_bridge(
+    *args,
+    **kwargs,
+):
+    """Legacy bridge test fixture with explicit polarization inputs."""
+    kwargs.setdefault(
+        "polarization",
+        0.30,
+    )
+    kwargs.setdefault(
+        "high_polarization",
+        0.30,
+    )
+
+    return FitWaveformBridge(
+        *args,
+        **kwargs,
+    )
+
+
 class TestFitterWaveformBridge(
     unittest.TestCase
 ):
@@ -143,7 +163,7 @@ class TestFitterWaveformBridge(
                 (pv, value)
             )
 
-        bridge = FitWaveformBridge(
+        bridge = _explicit_bridge(
             stager=WaveformStager(
                 write=writer
             ),
@@ -185,7 +205,7 @@ class TestFitterWaveformBridge(
                 )
             )
 
-        bridge = FitWaveformBridge(
+        bridge = _explicit_bridge(
             stager=WaveformStager(
                 write=writer
             ),

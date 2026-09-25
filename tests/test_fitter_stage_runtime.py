@@ -84,6 +84,32 @@ def fit_message(
     }
 
 
+def _parse_with_explicit_polarization(
+    parser,
+    argv,
+):
+    """Legacy test fixture with explicit physical-state inputs."""
+    argv = list(argv)
+
+    if "--polarization" not in argv:
+        argv.extend(
+            [
+                "--polarization",
+                "0.30",
+            ]
+        )
+
+    if "--high-polarization" not in argv:
+        argv.extend(
+            [
+                "--high-polarization",
+                "0.30",
+            ]
+        )
+
+    return parser.parse_args(argv)
+
+
 class TestFitterStageRuntime(
     unittest.TestCase
 ):
@@ -93,7 +119,7 @@ class TestFitterStageRuntime(
     ):
         parser = build_parser()
 
-        args = parser.parse_args(
+        args = _parse_with_explicit_polarization(parser,
             [
                 "--case",
                 "Enhancement",
@@ -244,7 +270,7 @@ class TestFitterStageRuntime(
 
             parser = build_parser()
 
-            args = parser.parse_args(
+            args = _parse_with_explicit_polarization(parser,
                 [
                     "--case",
                     "Enhancement",
@@ -393,7 +419,7 @@ class TestFitterStageRuntime(
         with tempfile.TemporaryDirectory() as tmp:
             parser = build_parser()
 
-            args = parser.parse_args(
+            args = _parse_with_explicit_polarization(parser,
                 [
                     "--case",
                     "Enhancement",
@@ -471,7 +497,7 @@ class TestFitterStageRuntime(
 
             parser = build_parser()
 
-            args = parser.parse_args(
+            args = _parse_with_explicit_polarization(parser,
                 [
                     "--case",
                     "Enhancement",
@@ -509,7 +535,7 @@ class TestFitterStageRuntime(
 
             parser = build_parser()
 
-            args = parser.parse_args(
+            args = _parse_with_explicit_polarization(parser,
                 [
                     "--case",
                     "Enhancement",

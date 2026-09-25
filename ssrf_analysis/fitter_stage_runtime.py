@@ -336,13 +336,21 @@ def build_parser():
     parser.add_argument(
         "--polarization",
         type=float,
-        default=0.30,
+        required=True,
+        help=(
+            "Explicit vector polarization as a fraction; "
+            "for example 0.30 for 30 percent."
+        ),
     )
 
     parser.add_argument(
         "--high-polarization",
         type=float,
-        default=0.30,
+        required=True,
+        help=(
+            "Explicit high-polarization reference as a fraction; "
+            "for example 0.30 for 30 percent."
+        ),
     )
 
     parser.add_argument(

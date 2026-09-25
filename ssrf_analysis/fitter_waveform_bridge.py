@@ -112,8 +112,8 @@ class FitWaveformBridge:
         *,
         stager,
         case: str,
-        polarization: float = 0.30,
-        high_polarization: float = 0.30,
+        polarization: float,
+        high_polarization: float,
     ):
         if not hasattr(stager, "stage"):
             raise TypeError(

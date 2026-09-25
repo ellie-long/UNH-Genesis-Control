@@ -246,6 +246,26 @@ def legacy_waveform(
     )
 
 
+def _build_plan_explicit(
+    *args,
+    **kwargs,
+):
+    """Legacy planner test fixture with explicit polarization inputs."""
+    kwargs.setdefault(
+        "polarization",
+        0.30,
+    )
+    kwargs.setdefault(
+        "high_polarization",
+        0.30,
+    )
+
+    return build_waveform_plan(
+        *args,
+        **kwargs,
+    )
+
+
 class TestWaveformPlanner(
     unittest.TestCase
 ):
@@ -305,7 +325,7 @@ class TestWaveformPlanner(
                     )
 
                     plan = (
-                        build_waveform_plan(
+                        _build_plan_explicit(
                             snapshot,
                             case=case,
                         )
@@ -437,7 +457,7 @@ class TestWaveformPlanner(
         )
 
         plan = (
-            build_waveform_plan(
+            _build_plan_explicit(
                 snapshot,
                 case="Enhancement",
             )

@@ -807,8 +807,8 @@ def build_waveform_plan(
     snapshot: FitSnapshot,
     *,
     case: str,
-    polarization: float = 0.30,
-    high_polarization: float = 0.30,
+    polarization: float,
+    high_polarization: float,
 ) -> WaveformPlan:
 
     material = _material_name(
