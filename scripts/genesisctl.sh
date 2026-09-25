@@ -132,6 +132,7 @@ SSRF SIMULATOR
 
 TESTS
   test-ssrf            Run all test_ssrf*.py unit/regression tests.
+  archive-viewer       Launch read-only PV + ssRF session archive viewer.
   test-fitter          Run fitter/planner/stager/runtime integration tests.
   test-auth            Run Genesis/ssRF authorization-security tests.
   test-all             Run all Python unittest tests under tests/.
@@ -168,6 +169,7 @@ Examples:
   genesis sim-stop
 
   genesis test-ssrf
+  genesis archive-viewer
   genesis test-fitter
   genesis git
 
@@ -744,6 +746,35 @@ case "${cmd}" in
     sim-stop)
         sim_stop
         ;;
+    archive-viewer)
+        PORT="${GENESIS_ARCHIVE_VIEWER_PORT:-8501}"
+
+        if ! python -c \
+            'import pandas, plotly, streamlit' \
+            >/dev/null 2>&1
+        then
+            echo "ERROR: archive-viewer Python dependencies are missing."
+            echo "Install requirements in the active Genesis environment."
+            false
+        fi
+
+        echo "Starting Genesis Archive Viewer"
+        echo "URL: http://127.0.0.1:${PORT}"
+        echo
+
+        (
+            cd "$ROOT/archive"
+
+            PYTHONPATH="$ROOT" \
+            python -m streamlit run \
+                archive_viewer.py \
+                --server.port "$PORT" \
+                --server.address 127.0.0.1 \
+                --server.headless true \
+                --browser.gatherUsageStats false
+        )
+        ;;
+
     test-fitter)
         FITTER_ROOT="$(
             cd "$(dirname "${BASH_SOURCE[0]}")/.." &&

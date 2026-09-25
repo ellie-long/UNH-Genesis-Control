@@ -408,3 +408,48 @@ The runtime `--stage` option is intentionally not exposed as a normal
 against an isolated localhost simulator/IOC commissioning setup.
 
 Live NMR input is deferred to 5C.3B.
+
+## Genesis archive and ssRF session viewer
+
+Launch the combined read-only archive viewer with:
+
+    genesis archive-viewer
+
+or:
+
+    ./scripts/genesisctl.sh archive-viewer
+
+Default local URL:
+
+    http://127.0.0.1:8501
+
+A different local port may be selected with:
+
+    GENESIS_ARCHIVE_VIEWER_PORT=8517 genesis archive-viewer
+
+The Streamlit application contains the existing EPICS PV archive view and
+the Genesis ssRF Sessions page.
+
+The ssRF session page provides:
+
+- NMR processed data and fitted spectrum
+- adaptive pre-resampling control trajectory
+- peak and shoulder weighting
+- final 8192-point Keysight ARB representation
+- structured event timeline
+- derived correlated session record
+
+The visualization layer is read-only. It does not access EPICS or perform
+hardware control.
+
+Required visualization packages are recorded in requirements.txt:
+
+    pandas
+    plotly
+    streamlit
+
+Runtime products remain outside Git under:
+
+    archive/data/
+    archive/events/
+    archive/sessions/

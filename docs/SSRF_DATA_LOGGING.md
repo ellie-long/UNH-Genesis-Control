@@ -405,3 +405,98 @@ Physical ssRF scaling remains:
 
 These session products provide the scientific-data source required by the
 5C.4A visualization layer.
+
+## 5C.4A-4C session visualization
+
+Genesis extends the existing Streamlit archive viewer with a read-only ssRF
+session page.
+
+Visualization inputs are:
+
+    archive/events/ssrf/*.jsonl
+
+and:
+
+    archive/sessions/ssrf/<session_id>/
+        fit_data.npz
+        waveform_data.npz
+
+The session page contains four coordinated views.
+
+### NMR + Fit
+
+Plots available frequency-domain NMR and fitter data against `freqs_mhz`.
+
+### Adaptive Waveform
+
+Plots:
+
+1. the pre-resampling adaptive control trajectory
+2. peak and shoulder weighting
+3. the final uniformly resampled Keysight ARB
+
+The currently validated control trajectory contains 84 points.
+
+The final ARB contains 8192 samples.
+
+### Event Timeline
+
+Displays the ordered structured events for the selected session.
+
+### Session Record
+
+Displays the derived correlated record containing available:
+
+    before_nmr
+    fit
+    waveform
+    staging
+    execution
+    fault
+    after_nmr
+
+The append-only JSONL stream remains the detailed authoritative event
+history.
+
+The visualization code performs no EPICS or hardware communication.
+
+## 5C.4A software milestone complete
+
+The completed software data architecture is:
+
+    EPICS PVs
+        -> per-PV CSV telemetry
+
+    fitter / subsystem events
+        -> append-only JSONL event history
+
+    scientific arrays
+        -> per-session NPZ products
+
+    JSONL + NPZ
+        -> derived session record
+        -> read-only Streamlit visualization
+
+The common correlation identifier is:
+
+    session_id
+
+The framework is prepared for later:
+
+    before NMR
+        -> fit
+        -> adaptive waveform
+        -> stage/load
+        -> burn execution
+        -> fault/result
+        -> after NMR
+
+Physical execution is not part of 5C.4A.
+
+Live NMR input remains deferred to 5C.3B.
+
+Physical ssRF scaling remains:
+
+    scaling_verified_for_hardware = False
+
+The next milestone is 5C.1 physical ssRF connectivity.

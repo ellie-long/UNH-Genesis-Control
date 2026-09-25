@@ -1,18 +1,26 @@
 #!/bin/bash
-# Start the EPICS Archive Viewer web application
 
-source ../venv/bin/activate
+set -euo pipefail
 
-echo "Starting EPICS Archive Viewer..."
-echo "The viewer will be available at http://localhost:8501"
+ROOT="$(
+    cd "$(dirname "${BASH_SOURCE[0]}")/.." &&
+    pwd
+)"
+
+PORT="${GENESIS_ARCHIVE_VIEWER_PORT:-8501}"
+
+cd "$ROOT/archive"
+
+echo "Starting Genesis Archive Viewer..."
+echo "PV telemetry + ssRF session visualization"
+echo "URL: http://127.0.0.1:${PORT}"
 echo "Press Ctrl+C to stop"
+echo
 
-streamlit run archive_viewer.py \
-    --server.port 8501 \
-    --server.address localhost \
+PYTHONPATH="$ROOT" \
+python -m streamlit run \
+    archive_viewer.py \
+    --server.port "$PORT" \
+    --server.address 127.0.0.1 \
     --server.headless true \
-    --browser.gatherUsageStats false \
-    --theme.primaryColor "#1f77b4" \
-    --theme.backgroundColor "#ffffff" \
-    --theme.secondaryBackgroundColor "#f0f2f6" \
-    --theme.textColor "#262730"
+    --browser.gatherUsageStats false

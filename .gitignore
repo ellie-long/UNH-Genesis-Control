@@ -2,6 +2,12 @@ __pycache__/
 *.py[cod]
 *.pyo
 .claude/
-archive/
+# Archive source code is tracked; runtime products are ignored.
+archive/*
+!archive/*.py
+!archive/*.sh
+!archive/pages/
+archive/pages/*
+!archive/pages/*.py
 logs/
 last.yaml
