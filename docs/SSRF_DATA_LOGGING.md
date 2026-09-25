@@ -334,3 +334,74 @@ These arrays must match:
 This distinction preserves both the source-level adaptive timing/frequency
 trajectory and the exact uniformly resampled waveform intended for the
 Keysight ARB.
+
+## 5C.4A-4B fitter runtime scientific-data integration
+
+The one-shot fitter runtime now persists both structured metadata and
+scientific session data.
+
+For each session, Genesis may create:
+
+    archive/events/ssrf/YYYY-MM-DD.jsonl
+
+and:
+
+    archive/sessions/ssrf/<session_id>/
+        fit_data.npz
+        waveform_data.npz
+
+The `fit_received` event records the corresponding:
+
+    fit_data_path
+
+when fitter scientific arrays are available.
+
+The `waveform_planned` event records:
+
+    waveform_data_path
+
+The scientific-data products and JSONL events use the same `session_id`.
+
+A real loopback fitter-publisher validation on:
+
+    127.0.0.1:8778
+
+confirmed preservation of:
+
+Fit-domain data:
+
+    freqs_mhz       201 points
+    data            201 points
+    total_fit       201 points
+    raw             250 points
+
+Adaptive control trajectory:
+
+    control_time_s       84 points
+    control_offset_mhz   84 points
+
+Peak/shoulder regions:
+
+    f_peak_mhz          41 points
+    peak_weights        41 points
+    f_shoulder_mhz      41 points
+    shoulder_weights    41 points
+
+Final Keysight ARB representation:
+
+    normalized_samples    8192 points
+    physical_voltage_v    8192 points
+
+The 84-point control trajectory is the pre-resampling adaptive trajectory.
+
+The 8192-point arrays are the final uniformly resampled ARB representation.
+
+The runtime continues to default to dry-run operation and this data
+persistence layer adds no EPICS or hardware-execution authority.
+
+Physical ssRF scaling remains:
+
+    scaling_verified_for_hardware = False
+
+These session products provide the scientific-data source required by the
+5C.4A visualization layer.

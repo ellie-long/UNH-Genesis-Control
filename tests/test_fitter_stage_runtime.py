@@ -22,6 +22,11 @@ from ssrf_analysis.fitter_stage_runtime import (
     run_once,
 )
 
+from ssrf_analysis.session_data import (
+    DEFAULT_SESSION_DATA_ROOT,
+    load_npz_numeric,
+)
+
 from ssrf_analysis.waveform_stager import (
     WAVEFORM_CMD_PV,
 )
@@ -83,7 +88,7 @@ class TestFitterStageRuntime(
     unittest.TestCase
 ):
 
-    def test_defaults_are_dry_run_loopback_and_logged(
+    def test_defaults_are_dry_run_loopback_logged_and_persisted(
         self
     ):
         parser = build_parser()
@@ -116,6 +121,15 @@ class TestFitterStageRuntime(
         self.assertEqual(
             args.event_dir,
             "archive/events/ssrf",
+        )
+
+        self.assertFalse(
+            args.no_session_data
+        )
+
+        self.assertEqual(
+            args.session_data_root,
+            str(DEFAULT_SESSION_DATA_ROOT),
         )
 
     def test_dry_run_writer_never_calls_epics(
@@ -224,6 +238,10 @@ class TestFitterStageRuntime(
         self
     ):
         with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            event_dir = root / "events"
+            data_root = root / "sessions"
+
             parser = build_parser()
 
             args = parser.parse_args(
@@ -231,7 +249,9 @@ class TestFitterStageRuntime(
                     "--case",
                     "Enhancement",
                     "--event-dir",
-                    tmp,
+                    str(event_dir),
+                    "--session-data-root",
+                    str(data_root),
                     "--session-id",
                     "ssrf-test-session",
                 ]
@@ -250,7 +270,7 @@ class TestFitterStageRuntime(
                 )
 
             files = list(
-                Path(tmp).glob(
+                event_dir.glob(
                     "*.jsonl"
                 )
             )
@@ -288,6 +308,16 @@ class TestFitterStageRuntime(
                 },
             )
 
+            fit_received = rows[1][
+                "data"
+            ]
+
+            self.assertIsNone(
+                fit_received[
+                    "fit_data_path"
+                ]
+            )
+
             planned = rows[2]["data"]
 
             self.assertEqual(
@@ -301,6 +331,27 @@ class TestFitterStageRuntime(
                 ]
             )
 
+            waveform_path = Path(
+                planned[
+                    "waveform_data_path"
+                ]
+            )
+
+            self.assertTrue(
+                waveform_path.is_file()
+            )
+
+            waveform = load_npz_numeric(
+                waveform_path
+            )
+
+            self.assertEqual(
+                waveform[
+                    "normalized_samples"
+                ].size,
+                8192,
+            )
+
             completed = rows[3]["data"]
 
             self.assertEqual(
@@ -311,6 +362,24 @@ class TestFitterStageRuntime(
             self.assertEqual(
                 completed["points"],
                 8192,
+            )
+
+            self.assertEqual(
+                completed[
+                    "waveform_data_path"
+                ],
+                str(waveform_path),
+            )
+
+            session_completed = rows[4][
+                "data"
+            ]
+
+            self.assertEqual(
+                session_completed[
+                    "waveform_data_path"
+                ],
+                str(waveform_path),
             )
 
             self.assertEqual(
@@ -329,7 +398,9 @@ class TestFitterStageRuntime(
                     "--case",
                     "Enhancement",
                     "--event-dir",
-                    tmp,
+                    str(Path(tmp) / "events"),
+                    "--session-data-root",
+                    str(Path(tmp) / "sessions"),
                     "--session-id",
                     "ssrf-failure-session",
                 ]
@@ -355,7 +426,10 @@ class TestFitterStageRuntime(
                     )
 
             files = list(
-                Path(tmp).glob(
+                (
+                    Path(tmp)
+                    / "events"
+                ).glob(
                     "*.jsonl"
                 )
             )
@@ -404,6 +478,7 @@ class TestFitterStageRuntime(
                     "--event-dir",
                     str(target),
                     "--no-event-log",
+                    "--no-session-data",
                 ]
             )
 
@@ -422,6 +497,69 @@ class TestFitterStageRuntime(
             self.assertFalse(
                 target.exists()
             )
+
+
+    def test_no_session_data_creates_no_npz(
+        self
+    ):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            event_dir = root / "events"
+            data_root = root / "sessions"
+
+            parser = build_parser()
+
+            args = parser.parse_args(
+                [
+                    "--case",
+                    "Enhancement",
+                    "--event-dir",
+                    str(event_dir),
+                    "--session-data-root",
+                    str(data_root),
+                    "--no-session-data",
+                    "--session-id",
+                    "ssrf-no-data-session",
+                ]
+            )
+
+            with patch(
+                "ssrf_analysis."
+                "fitter_stage_runtime."
+                "iter_fit_messages",
+                return_value=iter(
+                    [fit_message()]
+                ),
+            ):
+                run_once(
+                    args
+                )
+
+            self.assertFalse(
+                data_root.exists()
+            )
+
+            files = list(
+                event_dir.glob(
+                    "*.jsonl"
+                )
+            )
+
+            self.assertEqual(
+                len(files),
+                1,
+            )
+
+            rows = read_jsonl(
+                files[0]
+            )
+
+            self.assertIsNone(
+                rows[2]["data"][
+                    "waveform_data_path"
+                ]
+            )
+
 
 
 if __name__ == "__main__":

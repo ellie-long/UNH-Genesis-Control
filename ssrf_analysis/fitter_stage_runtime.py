@@ -13,7 +13,13 @@ With --stage:
 - the process exits after one accepted fit message
 
 Structured event logging is enabled by default and writes append-only JSONL
-metadata under archive/events/ssrf. Event logging has no EPICS authority.
+metadata under archive/events/ssrf.
+
+Scientific session-data persistence is also enabled by default and writes
+numeric NPZ products under archive/sessions/ssrf. Event records reference
+those files rather than embedding large NMR/waveform arrays.
+
+Neither logging layer has EPICS authority.
 
 This module has no authority for LOAD, OUTPUT, SMC, switches, ARM, START,
 or burn execution.
@@ -33,6 +39,10 @@ from ssrf_analysis.event_logger import (
     DEFAULT_EVENT_DIR,
     JsonlEventLogger,
     new_session_id,
+)
+from ssrf_analysis.session_data import (
+    DEFAULT_SESSION_DATA_ROOT,
+    SessionDataWriter,
 )
 from ssrf_analysis.fitter_waveform_bridge import (
     DEFAULT_FIT_PUBLISH_HOST,
@@ -205,11 +215,14 @@ class EventLoggingStager:
         logger: JsonlEventLogger | None,
         session_id: str,
         mode: str,
+        session_data_writer: SessionDataWriter | None = None,
     ):
         self.stager = stager
         self.logger = logger
         self.session_id = session_id
         self.mode = mode
+        self.session_data_writer = session_data_writer
+        self.waveform_data_path = None
 
     def _emit(
         self,
@@ -230,9 +243,36 @@ class EventLoggingStager:
         self,
         plan,
     ):
+        waveform_path = None
+
+        if self.session_data_writer is not None:
+            waveform_path = (
+                self.session_data_writer
+                .write_waveform_data(
+                    session_id=self.session_id,
+                    plan=plan,
+                )
+            )
+
+            self.waveform_data_path = str(
+                waveform_path
+            )
+
+        planned_data = _plan_event_data(
+            plan
+        )
+
+        planned_data[
+            "waveform_data_path"
+        ] = (
+            str(waveform_path)
+            if waveform_path is not None
+            else None
+        )
+
         self._emit(
             "waveform_planned",
-            _plan_event_data(plan),
+            planned_data,
         )
 
         receipt = await self.stager.stage(
@@ -255,6 +295,9 @@ class EventLoggingStager:
                 "material": receipt.material,
                 "case": receipt.case,
                 "fit_ts": receipt.fit_ts,
+                "waveform_data_path": (
+                    self.waveform_data_path
+                ),
             },
         )
 
@@ -342,6 +385,24 @@ def build_parser():
     )
 
     parser.add_argument(
+        "--session-data-root",
+        default=str(DEFAULT_SESSION_DATA_ROOT),
+        help=(
+            "Root directory for numeric ssRF session "
+            "data products."
+        ),
+    )
+
+    parser.add_argument(
+        "--no-session-data",
+        action="store_true",
+        help=(
+            "Disable NPZ scientific session-data "
+            "persistence for this run."
+        ),
+    )
+
+    parser.add_argument(
         "--no-event-log",
         action="store_true",
         help=(
@@ -359,6 +420,10 @@ def make_summary(
     session_id,
     event_logging,
     event_dir,
+    session_data_enabled,
+    session_data_root,
+    fit_data_path,
+    waveform_data_path,
 ):
     return {
         "mode": mode,
@@ -369,6 +434,24 @@ def make_summary(
         "event_dir": (
             str(event_dir)
             if event_logging
+            else None
+        ),
+        "session_data_enabled": bool(
+            session_data_enabled
+        ),
+        "session_data_root": (
+            str(session_data_root)
+            if session_data_enabled
+            else None
+        ),
+        "fit_data_path": (
+            str(fit_data_path)
+            if fit_data_path is not None
+            else None
+        ),
+        "waveform_data_path": (
+            str(waveform_data_path)
+            if waveform_data_path is not None
             else None
         ),
         "pv": result.receipt.pv,
@@ -415,6 +498,24 @@ def run_once(args):
         else None
     )
 
+    session_data_enabled = (
+        not bool(
+            args.no_session_data
+        )
+    )
+
+    session_data_writer = (
+        SessionDataWriter(
+            root=Path(
+                args.session_data_root
+            )
+        )
+        if session_data_enabled
+        else None
+    )
+
+    fit_data_path = None
+
     mode = (
         "stage"
         if args.stage
@@ -449,6 +550,14 @@ def run_once(args):
             "high_polarization": (
                 args.high_polarization
             ),
+            "session_data_enabled": (
+                session_data_enabled
+            ),
+            "session_data_root": (
+                str(args.session_data_root)
+                if session_data_enabled
+                else None
+            ),
         },
     )
 
@@ -469,6 +578,9 @@ def run_once(args):
             logger=logger,
             session_id=session_id,
             mode=mode,
+            session_data_writer=(
+                session_data_writer
+            ),
         )
 
         bridge = FitWaveformBridge(
@@ -496,9 +608,32 @@ def run_once(args):
                 "sending a fit message"
             ) from exc
 
+        if session_data_writer is not None:
+            fit_path = (
+                session_data_writer
+                .write_fit_data(
+                    session_id=session_id,
+                    message=message,
+                )
+            )
+
+            fit_data_path = (
+                str(fit_path)
+                if fit_path is not None
+                else None
+            )
+
+        fit_event_data = _fit_event_data(
+            message
+        )
+
+        fit_event_data[
+            "fit_data_path"
+        ] = fit_data_path
+
         emit(
             "fit_received",
-            _fit_event_data(message),
+            fit_event_data,
         )
 
         result = asyncio.run(
@@ -519,6 +654,12 @@ def run_once(args):
                 "points": (
                     result.receipt.points
                 ),
+                "fit_data_path": (
+                    fit_data_path
+                ),
+                "waveform_data_path": (
+                    stager.waveform_data_path
+                ),
             },
         )
 
@@ -528,6 +669,18 @@ def run_once(args):
             session_id=session_id,
             event_logging=event_logging,
             event_dir=args.event_dir,
+            session_data_enabled=(
+                session_data_enabled
+            ),
+            session_data_root=(
+                args.session_data_root
+            ),
+            fit_data_path=(
+                fit_data_path
+            ),
+            waveform_data_path=(
+                stager.waveform_data_path
+            ),
         )
 
         print(
