@@ -143,6 +143,50 @@ Normalized samples supplied to the Genesis WaveGen IOC remain:
 [-1, +1]
 ```
 
+
+## Safe waveform staging boundary
+
+Genesis provides:
+
+`ssrf_analysis/waveform_stager.py`
+
+The stager has one purpose only: transfer an already validated normalized
+waveform into the existing WaveGen IOC in-memory staging record.
+
+Its only permitted staging target is:
+
+    UNH:GEN:SSRF:WGEN:WAVEFORM_CMD
+
+The stager validates:
+
+- the `WaveformPlan` itself
+- exactly 8192 adaptive-waveform points
+- all samples are finite
+- all samples lie in `[-1, +1]`
+
+The stager does not have authority to issue:
+
+- `LOAD_CMD`
+- `OUTPUT_CMD`
+- `PERIOD_CMD`
+- `VHIGH_CMD`
+- `VLOW_CMD`
+- SMC100A commands
+- RF/NMR switch commands
+- ARM
+- START
+
+`WAVEFORM_CMD` changes IOC memory only. It does not commit an ARB waveform
+to the physical Keysight.
+
+This preserves an explicit separation between:
+
+    PLAN -> STAGE
+
+and the independently controlled execution path:
+
+    LOAD -> READY -> ARM -> START
+
 ## Important unresolved hardware item
 
 The authoritative source numerically maps frequency offset in MHz to
@@ -165,7 +209,7 @@ must be confirmed during physical commissioning before real ssRF burns.
 
 ## Safety boundary
 
-The fitter and waveform planner may never directly perform:
+The fitter, waveform planner, and staging bridge may never directly perform:
 
 - `LOAD_CMD`
 - WaveGen output enable
@@ -194,12 +238,20 @@ Validated:
 - six material/case waveform combinations match authoritative source
 - live measured-height waveform path matches authoritative source
 - uncalibrated fit input is rejected
+- safe `WAVEFORM_CMD` staging boundary implemented
+- staging authority contains exactly one IOC-memory PV
+- invalid plans are rejected before staging
+- non-8192 adaptive waveforms are rejected
+- out-of-range samples are rejected
 - existing ssRF safety/sequencer regression tests remain passing
 
 Next:
 
-1. fitter-result subscriber
-2. safe `WAVEFORM_CMD` staging bridge
-3. simulator validation
-4. metadata / event logging
-5. operator helper integration
+1. consume the existing fit-result publisher at `127.0.0.1:8778`
+2. convert each calibrated fit message into `FitSnapshot`
+3. generate `WaveformPlan`
+4. pass the plan through the safe stager
+5. validate this path without EPICS hardware execution
+6. validate IOC-memory staging with the WaveGen simulator
+7. add fit/waveform event metadata
+8. add operator helper commands after the runtime workflow is validated

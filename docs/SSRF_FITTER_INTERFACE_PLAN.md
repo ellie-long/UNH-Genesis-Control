@@ -155,6 +155,30 @@ It does not itself commit the waveform to the physical Keysight.
 Physical waveform commit is a separate operation and remains under the
 Genesis execution and safety architecture.
 
+
+## Safe staging authority
+
+During 5C.3A, the fitter integration staging layer is intentionally limited
+to exactly one IOC-memory target:
+
+    UNH:GEN:SSRF:WGEN:WAVEFORM_CMD
+
+It must not directly issue:
+
+- `LOAD_CMD`
+- `OUTPUT_CMD`
+- `PERIOD_CMD`
+- `VHIGH_CMD`
+- `VLOW_CMD`
+- SMC RF commands
+- SMC FM commands
+- RF/NMR switch commands
+- ARM
+- START
+
+The staging operation therefore prepares waveform data without authorizing
+or initiating hardware execution.
+
 ## Execution separation
 
 The analysis layer may generate:
@@ -246,6 +270,8 @@ Validated so far:
 - measured-NMR height weighting
 - fitted-model fallback weighting
 - numerical agreement with the authoritative Utsav/Chhetra implementation
+- safe single-PV IOC-memory waveform staging
+- rejection of invalid, non-finite, out-of-range, or wrong-length staging data
 - existing Genesis ssRF safety regressions remain passing
 
 Next interface steps:
