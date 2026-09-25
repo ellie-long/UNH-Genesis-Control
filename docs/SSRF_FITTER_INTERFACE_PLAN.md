@@ -156,6 +156,53 @@ Physical waveform commit is a separate operation and remains under the
 Genesis execution and safety architecture.
 
 
+
+## Fitter-to-waveform bridge
+
+The Genesis fitter bridge consumes the existing loopback-only online-fitter
+publisher:
+
+    127.0.0.1:8778
+
+Transport:
+
+    TCP
+    newline-delimited JSON
+    one fitter-result object per line
+
+The bridge accepts only:
+
+    type = fit
+
+Automatic waveform generation additionally requires:
+
+    constants_good = true
+
+The validated software path is:
+
+    fitter publisher
+        -> FitSnapshot
+        -> WaveformPlan
+        -> WaveformStager
+        -> WAVEFORM_CMD
+
+An uncalibrated fitter result is rejected before the staging writer is
+called.
+
+The bridge does not contain authority for:
+
+- `LOAD_CMD`
+- `OUTPUT_CMD`
+- WaveGen scalar hardware commands
+- SMC100A RF/FM commands
+- NMR or ssRF switch commands
+- ARM
+- START
+- burn execution
+
+This keeps the analysis path upstream of the existing Genesis sequencer,
+interlock, authorization, and hardware-control layers.
+
 ## Safe staging authority
 
 During 5C.3A, the fitter integration staging layer is intentionally limited
