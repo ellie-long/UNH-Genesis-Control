@@ -372,3 +372,39 @@ The next major block is:
 ```
 
 After 5C is validated, update `genesisctl.sh` with a separate, explicit physical commissioning command group rather than changing the meaning of the safe normal commands.
+
+## Fitter and adaptive ssRF waveform integration
+
+Run the complete validated 5C.3A fitter integration test set with:
+
+    genesis test-fitter
+
+or directly:
+
+    ./scripts/genesisctl.sh test-fitter
+
+This runs:
+
+- fitter one-shot runtime safety tests
+- fitter-publisher bridge tests
+- adaptive waveform source-equivalence tests
+- safe waveform staging tests
+
+The helper performs tests only. It does not start an IOC, write an EPICS PV,
+load a waveform, enable RF, change a switch, ARM, or START a burn.
+
+For development, the one-shot fitter runtime can be invoked directly:
+
+    python -m ssrf_analysis.fitter_stage_runtime \
+        --case Enhancement
+
+Without `--stage`, this is a dry-run. It waits for one calibrated fit result
+from the loopback publisher at `127.0.0.1:8778`, builds and validates the
+adaptive waveform, prints the result summary, and exits without an EPICS
+write.
+
+The runtime `--stage` option is intentionally not exposed as a normal
+`genesis` helper command at the 5C.3A freeze. It has been validated only
+against an isolated localhost simulator/IOC commissioning setup.
+
+Live NMR input is deferred to 5C.3B.

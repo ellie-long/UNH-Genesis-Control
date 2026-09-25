@@ -315,3 +315,74 @@ Next:
 6. validate IOC-memory staging with the WaveGen simulator
 7. add fit/waveform event metadata
 8. add operator helper commands after the runtime workflow is validated
+
+## 5C.3A software integration freeze
+
+5C.3A validates the software and data path required to turn a calibrated
+spin-1 NMR fitter result into an adaptive ssRF waveform without allowing
+the analysis layer to execute an RF burn.
+
+The completed path is:
+
+    online-fitter publisher
+        -> 127.0.0.1:8778 NDJSON
+        -> FitSnapshot
+        -> WaveformPlan
+        -> WaveformStager
+        -> UNH:GEN:SSRF:WGEN:WAVEFORM_CMD
+
+Validated behavior:
+
+- the fitter publisher interface remains loopback-only
+- only `type = fit` messages are accepted
+- uncalibrated fits are rejected before staging
+- the adaptive physics reproduces the authoritative controller source
+- ND3 and deuterated-butanol waveforms are supported
+- Enhancement, Suppression, and Zero cases are supported
+- the generated adaptive ARB contains exactly 8192 normalized samples
+- the staging layer can write only `WAVEFORM_CMD`
+- a real TCP/NDJSON message on port 8778 was staged through the actual
+  WaveGen IOC
+- after staging, `WAVEFORM_POINTS = 8192`
+- after staging, `WAVEFORM_READY = 0`
+- `WAVEFORM_ID` remains unchanged until an explicit hardware load
+- instrument-confirmed ARB point count remains unchanged during staging
+- WaveGen output remains OFF
+- WaveGen period, VHIGH, and VLOW remain unchanged
+- no `LOAD_CMD` is issued by the fitter path
+- no SMC100A command is issued by the fitter path
+- no switch command is issued by the fitter path
+- no ARM or START command is issued by the fitter path
+
+The one-shot runtime is:
+
+    python -m ssrf_analysis.fitter_stage_runtime --case Enhancement
+
+The default is dry-run. It receives and validates one fitter result and
+builds the waveform without performing an EPICS write.
+
+The `--stage` option has been validated only as a controlled commissioning
+operation against the isolated localhost WaveGen simulator/IOC. It is not
+exposed as a normal operator helper command at the 5C.3A freeze.
+
+Physical waveform execution remains outside this milestone.
+
+The legacy frequency-offset-to-voltage convention is still not independently
+verified against the physical WaveGen/SMC100A FM configuration:
+
+    scaling_verified_for_hardware = False
+
+That physical scaling must be verified during hardware commissioning before
+real ssRF burns.
+
+Live NMR acquisition is also intentionally deferred. The actual live fitter
+input path belongs to 5C.3B after physical connectivity and individual
+device commissioning.
+
+5C.3A is therefore frozen as:
+
+    FIT -> PLAN -> VALIDATE -> STAGE
+
+The later controlled execution path remains:
+
+    LOAD -> READY -> ARM -> START

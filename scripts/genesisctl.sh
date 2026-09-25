@@ -132,6 +132,7 @@ SSRF SIMULATOR
 
 TESTS
   test-ssrf            Run all test_ssrf*.py unit/regression tests.
+  test-fitter          Run fitter/planner/stager/runtime integration tests.
   test-auth            Run Genesis/ssRF authorization-security tests.
   test-all             Run all Python unittest tests under tests/.
   compile              Compile-check Genesis Python source.
@@ -167,6 +168,7 @@ Examples:
   genesis sim-stop
 
   genesis test-ssrf
+  genesis test-fitter
   genesis git
 
 EOF
@@ -742,6 +744,34 @@ case "${cmd}" in
     sim-stop)
         sim_stop
         ;;
+    test-fitter)
+        FITTER_ROOT="$(
+            cd "$(dirname "${BASH_SOURCE[0]}")/.." &&
+            pwd
+        )"
+
+        (
+            set -e
+            cd "$FITTER_ROOT"
+            export PYTHONPATH="$FITTER_ROOT"
+
+            echo "===== FITTER RUNTIME ====="
+            python tests/test_fitter_stage_runtime.py
+
+            echo
+            echo "===== FITTER BRIDGE ====="
+            python tests/test_fitter_waveform_bridge.py
+
+            echo
+            echo "===== WAVEFORM PLANNER ====="
+            python tests/test_ssrf_waveform_planner.py
+
+            echo
+            echo "===== SAFE WAVEFORM STAGER ====="
+            python tests/test_ssrf_waveform_stager.py
+        )
+        ;;
+
     test-ssrf)
         test_ssrf
         ;;

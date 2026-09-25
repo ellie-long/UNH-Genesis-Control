@@ -329,3 +329,56 @@ Next interface steps:
 4. fit/waveform event metadata
 5. operator helper commands
 6. physical scaling verification during hardware commissioning
+
+## 5C.3A validated interface state
+
+The validated Phase-I software interface is:
+
+    127.0.0.1:8778
+        -> calibrated fit message
+        -> FitSnapshot
+        -> WaveformPlan
+        -> WaveformStager
+        -> WAVEFORM_CMD
+
+The runtime consumes one newline-delimited JSON fitter result and exits after
+processing one accepted fit.
+
+Default runtime behavior is dry-run.
+
+The only EPICS staging target implemented in the runtime is:
+
+    UNH:GEN:SSRF:WGEN:WAVEFORM_CMD
+
+A controlled simulator validation confirmed:
+
+    WAVEFORM_POINTS = 8192
+    WAVEFORM_READY  = 0
+    WAVEFORM_ID     = unchanged
+    ARB_POINTS_RBV  = unchanged
+    OUTPUT_RBV      = 0
+
+Therefore IOC-memory staging and physical waveform loading remain distinct
+operations.
+
+The fitter runtime does not implement authority for:
+
+- `LOAD_CMD`
+- `OUTPUT_CMD`
+- WaveGen scalar hardware commands
+- SMC100A RF/FM commands
+- RF/NMR switch commands
+- ARM
+- START
+- burn execution
+
+The `--stage` runtime option is a commissioning mechanism, not a normal
+operator command at the 5C.3A freeze.
+
+The normal Genesis execution and access-security architecture remains
+authoritative for later physical execution.
+
+Physical MHz-to-voltage-to-external-FM scaling remains unverified and must
+remain blocked from real burn execution until physical commissioning.
+
+Live NMR input is deferred to 5C.3B.
