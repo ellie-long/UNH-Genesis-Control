@@ -109,6 +109,7 @@ EVERYDAY
                        Uses normal configs; writes remain disabled.
   stop                 Safely stop NORMAL Genesis.
   status               Read-only summary of Git, screens, processes and PVs.
+  physical-status      Read-only status of physical ssRF hardware and Keysight Pi.
   screens              Show detached/running screen sessions.
   processes            Show Genesis-related processes.
   logs [pattern]       Show newest log files, or tail logs matching pattern.
@@ -153,13 +154,15 @@ Important:
   * Normal Genesis startup is READ-ONLY by design.
   * initialize_on_connect=false must remain a safety invariant.
   * "sim-start" is for localhost simulator commissioning, not lab hardware.
-  * Physical 5C commissioning commands are intentionally NOT included yet.
+  * "physical-status" performs read-only physical 5C checks only.
+  * Physical hardware write commissioning is intentionally NOT automated here.
     Add them only after real SMC100A, Keysight and switch transport is verified.
   * This helper never runs git stash/pop/drop/clear.
 
 Examples:
   genesis start
   genesis status
+  genesis physical-status
   genesis endpoints
   genesis stop
 
@@ -515,6 +518,16 @@ for label, path in files:
 PY
 }
 
+physical_status() {
+    echo
+    echo "===== PHYSICAL SSRF READ-ONLY STATUS ====="
+    echo
+    echo "+ ./scripts/check_ssrf_physical_readonly.sh"
+    echo
+
+    "${ROOT}/scripts/check_ssrf_physical_readonly.sh"
+}
+
 normal_start() {
     require_env
     require_file "${START_SCRIPT}"
@@ -736,6 +749,10 @@ case "${cmd}" in
     sim-check)
         sim_check
         ;;
+    physical-status)
+        physical_status
+        ;;
+
     sim-start)
         sim_start
         ;;

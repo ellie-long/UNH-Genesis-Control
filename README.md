@@ -228,3 +228,22 @@ J. Maxwell, "EPICS for small-scale laboratories with Python soft IOCs," *J. Inst
 
 MIT License - see [LICENSE](LICENSE) file for details.
 
+## Genesis Phase-I operator documentation
+
+Primary operator and commissioning references:
+
+```text
+docs/GENESIS_COMMANDS.md
+docs/MACOS_GENESIS_QUICK_START.md
+docs/SSRF_PHYSICAL_COMMISSIONING.md
+docs/SSRF_FITTER_INTERFACE_PLAN.md
+docs/SSRF_DATA_LOGGING.md
+```
+
+For the proven physical ssRF read-only status check:
+
+```bash
+./scripts/genesisctl.sh physical-status
+```
+
+Physical hardware write commissioning is intentionally separate from the normal read-only startup and status workflow.

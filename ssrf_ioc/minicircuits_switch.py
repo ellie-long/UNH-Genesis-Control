@@ -61,11 +61,50 @@ class MiniCircuitsSwitchConnection(
 ):
     """HTTP protocol for one Mini-Circuits dual-SPDT switch."""
 
+    @staticmethod
+    def _strip_identity_prefix(
+        raw,
+        prefix,
+    ) -> str:
+        """
+        Normalize Mini-Circuits identity replies.
+
+        Real RC-2SPDT-A18 hardware may return:
+
+            MN=RC-2SPDT-A18
+            SN=02206270097
+
+        while the simulator / other firmware may return the
+        bare value. Accept both forms and expose one canonical
+        value to the IOC.
+        """
+
+        value = str(raw).strip()
+        prefix = str(prefix).strip().upper()
+
+        marker = prefix + "="
+
+        if value.upper().startswith(marker):
+            value = value[len(marker):].strip()
+
+        if not value:
+            raise OSError(
+                f"empty Mini-Circuits {prefix} response"
+            )
+
+        return value
+
     def model(self) -> str:
-        return self.get("/MN?")
+        return self._strip_identity_prefix(
+            self.get("/MN?"),
+            "MN",
+        )
 
     def serial(self) -> str:
-        return self.get("/SN?")
+        return self._strip_identity_prefix(
+            self.get("/SN?"),
+            "SN",
+        )
 
     @staticmethod
     def _parse_port_mask(

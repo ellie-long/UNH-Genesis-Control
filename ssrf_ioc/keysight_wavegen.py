@@ -51,8 +51,9 @@ class Device(VisaDevice):
         # Identity
         # --------------------------------------------------------------
 
-        self.pvs["IDN"] = builder.stringIn(
-            "IDN"
+        self.pvs["IDN"] = builder.longStringIn(
+            "IDN",
+            length=128,
         )
 
         # --------------------------------------------------------------
@@ -286,7 +287,7 @@ class Device(VisaDevice):
             )
 
         self.pvs["IDN"].set(
-            identity[:39]
+            identity
         )
 
         state = self.t.read_state()

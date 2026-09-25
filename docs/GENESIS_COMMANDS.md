@@ -453,3 +453,51 @@ Runtime products remain outside Git under:
     archive/data/
     archive/events/
     archive/sessions/
+
+## Physical ssRF read-only status (5C.1)
+
+Physical ssRF commissioning is documented in:
+
+```text
+docs/SSRF_PHYSICAL_COMMISSIONING.md
+```
+
+On the laboratory network, run:
+
+```bash
+./scripts/genesisctl.sh physical-status
+```
+
+or:
+
+```bash
+genesis physical-status
+```
+
+This command is read-only. It checks the physical commissioning profile, the SMC100A and switch readbacks, Mac/Pi clock agreement, Raspberry Pi runtime state, fitter port 8778, and the physical Keysight when it is not already owned by an IOC.
+
+It does **not** enable physical writes.
+
+The Keysight-side Genesis workspace is:
+
+```text
+/home/unhpoltarg/genesis_keysight
+```
+
+If the Raspberry Pi clock is not synchronized through normal NTP, the commissioning fallback installed on the Pi is:
+
+```bash
+~/genesis_keysight/scripts/sync_clock_https.sh
+```
+
+After synchronization, independently require the Mac/Pi clock difference to be no more than 10 seconds.
+
+Commissioning filenames and IOC logs use:
+
+```text
+YYYY-MM-DD_HH-MM-SS_UTC
+```
+
+Existing event/session data retain their UTC ISO-8601 timestamps.
+
+Physical write commissioning remains a separate controlled procedure.
