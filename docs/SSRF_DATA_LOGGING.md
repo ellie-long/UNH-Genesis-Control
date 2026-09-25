@@ -169,3 +169,77 @@ Next:
 2. add before-NMR and after-NMR correlation fields
 3. later attach sequencer execution and fault events
 4. expose the correlated records to visualization
+
+## 5C.4A-3 correlated session record
+
+Genesis provides:
+
+    ssrf_analysis/session_record.py
+
+The append-only JSONL event stream remains the detailed subsystem history.
+
+`SessionRecord` derives one compact correlated view from that event stream.
+
+The record contains:
+
+    before_nmr
+    fit
+    waveform
+    staging
+    execution
+    fault
+    after_nmr
+
+along with:
+
+    subsystem
+    session_id
+    status
+    started_utc
+    completed_utc
+    event_count
+    event_ids
+
+The current software-only fitter workflow produces:
+
+    fit
+    waveform
+    staging
+
+while:
+
+    before_nmr
+    execution
+    fault
+    after_nmr
+
+may remain empty.
+
+A future full physical session can therefore use the same correlation model:
+
+    before NMR
+        -> fitter result
+        -> waveform plan
+        -> waveform stage/load
+        -> burn execution
+        -> execution result/fault
+        -> after NMR
+
+The append-only event stream remains authoritative; the session record is a
+derived summary for analysis, visualization, and later run records.
+
+Validation includes:
+
+- current five-event fitter dry-run session
+- future complete burn-session representation
+- failed-session/fault representation
+- duplicate event-ID rejection
+- mixed-session rejection
+- multi-session grouping
+- no EPICS or hardware dependency
+
+Next:
+
+1. persist larger NMR/fit/waveform arrays as session data products
+2. reference those products from event metadata
+3. visualize session data and event state together
