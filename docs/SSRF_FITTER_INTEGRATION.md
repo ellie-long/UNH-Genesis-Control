@@ -187,6 +187,61 @@ and the independently controlled execution path:
 
     LOAD -> READY -> ARM -> START
 
+
+## Fitter publisher to waveform bridge
+
+Genesis provides:
+
+`ssrf_analysis/fitter_waveform_bridge.py`
+
+This bridge consumes the existing online-fitter publisher rather than
+creating a new fitter interface.
+
+Publisher endpoint:
+
+    127.0.0.1:8778
+
+Transport:
+
+    TCP
+    newline-delimited JSON
+    one fitter-result object per line
+
+The bridge is deliberately restricted to loopback hosts.
+
+The validated analysis path is:
+
+    fitter publisher
+        -> FitSnapshot
+        -> WaveformPlan
+        -> WaveformStager
+        -> WAVEFORM_CMD
+
+Only messages with:
+
+    type = fit
+
+are accepted.
+
+Automatic waveform generation additionally requires calibrated fitter
+constants:
+
+    constants_good = true
+
+An uncalibrated fit is rejected before the staging writer is called.
+
+The bridge itself has no EPICS execution authority. It cannot issue:
+
+- `LOAD_CMD`
+- `OUTPUT_CMD`
+- SMC100A RF/FM commands
+- NMR or ssRF switch commands
+- ARM
+- START
+
+This keeps live NMR analysis logically upstream of the existing Genesis
+sequencer, interlock, authorization, and device layers.
+
 ## Important unresolved hardware item
 
 The authoritative source numerically maps frequency offset in MHz to
@@ -243,6 +298,11 @@ Validated:
 - invalid plans are rejected before staging
 - non-8192 adaptive waveforms are rejected
 - out-of-range samples are rejected
+- fitter publisher endpoint fixed to loopback `127.0.0.1:8778`
+- non-loopback publisher hosts are rejected
+- non-fit publisher messages are rejected
+- calibrated fitter result generates exactly one 8192-point staging operation
+- uncalibrated fitter result generates zero staging operations
 - existing ssRF safety/sequencer regression tests remain passing
 
 Next:
