@@ -308,3 +308,29 @@ Next:
 1. connect fitter runtime sessions to NPZ persistence
 2. reference NPZ paths from structured JSONL events
 3. use both layers in the live visualization framework
+
+### Control trajectory versus final ARB samples
+
+`WaveformPlan` contains two different waveform representations.
+
+The pre-resampling control trajectory is stored in:
+
+    control_time_s
+    control_offset_mhz
+
+These arrays must have matching lengths but do not have to contain 8192
+points. The authoritative adaptive planner currently produces an 84-point
+control trajectory.
+
+The final Keysight ARB representation is stored in:
+
+    normalized_samples
+    physical_voltage_v
+
+These arrays must match:
+
+    waveform_points = 8192
+
+This distinction preserves both the source-level adaptive timing/frequency
+trajectory and the exact uniformly resampled waveform intended for the
+Keysight ARB.

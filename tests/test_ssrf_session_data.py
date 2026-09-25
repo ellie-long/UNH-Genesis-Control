@@ -14,6 +14,7 @@ from ssrf_analysis.session_data import (
 
 class FakePlan:
     waveform_points = 8192
+    control_points = 84
 
     f_peak_mhz = np.linspace(
         32.63,
@@ -42,14 +43,14 @@ class FakePlan:
     control_time_s = np.linspace(
         0.0,
         0.01,
-        waveform_points,
+        control_points,
         endpoint=False,
     )
 
     control_offset_mhz = np.linspace(
         -0.7,
         0.7,
-        waveform_points,
+        control_points,
     )
 
     normalized_samples = np.linspace(
@@ -126,6 +127,22 @@ class TestSessionDataWriter(
                     "physical_voltage_v"
                 ].size,
                 8192,
+            )
+
+            # The legacy/pre-resampling control trajectory
+            # is intentionally shorter than the final ARB.
+            self.assertEqual(
+                data[
+                    "control_time_s"
+                ].size,
+                84,
+            )
+
+            self.assertEqual(
+                data[
+                    "control_offset_mhz"
+                ].size,
+                84,
             )
 
             self.assertEqual(
@@ -233,6 +250,29 @@ class TestSessionDataWriter(
                         "freqs_mhz": np.zeros(10),
                         "data": np.zeros(9),
                     },
+                )
+
+    def test_mismatched_control_trajectory_rejected(
+        self
+    ):
+        class BadPlan(FakePlan):
+            control_offset_mhz = np.linspace(
+                -0.7,
+                0.7,
+                83,
+            )
+
+        with tempfile.TemporaryDirectory() as tmp:
+            writer = SessionDataWriter(
+                root=tmp
+            )
+
+            with self.assertRaises(
+                SessionDataError
+            ):
+                writer.write_waveform_data(
+                    session_id="session-1",
+                    plan=BadPlan(),
                 )
 
     def test_nonfinite_data_rejected(

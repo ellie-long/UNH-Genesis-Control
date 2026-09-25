@@ -325,9 +325,53 @@ class SessionDataWriter:
             )
         )
 
+        # ----------------------------------------------------
+        # The planner contains TWO waveform representations.
+        #
+        # 1. control_time_s / control_offset_mhz:
+        #    legacy pre-resampling control trajectory.
+        #
+        # 2. normalized_samples / physical_voltage_v:
+        #    final uniformly resampled Keysight ARB.
+        #
+        # The control trajectory therefore does NOT have to
+        # contain waveform_points samples.
+        # ----------------------------------------------------
+
+        if (
+            arrays["control_time_s"].size
+            != arrays["control_offset_mhz"].size
+        ):
+            raise SessionDataError(
+                "control_time_s and control_offset_mhz "
+                "must have matching lengths"
+            )
+
+        if arrays["control_time_s"].size < 2:
+            raise SessionDataError(
+                "control trajectory must contain "
+                "at least two points"
+            )
+
+        if (
+            arrays["f_peak_mhz"].size
+            != arrays["peak_weights"].size
+        ):
+            raise SessionDataError(
+                "f_peak_mhz and peak_weights "
+                "must have matching lengths"
+            )
+
+        if (
+            arrays["f_shoulder_mhz"].size
+            != arrays["shoulder_weights"].size
+        ):
+            raise SessionDataError(
+                "f_shoulder_mhz and shoulder_weights "
+                "must have matching lengths"
+            )
+
         for name in (
-            "control_time_s",
-            "control_offset_mhz",
             "normalized_samples",
             "physical_voltage_v",
         ):
@@ -339,9 +383,16 @@ class SessionDataWriter:
                     f"{waveform_points}"
                 )
 
-        if arrays[
-            "normalized_samples"
-        ].size != 8192:
+        if waveform_points != 8192:
+            raise SessionDataError(
+                "adaptive waveform plan must specify "
+                "exactly 8192 waveform_points"
+            )
+
+        if (
+            arrays["normalized_samples"].size
+            != 8192
+        ):
             raise SessionDataError(
                 "adaptive waveform data product "
                 "must contain exactly 8192 samples"
