@@ -53,7 +53,7 @@ fi
 # EPICS Channel Access
 # ----------------------------------------------------------------
 
-export EPICS_CA_ADDR_LIST="127.0.0.1:5064 127.0.0.1:5066 127.0.0.1:5067 127.0.0.1:5068 127.0.0.1:5069 127.0.0.1:5070 127.0.0.1:5071 127.0.0.1:5072 127.0.0.1:5073 127.0.0.1:5074"
+export EPICS_CA_ADDR_LIST="127.0.0.1:5064 127.0.0.1:5066 127.0.0.1:5067 127.0.0.1:5068 127.0.0.1:5069 127.0.0.1:5070 127.0.0.1:5071 127.0.0.1:5072 127.0.0.1:5073 127.0.0.1:5074 127.0.0.1:5085"
 export EPICS_CA_AUTO_ADDR_LIST=NO
 
 # ----------------------------------------------------------------
@@ -287,6 +287,8 @@ PY
 #
 # RF-producing devices are stopped before switch-monitoring IOCs.
 # Stopping the switch IOCs does NOT issue a route command.
+stop_managed_ioc "mw_supervisor"
+stop_managed_ioc "mw_vaunix_lms"
 stop_managed_ioc "ssrf_sequencer"
 stop_managed_ioc "ssrf_smc100a"
 stop_managed_ioc "ssrf_keysight_wavegen"
@@ -317,7 +319,7 @@ echo
 SCREEN_LIST="$(screen -ls 2>&1 || true)"
 
 if grep -E \
-    '\.(ioc-manager|mw_spd1305x|ssrf_smc100a|ssrf_keysight_wavegen|ssrf_nmr_switch|ssrf_rf_switch|ssrf_interlock|ssrf_sequencer|archiver)[[:space:]]' \
+    '\.(ioc-manager|mw_spd1305x|mw_vaunix_lms|mw_supervisor|ssrf_smc100a|ssrf_keysight_wavegen|ssrf_nmr_switch|ssrf_rf_switch|ssrf_interlock|ssrf_sequencer|archiver)[[:space:]]' \
     <<< "${SCREEN_LIST}" >/dev/null; then
 
     echo "WARNING: Genesis screen sessions remain:"

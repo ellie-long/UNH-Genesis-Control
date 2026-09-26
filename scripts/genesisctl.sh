@@ -269,7 +269,7 @@ show_screens() {
 show_processes() {
     echo "===== GENESIS PROCESSES ====="
     pgrep -fl \
-        'master_ioc.py|ioc_manager.py|archiver.py|phoebus|CSS_Phoebus|ssrf|smc100a|keysight|spd1305x' \
+        'master_ioc.py|ioc_manager.py|archiver.py|phoebus|CSS_Phoebus|ssrf|smc100a|keysight|spd1305x|vaunix_lms|microwave_supervisor' \
         || echo "No matching Genesis processes found."
 }
 
@@ -348,7 +348,7 @@ pv_status() {
 
     if [ -z "${addr_list}" ]; then
         # Current local macOS development ports. This is a fallback only.
-        addr_list="127.0.0.1:5064 127.0.0.1:5066 127.0.0.1:5067 127.0.0.1:5068 127.0.0.1:5070 127.0.0.1:5071 127.0.0.1:5072 127.0.0.1:5073 127.0.0.1:5074"
+        addr_list="127.0.0.1:5064 127.0.0.1:5066 127.0.0.1:5067 127.0.0.1:5068 127.0.0.1:5069 127.0.0.1:5070 127.0.0.1:5071 127.0.0.1:5072 127.0.0.1:5073 127.0.0.1:5074 127.0.0.1:5085"
     fi
 
     EPICS_CA_AUTO_ADDR_LIST=NO \
