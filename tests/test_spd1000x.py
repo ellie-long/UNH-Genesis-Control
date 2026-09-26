@@ -5,7 +5,7 @@ from pathlib import Path
 import unittest
 from unittest.mock import Mock, patch
 
-from spd1000x_ioc.controller import SPD1000XController as Controller, SocketSCPITransport
+from microwave_ioc.spd1305x.controller import SPD1000XController as Controller, SocketSCPITransport
 
 # Isolate the adapter from EPICS; no live IOC or instrument is contacted.
 softioc = types.ModuleType('softioc')
@@ -17,7 +17,7 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))
 # Local staging fallback for the shared BaseDevice reference.
 if not (Path(__file__).resolve().parents[1] / 'devices').exists():
     sys.path.append('/Users/blimric06/softioc_toolkit')
-from spd1000x_ioc.toolkit_device import Device
+from microwave_ioc.spd1305x.toolkit_device import Device
 
 class Supply:
     def __init__(self):
@@ -106,7 +106,7 @@ class Recovery(unittest.TestCase):
     def test_failed_handshake_closes_socket_and_retries(self):
         bad, good = Supply(), Supply()
         bad.query = Mock(side_effect=TimeoutError('booting'))
-        with patch('spd1000x_ioc.toolkit_device.SocketSCPITransport', side_effect=[bad, good]):
+        with patch('microwave_ioc.spd1305x.toolkit_device.SocketSCPITransport', side_effect=[bad, good]):
             self.d.connect()
             self.assertTrue(bad.closed)
             self.assertIsNone(self.d.t)
@@ -116,13 +116,13 @@ class Recovery(unittest.TestCase):
         supply = Supply()
         original = supply.query
         supply.query = lambda cmd: (_ for _ in ()).throw(TimeoutError('OVP?')) if cmd == 'OVP?' else original(cmd)
-        with patch('spd1000x_ioc.toolkit_device.SocketSCPITransport', return_value=supply):
+        with patch('microwave_ioc.spd1305x.toolkit_device.SocketSCPITransport', return_value=supply):
             self.d.connect()
         self.assertTrue(supply.closed)
         self.assertIsNone(self.d.t)
     def test_power_loss_then_boot_failure_then_recovery(self):
         old, new = Supply(), Supply()
-        with patch('spd1000x_ioc.toolkit_device.SocketSCPITransport', side_effect=[old, TimeoutError('offline'), new]):
+        with patch('microwave_ioc.spd1305x.toolkit_device.SocketSCPITransport', side_effect=[old, TimeoutError('offline'), new]):
             self.d.connect()
             old.query = Mock(side_effect=TimeoutError('powered off'))
             self.assertFalse(asyncio.run(self.d.do_reads()))
@@ -134,7 +134,7 @@ class Recovery(unittest.TestCase):
             self.assertFalse(new.output)
     def test_invalid_write_does_not_reconnect(self):
         supply = Supply()
-        with patch('spd1000x_ioc.toolkit_device.SocketSCPITransport', return_value=supply) as connect:
+        with patch('microwave_ioc.spd1305x.toolkit_device.SocketSCPITransport', return_value=supply) as connect:
             self.d.connect()
             self.d.do_sets(6, 'TEST:VSET_CMD')
             self.assertEqual(connect.call_count, 1)
@@ -243,7 +243,7 @@ class ProtectionDefaults(unittest.TestCase):
                 'initialize_on_connect': True,
             },
         )
-        with patch('spd1000x_ioc.toolkit_device.SocketSCPITransport', return_value=supply):
+        with patch('microwave_ioc.spd1305x.toolkit_device.SocketSCPITransport', return_value=supply):
             d.connect()
         self.assertIsNone(d.t)
         self.assertTrue(supply.closed)
@@ -304,7 +304,7 @@ class ReadOnlyCommissioning(unittest.TestCase):
         )
 
         with patch(
-            'spd1000x_ioc.toolkit_device.SocketSCPITransport',
+            'microwave_ioc.spd1305x.toolkit_device.SocketSCPITransport',
             return_value=supply,
         ):
             device.connect()
@@ -342,7 +342,7 @@ class ReadOnlyCommissioning(unittest.TestCase):
         )
 
         with patch(
-            'spd1000x_ioc.toolkit_device.SocketSCPITransport',
+            'microwave_ioc.spd1305x.toolkit_device.SocketSCPITransport',
             return_value=supply,
         ):
             device.connect()
@@ -386,7 +386,7 @@ class ControlledWriteCommissioning(unittest.TestCase):
         )
 
         with patch(
-            'spd1000x_ioc.toolkit_device.SocketSCPITransport',
+            'microwave_ioc.spd1305x.toolkit_device.SocketSCPITransport',
             return_value=supply,
         ):
             device.connect()

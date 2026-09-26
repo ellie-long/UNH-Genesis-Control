@@ -4,7 +4,7 @@ general:
   epics_addr_list: None
   delay: 0.5
 spd1305x:
-  module: spd1000x_ioc.toolkit_device
+  module: microwave_ioc.spd1305x.toolkit_device
   autostart: false
   ip: 192.168.1.13
   port: 5025
