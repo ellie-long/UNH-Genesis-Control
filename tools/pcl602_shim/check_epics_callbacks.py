@@ -23,7 +23,7 @@ def main():
     robot=Robot(Simulator(),cfg)
     calls=Counter()
     original=robot.dispatch
-    
+
     def dispatch(owner,request):
      calls[request['op']]+=1
      return original(owner,request)
