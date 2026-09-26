@@ -160,5 +160,110 @@ class VaunixLocalSimulation(unittest.TestCase):
         run.assert_not_called()
 
 
+    def test_device_connect_updates_simulation_input_without_process_kwarg(self):
+        class InputPV:
+            def __init__(self):
+                self.value = None
+
+            def set(self, value):
+                self.value = value
+
+        class OutputPV:
+            def __init__(self):
+                self.value = None
+
+            def set(self, value, process=True):
+                self.value = value
+
+        settings = dict(self.settings)
+
+        dummy = SimpleNamespace(
+            simulation=True,
+            settings=settings,
+            channel="MW",
+            pvs={
+                "MW_Connected": InputPV(),
+                "MW_Simulation": InputPV(),
+                "MW_TestMode": OutputPV(),
+            },
+            t=None,
+        )
+
+        dummy._start_remote_service = lambda: None
+        dummy._create_connection = lambda: LocalSimulationConnection(settings)
+        dummy.read_outs = lambda: None
+
+        Device.connect(dummy)
+
+        self.assertEqual(
+            dummy.pvs["MW_Connected"].value,
+            True,
+        )
+        self.assertEqual(
+            dummy.pvs["MW_Simulation"].value,
+            True,
+        )
+        self.assertEqual(
+            dummy.pvs["MW_TestMode"].value,
+            1,
+        )
+
+
+    def test_sweep_run_immediately_updates_active_readback(self):
+        class InputPV:
+            def __init__(self):
+                self.value = None
+
+            def set(self, value):
+                self.value = value
+
+        class OutputPV:
+            def __init__(self):
+                self.value = None
+
+            def set(self, value, process=True):
+                self.value = value
+
+        sim = self.new_sim()
+
+        dummy = SimpleNamespace(
+            t=sim,
+            channel="MW",
+            pvs={
+                "MW_SweepRun": OutputPV(),
+                "MW_SweepActive": InputPV(),
+            },
+        )
+
+        dummy.read_outs = lambda: None
+        dummy.reconnect = lambda: None
+
+        Device.do_sets(
+            dummy,
+            1,
+            "UNH:GEN:MW:SRC:MW_SweepRun",
+        )
+
+        self.assertEqual(
+            dummy.pvs["MW_SweepRun"].value,
+            1,
+        )
+        self.assertEqual(
+            dummy.pvs["MW_SweepActive"].value,
+            1,
+        )
+
+        Device.do_sets(
+            dummy,
+            0,
+            "UNH:GEN:MW:SRC:MW_SweepRun",
+        )
+
+        self.assertEqual(
+            dummy.pvs["MW_SweepActive"].value,
+            0,
+        )
+
+
 if __name__ == "__main__":
     unittest.main()

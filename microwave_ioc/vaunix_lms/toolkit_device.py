@@ -387,7 +387,7 @@ class Device(BaseDevice):
             identity, test_mode = self.t.identity()
             self.pvs[self.channel + "_Connected"].set(True)
             self.pvs[self.channel + "_Simulation"].set(
-                self.simulation, process=False)
+                self.simulation)
             self.pvs[self.channel + "_TestMode"].set(
                 test_mode, process=False)
             LOG.info("connected to %s; limits GHz/dBm: %s", identity, self.t.limits())
@@ -473,7 +473,11 @@ class Device(BaseDevice):
                            "Bidirectional": "BIDIRECTIONAL",
                            "ExternalTrigger": "EXTERNAL_TRIGGER", "Run": "RUN"}
                 achieved = self.t.set_sweep_flag(mapping[suffix], new_value)
-                self.pvs[self.channel + "_Sweep" + suffix].set(achieved, process=False)
+                self.pvs[self.channel + "_Sweep" + suffix].set(
+                    achieved, process=False)
+                if suffix == "Run":
+                    self.pvs[self.channel + "_SweepActive"].set(
+                        achieved)
         except ShimRejected as exc:
             LOG.warning("Vaunix rejected %s=%s: %s", name, new_value, exc)
             self.read_outs()
