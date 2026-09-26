@@ -75,6 +75,7 @@ class Device:
         p["SweepError"] = builder.stringIn(prefix + "SweepError")
         p["Simulation"] = builder.boolIn(prefix + "Simulation", ZNAM="Hardware", ONAM="Simulation")
         p["Simulation"].set(self.simulation)
+        p["OutputFrequency"].set(low, process=False)
         p["CentralFrequency"].set((low + high) / 2, process=False)
         self._publish()
 

@@ -1,0 +1,153 @@
+general:
+  prefix: UNH:GEN:MW:SUP
+  log_dir: logs
+  epics_addr_list: None
+  delay: 0.2
+
+microwave_supervisor:
+  module: logic_devices.microwave_supervisor.device
+  autostart: false
+  delay: 0.2
+
+  # Phase-I default:
+  # run the Supervisor without issuing writes to hardware IOCs.
+  simulation: true
+
+  # general.prefix already provides UNH:GEN:MW:SUP.
+  # Keep this empty so records become:
+  # UNH:GEN:MW:SUP:SystemConnected, etc.
+  record_prefix: ""
+
+  ca_timeout: 2.0
+  maximum_sweep_points: 100000
+
+  source_pvs:
+    uca_connected: UNH:GEN:MW:PS:COMM
+    uca_voltage: UNH:GEN:MW:PS:VMEAS
+
+    vaunix_connected: UNH:GEN:MW:SRC:MW_Connected
+    vaunix_rf: UNH:GEN:MW:SRC:MW_RF
+    vaunix_frequency_command: UNH:GEN:MW:SRC:MW_FC
+    vaunix_frequency_readback: UNH:GEN:MW:SRC:MW_FI
+
+  frequency:
+    multiplier: 12.0
+
+    # Current validated Genesis / Vaunix Phase-I range.
+    output_min_ghz: 138.0
+    output_max_ghz: 142.0
+
+  interlock:
+    required_voltage: 5.0
+
+    # SOFTWARE-VALIDATION VALUE ONLY.
+    # Confirm the physical operating tolerance before enabling
+    # Supervisor control of real RF hardware.
+    tolerance: 0.10
+
+  # Real experiment constants have not yet been certified.
+  # Magic actions must therefore remain unavailable.
+  dopants: []
+
+  archive_records:
+    - SystemConnected
+    - UCAConnected
+    - VaunixConnected
+    - UCAVoltage
+    - RFPermissive
+    - InterlockMessage
+    - LastError
+    - OutputFrequencyRBV
+    - RFEnable
+    - SweepState
+    - SweepPoint
+    - SweepTotal
+    - SweepProgress
+    - SweepCurrentFrequency
+    - SweepError
+    - Simulation
+
+  records:
+    SystemConnected:
+      DESC: Microwave subsystem connectivity
+
+    UCAConnected:
+      DESC: UCA power supply connectivity
+
+    VaunixConnected:
+      DESC: Vaunix source connectivity
+
+    UCAVoltage:
+      DESC: UCA measured voltage
+
+    RFPermissive:
+      DESC: Software RF ON permissive
+
+    InterlockMessage:
+      DESC: RF permissive explanation
+
+    LastError:
+      DESC: Last supervisor error
+
+    OutputFrequency:
+      DESC: Microwave output frequency command
+
+    OutputFrequencyRBV:
+      DESC: Microwave output frequency readback
+
+    CentralFrequency:
+      DESC: Central frequency for Magic calculation
+
+    Dopant:
+      DESC: Dopant selection
+
+    MagicPlus:
+      DESC: Magic plus frequency action
+
+    MagicMinus:
+      DESC: Magic minus frequency action
+
+    RFEnable:
+      DESC: Supervisor RF enable request
+
+    SweepStart:
+      DESC: Software sweep start frequency
+
+    SweepStop:
+      DESC: Software sweep stop frequency
+
+    SweepStep:
+      DESC: Software sweep frequency step
+
+    SweepDwell:
+      DESC: Software sweep dwell time
+
+    SweepStartCommand:
+      DESC: Start software sweep
+
+    SweepStopCommand:
+      DESC: Stop software sweep
+
+    SweepCancel:
+      DESC: Cancel software sweep
+
+    SweepState:
+      DESC: Software sweep state
+
+    SweepPoint:
+      DESC: Current software sweep point
+
+    SweepTotal:
+      DESC: Total software sweep points
+
+    SweepProgress:
+      DESC: Software sweep progress
+
+    SweepCurrentFrequency:
+      DESC: Current software sweep frequency
+
+    SweepError:
+      DESC: Software sweep error
+
+    Simulation:
+      DESC: Supervisor simulation state
