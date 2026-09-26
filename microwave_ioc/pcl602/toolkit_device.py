@@ -5,6 +5,7 @@ channels: [X, Y]; optional axis_map. No pyserial or pygame required on IOC host.
 """
 from __future__ import annotations
 
+import copy
 import json
 import logging
 import math
@@ -62,10 +63,292 @@ class DeviceConnection:
                 self.sock.close()
 
 
+class LocalSimulationConnection:
+    """In-process PCL602 simulation for Genesis off-lab integration.
+
+    This implements the request interface used by Device without opening
+    sockets, starting a Pi service, loading USB libraries, or moving motors.
+    """
+
+    def __init__(self, settings):
+        self.closed = False
+
+        self.steps_per_cm = float(
+            settings.get("steps_per_cm", 10000)
+        )
+
+        if (
+            not math.isfinite(self.steps_per_cm)
+            or self.steps_per_cm <= 0
+        ):
+            raise ValueError(
+                "steps_per_cm must be finite and positive"
+            )
+
+        speeds = settings.get(
+            "simulation_profile_speeds_cm_s",
+            [0.1, 0.5, 1.0],
+        )
+
+        if (
+            not isinstance(speeds, list)
+            or len(speeds) != 3
+            or any(
+                not math.isfinite(float(value))
+                or float(value) <= 0
+                for value in speeds
+            )
+        ):
+            raise ValueError(
+                "simulation_profile_speeds_cm_s "
+                "must contain three positive values"
+            )
+
+        self.profile_speeds = [
+            float(value) for value in speeds
+        ]
+
+        self.mode = 0
+        self.speed_mode = 0
+        self.controller_error = 0
+
+        minimum = int(
+            settings.get(
+                "simulation_minimum_steps",
+                -1_000_000,
+            )
+        )
+
+        maximum = int(
+            settings.get(
+                "simulation_maximum_steps",
+                1_000_000,
+            )
+        )
+
+        if minimum >= maximum:
+            raise ValueError(
+                "invalid local simulation coordinate range"
+            )
+
+        self.axes = {}
+
+        for axis in ("X", "Y"):
+            self.axes[axis] = {
+                "position": 0,
+                "minimum": minimum,
+                "maximum": maximum,
+                "limits": 0,
+                "busy": False,
+                "motor_enabled": False,
+                "max_speed": 15_000,
+                "acceleration": 10_000,
+                "user_offset": 0,
+                "referenced": True,
+                "steps_per_cm": self.steps_per_cm,
+                "physical_sign": 1,
+                "resolution": 256,
+                "limits_enabled": False,
+                "position_fresh": True,
+            }
+
+    def close(self):
+        self.closed = True
+
+    def _axis(self, name):
+        name = str(name).upper()
+
+        if name not in self.axes:
+            raise DeviceRefused(
+                f"unknown axis {name}"
+            )
+
+        return self.axes[name]
+
+    def _state(self):
+        axes = copy.deepcopy(self.axes)
+
+        for data in axes.values():
+            data["speed_cm_s"] = (
+                data["max_speed"]
+                / data["steps_per_cm"]
+            )
+
+        return {
+            "protocol": 2,
+            "healthy": True,
+            "error": "",
+            "firmware": "GENESIS-LOCAL-SIM",
+            "mode": self.mode,
+            "speed_mode": self.speed_mode,
+            "profile_speeds_cm_s": list(
+                self.profile_speeds
+            ),
+            "limits_configurable": False,
+            "joystick_connected": False,
+            "joystick_active": False,
+            "controller_error": self.controller_error,
+            "axes": axes,
+        }
+
+    def request(self, op, **fields):
+        if self.closed:
+            raise OSError(
+                "local simulation connection is closed"
+            )
+
+        op = str(op).upper()
+
+        if op == "READ":
+            return self._state()
+
+        if op == "READ_ERROR":
+            value = self.controller_error
+            self.controller_error = 0
+            return value
+
+        if op == "STOP_ALL":
+            self.mode = 0
+
+            for data in self.axes.values():
+                data["busy"] = False
+                data["motor_enabled"] = False
+
+            return True
+
+        if op == "MODE":
+            value = int(fields["value"])
+
+            if value not in (0, 1, 2):
+                raise DeviceRefused(
+                    "mode must be Disabled, EPICS, or Joystick"
+                )
+
+            if value == 2:
+                raise DeviceRefused(
+                    "joystick is unavailable in local simulation"
+                )
+
+            self.mode = value
+            return value
+
+        if op == "SPEED_MODE":
+            value = int(fields["value"])
+
+            if value not in (0, 1, 2):
+                raise DeviceRefused(
+                    "speed mode must be 0, 1, or 2"
+                )
+
+            self.speed_mode = value
+            return value
+
+        if op == "MOTOR_ENABLE":
+            if self.mode != 0:
+                raise DeviceRefused(
+                    "motor enable changes require Disabled mode"
+                )
+
+            axis = self._axis(fields["axis"])
+            axis["motor_enabled"] = bool(
+                int(fields["value"])
+            )
+            return int(axis["motor_enabled"])
+
+        if op == "MOVE_REL":
+            axis = self._axis(fields["axis"])
+
+            if self.mode != 1:
+                raise DeviceRefused(
+                    "relative motion requires EPICS mode"
+                )
+
+            if not axis["motor_enabled"]:
+                raise DeviceRefused(
+                    "relative motion requires motor enabled"
+                )
+
+            if not axis["position_fresh"]:
+                raise DeviceRefused(
+                    "relative motion requires fresh position"
+                )
+
+            value = int(fields["value"])
+
+            target = axis["position"] + value
+
+            if not (
+                axis["minimum"]
+                <= target
+                <= axis["maximum"]
+            ):
+                raise DeviceRefused(
+                    "simulated move outside coordinate range"
+                )
+
+            # Simulation completes immediately.
+            axis["busy"] = True
+            axis["position"] = target
+            axis["busy"] = False
+
+            return axis["position"]
+
+        if op == "STOP":
+            axis = self._axis(fields["axis"])
+            axis["busy"] = False
+            return True
+
+        if op == "ZERO":
+            axis = self._axis(fields["axis"])
+            axis["position"] = 0
+            axis["user_offset"] = 0
+            return True
+
+        if op == "MAX_SPEED":
+            axis = self._axis(fields["axis"])
+            value = int(fields["value"])
+
+            if value < 1 or value > 50_000:
+                raise DeviceRefused(
+                    "max speed outside IOC range"
+                )
+
+            axis["max_speed"] = value
+            return value
+
+        if op == "ACCEL":
+            axis = self._axis(fields["axis"])
+            value = int(fields["value"])
+
+            if value < 100:
+                raise DeviceRefused(
+                    "acceleration outside IOC range"
+                )
+
+            axis["acceleration"] = value
+            return value
+
+        if op in (
+            "SET_LIMITS",
+            "SET_MACHINE_POSITION",
+        ):
+            raise DeviceRefused(
+                "calibration controls are disabled "
+                "in Genesis local simulation"
+            )
+
+        raise DeviceRefused(
+            f"unsupported local simulation operation {op}"
+        )
+
+
 class Device(BaseDevice):
     def __init__(self, device_name, settings):
         self.lock = threading.RLock()
         self.last_error = ''
+        self.simulation = bool(
+            settings.get('simulation', False)
+        )
         self.steps_per_cm = float(settings.get('steps_per_cm', 10000))
         if not math.isfinite(self.steps_per_cm) or self.steps_per_cm <= 0:
             raise ValueError('steps_per_cm must be finite and positive')
@@ -86,6 +369,12 @@ class Device(BaseDevice):
         return self.settings.get('axis_map', {}).get(channel, channel).upper()
 
     def _create_pvs(self):
+        self.pvs['SIMULATION'] = builder.boolIn(
+            'SIMULATION',
+            ZNAM='Physical',
+            ONAM='Local Simulation')
+        self.pvs['SIMULATION'].set(
+            self.simulation)
         self.pvs['STEPS_PER_CM'] = builder.aIn(
             'STEPS_PER_CM', initial_value=self.steps_per_cm, EGU='steps/cm', PREC=3)
         self.pvs['JOG_DISTANCE_CM'] = builder.aOut(
@@ -177,8 +466,13 @@ class Device(BaseDevice):
             "JOYSTICK_ACTIVE", ZNAM="Inactive", ONAM="Active")
 
     def _create_connection(self):
-        return DeviceConnection(self.settings['ip'], self.settings.get('port', 1702),
-                                self.settings.get('timeout', 3.0))
+        if self.simulation:
+            return LocalSimulationConnection(
+                self.settings)
+        return DeviceConnection(
+            self.settings['ip'],
+            self.settings.get('port', 1702),
+            self.settings.get('timeout', 3.0))
 
     def _set_comm(self, connected, message=None):
         self.pvs['COMM_STATUS'].set(bool(connected))

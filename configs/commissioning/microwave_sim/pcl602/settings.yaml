@@ -1,0 +1,83 @@
+general:
+  prefix: UNH:GEN:MW:ROBOT
+  log_dir: logs
+  epics_addr_list: None
+  delay: 0.2
+pcl602:
+  module: microwave_ioc.pcl602.toolkit_device
+  autostart: false
+  simulation: true
+  ip: 127.0.0.1
+  port: 1702
+  timeout: 3.0
+  delay: 0.2
+  channels:
+  - X
+  - Y
+  require_speed_profiles: true
+  archive_records:
+  - SIMULATION
+  - COMM_STATUS
+  - CONTROL_MODE
+  - SPEED_MODE
+  - ESTOP
+  - LAST_ERROR
+  - CONTROLLER_ERROR
+  - X_CM
+  - Y_CM
+  - X_MACHINE_CM
+  - Y_MACHINE_CM
+  - X_REFERENCED
+  - Y_REFERENCED
+  - X_POSITION_FRESH
+  - Y_POSITION_FRESH
+  - X_BUSY
+  - Y_BUSY
+  - X_MOTOR_ENABLE
+  - Y_MOTOR_ENABLE
+  - X_SOFT_LIMITS_ENABLED
+  - Y_SOFT_LIMITS_ENABLED
+  records:
+    SIMULATION:
+      DESC: Genesis robot simulation state
+    COMM_STATUS:
+      DESC: PCL602 shim communication
+    CONTROL_MODE:
+      DESC: Disabled EPICS or Joystick control
+    SPEED_MODE:
+      DESC: Robot speed profile
+    ESTOP:
+      DESC: Software stop-all action
+    LAST_ERROR:
+      DESC: Last robot IOC error
+    X_CM:
+      DESC: X user position
+    Y_CM:
+      DESC: Y user position
+    X_MACHINE_CM:
+      DESC: X machine position
+    Y_MACHINE_CM:
+      DESC: Y machine position
+    X_REFERENCED:
+      DESC: X reference state
+    Y_REFERENCED:
+      DESC: Y reference state
+    X_POSITION_FRESH:
+      DESC: X position freshness
+    Y_POSITION_FRESH:
+      DESC: Y position freshness
+    X_BUSY:
+      DESC: X motion state
+    Y_BUSY:
+      DESC: Y motion state
+    X_MOTOR_ENABLE:
+      DESC: X motor enable
+    Y_MOTOR_ENABLE:
+      DESC: Y motor enable
+  steps_per_cm: 10000
+  simulation_minimum_steps: -1000000
+  simulation_maximum_steps: 1000000
+  simulation_profile_speeds_cm_s:
+  - 0.1
+  - 0.5
+  - 1.0
