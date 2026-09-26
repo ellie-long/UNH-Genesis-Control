@@ -1,0 +1,18 @@
+[Unit]
+Description=PCL602USB robot TCP shim
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=pi
+SupplementaryGroups=dialout input
+WorkingDirectory=/opt/pcl602_shim
+ExecStart=/usr/bin/python3 /opt/pcl602_shim/pcl602_shim.py --config /opt/pcl602_shim/config.json
+Restart=on-failure
+RestartSec=3
+TimeoutStopSec=10
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target

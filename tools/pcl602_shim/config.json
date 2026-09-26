@@ -1,0 +1,57 @@
+{
+  "host": "0.0.0.0",
+  "port": 1702,
+  "serial_port": "/dev/serial/by-id/usb-AA_Anaheim_Automation_-_PCL602USB_002BPBYR-if00-port0",
+  "address": 0,
+  "serial_timeout": 0.35,
+  "command_delay": 0.05,
+  "xonxoff": false,
+  "watchdog_seconds": 3.0,
+  "axes": {
+    "X": {
+      "steps_per_cm_256": 31800,
+      "physical_sign": 1,
+      "travel_cm": 103
+    },
+    "Y": {
+      "steps_per_cm_256": 318000,
+      "physical_sign": -1,
+      "travel_cm": 60
+    }
+  },
+  "joystick_enabled": true,
+  "joystick": {
+    "index": 0,
+    "x_axis": 0,
+    "y_axis": 1,
+    "invert_x": false,
+    "invert_y": false,
+    "deadzone": 0.4,
+    "estop_button": 0,
+    "deadman_button": 1,
+    "poll_hz": 60
+  },
+  "motion_profiles": [
+    {
+      "name": "Slow",
+      "resolution": 256,
+      "speed_cm_s": 0.15,
+      "base_cm_s": 0.004,
+      "accel_cm_s2": 0.1
+    },
+    {
+      "name": "Medium",
+      "resolution": 64,
+      "speed_cm_s": 0.3,
+      "base_cm_s": 0.004,
+      "accel_cm_s2": 0.1
+    },
+    {
+      "name": "Fast",
+      "resolution": 64,
+      "speed_cm_s": 0.45,
+      "base_cm_s": 0.004,
+      "accel_cm_s2": 0.1
+    }
+  ]
+}
