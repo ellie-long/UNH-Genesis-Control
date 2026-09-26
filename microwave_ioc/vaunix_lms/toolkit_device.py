@@ -113,6 +113,178 @@ class ShimConnection:
         return int(self._set(f"SWEEP_{name}", 1 if enabled else 0))
 
 
+class LocalSimulationConnection:
+    """In-process Vaunix simulator for off-lab Genesis integration tests.
+
+    This object implements the same interface used by Device for the
+    Raspberry-Pi TCP shim, but performs no network, SSH, USB, or vendor-SDK
+    operations.
+    """
+
+    def __init__(self, settings):
+        self.settings = settings
+        self.closed = False
+
+        self.frequency_min = float(
+            settings.get("frequency_min_ghz", 11.5)
+        )
+        self.frequency_max = float(
+            settings.get("frequency_max_ghz", 11.8333333333)
+        )
+        self.power_min = float(
+            settings.get("power_min_dbm", -40.0)
+        )
+        self.power_max = float(
+            settings.get("power_max_dbm", 10.0)
+        )
+
+        self.frequency = float(
+            settings.get("simulation_frequency_ghz", self.frequency_min)
+        )
+        self.power = float(
+            settings.get("simulation_power_dbm", self.power_min)
+        )
+
+        self.rf = 0
+        self.reference = 1
+        self.lock = 1
+
+        self.sweep_start = self.frequency_min
+        self.sweep_end = self.frequency_max
+        self.sweep_step = float(
+            settings.get("simulation_sweep_step_ghz", 0.001)
+        )
+        self.sweep_time = int(
+            settings.get("simulation_sweep_time_ms", 1000)
+        )
+
+        self.sweep_direction = 1
+        self.sweep_repeat = 0
+        self.sweep_bidirectional = 0
+        self.sweep_external_trigger = 0
+        self.sweep_active = 0
+
+        self._validate_frequency(self.frequency)
+        self._validate_power(self.power)
+
+    def close(self):
+        self.closed = True
+
+    def identity(self):
+        return "VAUNIX,GENESIS,LOCAL,SIMULATOR,TEST", 1
+
+    def limits(self):
+        return (
+            self.frequency_min,
+            self.frequency_max,
+            self.power_min,
+            self.power_max,
+        )
+
+    def read(self):
+        return (
+            self.frequency,
+            self.power,
+            self.rf,
+            self.reference,
+            self.lock,
+        )
+
+    def sweep(self):
+        return (
+            self.sweep_start,
+            self.sweep_end,
+            self.sweep_step,
+            self.sweep_time,
+            self.sweep_direction,
+            self.sweep_repeat,
+            self.sweep_bidirectional,
+            self.sweep_external_trigger,
+            self.sweep_active,
+        )
+
+    def _validate_frequency(self, value):
+        value = float(value)
+        if not self.frequency_min <= value <= self.frequency_max:
+            raise ShimRejected(
+                f"frequency {value} GHz outside "
+                f"{self.frequency_min}..{self.frequency_max} GHz"
+            )
+        return value
+
+    def _validate_power(self, value):
+        value = float(value)
+        if not self.power_min <= value <= self.power_max:
+            raise ShimRejected(
+                f"power {value} dBm outside "
+                f"{self.power_min}..{self.power_max} dBm"
+            )
+        return value
+
+    def set_frequency(self, ghz):
+        self.frequency = self._validate_frequency(ghz)
+        return self.frequency
+
+    def set_power(self, dbm):
+        self.power = self._validate_power(dbm)
+        return self.power
+
+    def set_rf(self, enabled):
+        self.rf = int(bool(enabled))
+        return self.rf
+
+    def set_reference(self, internal):
+        self.reference = int(bool(internal))
+        return self.reference
+
+    def set_test_mode(self, enabled):
+        # Local simulation must never masquerade as hardware mode.
+        if not bool(enabled):
+            raise ShimRejected(
+                "local Genesis simulation cannot enter hardware mode"
+            )
+        return 1
+
+    def set_sweep_start(self, ghz):
+        self.sweep_start = self._validate_frequency(ghz)
+        return self.sweep_start
+
+    def set_sweep_end(self, ghz):
+        self.sweep_end = self._validate_frequency(ghz)
+        return self.sweep_end
+
+    def set_sweep_step(self, ghz):
+        value = float(ghz)
+        if value <= 0:
+            raise ShimRejected("sweep step must be positive")
+        self.sweep_step = value
+        return self.sweep_step
+
+    def set_sweep_time(self, milliseconds):
+        value = int(round(float(milliseconds)))
+        if value < 1:
+            raise ShimRejected("sweep time must be at least 1 ms")
+        self.sweep_time = value
+        return self.sweep_time
+
+    def set_sweep_flag(self, name, enabled):
+        value = int(bool(enabled))
+
+        mapping = {
+            "DIRECTION": "sweep_direction",
+            "REPEAT": "sweep_repeat",
+            "BIDIRECTIONAL": "sweep_bidirectional",
+            "EXTERNAL_TRIGGER": "sweep_external_trigger",
+            "RUN": "sweep_active",
+        }
+
+        if name not in mapping:
+            raise ShimRejected(f"unsupported sweep flag: {name}")
+
+        setattr(self, mapping[name], value)
+        return value
+
+
 class Device(BaseDevice):
     """One Vaunix channel with command and readback EPICS records."""
 
@@ -122,6 +294,7 @@ class Device(BaseDevice):
             raise ValueError("Vaunix LMS requires exactly one channel name")
         self.channel = channels[0]
         self.multiplier = float(self.settings.get("multiplier", 1))
+        self.simulation = bool(self.settings.get("simulation", False))
         channel = self.channel
         self.pvs[channel + "_FI"] = builder.aIn(channel + "_FI", **self.sevr)
         self.pvs[channel + "_FC"] = builder.aOut(
@@ -137,6 +310,8 @@ class Device(BaseDevice):
         self.pvs[channel + "_Lock"] = builder.boolIn(channel + "_Lock")
         self.pvs[channel + "_Connected"] = builder.boolIn(
             channel + "_Connected", ZNAM="Disconnected", ONAM="Connected")
+        self.pvs[channel + "_Simulation"] = builder.boolIn(
+            channel + "_Simulation", ZNAM="Physical", ONAM="Local Simulation")
         self.pvs[channel + "_TestMode"] = builder.boolOut(
             channel + "_TestMode", ZNAM="Hardware", ONAM="Test",
             on_update_name=self.do_sets)
@@ -166,11 +341,16 @@ class Device(BaseDevice):
             channel + "_SweepActive", ZNAM="Idle", ONAM="Sweeping")
 
     def _create_connection(self):
+        if self.simulation:
+            return LocalSimulationConnection(self.settings)
         return ShimConnection(self.settings["ip"], self.settings["port"],
                               self.settings["timeout"])
 
     def _start_remote_service(self):
         """Idempotently start the Pi service before opening its TCP socket."""
+        if self.simulation:
+            return
+
         shim = self.settings.get("shim", {})
         if not shim.get("start_with_ioc", True):
             return
@@ -206,7 +386,10 @@ class Device(BaseDevice):
             self.t = self._create_connection()
             identity, test_mode = self.t.identity()
             self.pvs[self.channel + "_Connected"].set(True)
-            self.pvs[self.channel + "_TestMode"].set(test_mode, process=False)
+            self.pvs[self.channel + "_Simulation"].set(
+                self.simulation, process=False)
+            self.pvs[self.channel + "_TestMode"].set(
+                test_mode, process=False)
             LOG.info("connected to %s; limits GHz/dBm: %s", identity, self.t.limits())
             self.read_outs()
         except (OSError, ShimRejected) as exc:

@@ -37,6 +37,11 @@ class VaunixGenesisConfiguration(unittest.TestCase):
             self.settings["vaunix_lms"]["autostart"]
         )
 
+    def test_physical_config_is_not_local_simulation(self):
+        self.assertFalse(
+            self.settings["vaunix_lms"]["simulation"]
+        )
+
     def test_remote_shim_not_started_implicitly(self):
         self.assertFalse(
             self.settings["vaunix_lms"]["shim"]["start_with_ioc"]

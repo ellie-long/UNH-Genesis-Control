@@ -3,149 +3,121 @@ general:
   log_dir: logs
   epics_addr_list: None
   delay: 0.5
-
 vaunix_lms:
   module: microwave_ioc.vaunix_lms.toolkit_device
   autostart: false
-
-  # Raspberry-Pi Vaunix shim endpoint.
   ip: mmWaveRobot.local
   port: 1701
   timeout: 2.0
   delay: 1.0
-
-  # Bridge12 microwave output is 12x the synthesizer frequency.
   multiplier: 12.0
-
-  # Ben's driver requires exactly one channel.
   channels:
-    - MW
-
-  # Conservative default:
-  # normal Genesis startup must not automatically SSH to the Pi.
-  # Physical commissioning can explicitly start the shim.
+  - MW
   shim:
     start_with_ioc: false
     ssh_host: mmWaveRobot.local
     ssh_user: unhpoltarg
     remote_dir: /home/unhpoltarg/vaunix_shim
     startup_timeout: 15
-
   archive_records:
-    - MW_FI
-    - MW_OutFI
-    - MW_PWRI
-    - MW_RF
-    - MW_Ref
-    - MW_Lock
-    - MW_Connected
-    - MW_TestMode
-    - MW_SweepStartI
-    - MW_SweepEndI
-    - MW_SweepStepI
-    - MW_SweepTimeI
-    - MW_SweepActive
-
+  - MW_FI
+  - MW_OutFI
+  - MW_PWRI
+  - MW_RF
+  - MW_Ref
+  - MW_Lock
+  - MW_Connected
+  - MW_Simulation
+  - MW_TestMode
+  - MW_SweepStartI
+  - MW_SweepEndI
+  - MW_SweepStepI
+  - MW_SweepTimeI
+  - MW_SweepActive
   records:
     MW_FI:
       DESC: Synthesizer frequency readback
       EGU: GHz
       LOPR: 11.5
       HOPR: 11.8333333333
-
     MW_FC:
       DESC: Synthesizer frequency command
       EGU: GHz
       DRVL: 11.5
       DRVH: 11.8333333333
-
     MW_OutFI:
       DESC: Microwave output frequency readback
       EGU: GHz
       LOPR: 138.0
       HOPR: 142.0
-
     MW_PWRI:
       DESC: Source power readback
       EGU: dBm
       LOPR: -40.0
       HOPR: 10.0
-
     MW_PWRC:
       DESC: Source power command
       EGU: dBm
       DRVL: -40.0
       DRVH: 10.0
-
     MW_RF:
       DESC: Raw Vaunix RF enable
-
     MW_Ref:
       DESC: Reference source selection
-
     MW_Lock:
       DESC: PLL lock status
-
     MW_Connected:
       DESC: Vaunix shim communication status
-
+    MW_Simulation:
+      DESC: Genesis local simulation state
     MW_TestMode:
       DESC: Vaunix vendor test-mode state
-
     MW_SweepStartI:
       DESC: Sweep start frequency readback
       EGU: GHz
       LOPR: 11.5
       HOPR: 11.8333333333
-
     MW_SweepStartC:
       DESC: Sweep start frequency command
       EGU: GHz
       DRVL: 11.5
       DRVH: 11.8333333333
-
     MW_SweepEndI:
       DESC: Sweep end frequency readback
       EGU: GHz
       LOPR: 11.5
       HOPR: 11.8333333333
-
     MW_SweepEndC:
       DESC: Sweep end frequency command
       EGU: GHz
       DRVL: 11.5
       DRVH: 11.8333333333
-
     MW_SweepStepI:
       DESC: Sweep step readback
       EGU: GHz
-
     MW_SweepStepC:
       DESC: Sweep step command
       EGU: GHz
-
     MW_SweepTimeI:
       DESC: Sweep dwell time readback
       EGU: ms
-
     MW_SweepTimeC:
       DESC: Sweep dwell time command
       EGU: ms
-
     MW_SweepDirection:
       DESC: Sweep direction
-
     MW_SweepRepeat:
       DESC: Sweep repeat enable
-
     MW_SweepBidirectional:
       DESC: Bidirectional sweep enable
-
     MW_SweepExternalTrigger:
       DESC: External-trigger sweep enable
-
     MW_SweepRun:
       DESC: Hardware sweep run command
-
     MW_SweepActive:
       DESC: Hardware sweep active state
+  simulation: false
+  frequency_min_ghz: 11.5
+  frequency_max_ghz: 11.8333333333
+  power_min_dbm: -40.0
+  power_max_dbm: 10.0
