@@ -1,0 +1,21 @@
+general:
+  prefix: UNH:GEN
+  log_dir: logs
+
+  epics_addr_list: "127.0.0.1:5064 127.0.0.1:5069"
+
+  manager_ca_server_port: 5064
+  manager_pva_server_port: 5075
+
+  delay: 0.5
+
+mw_vaunix_lms:
+  autostart: false
+
+  settings_folder: configs/commissioning/microwave_sim/vaunix_lms
+  ioc: vaunix_lms
+
+  heartbeat_pv: UNH:GEN:MW:SRC:MAN:vaunix_lms_time
+
+  ca_server_port: 5069
+  pva_server_port: 5079
