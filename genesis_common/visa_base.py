@@ -202,6 +202,7 @@ class VisaConnection:
         values,
         datatype="f",
         is_big_endian=False,
+        header_fmt="ieee",
         close_on_error=True,
     ):
         """Write an IEEE binary block through PyVISA."""
@@ -217,6 +218,7 @@ class VisaConnection:
                     values,
                     datatype=datatype,
                     is_big_endian=is_big_endian,
+                    header_fmt=header_fmt,
                 )
 
                 if self.settle > 0:

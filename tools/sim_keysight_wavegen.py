@@ -45,8 +45,10 @@ class WaveGenState:
 
         self.arb_filter = "NORM"
         self.interpolate = True
-        self.load = "INF"
+        self.byte_order = "LSBF"
+        self.load = "ONEM"
         self.output_mode = "NORM"
+        self.output_polarity = "NORM"
         self.invert = False
 
         self.arb_values = []
@@ -144,6 +146,94 @@ class WaveGenSCPI:
         upper,
     ):
         s = self.state
+
+        # Genesis physical DSOX3024T command compatibility.
+        #
+        # These commands were verified on the physical DSOX3024T
+        # during Genesis ssRF commissioning.
+        #
+        # Handle them before the older simulator vocabulary below.
+
+        if upper in (
+            ":WGEN:ARB:BYTEORDER?",
+            ":WGEN1:ARBITRARY:BYTEORDER?",
+        ):
+            return s.byte_order
+
+        if (
+            upper.startswith(
+                ":WGEN:ARB:BYTEORDER "
+            )
+            or upper.startswith(
+                ":WGEN1:ARBITRARY:BYTEORDER "
+            )
+        ):
+            value = (
+                raw.split(None, 1)[1]
+                .strip()
+                .upper()
+            )
+
+            if value in (
+                "LSBFIRST",
+                "LSBF",
+            ):
+                s.byte_order = "LSBF"
+
+            elif value in (
+                "MSBFIRST",
+                "MSBF",
+            ):
+                s.byte_order = "MSBF"
+
+            else:
+                raise ValueError(
+                    "invalid ARB byte order: "
+                    f"{value}"
+                )
+
+            return None
+
+        if upper in (
+            ":WGEN:OUTP:POL?",
+            ":WGEN1:OUTPUT:POLARITY?",
+        ):
+            return s.output_polarity
+
+        if (
+            upper.startswith(
+                ":WGEN:OUTP:POL "
+            )
+            or upper.startswith(
+                ":WGEN1:OUTPUT:POLARITY "
+            )
+        ):
+            value = (
+                raw.split(None, 1)[1]
+                .strip()
+                .upper()
+            )
+
+            if value in (
+                "NORM",
+                "NORMAL",
+            ):
+                s.output_polarity = "NORM"
+
+            elif value in (
+                "INV",
+                "INVERT",
+                "INVERTED",
+            ):
+                s.output_polarity = "INV"
+
+            else:
+                raise ValueError(
+                    "invalid output polarity: "
+                    f"{value}"
+                )
+
+            return None
 
         # ----------------------------------------------------------
         # Common IEEE / system commands

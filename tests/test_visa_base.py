@@ -69,6 +69,7 @@ class FakeVisaResource:
         values,
         datatype="f",
         is_big_endian=False,
+        header_fmt="ieee",
     ):
         if self.fail_binary_write:
             raise RuntimeError(

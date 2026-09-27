@@ -239,8 +239,13 @@ class TestKeysightWaveGenController(
         )
 
         self.assertEqual(
+            sim.byte_order,
+            "LSBF",
+        )
+
+        self.assertEqual(
             sim.load,
-            "INF",
+            "ONEM",
         )
 
         self.assertEqual(
@@ -248,8 +253,9 @@ class TestKeysightWaveGenController(
             "NORM",
         )
 
-        self.assertFalse(
-            sim.invert
+        self.assertEqual(
+            sim.output_polarity,
+            "NORM",
         )
 
     def test_safe_output_off(self):

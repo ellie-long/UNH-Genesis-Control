@@ -912,20 +912,17 @@ class DeviceConnection(VisaConnection):
         self.write(":WGEN:FUNC ARB")
         self.opc()
 
-        self.write(":FUNC:ARB:FILT NORM")
-        self.opc()
-
         self.write(":WGEN:ARB:INTerpolate ON")
 
-        self.write(":WGEN:OUTP:LOAD INF")
+        self.write(":WGEN:OUTP:LOAD ONEM")
         self.write(":WGEN:OUTP:MODE NORM")
 
         # Preserve Chhetra's tested UNH command.
-        self.write(":WGEN:OUTP:INV OFF")
+        self.write(":WGEN:OUTP:POL NORM")
 
         self.opc()
 
-        errors = self.errors()
+        errors = self.errors(max_reads=40)
 
         if errors:
             raise OSError(
@@ -1048,9 +1045,6 @@ class DeviceConnection(VisaConnection):
         self.write(":WGEN:FUNC ARB")
         self.opc()
 
-        self.write(":FUNC:ARB:FILT NORM")
-        self.opc()
-
         self.write(
             ":WGEN:ARB:DATA:CLEar"
         )
@@ -1066,12 +1060,21 @@ class DeviceConnection(VisaConnection):
         transfer = "ascii"
 
         if binary_first:
+            # DSOX3024T physical commissioning:
+            # float32 payload is transferred little-endian and the
+            # instrument byte order is set explicitly to match.
+            self.write(
+                ":WGEN:ARB:BYTeorder LSBFirst"
+            )
+            self.opc()
+
             try:
                 self.write_binary_values(
                     ":WGEN:ARB:DATA ",
                     values,
                     datatype="f",
                     is_big_endian=False,
+                    header_fmt="ieee",
                     close_on_error=False,
                 )
 
@@ -1099,7 +1102,7 @@ class DeviceConnection(VisaConnection):
 
         self.opc()
 
-        errors = self.errors()
+        errors = self.errors(max_reads=40)
 
         if errors:
             raise OSError(
@@ -1143,7 +1146,7 @@ class DeviceConnection(VisaConnection):
         )
 
         self.write(
-            ":WGEN:OUTP:LOAD INF"
+            ":WGEN:OUTP:LOAD ONEM"
         )
 
         self.write(
@@ -1152,14 +1155,14 @@ class DeviceConnection(VisaConnection):
 
         # Preserve Chhetra's tested command.
         self.write(
-            ":WGEN:OUTP:INV OFF"
+            ":WGEN:OUTP:POL NORM"
         )
 
         self.safe_output_off()
 
         self.opc()
 
-        errors = self.errors()
+        errors = self.errors(max_reads=40)
 
         if errors:
             raise OSError(
