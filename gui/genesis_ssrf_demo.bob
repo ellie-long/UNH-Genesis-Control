@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<display version="2.0.0">
+  <name>Genesis ssRF Full Workflow - Physical No-RF Demo</name>
+  <width>1200</width>
+  <height>840</height>
+
+  <widget type="rectangle" version="2.0.0">
+    <name>Header</name><x>0</x><y>0</y><width>1200</width><height>70</height>
+    <line_width>0</line_width>
+    <background_color><color red="0" green="53" blue="145" /></background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Title</name><x>25</x><y>14</y><width>780</width><height>38</height>
+    <text>UNH Genesis - ssRF Full Workflow Demo</text>
+    <font><font family="Liberation Sans" style="BOLD" size="22.0" /></font>
+    <foreground_color><color red="255" green="255" blue="255" /></foreground_color>
+    <transparent>true</transparent>
+  </widget>
+
+  <widget type="label" version="2.0.0">
+    <name>SafetyBanner</name><x>25</x><y>82</y><width>1150</width><height>48</height>
+    <text>PHYSICAL NO-RF DEMO: offline NMR -> fitter -> adaptive waveform -> physical Keysight ARB load -> physical switch motion. SMC RF/FM and Keysight OUTPUT remain OFF. LZY/Siglent remain OFF.</text>
+    <font><font family="Liberation Sans" style="BOLD" size="13.0" /></font>
+    <wrap_words>true</wrap_words>
+  </widget>
+
+  <widget type="rectangle" version="2.0.0">
+    <name>WorkflowBox</name><x>20</x><y>145</y><width>745</width><height>465</height>
+    <line_color><color red="0" green="53" blue="145" /></line_color>
+    <line_width>2</line_width>
+    <background_color><color red="240" green="241" blue="244" /></background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>WorkflowTitle</name><x>40</x><y>160</y><width>330</width><height>30</height>
+    <text>Operator workflow</text>
+    <font><font family="Liberation Sans" style="BOLD" size="16.0" /></font>
+    <transparent>true</transparent>
+  </widget>
+
+  <widget type="label" version="2.0.0"><name>S1</name><x>45</x><y>210</y><width>165</width><height>30</height><text>1. Start fitter</text></widget>
+  <widget type="bool_button" version="2.0.0"><name>B1</name><x>225</x><y>205</y><width>185</width><height>36</height><pv_name>pva://UNH:GEN:SSRF:SEQ:START_FITTER_CMD</pv_name></widget>
+
+  <widget type="label" version="2.0.0"><name>S2</name><x>45</x><y>255</y><width>165</width><height>30</height><text>2. Replay offline NMR</text></widget>
+  <widget type="bool_button" version="2.0.0"><name>B2</name><x>225</x><y>250</y><width>185</width><height>36</height><pv_name>pva://UNH:GEN:SSRF:SEQ:REPLAY_EQ_CMD</pv_name></widget>
+
+  <widget type="label" version="2.0.0"><name>S3</name><x>45</x><y>300</y><width>165</width><height>30</height><text>3. Calibrate fitter</text></widget>
+  <widget type="bool_button" version="2.0.0"><name>B3</name><x>225</x><y>295</y><width>185</width><height>36</height><pv_name>pva://UNH:GEN:SSRF:SEQ:UPDATE_CONSTANTS_CMD</pv_name></widget>
+
+  <widget type="label" version="2.0.0"><name>S4</name><x>45</x><y>345</y><width>165</width><height>30</height><text>4. Set ssRF mode</text></widget>
+  <widget type="bool_button" version="2.0.0"><name>B4</name><x>225</x><y>340</y><width>185</width><height>36</height><pv_name>pva://UNH:GEN:SSRF:SEQ:SET_SSRF_MODE_CMD</pv_name></widget>
+
+  <widget type="label" version="2.0.0"><name>S5</name><x>45</x><y>390</y><width>165</width><height>30</height><text>5. Fit -> Keysight</text></widget>
+  <widget type="bool_button" version="2.0.0"><name>B5</name><x>225</x><y>385</y><width>185</width><height>36</height><pv_name>pva://UNH:GEN:SSRF:SEQ:PREPARE_CMD</pv_name></widget>
+
+  <widget type="label" version="2.0.0"><name>S6</name><x>45</x><y>435</y><width>165</width><height>30</height><text>6. Arm demo</text></widget>
+  <widget type="bool_button" version="2.0.0"><name>B6</name><x>225</x><y>430</y><width>185</width><height>36</height><pv_name>pva://UNH:GEN:SSRF:SEQ:ARM_CMD</pv_name></widget>
+  <widget type="bool_button" version="2.0.0"><name>Disarm</name><x>430</x><y>430</y><width>120</width><height>36</height><pv_name>pva://UNH:GEN:SSRF:SEQ:DISARM_CMD</pv_name></widget>
+  <widget type="label" version="2.0.0"><name>ArmedL</name><x>565</x><y>435</y><width>70</width><height>30</height><text>Armed:</text></widget>
+  <widget type="led" version="2.0.0"><name>ArmedLed</name><x>640</x><y>432</y><width>28</width><height>28</height><pv_name>pva://UNH:GEN:SSRF:SEQ:EXECUTION_ARMED</pv_name><bit>0</bit><off_color><color red="210" green="130" blue="20" /></off_color><on_color><color red="30" green="160" blue="70" /></on_color></widget>
+
+  <widget type="label" version="2.0.0"><name>S7</name><x>45</x><y>480</y><width>165</width><height>30</height><text>7. Run switch demo</text></widget>
+  <widget type="bool_button" version="2.0.0"><name>B7</name><x>225</x><y>475</y><width>185</width><height>36</height><pv_name>pva://UNH:GEN:SSRF:SEQ:DEMO_RUN_CMD</pv_name></widget>
+  <widget type="bool_button" version="2.0.0"><name>Abort</name><x>430</x><y>475</y><width>120</width><height>36</height><pv_name>pva://UNH:GEN:SSRF:SEQ:ABORT_CMD</pv_name></widget>
+
+  <widget type="action_button" version="3.0.0">
+    <name>OpenFitter</name><x>430</x><y>205</y><width>205</width><height>36</height>
+    <actions><action type="open_display"><file>genesis_ssrf_fitter.bob</file><target>tab</target><description>Open fitter plots and controls</description></action></actions>
+    <text>Open Fitter / NMR Plot</text>
+  </widget>
+
+  <widget type="label" version="2.0.0"><name>CaseL</name><x>430</x><y>265</y><width>100</width><height>25</height><text>Burn case:</text></widget>
+  <widget type="textentry" version="2.0.0"><name>Case</name><x>535</x><y>260</y><width>170</width><height>30</height><pv_name>pva://UNH:GEN:SSRF:SEQ:CASE_CMD</pv_name></widget>
+  <widget type="label" version="2.0.0"><name>PolL</name><x>430</x><y>305</y><width>100</width><height>25</height><text>P vector:</text></widget>
+  <widget type="textentry" version="2.0.0"><name>Pol</name><x>535</x><y>300</y><width>100</width><height>30</height><pv_name>pva://UNH:GEN:SSRF:SEQ:POLARIZATION</pv_name></widget>
+  <widget type="label" version="2.0.0"><name>HighPolL</name><x>430</x><y>345</y><width>100</width><height>25</height><text>P high:</text></widget>
+  <widget type="textentry" version="2.0.0"><name>HighPol</name><x>535</x><y>340</y><width>100</width><height>30</height><pv_name>pva://UNH:GEN:SSRF:SEQ:HIGH_POLARIZATION</pv_name></widget>
+
+  <widget type="label" version="2.0.0"><name>StatusL</name><x>45</x><y>530</y><width>100</width><height>25</height><text>Status:</text></widget>
+  <widget type="textupdate" version="2.0.0"><name>Status</name><x>140</x><y>525</y><width>590</width><height>28</height><pv_name>pva://UNH:GEN:SSRF:SEQ:DEMO_STATE</pv_name></widget>
+  <widget type="textupdate" version="2.0.0"><name>Reason</name><x>45</x><y>560</y><width>685</width><height>58</height><pv_name>pva://UNH:GEN:SSRF:SEQ:DEMO_REASON</pv_name></widget>
+
+  <widget type="rectangle" version="2.0.0">
+    <name>StatusBox</name><x>790</x><y>145</y><width>385</width><height>570</height>
+    <line_color><color red="0" green="53" blue="145" /></line_color>
+    <line_width>2</line_width>
+    <background_color><color red="240" green="241" blue="244" /></background_color>
+  </widget>
+  <widget type="label" version="2.0.0"><name>StatusTitle</name><x>810</x><y>160</y><width>300</width><height>30</height><text>Live demo / physical readback</text><font><font family="Liberation Sans" style="BOLD" size="16.0" /></font></widget>
+
+  <widget type="label" version="2.0.0"><name>RL1</name><x>815</x><y>215</y><width>150</width><height>25</height><text>No-RF lock</text></widget>
+  <widget type="led" version="2.0.0"><name>NoRF</name><x>985</x><y>212</y><width>28</width><height>28</height><pv_name>pva://UNH:GEN:SSRF:SEQ:NO_RF_LOCK</pv_name><bit>0</bit><off_color><color red="200" green="50" blue="50" /></off_color><on_color><color red="30" green="160" blue="70" /></on_color></widget>
+
+  <widget type="label" version="2.0.0"><name>RL2</name><x>815</x><y>255</y><width>150</width><height>25</height><text>Fitter running</text></widget>
+  <widget type="led" version="2.0.0"><name>FitLed</name><x>985</x><y>252</y><width>28</width><height>28</height><pv_name>pva://UNH:GEN:SSRF:SEQ:FITTER_UP</pv_name><bit>0</bit><off_color><color red="200" green="50" blue="50" /></off_color><on_color><color red="30" green="160" blue="70" /></on_color></widget>
+
+  <widget type="label" version="2.0.0"><name>RL3</name><x>815</x><y>295</y><width>150</width><height>25</height><text>Fitter calibrated</text></widget>
+  <widget type="led" version="2.0.0"><name>CalLed</name><x>985</x><y>292</y><width>28</width><height>28</height><pv_name>pva://UNH:GEN:SSRF:FIT:CALIBRATED</pv_name><bit>0</bit><off_color><color red="210" green="130" blue="20" /></off_color><on_color><color red="30" green="160" blue="70" /></on_color></widget>
+
+  <widget type="label" version="2.0.0"><name>RL4</name><x>815</x><y>335</y><width>150</width><height>25</height><text>Fit mode</text></widget>
+  <widget type="textupdate" version="2.0.0"><name>Mode</name><x>985</x><y>332</y><width>155</width><height>28</height><pv_name>pva://UNH:GEN:SSRF:FIT:MODE_RBV</pv_name></widget>
+
+  <widget type="label" version="2.0.0"><name>RL5</name><x>815</x><y>375</y><width>150</width><height>25</height><text>Waveform stage</text></widget>
+  <widget type="textupdate" version="2.0.0"><name>Stage</name><x>985</x><y>372</y><width>155</width><height>28</height><pv_name>pva://UNH:GEN:SSRF:SEQ:WAVEFORM_STAGE_STATE</pv_name></widget>
+
+  <widget type="label" version="2.0.0"><name>RL6</name><x>815</x><y>415</y><width>150</width><height>25</height><text>Keysight ARB points</text></widget>
+  <widget type="textupdate" version="2.0.0"><name>WPts</name><x>985</x><y>412</y><width>155</width><height>28</height><pv_name>pva://UNH:GEN:SSRF:SEQ:WGEN_POINTS</pv_name></widget>
+
+  <widget type="label" version="2.0.0"><name>RL7</name><x>815</x><y>455</y><width>150</width><height>25</height><text>Keysight ready</text></widget>
+  <widget type="led" version="2.0.0"><name>WReady</name><x>985</x><y>452</y><width>28</width><height>28</height><pv_name>pva://UNH:GEN:SSRF:SEQ:WGEN_READY</pv_name><bit>0</bit><off_color><color red="210" green="130" blue="20" /></off_color><on_color><color red="30" green="160" blue="70" /></on_color></widget>
+
+  <widget type="label" version="2.0.0"><name>RL8</name><x>815</x><y>495</y><width>150</width><height>25</height><text>Keysight output</text></widget>
+  <widget type="textupdate" version="2.0.0"><name>WOut</name><x>985</x><y>492</y><width>155</width><height>28</height><pv_name>pva://UNH:GEN:SSRF:SEQ:WGEN_OUTPUT</pv_name></widget>
+
+  <widget type="label" version="2.0.0"><name>RL9</name><x>815</x><y>535</y><width>150</width><height>25</height><text>NMR switch mask</text></widget>
+  <widget type="textupdate" version="2.0.0"><name>NMRMask</name><x>985</x><y>532</y><width>155</width><height>28</height><pv_name>pva://UNH:GEN:SSRF:SEQ:NMR_MASK</pv_name></widget>
+
+  <widget type="label" version="2.0.0"><name>RL10</name><x>815</x><y>575</y><width>150</width><height>25</height><text>ssRF switch mask</text></widget>
+  <widget type="textupdate" version="2.0.0"><name>SSRFMask</name><x>985</x><y>572</y><width>155</width><height>28</height><pv_name>pva://UNH:GEN:SSRF:SEQ:SSRF_MASK</pv_name></widget>
+
+  <widget type="label" version="2.0.0"><name>RL11</name><x>815</x><y>615</y><width>150</width><height>25</height><text>SMC RF / FM</text></widget>
+  <widget type="textupdate" version="2.0.0"><name>SMCRF</name><x>985</x><y>612</y><width>65</width><height>28</height><pv_name>pva://UNH:GEN:SSRF:SEQ:SMC_RF</pv_name></widget>
+  <widget type="textupdate" version="2.0.0"><name>SMCFM</name><x>1060</x><y>612</y><width>65</width><height>28</height><pv_name>pva://UNH:GEN:SSRF:SEQ:SMC_FM</pv_name></widget>
+
+  <widget type="label" version="2.0.0">
+    <name>Footer</name><x>25</x><y>745</y><width>1150</width><height>55</height>
+    <text>Expected final state: NMR mask=0, ssRF mask=3, SMC RF=0, SMC FM=0, Keysight output=0. The 8192-point adaptive waveform stays loaded on the physical Keysight for inspection.</text>
+    <wrap_words>true</wrap_words>
+  </widget>
+</display>

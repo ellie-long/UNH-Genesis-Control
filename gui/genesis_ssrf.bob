@@ -2,7 +2,7 @@
 <display version="2.0.0">
   <name>Genesis ssRF Subsystem</name>
   <width>1180</width>
-  <height>1180</height>
+  <height>1690</height>
   <widget type="rectangle" version="2.0.0">
     <name>Header_Background</name>
     <x>0</x>
@@ -1744,4 +1744,115 @@
     <wrap_words>true</wrap_words>
     <transparent>true</transparent>
   </widget>
+
+  <widget type="rectangle" version="2.0.0">
+    <name>Workflow_BurnPanel</name>
+    <x>20</x><y>1200</y><width>1140</width><height>460</height>
+    <line_width>2</line_width>
+    <line_color><color red="0" green="53" blue="145" /></line_color>
+    <background_color><color red="240" green="241" blue="244" /></background_color>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>Workflow_Header</name>
+    <x>20</x><y>1200</y><width>1140</width><height>42</height>
+    <line_width>0</line_width>
+    <background_color><color red="0" green="53" blue="145" /></background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Workflow_Title</name>
+    <x>35</x><y>1208</y><width>660</width><height>28</height>
+    <text>SSRF FIT → WAVEFORM → BURN WORKFLOW</text>
+    <font><font family="Liberation Sans" style="BOLD" size="16.0" /></font>
+    <foreground_color><color red="255" green="255" blue="255" /></foreground_color>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Workflow_Mode</name>
+    <x>830</x><y>1208</y><width>300</width><height>28</height>
+    <pv_name>pva://UNH:GEN:SSRF:SEQ:EXECUTION_MODE</pv_name>
+  </widget>
+
+  <widget type="label" version="2.0.0"><name>WF_Fitter_L</name><x>40</x><y>1265</y><width>110</width><height>24</height><text>Fitter running</text></widget>
+  <widget type="led" version="2.0.0"><name>WF_Fitter</name><x>155</x><y>1262</y><width>28</width><height>28</height><pv_name>pva://UNH:GEN:SSRF:SEQ:FITTER_UP</pv_name><bit>0</bit><off_color><color red="200" green="50" blue="50" /></off_color><on_color><color red="30" green="160" blue="70" /></on_color></widget>
+  <widget type="label" version="2.0.0"><name>WF_Cal_L</name><x>215</x><y>1265</y><width>95</width><height>24</height><text>Calibrated</text></widget>
+  <widget type="led" version="2.0.0"><name>WF_Cal</name><x>315</x><y>1262</y><width>28</width><height>28</height><pv_name>pva://UNH:GEN:SSRF:SEQ:FITTER_CALIBRATED</pv_name><bit>0</bit><off_color><color red="210" green="130" blue="20" /></off_color><on_color><color red="30" green="160" blue="70" /></on_color></widget>
+  <widget type="label" version="2.0.0"><name>WF_Mode_L</name><x>375</x><y>1265</y><width>70</width><height>24</height><text>Fit mode</text></widget>
+  <widget type="textupdate" version="2.0.0"><name>WF_Mode</name><x>445</x><y>1262</y><width>120</width><height>28</height><pv_name>pva://UNH:GEN:SSRF:SEQ:FIT_MODE</pv_name></widget>
+  <widget type="action_button" version="3.0.0">
+    <name>WF_OpenFitter</name><x>600</x><y>1258</y><width>190</width><height>34</height>
+    <actions><action type="open_display"><file>genesis_ssrf_fitter.bob</file><target>window</target><description>Open detailed NMR fitter</description></action></actions>
+    <text>Open NMR Fitter</text>
+  </widget>
+
+  <widget type="label" version="2.0.0"><name>WF_WaveState_L</name><x>40</x><y>1310</y><width>120</width><height>24</height><text>Waveform stage</text></widget>
+  <widget type="textupdate" version="2.0.0"><name>WF_WaveState</name><x>165</x><y>1307</y><width>180</width><height>28</height><pv_name>pva://UNH:GEN:SSRF:SEQ:WAVEFORM_STAGE_STATE</pv_name></widget>
+  <widget type="label" version="2.0.0"><name>WF_Points_L</name><x>375</x><y>1310</y><width>90</width><height>24</height><text>ARB points</text></widget>
+  <widget type="textupdate" version="2.0.0"><name>WF_Points</name><x>470</x><y>1307</y><width>90</width><height>28</height><pv_name>pva://UNH:GEN:SSRF:SEQ:WGEN_POINTS</pv_name></widget>
+  <widget type="label" version="2.0.0"><name>WF_WReady_L</name><x>600</x><y>1310</y><width>100</width><height>24</height><text>WGen ready</text></widget>
+  <widget type="led" version="2.0.0"><name>WF_WReady</name><x>705</x><y>1307</y><width>28</width><height>28</height><pv_name>pva://UNH:GEN:SSRF:SEQ:WGEN_READY</pv_name><bit>0</bit><off_color><color red="210" green="130" blue="20" /></off_color><on_color><color red="30" green="160" blue="70" /></on_color></widget>
+  <widget type="label" version="2.0.0"><name>WF_WOut_L</name><x>780</x><y>1310</y><width>100</width><height>24</height><text>WGen output</text></widget>
+  <widget type="textupdate" version="2.0.0"><name>WF_WOut</name><x>885</x><y>1307</y><width>80</width><height>28</height><pv_name>pva://UNH:GEN:SSRF:SEQ:WGEN_OUTPUT</pv_name></widget>
+
+  <widget type="label" version="2.0.0"><name>WF_Safety_L</name><x>40</x><y>1355</y><width>100</width><height>24</height><text>No-RF lock</text></widget>
+  <widget type="led" version="2.0.0"><name>WF_Safety</name><x>155</x><y>1352</y><width>28</width><height>28</height><pv_name>pva://UNH:GEN:SSRF:SEQ:NO_RF_LOCK</pv_name><bit>0</bit><off_color><color red="200" green="50" blue="50" /></off_color><on_color><color red="30" green="160" blue="70" /></on_color></widget>
+  <widget type="label" version="2.0.0"><name>WF_NMR_L</name><x>215</x><y>1355</y><width>90</width><height>24</height><text>NMR mask</text></widget>
+  <widget type="textupdate" version="2.0.0"><name>WF_NMR</name><x>310</x><y>1352</y><width>65</width><height>28</height><pv_name>pva://UNH:GEN:SSRF:SEQ:NMR_MASK</pv_name></widget>
+  <widget type="label" version="2.0.0"><name>WF_SSRF_L</name><x>405</x><y>1355</y><width>90</width><height>24</height><text>ssRF mask</text></widget>
+  <widget type="textupdate" version="2.0.0"><name>WF_SSRF</name><x>500</x><y>1352</y><width>65</width><height>28</height><pv_name>pva://UNH:GEN:SSRF:SEQ:SSRF_MASK</pv_name></widget>
+  <widget type="label" version="2.0.0"><name>WF_RF_L</name><x>600</x><y>1355</y><width>85</width><height>24</height><text>SMC RF/FM</text></widget>
+  <widget type="textupdate" version="2.0.0"><name>WF_RF</name><x>690</x><y>1352</y><width>60</width><height>28</height><pv_name>pva://UNH:GEN:SSRF:SEQ:SMC_RF</pv_name></widget>
+  <widget type="textupdate" version="2.0.0"><name>WF_FM</name><x>755</x><y>1352</y><width>60</width><height>28</height><pv_name>pva://UNH:GEN:SSRF:SEQ:SMC_FM</pv_name></widget>
+  <widget type="label" version="2.0.0"><name>WF_Armed_L</name><x>850</x><y>1355</y><width>65</width><height>24</height><text>Armed</text></widget>
+  <widget type="led" version="2.0.0"><name>WF_Armed</name><x>920</x><y>1352</y><width>28</width><height>28</height><pv_name>pva://UNH:GEN:SSRF:SEQ:EXECUTION_ARMED</pv_name><bit>0</bit><off_color><color red="210" green="130" blue="20" /></off_color><on_color><color red="30" green="160" blue="70" /></on_color></widget>
+
+
+  <widget type="label" version="2.0.0">
+    <name>WF_SetupLabel</name>
+    <x>40</x><y>1409</y><width>120</width><height>28</height>
+    <text>SETUP:</text>
+    <font><font family="Liberation Sans" style="BOLD" size="13.0" /></font>
+  </widget>
+
+  <widget type="bool_button" version="2.0.0">
+    <name>WF_START_FITTER</name>
+    <x>145</x><y>1405</y><width>175</width><height>34</height>
+    <pv_name>pva://UNH:GEN:SSRF:SEQ:START_FITTER_CMD</pv_name>
+  </widget>
+
+  <widget type="bool_button" version="2.0.0">
+    <name>WF_REPLAY_EQ</name>
+    <x>335</x><y>1405</y><width>175</width><height>34</height>
+    <pv_name>pva://UNH:GEN:SSRF:SEQ:REPLAY_EQ_CMD</pv_name>
+  </widget>
+
+  <widget type="bool_button" version="2.0.0">
+    <name>WF_CALIBRATE</name>
+    <x>525</x><y>1405</y><width>175</width><height>34</height>
+    <pv_name>pva://UNH:GEN:SSRF:SEQ:UPDATE_CONSTANTS_CMD</pv_name>
+  </widget>
+
+  <widget type="bool_button" version="2.0.0">
+    <name>WF_SSRF_MODE_CMD</name>
+    <x>715</x><y>1405</y><width>175</width><height>34</height>
+    <pv_name>pva://UNH:GEN:SSRF:SEQ:SET_SSRF_MODE_CMD</pv_name>
+  </widget>
+
+  <widget type="label" version="2.0.0">
+    <name>WF_BlastNote</name>
+    <x>905</x><y>1405</y><width>220</width><height>36</height>
+    <text>Then ARM → BLAST / BURN</text>
+    <wrap_words>true</wrap_words>
+  </widget>
+
+
+  <widget type="bool_button" version="2.0.0"><name>WF_ARM</name><x>60</x><y>1455</y><width>170</width><height>45</height><pv_name>pva://UNH:GEN:SSRF:SEQ:ARM_CMD</pv_name></widget>
+  <widget type="bool_button" version="2.0.0"><name>WF_DISARM</name><x>250</x><y>1455</y><width>150</width><height>45</height><pv_name>pva://UNH:GEN:SSRF:SEQ:DISARM_CMD</pv_name></widget>
+  <widget type="bool_button" version="2.0.0"><name>WF_BLAST</name><x>430</x><y>1440</y><width>280</width><height>75</height><pv_name>pva://UNH:GEN:SSRF:SEQ:START_CMD</pv_name></widget>
+  <widget type="bool_button" version="2.0.0"><name>WF_ABORT</name><x>740</x><y>1455</y><width>170</width><height>45</height><pv_name>pva://UNH:GEN:SSRF:SEQ:ABORT_CMD</pv_name></widget>
+
+  <widget type="label" version="2.0.0"><name>WF_State_L</name><x>40</x><y>1540</y><width>110</width><height>24</height><text>Current step</text></widget>
+  <widget type="textupdate" version="2.0.0"><name>WF_State</name><x>155</x><y>1537</y><width>320</width><height>30</height><pv_name>pva://UNH:GEN:SSRF:SEQ:DEMO_STATE</pv_name></widget>
+  <widget type="label" version="2.0.0"><name>WF_Reason_L</name><x>40</x><y>1585</y><width>110</width><height>24</height><text>What is happening</text></widget>
+  <widget type="textupdate" version="2.0.0"><name>WF_Reason</name><x>155</x><y>1578</y><width>940</width><height>55</height><pv_name>pva://UNH:GEN:SSRF:SEQ:DEMO_REASON</pv_name></widget>
+
 </display>

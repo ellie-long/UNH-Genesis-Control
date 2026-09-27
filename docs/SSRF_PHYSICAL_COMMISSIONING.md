@@ -707,3 +707,34 @@ No actual ssRF burn was performed during this session.
 <!-- END 2026-09-27 SOURCE CHARACTERIZATION -->
 
 <!-- END VERIFIED SSRF PHYSICAL WIRING 2026-09-27 -->
+
+
+<!-- BEGIN 2026-09-27 FULL NO-RF E2E -->
+
+### 2026-09-27 full physical no-RF workflow — PASS
+
+Verified end-to-end:
+
+```text
+offline NMR
+-> equilibrium fitter
+-> Update Constants
+-> ssRF fit
+-> adaptive WaveformPlan
+-> 8192-point physical Keysight ARB load
+-> one-shot ARM
+-> NMR 0 -> 3
+-> ssRF 3 -> 0
+-> no-RF dwell
+-> ssRF 0 -> 3
+-> NMR 3 -> 0
+-> COMPLETE / NMR_LIVE
+```
+
+Final state was Keysight output OFF, SMC RF/FM OFF, NMR mask 0,
+ssRF mask 3, and the 8192-point adaptive waveform retained in ARB memory.
+
+Both physical switch boxes visibly actuated and returned. No amplified-RF
+or target burn was performed.
+
+<!-- END 2026-09-27 FULL NO-RF E2E -->
