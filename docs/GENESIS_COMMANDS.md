@@ -1,503 +1,290 @@
 # Genesis Phase-I Operations Cheat Sheet
 
-This kit gives you **one command** for routine Genesis work instead of remembering long shell blocks.
-
-## 1. Install once
-
-From your Genesis repository:
+Repository:
 
 ```bash
 cd /Users/shrestha/project/unh/genesis/Development/genesis-phase1
-
-cp /path/to/genesisctl.sh scripts/genesisctl.sh
-chmod +x scripts/genesisctl.sh
-```
-
-Then add a permanent shortcut to `~/.zshrc`:
-
-```bash
-echo "alias genesis='/Users/shrestha/project/unh/genesis/Development/genesis-phase1/scripts/genesisctl.sh'" >> ~/.zshrc
-source ~/.zshrc
-```
-
-From then on, activate the environment:
-
-```bash
 conda activate genesis-p1
 ```
 
-and simply use:
+Use:
 
 ```bash
 genesis help
 ```
 
----
-
-## 2. Commands you will use most
-
-### Start the normal Genesis system
+# Normal operation
 
 ```bash
 genesis start
-```
-
-This calls the repository's established:
-
-```bash
-./scripts/start_genesis_mac.sh
-```
-
-Normal startup is intended to remain **read-only**. Device IOCs connect/read state, but write gates stay disabled.
-
-### See what is running
-
-```bash
 genesis status
-```
-
-This shows:
-
-- branch and current commit;
-- screen sessions;
-- Genesis-related processes;
-- SMC100A status;
-- Keysight WaveGen status;
-- NMR and ssRF switch states;
-- interlock state and permits;
-- sequencer readiness/execution state;
-- archiver state.
-
-For just screen sessions:
-
-```bash
-genesis screens
-```
-
-For just processes:
-
-```bash
-genesis processes
-```
-
-### Stop Genesis safely
-
-```bash
+genesis physical-status
+genesis endpoints
 genesis stop
 ```
 
-This calls:
-
-```bash
-./scripts/stop_genesis_mac.sh
-```
-
-The repository shutdown script performs its own safety checks.
-
-### Forced stop
-
-Only when you deliberately need to bypass hardware-state verification:
-
-```bash
-genesis force-stop I_UNDERSTAND
-```
-
-This sets `GENESIS_FORCE_STOP=1`.
-
-**Do not use this as the normal stop command.**
-
----
-
-## 3. Git / repository state
-
-```bash
-genesis git
-```
-
-Shows:
-
-- branch;
-- HEAD;
-- worktree changes;
-- `devices` submodule state;
-- stash list.
-
-The helper **never modifies the stash**.
-
-To verify that your current branch includes the frozen 5B.6F ssRF milestone:
-
-```bash
-genesis baseline
-```
-
-Frozen baseline:
+Normal Genesis remains read-only by default:
 
 ```text
-3ef33de  Added ssRF fault-response hardening and simulator validation
+device write_enabled = false
+sequencer execution_enabled = false
+initialize_on_connect = false
 ```
 
----
+`genesis physical-status` is read-only and must not enable physical writes.
 
-## 4. See what devices the normal configuration points to
+# Simulator workflow
 
-```bash
-genesis endpoints
-```
-
-This prints the configured SMC100A, Keysight WaveGen and switch endpoints plus:
-
-- `write_enabled`;
-- `initialize_on_connect`;
-- sequencer execution configuration where present.
-
-This command is particularly useful before physical 5C commissioning.
-
----
-
-# ssRF simulator workflow
-
-## 5. Check simulator backends
-
-Before activating the simulator IOC stack:
-
-```bash
-genesis sim-check
-```
-
-Required localhost services:
+Required localhost backends:
 
 | Device | Endpoint |
 |---|---|
 | SMC100A simulator | `127.0.0.1:5025` |
-| Keysight WaveGen simulator | `127.0.0.1:5027` |
+| WaveGen simulator | `127.0.0.1:5027` |
 | NMR switch simulator | `127.0.0.1:8081` |
 | ssRF switch simulator | `127.0.0.1:8082` |
 
-`sim-check` does **not** write anything.
-
-If one is missing, the helper refuses `sim-start` rather than inventing a backend launcher.
-
-## 6. Activate the ssRF simulator commissioning stack
+Check:
 
 ```bash
-genesis sim-start
-```
-
-This calls the established simulator handoff:
-
-```bash
-./scripts/start_ssrf_sim_active.sh --activate
-```
-
-The simulator-active profile is intentionally different from normal Genesis:
-
-- localhost only;
-- device writes enabled for simulators;
-- sequencer execution enabled;
-- `initialize_on_connect=false`;
-- a burn still requires explicit one-shot `ARM + START`.
-
-**Never use `sim-start` as a physical-hardware commissioning command.**
-
-## 7. Check simulator IOC state
-
-```bash
-genesis sim-status
-```
-
-This only reads EPICS PVs.
-
-## 8. Leave simulator mode
-
-```bash
-genesis sim-stop
-```
-
-The helper will only execute this automatically if `start_ssrf_sim_active.sh` contains a canonical `--restore` or `--deactivate` mode.
-
-If the repository does not expose such a mode, it **refuses to guess**. That is deliberate: blindly killing similarly named IOC sessions could leave the system in an ambiguous state.
-
-A canonical simulator restore command should be added to the repository as part of the operations cleanup / 5C preparation.
-
----
-
-# Testing
-
-## 9. Run the ssRF regression tests
-
-```bash
-genesis test-ssrf
-```
-
-Equivalent conceptually to:
-
-```bash
-PYTHONPATH="$PWD" python -m unittest discover -s tests -p 'test_ssrf*.py'
-git diff --check
-```
-
-This is software testing. It is not a physical RF test.
-
-## 10. Run authorization/access-safety tests
-
-```bash
-genesis test-auth
-```
-
-It runs the available Genesis/ssRF authorization and access-security test files.
-
-## 11. Run all unit tests
-
-```bash
-genesis test-all
-```
-
-## 12. Compile-check source
-
-```bash
-genesis compile
-```
-
-## 13. General code sanity check
-
-```bash
-genesis check
-```
-
-Runs:
-
-- `git diff --check`;
-- Python compile check;
-- repository/submodule/stash state display.
-
----
-
-# Logs
-
-Show newest logs:
-
-```bash
-genesis logs
-```
-
-Tail matching logs:
-
-```bash
-genesis logs ssrf
-genesis logs interlock
-genesis logs keysight
-genesis logs smc
-```
-
----
-
-# Recommended everyday workflow
-
-## Normal development / monitoring
-
-```bash
-conda activate genesis-p1
-
-genesis git
-genesis start
-genesis status
-
-# Work / inspect GUI / read PVs
-
-genesis status
-genesis stop
-genesis git
-```
-
-## Simulator work
-
-```bash
-conda activate genesis-p1
-
-genesis git
 genesis sim-check
-genesis sim-start
-genesis sim-status
-
-# Run simulator-only activity deliberately.
-
-genesis sim-stop
-genesis status
-genesis git
 ```
 
-## Before committing code
+Start:
+
+```bash
+genesis sim-start
+```
+
+Status:
+
+```bash
+genesis sim-status
+```
+
+Stop:
+
+```bash
+genesis sim-stop
+```
+
+`sim-stop` must recognize simulator mode by the dedicated `ssrf-sim-manager` Screen session, discover the exact Screen identifiers returned by `screen -ls`, stop only:
+
+```text
+ssrf_sequencer
+ssrf_interlock
+ssrf_rf_switch
+ssrf_nmr_switch
+ssrf_keysight_wavegen
+ssrf_smc100a
+ssrf-sim-manager
+```
+
+and verify that no simulator IOC sessions remain.
+
+It must not blindly kill normal Genesis sessions, restore normal Genesis automatically, or kill separately started localhost backend simulators.
+
+# Fitter / adaptive waveform
+
+Fitter endpoints:
+
+```text
+input      127.0.0.1:8777
+publisher  127.0.0.1:8778
+```
+
+Fitter EPICS prefix:
+
+```text
+UNH:GEN:SSRF:FIT
+```
+
+Operator screen:
+
+```text
+gui/genesis_ssrf_fitter.bob
+```
+
+The fitter GUI provides mode/material controls, Larmor entry, `Update Constants`, calibration state, fit quantities/constants, and the NMR/fit plot. It has no direct hardware authority.
+
+A successful calibration should report:
+
+```text
+CALIBRATED = 1
+CONSTANTS_SOURCE = fit
+constants_good = true
+```
+
+Replay/demo calibration is not a replacement for the current physical equilibrium/reference calibration.
+
+Fitter polarization outputs are percent-valued. Planner `polarization` and `high_polarization` inputs are explicit fractions.
+
+# Authorized waveform staging
+
+Validated path:
+
+```text
+FitEngine / publisher
+        |
+        v
+FitSnapshot
+        |
+        v
+WaveformPlan
+        |
+        v
+WaveformStager
+        |
+        v
+UNH:GEN:SSRF:SEQ:WAVEFORM_STAGE_REQ
+        |
+        v
+ssRF sequencer
+        |
+        v
+UNH:GEN:SSRF:WGEN:WAVEFORM_CMD
+        |
+        v
+WaveGen IOC memory
+```
+
+Adaptive waveform contract:
+
+```text
+8192 points
+finite samples
+all samples in [-1, +1]
+```
+
+Explicit IOC-memory acknowledgment:
+
+```text
+UNH:GEN:SSRF:WGEN:WAVEFORM_STAGE_ID
+```
+
+The sequencer declares staging complete only after:
+
+```text
+WAVEFORM_STAGE_ID increases
+WAVEFORM_POINTS = 8192
+```
+
+This prevents stale waveform data from being mistaken for a fresh stage.
+
+# Stage versus load
+
+Staging only:
+
+```text
+WAVEFORM_STAGE_ID increments
+WAVEFORM_POINTS = 8192
+WAVEFORM_ID unchanged
+ARB_POINTS_RBV unchanged
+WAVEFORM_READY = 0
+```
+
+`LOAD_CMD` remains a separate controlled instrument-commit operation.
+
+The analysis layer has no direct authority for:
+
+```text
+LOAD_CMD
+OUTPUT_CMD
+PERIOD_CMD
+VHIGH_CMD
+VLOW_CMD
+SMC RF/FM commands
+switch commands
+ARM
+START
+```
+
+# Validated pre-lab state
+
+Validated off-lab:
+
+- fitter EPICS interface;
+- Phoebus fitter interface;
+- `Update Constants` through EPICS/Phoebus;
+- calibrated `ssRF` / `hole-burnt` publication;
+- `constants_good=true`;
+- Enhancement/Suppression/Zero 8192-point plans;
+- explicit polarization inputs;
+- analysis-to-sequencer staging boundary;
+- sequencer-only WaveGen forwarding;
+- explicit WaveGen IOC-memory stage acknowledgment;
+- two consecutive fresh simulator stage acknowledgments;
+- `LOAD_CMD` never issued during staging;
+- `WAVEFORM_ID` unchanged;
+- `ARB_POINTS_RBV` unchanged;
+- `WAVEFORM_READY=0`;
+- WaveGen output OFF;
+- SMC RF/FM OFF;
+- sequencer DISARMED;
+- RF routing SAFE_IDLE;
+- no physical hardware contacted during simulator validation.
+
+# Physical commissioning order
+
+```text
+1. Restore/read physical Keysight IOC safely.
+2. Verify physical IDs and readbacks.
+3. Verify switch states and SMC RF/FM OFF.
+4. Establish current equilibrium/reference calibration.
+5. Generate calibrated WaveformPlan.
+6. Stage through SEQ:WAVEFORM_STAGE_REQ.
+7. Confirm physical IOC-memory stage acknowledgment.
+8. Keep LOAD_CMD separate.
+9. Verify WaveGen-to-SMC external-FM scaling.
+10. Perform controlled LOAD validation.
+11. Validate logging, fault handling, interlocks, and cleanup.
+12. Only then proceed toward controlled ARM/START execution.
+```
+
+Until external-FM scaling is physically verified:
+
+```text
+scaling_verified_for_hardware = False
+```
+
+No real ssRF burn should be performed.
+
+# Tests
 
 ```bash
 genesis test-ssrf
 genesis test-auth
+genesis test-fitter
+genesis test-all
+genesis compile
 genesis check
 ```
 
----
-
-# What this helper intentionally does NOT do yet
-
-The next project milestone is physical ssRF commissioning (5C). Therefore this helper currently does **not** provide commands that automatically:
-
-- enable physical SMC100A writes;
-- enable physical Keysight output;
-- switch the real NMR/ssRF RF paths;
-- ARM/START a physical burn;
-- change real hardware IP addresses;
-- treat the Raspberry Pi transport as commissioned.
-
-Those operations should only be added after 5C.1/5C.2 establishes and documents the actual Mac → SMC100A / Keysight / switch connectivity.
-
-This prevents a convenience script from accidentally turning simulator assumptions into physical-hardware actions.
-
----
-
-# Current milestone baseline
-
-As of the end of software/simulator ssRF integration:
-
-```text
-5B.6F
-commit 3ef33de
-Added ssRF fault-response hardening and simulator validation
-```
-
-5B is the software/simulator-complete baseline.
-
-The next major block is:
-
-```text
-5C — physical ssRF commissioning
-```
-
-After 5C is validated, update `genesisctl.sh` with a separate, explicit physical commissioning command group rather than changing the meaning of the safe normal commands.
-
-## Fitter and adaptive ssRF waveform integration
-
-Run the complete validated 5C.3A fitter integration test set with:
-
-    genesis test-fitter
-
-or directly:
-
-    ./scripts/genesisctl.sh test-fitter
-
-This runs:
-
-- fitter one-shot runtime safety tests
-- fitter-publisher bridge tests
-- adaptive waveform source-equivalence tests
-- safe waveform staging tests
-
-The helper performs tests only. It does not start an IOC, write an EPICS PV,
-load a waveform, enable RF, change a switch, ARM, or START a burn.
-
-For development, the one-shot fitter runtime can be invoked directly:
-
-    python -m ssrf_analysis.fitter_stage_runtime \
-        --case Enhancement
-
-Without `--stage`, this is a dry-run. It waits for one calibrated fit result
-from the loopback publisher at `127.0.0.1:8778`, builds and validates the
-adaptive waveform, prints the result summary, and exits without an EPICS
-write.
-
-The runtime `--stage` option is intentionally not exposed as a normal
-`genesis` helper command at the 5C.3A freeze. It has been validated only
-against an isolated localhost simulator/IOC commissioning setup.
-
-Live NMR input is deferred to 5C.3B.
-
-## Genesis archive and ssRF session viewer
-
-Launch the combined read-only archive viewer with:
-
-    genesis archive-viewer
-
-or:
-
-    ./scripts/genesisctl.sh archive-viewer
-
-Default local URL:
-
-    http://127.0.0.1:8501
-
-A different local port may be selected with:
-
-    GENESIS_ARCHIVE_VIEWER_PORT=8517 genesis archive-viewer
-
-The Streamlit application contains the existing EPICS PV archive view and
-the Genesis ssRF Sessions page.
-
-The ssRF session page provides:
-
-- NMR processed data and fitted spectrum
-- adaptive pre-resampling control trajectory
-- peak and shoulder weighting
-- final 8192-point Keysight ARB representation
-- structured event timeline
-- derived correlated session record
-
-The visualization layer is read-only. It does not access EPICS or perform
-hardware control.
-
-Required visualization packages are recorded in requirements.txt:
-
-    pandas
-    plotly
-    streamlit
-
-Runtime products remain outside Git under:
-
-    archive/data/
-    archive/events/
-    archive/sessions/
-
-## Physical ssRF read-only status (5C.1)
-
-Physical ssRF commissioning is documented in:
-
-```text
-docs/SSRF_PHYSICAL_COMMISSIONING.md
-```
-
-On the laboratory network, run:
+Before freezing:
 
 ```bash
-./scripts/genesisctl.sh physical-status
+git diff --check
+python -m unittest discover -s tests -p 'test_*.py' -q
+git status --short
+git -C devices status --short
+git stash list
 ```
 
-or:
-
-```bash
-genesis physical-status
-```
-
-This command is read-only. It checks the physical commissioning profile, the SMC100A and switch readbacks, Mac/Pi clock agreement, Raspberry Pi runtime state, fitter port 8778, and the physical Keysight when it is not already owned by an IOC.
-
-It does **not** enable physical writes.
-
-The Keysight-side Genesis workspace is:
+Protected stash:
 
 ```text
-/home/unhpoltarg/genesis_keysight
+stash@{0}: On feature/microwave-genesis-integration: WIP stop_genesis_mac.sh before ssRF integration
 ```
 
-If the Raspberry Pi clock is not synchronized through normal NTP, the commissioning fallback installed on the Pi is:
-
-```bash
-~/genesis_keysight/scripts/sync_clock_https.sh
-```
-
-After synchronization, independently require the Mac/Pi clock difference to be no more than 10 seconds.
-
-Commissioning filenames and IOC logs use:
+# Current checkpoint
 
 ```text
-YYYY-MM-DD_HH-MM-SS_UTC
+5C.3B-E1      fitter EPICS interface
+5C.3B-E2      fitter Phoebus/operator interface
+5C.3B-CAL-2   calibration through EPICS/Phoebus
+5C.3B-2       calibrated fit -> 8192-point WaveformPlan
+5C.3B-3A      authorized analysis -> sequencer staging boundary
+5C.3B-3B-SIM  end-to-end simulator IOC-memory staging + fresh ACK
 ```
 
-Existing event/session data retain their UTC ISO-8601 timestamps.
-
-Physical write commissioning remains a separate controlled procedure.
+Next laboratory work is physical calibration, physical IOC-memory staging, controlled LOAD, external-FM scaling verification, and physical interlock/logging validation.

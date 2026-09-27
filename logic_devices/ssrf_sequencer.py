@@ -25,6 +25,13 @@ from logic_devices.ssrf_sequence_core import (
 from genesis_common.execution_authorization import (
     validate_execution_authorization,
 )
+from genesis_common.ssrf_waveform_contract import (
+    WAVEFORM_POINTS,
+    WAVEGEN_WAVEFORM_CMD_PV,
+    WAVEGEN_WAVEFORM_POINTS_PV,
+    WAVEGEN_WAVEFORM_STAGE_ID_PV,
+    validate_normalized_waveform,
+)
 
 from logic_devices.ssrf_epics_io import EpicsIO
 from logic_devices.ssrf_sequence_executor import (
@@ -88,6 +95,15 @@ class Device:
         self._start_requested = False
         self._abort_requested = False
         self._execution_task = None
+
+        # Analysis -> sequencer -> protected WaveGen staging boundary.
+        #
+        # A request callback validates/copies data only.  EPICS forwarding
+        # occurs later on the IOC asyncio dispatcher through EpicsIO.
+        self._waveform_stage_values = None
+        self._waveform_stage_requested = False
+        self._waveform_stage_task = None
+        self._waveform_stage_id = 0
 
         # Runtime execution authorization is one-shot.
         #
@@ -254,6 +270,48 @@ class Device:
         # has no operator execution controls at all.
         # ------------------------------------------------------------
 
+        # ------------------------------------------------------------
+        # Authorized waveform-staging request interface.
+        #
+        # WAVEFORM_STAGE_REQ is NOT a hardware/device command PV.
+        # It only submits normalized samples to this sequencer.
+        #
+        # The sequencer performs a second independent validation before
+        # forwarding to the protected WaveGen WAVEFORM_CMD via EpicsIO.
+        # ------------------------------------------------------------
+
+        self.pvs["WAVEFORM_STAGE_ENABLED"] = builder.boolIn(
+            "WAVEFORM_STAGE_ENABLED",
+            ZNAM="Disabled",
+            ONAM="Enabled",
+        )
+
+        self.pvs["WAVEFORM_STAGE_REQ"] = builder.WaveformOut(
+            "WAVEFORM_STAGE_REQ",
+            length=WAVEFORM_POINTS,
+            datatype="float32",
+            on_update_name=self._waveform_stage_command,
+        )
+
+        self.pvs["WAVEFORM_STAGE_POINTS"] = builder.longIn(
+            "WAVEFORM_STAGE_POINTS",
+            LOPR=0,
+            HOPR=WAVEFORM_POINTS,
+        )
+
+        self.pvs["WAVEFORM_STAGE_ID"] = builder.longIn(
+            "WAVEFORM_STAGE_ID",
+            LOPR=0,
+        )
+
+        self.pvs["WAVEFORM_STAGE_STATE"] = builder.stringIn(
+            "WAVEFORM_STAGE_STATE"
+        )
+
+        self.pvs["WAVEFORM_STAGE_REASON"] = builder.stringIn(
+            "WAVEFORM_STAGE_REASON"
+        )
+
         self.pvs["EXECUTION_ENABLED"] = builder.boolIn(
             "EXECUTION_ENABLED",
             ZNAM="Disabled",
@@ -330,6 +388,22 @@ class Device:
 
         self.pvs["EXECUTION_ENABLED"].set(
             int(execution_enabled)
+        )
+
+        self.pvs["WAVEFORM_STAGE_ENABLED"].set(
+            int(execution_enabled)
+        )
+
+        self.pvs["WAVEFORM_STAGE_POINTS"].set(0)
+        self.pvs["WAVEFORM_STAGE_ID"].set(0)
+
+        self._set_waveform_stage_status(
+            "IDLE"
+            if execution_enabled
+            else "DISABLED",
+            "Sequencer staging enabled"
+            if execution_enabled
+            else "Sequencer execution disabled",
         )
 
         self.pvs["EXECUTION_ARMED"].set(0)
@@ -488,6 +562,21 @@ class Device:
             return
 
         if pv_name == "START_CMD":
+            staging_active = (
+                self._waveform_stage_requested
+                or (
+                    self._waveform_stage_task is not None
+                    and not self._waveform_stage_task.done()
+                )
+            )
+
+            if staging_active:
+                self._set_execution_status(
+                    EXEC_STATE_IDLE,
+                    "Start blocked: waveform staging active",
+                )
+                return
+
             if running or self._start_requested:
                 self._set_execution_status(
                     EXEC_STATE_RUNNING,
@@ -549,6 +638,215 @@ class Device:
                 EXEC_STATE_IDLE,
                 "No sequence running",
             )
+
+    def _set_waveform_stage_status(
+        self,
+        state,
+        reason,
+    ):
+        """Publish bounded staging status strings."""
+
+        self.pvs["WAVEFORM_STAGE_STATE"].set(
+            str(state)[:39]
+        )
+
+        self.pvs["WAVEFORM_STAGE_REASON"].set(
+            str(reason)[:39]
+        )
+
+    def _waveform_stage_command(
+        self,
+        new_value,
+        pv,
+    ):
+        """
+        Validate/latch one staging request.
+
+        This callback performs no EPICS I/O.
+        """
+
+        if not self._execution_io.execution_enabled:
+            self.pvs["WAVEFORM_STAGE_POINTS"].set(0)
+            self._set_waveform_stage_status(
+                "DISABLED",
+                "Sequencer execution disabled",
+            )
+            return
+
+        burn_running = (
+            self._execution_task is not None
+            and not self._execution_task.done()
+        )
+
+        stage_running = (
+            self._waveform_stage_task is not None
+            and not self._waveform_stage_task.done()
+        )
+
+        if (
+            burn_running
+            or self._start_requested
+        ):
+            self._set_waveform_stage_status(
+                "REJECTED",
+                "Burn execution active",
+            )
+            return
+
+        if (
+            stage_running
+            or self._waveform_stage_requested
+        ):
+            self._set_waveform_stage_status(
+                "REJECTED",
+                "Waveform staging already active",
+            )
+            return
+
+        try:
+            values = validate_normalized_waveform(
+                new_value
+            )
+        except Exception as exc:
+            self.pvs["WAVEFORM_STAGE_POINTS"].set(0)
+            self._set_waveform_stage_status(
+                "REJECTED",
+                str(exc),
+            )
+            return
+
+        self._waveform_stage_values = (
+            values.copy()
+        )
+
+        self._waveform_stage_requested = True
+
+        self.pvs["WAVEFORM_STAGE_POINTS"].set(
+            int(values.size)
+        )
+
+        self._set_waveform_stage_status(
+            "REQUESTED",
+            "Validated request queued",
+        )
+
+    def _service_waveform_stage_request(self):
+        """Start one staging task on the IOC asyncio loop."""
+
+        if not self._waveform_stage_requested:
+            return
+
+        if (
+            self._waveform_stage_task is not None
+            and not self._waveform_stage_task.done()
+        ):
+            return
+
+        self._waveform_stage_task = (
+            asyncio.create_task(
+                self._run_waveform_stage_request()
+            )
+        )
+
+    async def _run_waveform_stage_request(self):
+        """
+        Forward one validated request through controlled EpicsIO.
+
+        Staging is complete only after the WaveGen IOC explicitly
+        acknowledges a NEW IOC-memory staging event.
+
+        This path writes WAVEFORM_CMD only.
+        It never issues LOAD_CMD or OUTPUT_CMD.
+        """
+
+        self._waveform_stage_requested = False
+
+        values = self._waveform_stage_values
+
+        try:
+            if values is None:
+                raise RuntimeError(
+                    "No validated waveform request"
+                )
+
+            baseline_stage_id = int(
+                await self._execution_io.read(
+                    WAVEGEN_WAVEFORM_STAGE_ID_PV
+                )
+            )
+
+            self._set_waveform_stage_status(
+                "STAGING",
+                "Waiting for WaveGen IOC acknowledgment",
+            )
+
+            await self._execution_io.write(
+                WAVEGEN_WAVEFORM_CMD_PV,
+                values.copy(),
+            )
+
+            acknowledged = False
+            last_stage_id = baseline_stage_id
+            last_points = 0
+
+            for _attempt in range(80):
+
+                last_stage_id = int(
+                    await self._execution_io.read(
+                        WAVEGEN_WAVEFORM_STAGE_ID_PV
+                    )
+                )
+
+                last_points = int(
+                    await self._execution_io.read(
+                        WAVEGEN_WAVEFORM_POINTS_PV
+                    )
+                )
+
+                if (
+                    last_stage_id > baseline_stage_id
+                    and
+                    last_points == WAVEFORM_POINTS
+                ):
+                    acknowledged = True
+                    break
+
+                await self._execution_io.sleep(
+                    0.05
+                )
+
+            if not acknowledged:
+                raise RuntimeError(
+                    "WaveGen staging acknowledgment timeout: "
+                    f"stage_id {baseline_stage_id}"
+                    f"->{last_stage_id}, "
+                    f"points={last_points}"
+                )
+
+            self._waveform_stage_id += 1
+
+            self.pvs["WAVEFORM_STAGE_ID"].set(
+                self._waveform_stage_id
+            )
+
+            self.pvs["WAVEFORM_STAGE_POINTS"].set(
+                last_points
+            )
+
+            self._set_waveform_stage_status(
+                "STAGED",
+                f"{last_points} points staged in IOC memory",
+            )
+
+        except Exception as exc:
+            self._set_waveform_stage_status(
+                "FAILED",
+                str(exc),
+            )
+
+        finally:
+            self._waveform_stage_values = None
+            self._waveform_stage_task = None
 
     def _service_execution_request(self):
         """Start one background execution task from the IOC async loop."""
@@ -819,8 +1117,9 @@ class Device:
     # ------------------------------------------------------------
 
     async def do_reads(self):
-        # START callbacks only latch a request.  Actual async execution
-        # begins here on the IOC dispatcher event loop.
+        # Command callbacks only latch validated requests. Actual EPICS
+        # forwarding/execution begins here on the IOC dispatcher loop.
+        self._service_waveform_stage_request()
         self._service_execution_request()
 
         # Parameter validation is entirely local.

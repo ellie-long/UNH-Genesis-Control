@@ -127,9 +127,9 @@ SSRF SIMULATOR
                        REFUSES unless all four simulator backends are listening.
                        This profile intentionally permits simulated writes.
   sim-status           Read-only EPICS status of the active ssRF stack.
-  sim-stop             Restore/deactivate simulator mode ONLY if the
-                       repository script exposes a canonical --restore or
-                       --deactivate mode. Otherwise refuses to guess.
+  sim-stop             Stop only the active localhost simulator IOC stack.
+                       Requires the dedicated ssrf-sim-manager session.
+                       Leaves simulator backend processes untouched.
 
 TESTS
   test-ssrf            Run all test_ssrf*.py unit/regression tests.
@@ -588,36 +588,116 @@ sim_start() {
 
 sim_stop() {
     require_env
-    require_file "${SIM_SCRIPT}"
 
-    if grep -q -- '--restore' "${SIM_SCRIPT}"; then
-        echo "===== RESTORE NORMAL GENESIS ====="
-        echo "+ ./scripts/start_ssrf_sim_active.sh --restore"
-        exec "${SIM_SCRIPT}" --restore
+    banner
+
+    echo "===== SSRF SIMULATOR STOP ====="
+
+    local screen_text
+
+    screen_text="$(
+        screen -ls 2>&1 || true
+    )"
+
+    # The dedicated simulator manager is the identity marker that
+    # distinguishes the simulator IOC stack from normal Genesis.
+    if ! grep -E \
+        '\.ssrf-sim-manager[[:space:]]' \
+        <<< "${screen_text}" \
+        >/dev/null
+    then
+        if grep -E \
+            '\.(ssrf_smc100a|ssrf_keysight_wavegen|ssrf_nmr_switch|ssrf_rf_switch|ssrf_interlock|ssrf_sequencer)[[:space:]]' \
+            <<< "${screen_text}" \
+            >/dev/null
+        then
+            warn \
+                "ssRF IOC sessions exist without ssrf-sim-manager; refusing to guess."
+            return 1
+        fi
+
+        pass \
+            "no simulator IOC stack is active"
+
+        note \
+            "simulator backend processes are not managed by genesisctl"
+
+        return 0
     fi
 
-    if grep -q -- '--deactivate' "${SIM_SCRIPT}"; then
-        echo "===== DEACTIVATE SSRF SIMULATOR STACK ====="
-        echo "+ ./scripts/start_ssrf_sim_active.sh --deactivate"
-        exec "${SIM_SCRIPT}" --deactivate
+    local names=(
+        ssrf_sequencer
+        ssrf_interlock
+        ssrf_rf_switch
+        ssrf_nmr_switch
+        ssrf_keysight_wavegen
+        ssrf_smc100a
+        ssrf-sim-manager
+    )
+
+    local name
+    local ref
+
+    for name in "${names[@]}"
+    do
+        while IFS= read -r ref
+        do
+            [ -n "${ref}" ] || continue
+
+            echo "[STOP] ${ref}"
+
+            screen \
+                -S "${ref}" \
+                -X quit \
+                >/dev/null 2>&1 \
+                || true
+
+        done < <(
+            (
+                screen -ls \
+                    2>/dev/null \
+                    || true
+            ) \
+            | awk \
+                -v n="${name}" \
+                '$1 ~ ("\." n "$") {print $1}'
+        )
+    done
+
+    sleep 2
+
+    local remaining
+
+    remaining="$(
+        (
+            screen -ls \
+                2>/dev/null \
+                || true
+        ) \
+        | awk '
+            $1 ~ /^[0-9]+\.(ssrf_smc100a|ssrf_keysight_wavegen|ssrf_nmr_switch|ssrf_rf_switch|ssrf_interlock|ssrf_sequencer|ssrf-sim-manager)$/ {
+                print $1
+            }
+        '
+    )"
+
+    if [ -n "${remaining}" ]; then
+        warn \
+            "simulator IOC sessions remain"
+
+        echo "${remaining}"
+
+        return 1
     fi
 
-    cat >&2 <<'EOF'
-REFUSED TO GUESS A SIMULATOR SHUTDOWN COMMAND.
+    pass \
+        "simulator IOC stack stopped"
 
-The current repository script does not expose an obvious canonical
---restore or --deactivate mode.
+    note \
+        "localhost hardware-simulator backend processes were left unchanged"
 
-This is intentional: genesisctl will not kill IOC sessions blindly.
-
-Use:
-  genesis status
-  genesis screens
-
-Then follow the repository's documented simulator handoff/restore
-procedure. Once a canonical restore script exists, add it to genesisctl.
-EOF
-    exit 2
+    note \
+        "normal Genesis was not automatically restarted"
 }
 
 test_ssrf() {

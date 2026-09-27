@@ -142,6 +142,19 @@ class Device(VisaDevice):
 
         self._waveform_id = 0
 
+        # IOC-memory staging acknowledgment counter.
+        #
+        # This is deliberately independent of WAVEFORM_ID:
+        #
+        # WAVEFORM_STAGE_ID
+        #     increments whenever one waveform has been validated and
+        #     copied into IOC memory.
+        #
+        # WAVEFORM_ID
+        #     increments only after LOAD_CMD successfully commits a
+        #     waveform to the physical/simulated instrument.
+        self._waveform_stage_id = 0
+
         self.pvs["WAVEFORM_CMD"] = builder.WaveformOut(
             "WAVEFORM_CMD",
             length=MAX_ARB_POINTS,
@@ -172,6 +185,11 @@ class Device(VisaDevice):
             "WAVEFORM_READY",
             ZNAM="Not ready",
             ONAM="Ready",
+        )
+
+        self.pvs["WAVEFORM_STAGE_ID"] = builder.longIn(
+            "WAVEFORM_STAGE_ID",
+            LOPR=0,
         )
 
         self.pvs["WAVEFORM_ID"] = builder.longIn(
@@ -229,6 +247,14 @@ class Device(VisaDevice):
             self.pvs[
                 "WAVEFORM_READY"
             ].set(0)
+
+            self._waveform_stage_id += 1
+
+            self.pvs[
+                "WAVEFORM_STAGE_ID"
+            ].set(
+                self._waveform_stage_id
+            )
 
             self.record_event(
                 f"Waveform staged: {len(values)} pts"

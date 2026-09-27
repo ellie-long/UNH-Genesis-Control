@@ -39,6 +39,7 @@ keysight_wavegen:
     - LAST_OK
     - WRITE_ENABLED
     - WAVEFORM_POINTS
+    - WAVEFORM_STAGE_ID
     - ARB_POINTS_RBV
     - WAVEFORM_READY
     - WAVEFORM_ID
@@ -86,6 +87,9 @@ keysight_wavegen:
 
     WAVEFORM_POINTS:
       DESC: Number of staged waveform points
+
+    WAVEFORM_STAGE_ID:
+      DESC: IOC-memory waveform staging counter
 
     LOAD_CMD:
       DESC: Commit staged waveform to WaveGen

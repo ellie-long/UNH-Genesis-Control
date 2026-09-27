@@ -1,0 +1,5187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<display version="2.0.0">
+
+
+
+
+  <name>Genesis ssRF NMR Fitter</name>
+
+
+
+
+  <width>1260</width>
+
+
+
+
+  <height>1190</height>
+
+
+
+
+  <macros>
+
+
+
+
+    <P>UNH:GEN:SSRF:FIT</P>
+
+
+
+
+  </macros>
+
+
+
+
+  <widget type="rectangle" version="2.0.0">
+
+
+
+
+    <name>Header_Background</name>
+
+
+
+
+    <x>0</x>
+
+
+
+
+    <y>0</y>
+
+
+
+
+    <width>1260</width>
+
+
+
+
+    <height>70</height>
+
+
+
+
+    <line_width>0</line_width>
+
+
+
+
+    <line_color>
+
+
+
+
+      <color red="0" green="53" blue="145"/>
+
+
+
+
+    </line_color>
+
+
+
+
+    <background_color>
+
+
+
+
+      <color red="0" green="53" blue="145"/>
+
+
+
+
+    </background_color>
+
+
+
+
+  </widget>
+
+
+
+
+  <widget type="label" version="2.0.0">
+
+
+
+
+    <name>Title</name>
+
+
+
+
+    <x>20</x>
+
+
+
+
+    <y>13</y>
+
+
+
+
+    <width>700</width>
+
+
+
+
+    <height>32</height>
+
+
+
+
+    <text>UNH Genesis - ssRF NMR Fitter</text>
+
+
+
+
+    <font>
+
+
+
+
+      <font family="Liberation Sans" style="BOLD" size="22.0"/>
+
+
+
+
+    </font>
+
+
+
+
+    <foreground_color>
+
+
+
+
+      <color red="255" green="255" blue="255"/>
+
+
+
+
+    </foreground_color>
+
+
+
+
+    <transparent>true</transparent>
+
+
+
+
+  </widget>
+
+
+
+
+  <widget type="label" version="2.0.0">
+
+
+
+
+    <name>Subtitle</name>
+
+
+
+
+    <x>750</x>
+
+
+
+
+    <y>18</y>
+
+
+
+
+    <width>480</width>
+
+
+
+
+    <height>24</height>
+
+
+
+
+    <text>EPICS/Phoebus operator interface - analysis authority only</text>
+
+
+
+
+    <font>
+
+
+
+
+      <font family="Liberation Sans" style="REGULAR" size="12.0"/>
+
+
+
+
+    </font>
+
+
+
+
+    <foreground_color>
+
+
+
+
+      <color red="255" green="255" blue="255"/>
+
+
+
+
+    </foreground_color>
+
+
+
+
+    <horizontal_alignment>2</horizontal_alignment>
+
+
+
+
+    <transparent>true</transparent>
+
+
+
+
+  </widget>
+
+
+
+
+  <widget type="rectangle" version="2.0.0">
+
+
+
+
+    <name>Runtime_Status</name>
+
+
+
+
+    <x>20</x>
+
+
+
+
+    <y>90</y>
+
+
+
+
+    <width>1220</width>
+
+
+
+
+    <height>120</height>
+
+
+
+
+    <line_width>2</line_width>
+
+
+
+
+    <line_color>
+
+
+
+
+      <color red="0" green="53" blue="145"/>
+
+
+
+
+    </line_color>
+
+
+
+
+    <background_color>
+
+
+
+
+      <color red="240" green="241" blue="244"/>
+
+
+
+
+    </background_color>
+
+
+
+
+  </widget>
+
+
+
+
+  <widget type="rectangle" version="2.0.0">
+
+
+
+
+    <name>Runtime_Status_Header</name>
+
+
+
+
+    <x>20</x>
+
+
+
+
+    <y>90</y>
+
+
+
+
+    <width>1220</width>
+
+
+
+
+    <height>38</height>
+
+
+
+
+    <line_width>0</line_width>
+
+
+
+
+    <line_color>
+
+
+
+
+      <color red="0" green="29" blue="82"/>
+
+
+
+
+    </line_color>
+
+
+
+
+    <background_color>
+
+
+
+
+      <color red="0" green="29" blue="82"/>
+
+
+
+
+    </background_color>
+
+
+
+
+  </widget>
+
+
+
+
+  <widget type="label" version="2.0.0">
+
+
+
+
+    <name>Runtime_Status_Title</name>
+
+
+
+
+    <x>35</x>
+
+
+
+
+    <y>97</y>
+
+
+
+
+    <width>1190</width>
+
+
+
+
+    <height>24</height>
+
+
+
+
+    <text>Runtime Status</text>
+
+
+
+
+    <font>
+
+
+
+
+      <font family="Liberation Sans" style="BOLD" size="14.0"/>
+
+
+
+
+    </font>
+
+
+
+
+    <foreground_color>
+
+
+
+
+      <color red="255" green="255" blue="255"/>
+
+
+
+
+    </foreground_color>
+
+
+
+
+    <transparent>true</transparent>
+
+
+
+
+  </widget>
+
+
+
+
+  <widget type="label" version="2.0.0">
+
+
+
+
+    <name>FITTER_UP_Label</name>
+
+
+
+
+    <x>55</x>
+
+
+
+
+    <y>143</y>
+
+
+
+
+    <width>110</width>
+
+
+
+
+    <height>24</height>
+
+
+
+
+    <text>Fitter</text>
+
+
+
+
+    <font>
+
+
+
+
+      <font family="Liberation Sans" style="BOLD" size="13.0"/>
+
+
+
+
+    </font>
+
+
+
+
+    <transparent>true</transparent>
+
+
+
+
+  </widget>
+
+
+
+
+  <widget type="led" version="2.0.0">
+
+
+
+
+    <name>FITTER_UP_LED</name>
+
+
+
+
+    <x>167</x>
+
+
+
+
+    <y>140</y>
+
+
+
+
+    <width>26</width>
+
+
+
+
+    <height>26</height>
+
+
+
+
+    <pv_name>pva://$(P):FITTER_UP</pv_name>
+
+
+
+
+    <bit>0</bit>
+
+
+
+
+    <off_color>
+
+
+
+
+      <color red="200" green="50" blue="50"/>
+
+
+
+
+    </off_color>
+
+
+
+
+    <on_color>
+
+
+
+
+      <color red="30" green="160" blue="70"/>
+
+
+
+
+    </on_color>
+
+
+
+
+  </widget>
+
+
+
+
+  <widget type="textupdate" version="2.0.0">
+
+
+
+
+    <name>FITTER_UP_Value</name>
+
+
+
+
+    <x>200</x>
+
+
+
+
+    <y>140</y>
+
+
+
+
+    <width>90</width>
+
+
+
+
+    <height>26</height>
+
+
+
+
+    <pv_name>pva://$(P):FITTER_UP</pv_name>
+
+
+
+
+  </widget>
+
+
+
+
+  <widget type="label" version="2.0.0">
+
+
+
+
+    <name>PUBLISHER_CONNECTED_Label</name>
+
+
+
+
+    <x>300</x>
+
+
+
+
+    <y>143</y>
+
+
+
+
+    <width>110</width>
+
+
+
+
+    <height>24</height>
+
+
+
+
+    <text>Publisher</text>
+
+
+
+
+    <font>
+
+
+
+
+      <font family="Liberation Sans" style="BOLD" size="13.0"/>
+
+
+
+
+    </font>
+
+
+
+
+    <transparent>true</transparent>
+
+
+
+
+  </widget>
+
+
+
+
+  <widget type="led" version="2.0.0">
+
+
+
+
+    <name>PUBLISHER_CONNECTED_LED</name>
+
+
+
+
+    <x>412</x>
+
+
+
+
+    <y>140</y>
+
+
+
+
+    <width>26</width>
+
+
+
+
+    <height>26</height>
+
+
+
+
+    <pv_name>pva://$(P):PUBLISHER_CONNECTED</pv_name>
+
+
+
+
+    <bit>0</bit>
+
+
+
+
+    <off_color>
+
+
+
+
+      <color red="200" green="50" blue="50"/>
+
+
+
+
+    </off_color>
+
+
+
+
+    <on_color>
+
+
+
+
+      <color red="30" green="160" blue="70"/>
+
+
+
+
+    </on_color>
+
+
+
+
+  </widget>
+
+
+
+
+  <widget type="textupdate" version="2.0.0">
+
+
+
+
+    <name>PUBLISHER_CONNECTED_Value</name>
+
+
+
+
+    <x>445</x>
+
+
+
+
+    <y>140</y>
+
+
+
+
+    <width>90</width>
+
+
+
+
+    <height>26</height>
+
+
+
+
+    <pv_name>pva://$(P):PUBLISHER_CONNECTED</pv_name>
+
+
+
+
+  </widget>
+
+
+
+
+  <widget type="label" version="2.0.0">
+
+
+
+
+    <name>CALIBRATED_Label</name>
+
+
+
+
+    <x>565</x>
+
+
+
+
+    <y>143</y>
+
+
+
+
+    <width>110</width>
+
+
+
+
+    <height>24</height>
+
+
+
+
+    <text>Calibrated</text>
+
+
+
+
+    <font>
+
+
+
+
+      <font family="Liberation Sans" style="BOLD" size="13.0"/>
+
+
+
+
+    </font>
+
+
+
+
+    <transparent>true</transparent>
+
+
+
+
+  </widget>
+
+
+
+
+  <widget type="led" version="2.0.0">
+
+
+
+
+    <name>CALIBRATED_LED</name>
+
+
+
+
+    <x>677</x>
+
+
+
+
+    <y>140</y>
+
+
+
+
+    <width>26</width>
+
+
+
+
+    <height>26</height>
+
+
+
+
+    <pv_name>pva://$(P):CALIBRATED</pv_name>
+
+
+
+
+    <bit>0</bit>
+
+
+
+
+    <off_color>
+
+
+
+
+      <color red="200" green="50" blue="50"/>
+
+
+
+
+    </off_color>
+
+
+
+
+    <on_color>
+
+
+
+
+      <color red="30" green="160" blue="70"/>
+
+
+
+
+    </on_color>
+
+
+
+
+  </widget>
+
+
+
+
+  <widget type="textupdate" version="2.0.0">
+
+
+
+
+    <name>CALIBRATED_Value</name>
+
+
+
+
+    <x>710</x>
+
+
+
+
+    <y>140</y>
+
+
+
+
+    <width>90</width>
+
+
+
+
+    <height>26</height>
+
+
+
+
+    <pv_name>pva://$(P):CALIBRATED</pv_name>
+
+
+
+
+  </widget>
+
+
+
+
+  <widget type="label" version="2.0.0">
+
+
+
+
+    <name>UPDATE_BUSY_Label</name>
+
+
+
+
+    <x>835</x>
+
+
+
+
+    <y>143</y>
+
+
+
+
+    <width>110</width>
+
+
+
+
+    <height>24</height>
+
+
+
+
+    <text>Update busy</text>
+
+
+
+
+    <font>
+
+
+
+
+      <font family="Liberation Sans" style="BOLD" size="13.0"/>
+
+
+
+
+    </font>
+
+
+
+
+    <transparent>true</transparent>
+
+
+
+
+  </widget>
+
+
+
+
+  <widget type="led" version="2.0.0">
+
+
+
+
+    <name>UPDATE_BUSY_LED</name>
+
+
+
+
+    <x>947</x>
+
+
+
+
+    <y>140</y>
+
+
+
+
+    <width>26</width>
+
+
+
+
+    <height>26</height>
+
+
+
+
+    <pv_name>pva://$(P):UPDATE_BUSY</pv_name>
+
+
+
+
+    <bit>0</bit>
+
+
+
+
+    <off_color>
+
+
+
+
+      <color red="30" green="160" blue="70"/>
+
+
+
+
+    </off_color>
+
+
+
+
+    <on_color>
+
+
+
+
+      <color red="235" green="155" blue="35"/>
+
+
+
+
+    </on_color>
+
+
+
+
+  </widget>
+
+
+
+
+  <widget type="textupdate" version="2.0.0">
+
+
+
+
+    <name>UPDATE_BUSY_Value</name>
+
+
+
+
+    <x>980</x>
+
+
+
+
+    <y>140</y>
+
+
+
+
+    <width>90</width>
+
+
+
+
+    <height>26</height>
+
+
+
+
+    <pv_name>pva://$(P):UPDATE_BUSY</pv_name>
+
+
+
+
+  </widget>
+
+
+
+
+  <widget type="label" version="2.0.0">
+
+
+
+
+    <name>Last_TS_Label</name>
+
+
+
+
+    <x>1040</x>
+
+
+
+
+    <y>142</y>
+
+
+
+
+    <width>65</width>
+
+
+
+
+    <height>24</height>
+
+
+
+
+    <text>Last fit:</text>
+
+
+
+
+    <font>
+
+
+
+
+      <font family="Liberation Sans" style="BOLD" size="13.0"/>
+
+
+
+
+    </font>
+
+
+
+
+    <transparent>true</transparent>
+
+
+
+
+  </widget>
+
+
+
+
+  <widget type="textupdate" version="2.0.0">
+
+
+
+
+    <name>LAST_TS</name>
+
+
+
+
+    <x>1105</x>
+
+
+
+
+    <y>140</y>
+
+
+
+
+    <width>115</width>
+
+
+
+
+    <height>26</height>
+
+
+
+
+    <pv_name>pva://$(P):LAST_TS</pv_name>
+
+
+
+
+    <format>6</format>
+
+
+
+
+  </widget>
+
+
+
+
+  <widget type="rectangle" version="2.0.0">
+
+
+
+
+    <name>Operator_Controls</name>
+
+
+
+
+    <x>20</x>
+
+
+
+
+    <y>230</y>
+
+
+
+
+    <width>600</width>
+
+
+
+
+    <height>300</height>
+
+
+
+
+    <line_width>2</line_width>
+
+
+
+
+    <line_color>
+
+
+
+
+      <color red="0" green="53" blue="145"/>
+
+
+
+
+    </line_color>
+
+
+
+
+    <background_color>
+
+
+
+
+      <color red="240" green="241" blue="244"/>
+
+
+
+
+    </background_color>
+
+
+
+
+  </widget>
+
+
+
+
+  <widget type="rectangle" version="2.0.0">
+
+
+
+
+    <name>Operator_Controls_Header</name>
+
+
+
+
+    <x>20</x>
+
+
+
+
+    <y>230</y>
+
+
+
+
+    <width>600</width>
+
+
+
+
+    <height>38</height>
+
+
+
+
+    <line_width>0</line_width>
+
+
+
+
+    <line_color>
+
+
+
+
+      <color red="0" green="29" blue="82"/>
+
+
+
+
+    </line_color>
+
+
+
+
+    <background_color>
+
+
+
+
+      <color red="0" green="29" blue="82"/>
+
+
+
+
+    </background_color>
+
+
+
+
+  </widget>
+
+
+
+
+  <widget type="label" version="2.0.0">
+
+
+
+
+    <name>Operator_Controls_Title</name>
+
+
+
+
+    <x>35</x>
+
+
+
+
+    <y>237</y>
+
+
+
+
+    <width>570</width>
+
+
+
+
+    <height>24</height>
+
+
+
+
+    <text>Fitter Controls</text>
+
+
+
+
+    <font>
+
+
+
+
+      <font family="Liberation Sans" style="BOLD" size="14.0"/>
+
+
+
+
+    </font>
+
+
+
+
+    <foreground_color>
+
+
+
+
+      <color red="255" green="255" blue="255"/>
+
+
+
+
+    </foreground_color>
+
+
+
+
+    <transparent>true</transparent>
+
+
+
+
+  </widget>
+
+
+
+
+  <widget type="rectangle" version="2.0.0">
+
+
+
+
+    <name>Fit_Summary</name>
+
+
+
+
+    <x>640</x>
+
+
+
+
+    <y>230</y>
+
+
+
+
+    <width>600</width>
+
+
+
+
+    <height>300</height>
+
+
+
+
+    <line_width>2</line_width>
+
+
+
+
+    <line_color>
+
+
+
+
+      <color red="0" green="53" blue="145"/>
+
+
+
+
+    </line_color>
+
+
+
+
+    <background_color>
+
+
+
+
+      <color red="240" green="241" blue="244"/>
+
+
+
+
+    </background_color>
+
+
+
+
+  </widget>
+
+
+
+
+  <widget type="rectangle" version="2.0.0">
+
+
+
+
+    <name>Fit_Summary_Header</name>
+
+
+
+
+    <x>640</x>
+
+
+
+
+    <y>230</y>
+
+
+
+
+    <width>600</width>
+
+
+
+
+    <height>38</height>
+
+
+
+
+    <line_width>0</line_width>
+
+
+
+
+    <line_color>
+
+
+
+
+      <color red="0" green="29" blue="82"/>
+
+
+
+
+    </line_color>
+
+
+
+
+    <background_color>
+
+
+
+
+      <color red="0" green="29" blue="82"/>
+
+
+
+
+    </background_color>
+
+
+
+
+  </widget>
+
+
+
+
+  <widget type="label" version="2.0.0">
+
+
+
+
+    <name>Fit_Summary_Title</name>
+
+
+
+
+    <x>655</x>
+
+
+
+
+    <y>237</y>
+
+
+
+
+    <width>570</width>
+
+
+
+
+    <height>24</height>
+
+
+
+
+    <text>Latest Fit Summary</text>
+
+
+
+
+    <font>
+
+
+
+
+      <font family="Liberation Sans" style="BOLD" size="14.0"/>
+
+
+
+
+    </font>
+
+
+
+
+    <foreground_color>
+
+
+
+
+      <color red="255" green="255" blue="255"/>
+
+
+
+
+    </foreground_color>
+
+
+
+
+    <transparent>true</transparent>
+
+
+
+
+  </widget>
+
+
+
+
+  <widget type="label" version="2.0.0">
+
+
+
+
+    <name>FIT_TYPE_Label</name>
+
+
+
+
+    <x>665</x>
+
+
+
+
+    <y>285</y>
+
+
+
+
+    <width>75</width>
+
+
+
+
+    <height>24</height>
+
+
+
+
+    <text>Fit type:</text>
+
+
+
+
+    <font>
+
+
+
+
+      <font family="Liberation Sans" style="BOLD" size="13.0"/>
+
+
+
+
+    </font>
+
+
+
+
+    <transparent>true</transparent>
+
+
+
+
+  </widget>
+
+
+
+
+  <widget type="textupdate" version="2.0.0">
+
+
+
+
+    <name>FIT_TYPE</name>
+
+
+
+
+    <x>743</x>
+
+
+
+
+    <y>282</y>
+
+
+
+
+    <width>105</width>
+
+
+
+
+    <height>28</height>
+
+
+
+
+    <pv_name>pva://$(P):FIT_TYPE</pv_name>
+
+
+
+
+    <format>6</format>
+
+
+
+
+  </widget>
+
+
+
+
+  <widget type="label" version="2.0.0">
+
+
+
+
+    <name>MODEL_Label</name>
+
+
+
+
+    <x>920</x>
+
+
+
+
+    <y>285</y>
+
+
+
+
+    <width>75</width>
+
+
+
+
+    <height>24</height>
+
+
+
+
+    <text>Model:</text>
+
+
+
+
+    <font>
+
+
+
+
+      <font family="Liberation Sans" style="BOLD" size="13.0"/>
+
+
+
+
+    </font>
+
+
+
+
+    <transparent>true</transparent>
+
+
+
+
+  </widget>
+
+
+
+
+  <widget type="textupdate" version="2.0.0">
+
+
+
+
+    <name>MODEL</name>
+
+
+
+
+    <x>998</x>
+
+
+
+
+    <y>282</y>
+
+
+
+
+    <width>105</width>
+
+
+
+
+    <height>28</height>
+
+
+
+
+    <pv_name>pva://$(P):MODEL</pv_name>
+
+
+
+
+    <format>6</format>
+
+
+
+
+  </widget>
+
+
+
+
+  <widget type="label" version="2.0.0">
+
+
+
+
+    <name>NPTS_Label</name>
+
+
+
+
+    <x>665</x>
+
+
+
+
+    <y>325</y>
+
+
+
+
+    <width>75</width>
+
+
+
+
+    <height>24</height>
+
+
+
+
+    <text>N points:</text>
+
+
+
+
+    <font>
+
+
+
+
+      <font family="Liberation Sans" style="BOLD" size="13.0"/>
+
+
+
+
+    </font>
+
+
+
+
+    <transparent>true</transparent>
+
+
+
+
+  </widget>
+
+
+
+
+  <widget type="textupdate" version="2.0.0">
+
+
+
+
+    <name>NPTS</name>
+
+
+
+
+    <x>743</x>
+
+
+
+
+    <y>322</y>
+
+
+
+
+    <width>105</width>
+
+
+
+
+    <height>28</height>
+
+
+
+
+    <pv_name>pva://$(P):NPTS</pv_name>
+
+
+
+
+    <precision>0</precision>
+
+
+
+
+  </widget>
+
+
+
+
+  <widget type="label" version="2.0.0">
+
+
+
+
+    <name>P_FIT_Label</name>
+
+
+
+
+    <x>920</x>
+
+
+
+
+    <y>325</y>
+
+
+
+
+    <width>75</width>
+
+
+
+
+    <height>24</height>
+
+
+
+
+    <text>P fit:</text>
+
+
+
+
+    <font>
+
+
+
+
+      <font family="Liberation Sans" style="BOLD" size="13.0"/>
+
+
+
+
+    </font>
+
+
+
+
+    <transparent>true</transparent>
+
+
+
+
+  </widget>
+
+
+
+
+  <widget type="textupdate" version="2.0.0">
+
+
+
+
+    <name>P_FIT</name>
+
+
+
+
+    <x>998</x>
+
+
+
+
+    <y>322</y>
+
+
+
+
+    <width>105</width>
+
+
+
+
+    <height>28</height>
+
+
+
+
+    <pv_name>pva://$(P):P_FIT</pv_name>
+
+
+
+
+    <precision>3</precision>
+
+
+
+
+  </widget>
+
+
+
+
+  <widget type="label" version="2.0.0">
+
+
+
+
+    <name>P_AREA_Label</name>
+
+
+
+
+    <x>665</x>
+
+
+
+
+    <y>365</y>
+
+
+
+
+    <width>75</width>
+
+
+
+
+    <height>24</height>
+
+
+
+
+    <text>P area:</text>
+
+
+
+
+    <font>
+
+
+
+
+      <font family="Liberation Sans" style="BOLD" size="13.0"/>
+
+
+
+
+    </font>
+
+
+
+
+    <transparent>true</transparent>
+
+
+
+
+  </widget>
+
+
+
+
+  <widget type="textupdate" version="2.0.0">
+
+
+
+
+    <name>P_AREA</name>
+
+
+
+
+    <x>743</x>
+
+
+
+
+    <y>362</y>
+
+
+
+
+    <width>105</width>
+
+
+
+
+    <height>28</height>
+
+
+
+
+    <pv_name>pva://$(P):P_AREA</pv_name>
+
+
+
+
+    <precision>3</precision>
+
+
+
+
+  </widget>
+
+
+
+
+  <widget type="label" version="2.0.0">
+
+
+
+
+    <name>Q_FIT_Label</name>
+
+
+
+
+    <x>920</x>
+
+
+
+
+    <y>365</y>
+
+
+
+
+    <width>75</width>
+
+
+
+
+    <height>24</height>
+
+
+
+
+    <text>Q fit:</text>
+
+
+
+
+    <font>
+
+
+
+
+      <font family="Liberation Sans" style="BOLD" size="13.0"/>
+
+
+
+
+    </font>
+
+
+
+
+    <transparent>true</transparent>
+
+
+
+
+  </widget>
+
+
+
+
+  <widget type="textupdate" version="2.0.0">
+
+
+
+
+    <name>Q_FIT</name>
+
+
+
+
+    <x>998</x>
+
+
+
+
+    <y>362</y>
+
+
+
+
+    <width>105</width>
+
+
+
+
+    <height>28</height>
+
+
+
+
+    <pv_name>pva://$(P):Q_FIT</pv_name>
+
+
+
+
+    <precision>4</precision>
+
+
+
+
+  </widget>
+
+
+
+
+  <widget type="label" version="2.0.0">
+
+
+
+
+    <name>Q_EQ_Label</name>
+
+
+
+
+    <x>665</x>
+
+
+
+
+    <y>405</y>
+
+
+
+
+    <width>75</width>
+
+
+
+
+    <height>24</height>
+
+
+
+
+    <text>Q eq:</text>
+
+
+
+
+    <font>
+
+
+
+
+      <font family="Liberation Sans" style="BOLD" size="13.0"/>
+
+
+
+
+    </font>
+
+
+
+
+    <transparent>true</transparent>
+
+
+
+
+  </widget>
+
+
+
+
+  <widget type="textupdate" version="2.0.0">
+
+
+
+
+    <name>Q_EQ</name>
+
+
+
+
+    <x>743</x>
+
+
+
+
+    <y>402</y>
+
+
+
+
+    <width>105</width>
+
+
+
+
+    <height>28</height>
+
+
+
+
+    <pv_name>pva://$(P):Q_EQ</pv_name>
+
+
+
+
+    <precision>4</precision>
+
+
+
+
+  </widget>
+
+
+
+
+  <widget type="label" version="2.0.0">
+
+
+
+
+    <name>R_Label</name>
+
+
+
+
+    <x>920</x>
+
+
+
+
+    <y>405</y>
+
+
+
+
+    <width>75</width>
+
+
+
+
+    <height>24</height>
+
+
+
+
+    <text>r:</text>
+
+
+
+
+    <font>
+
+
+
+
+      <font family="Liberation Sans" style="BOLD" size="13.0"/>
+
+
+
+
+    </font>
+
+
+
+
+    <transparent>true</transparent>
+
+
+
+
+  </widget>
+
+
+
+
+  <widget type="textupdate" version="2.0.0">
+
+
+
+
+    <name>R</name>
+
+
+
+
+    <x>998</x>
+
+
+
+
+    <y>402</y>
+
+
+
+
+    <width>105</width>
+
+
+
+
+    <height>28</height>
+
+
+
+
+    <pv_name>pva://$(P):R</pv_name>
+
+
+
+
+    <precision>4</precision>
+
+
+
+
+  </widget>
+
+
+
+
+  <widget type="label" version="2.0.0">
+
+
+
+
+    <name>Phase_Label</name>
+
+
+
+
+    <x>1075</x>
+
+
+
+
+    <y>405</y>
+
+
+
+
+    <width>55</width>
+
+
+
+
+    <height>24</height>
+
+
+
+
+    <text>Phase:</text>
+
+
+
+
+    <font>
+
+
+
+
+      <font family="Liberation Sans" style="BOLD" size="13.0"/>
+
+
+
+
+    </font>
+
+
+
+
+    <transparent>true</transparent>
+
+
+
+
+  </widget>
+
+
+
+
+  <widget type="textupdate" version="2.0.0">
+
+
+
+
+    <name>PHASE_DEG</name>
+
+
+
+
+    <x>1130</x>
+
+
+
+
+    <y>402</y>
+
+
+
+
+    <width>75</width>
+
+
+
+
+    <height>28</height>
+
+
+
+
+    <pv_name>pva://$(P):PHASE_DEG</pv_name>
+
+
+
+
+    <precision>2</precision>
+
+
+
+
+  </widget>
+
+
+
+
+  <widget type="label" version="2.0.0">
+
+
+
+
+    <name>Phase_Unit</name>
+
+
+
+
+    <x>1205</x>
+
+
+
+
+    <y>405</y>
+
+
+
+
+    <width>30</width>
+
+
+
+
+    <height>24</height>
+
+
+
+
+    <text>deg</text>
+
+
+
+
+    <font>
+
+
+
+
+      <font family="Liberation Sans" style="REGULAR" size="13.0"/>
+
+
+
+
+    </font>
+
+
+
+
+    <transparent>true</transparent>
+
+
+
+
+  </widget>
+
+
+
+
+  <widget type="rectangle" version="2.0.0">
+
+
+
+
+    <name>Calibration_Constants</name>
+
+
+
+
+    <x>20</x>
+
+
+
+
+    <y>550</y>
+
+
+
+
+    <width>1220</width>
+
+
+
+
+    <height>245</height>
+
+
+
+
+    <line_width>2</line_width>
+
+
+
+
+    <line_color>
+
+
+
+
+      <color red="0" green="53" blue="145"/>
+
+
+
+
+    </line_color>
+
+
+
+
+    <background_color>
+
+
+
+
+      <color red="240" green="241" blue="244"/>
+
+
+
+
+    </background_color>
+
+
+
+
+  </widget>
+
+
+
+
+  <widget type="rectangle" version="2.0.0">
+
+
+
+
+    <name>Calibration_Constants_Header</name>
+
+
+
+
+    <x>20</x>
+
+
+
+
+    <y>550</y>
+
+
+
+
+    <width>1220</width>
+
+
+
+
+    <height>38</height>
+
+
+
+
+    <line_width>0</line_width>
+
+
+
+
+    <line_color>
+
+
+
+
+      <color red="0" green="29" blue="82"/>
+
+
+
+
+    </line_color>
+
+
+
+
+    <background_color>
+
+
+
+
+      <color red="0" green="29" blue="82"/>
+
+
+
+
+    </background_color>
+
+
+
+
+  </widget>
+
+
+
+
+  <widget type="label" version="2.0.0">
+
+
+
+
+    <name>Calibration_Constants_Title</name>
+
+
+
+
+    <x>35</x>
+
+
+
+
+    <y>557</y>
+
+
+
+
+    <width>1190</width>
+
+
+
+
+    <height>24</height>
+
+
+
+
+    <text>Calibration / Lineshape Constants</text>
+
+
+
+
+    <font>
+
+
+
+
+      <font family="Liberation Sans" style="BOLD" size="14.0"/>
+
+
+
+
+    </font>
+
+
+
+
+    <foreground_color>
+
+
+
+
+      <color red="255" green="255" blue="255"/>
+
+
+
+
+    </foreground_color>
+
+
+
+
+    <transparent>true</transparent>
+
+
+
+
+  </widget>
+
+
+
+
+  <widget type="label" version="2.0.0">
+
+
+
+
+    <name>CONSTANTS_SOURCE_Const_Label</name>
+
+
+
+
+    <x>45</x>
+
+
+
+
+    <y>605</y>
+
+
+
+
+    <width>75</width>
+
+
+
+
+    <height>24</height>
+
+
+
+
+    <text>Source:</text>
+
+
+
+
+    <font>
+
+
+
+
+      <font family="Liberation Sans" style="BOLD" size="13.0"/>
+
+
+
+
+    </font>
+
+
+
+
+    <transparent>true</transparent>
+
+
+
+
+  </widget>
+
+
+
+
+  <widget type="textupdate" version="2.0.0">
+
+
+
+
+    <name>CONSTANTS_SOURCE_Const</name>
+
+
+
+
+    <x>123</x>
+
+
+
+
+    <y>602</y>
+
+
+
+
+    <width>145</width>
+
+
+
+
+    <height>28</height>
+
+
+
+
+    <pv_name>pva://$(P):CONSTANTS_SOURCE</pv_name>
+
+
+
+
+    <format>6</format>
+
+
+
+
+  </widget>
+
+
+
+
+  <widget type="label" version="2.0.0">
+
+
+
+
+    <name>CC_Const_Label</name>
+
+
+
+
+    <x>345</x>
+
+
+
+
+    <y>605</y>
+
+
+
+
+    <width>75</width>
+
+
+
+
+    <height>24</height>
+
+
+
+
+    <text>CC:</text>
+
+
+
+
+    <font>
+
+
+
+
+      <font family="Liberation Sans" style="BOLD" size="13.0"/>
+
+
+
+
+    </font>
+
+
+
+
+    <transparent>true</transparent>
+
+
+
+
+  </widget>
+
+
+
+
+  <widget type="textupdate" version="2.0.0">
+
+
+
+
+    <name>CC_Const</name>
+
+
+
+
+    <x>423</x>
+
+
+
+
+    <y>602</y>
+
+
+
+
+    <width>145</width>
+
+
+
+
+    <height>28</height>
+
+
+
+
+    <pv_name>pva://$(P):CC</pv_name>
+
+
+
+
+    <precision>6</precision>
+
+
+
+
+  </widget>
+
+
+
+
+  <widget type="label" version="2.0.0">
+
+
+
+
+    <name>CC_DAQ_Const_Label</name>
+
+
+
+
+    <x>645</x>
+
+
+
+
+    <y>605</y>
+
+
+
+
+    <width>75</width>
+
+
+
+
+    <height>24</height>
+
+
+
+
+    <text>CC_DAQ:</text>
+
+
+
+
+    <font>
+
+
+
+
+      <font family="Liberation Sans" style="BOLD" size="13.0"/>
+
+
+
+
+    </font>
+
+
+
+
+    <transparent>true</transparent>
+
+
+
+
+  </widget>
+
+
+
+
+  <widget type="textupdate" version="2.0.0">
+
+
+
+
+    <name>CC_DAQ_Const</name>
+
+
+
+
+    <x>723</x>
+
+
+
+
+    <y>602</y>
+
+
+
+
+    <width>145</width>
+
+
+
+
+    <height>28</height>
+
+
+
+
+    <pv_name>pva://$(P):CC_DAQ</pv_name>
+
+
+
+
+    <precision>6</precision>
+
+
+
+
+  </widget>
+
+
+
+
+  <widget type="label" version="2.0.0">
+
+
+
+
+    <name>OMEGD_Const_Label</name>
+
+
+
+
+    <x>945</x>
+
+
+
+
+    <y>605</y>
+
+
+
+
+    <width>75</width>
+
+
+
+
+    <height>24</height>
+
+
+
+
+    <text>omegaD:</text>
+
+
+
+
+    <font>
+
+
+
+
+      <font family="Liberation Sans" style="BOLD" size="13.0"/>
+
+
+
+
+    </font>
+
+
+
+
+    <transparent>true</transparent>
+
+
+
+
+  </widget>
+
+
+
+
+  <widget type="textupdate" version="2.0.0">
+
+
+
+
+    <name>OMEGD_Const</name>
+
+
+
+
+    <x>1023</x>
+
+
+
+
+    <y>602</y>
+
+
+
+
+    <width>145</width>
+
+
+
+
+    <height>28</height>
+
+
+
+
+    <pv_name>pva://$(P):OMEGD</pv_name>
+
+
+
+
+    <precision>6</precision>
+
+
+
+
+  </widget>
+
+
+
+
+  <widget type="label" version="2.0.0">
+
+
+
+
+    <name>OMEGQ1_Const_Label</name>
+
+
+
+
+    <x>45</x>
+
+
+
+
+    <y>660</y>
+
+
+
+
+    <width>75</width>
+
+
+
+
+    <height>24</height>
+
+
+
+
+    <text>omegaQ1:</text>
+
+
+
+
+    <font>
+
+
+
+
+      <font family="Liberation Sans" style="BOLD" size="13.0"/>
+
+
+
+
+    </font>
+
+
+
+
+    <transparent>true</transparent>
+
+
+
+
+  </widget>
+
+
+
+
+  <widget type="textupdate" version="2.0.0">
+
+
+
+
+    <name>OMEGQ1_Const</name>
+
+
+
+
+    <x>123</x>
+
+
+
+
+    <y>657</y>
+
+
+
+
+    <width>145</width>
+
+
+
+
+    <height>28</height>
+
+
+
+
+    <pv_name>pva://$(P):OMEGQ1</pv_name>
+
+
+
+
+    <precision>6</precision>
+
+
+
+
+  </widget>
+
+
+
+
+  <widget type="label" version="2.0.0">
+
+
+
+
+    <name>OMEGQ2_Const_Label</name>
+
+
+
+
+    <x>345</x>
+
+
+
+
+    <y>660</y>
+
+
+
+
+    <width>75</width>
+
+
+
+
+    <height>24</height>
+
+
+
+
+    <text>omegaQ2:</text>
+
+
+
+
+    <font>
+
+
+
+
+      <font family="Liberation Sans" style="BOLD" size="13.0"/>
+
+
+
+
+    </font>
+
+
+
+
+    <transparent>true</transparent>
+
+
+
+
+  </widget>
+
+
+
+
+  <widget type="textupdate" version="2.0.0">
+
+
+
+
+    <name>OMEGQ2_Const</name>
+
+
+
+
+    <x>423</x>
+
+
+
+
+    <y>657</y>
+
+
+
+
+    <width>145</width>
+
+
+
+
+    <height>28</height>
+
+
+
+
+    <pv_name>pva://$(P):OMEGQ2</pv_name>
+
+
+
+
+    <precision>6</precision>
+
+
+
+
+  </widget>
+
+
+
+
+  <widget type="label" version="2.0.0">
+
+
+
+
+    <name>A1_Const_Label</name>
+
+
+
+
+    <x>645</x>
+
+
+
+
+    <y>660</y>
+
+
+
+
+    <width>75</width>
+
+
+
+
+    <height>24</height>
+
+
+
+
+    <text>A1:</text>
+
+
+
+
+    <font>
+
+
+
+
+      <font family="Liberation Sans" style="BOLD" size="13.0"/>
+
+
+
+
+    </font>
+
+
+
+
+    <transparent>true</transparent>
+
+
+
+
+  </widget>
+
+
+
+
+  <widget type="textupdate" version="2.0.0">
+
+
+
+
+    <name>A1_Const</name>
+
+
+
+
+    <x>723</x>
+
+
+
+
+    <y>657</y>
+
+
+
+
+    <width>145</width>
+
+
+
+
+    <height>28</height>
+
+
+
+
+    <pv_name>pva://$(P):A1</pv_name>
+
+
+
+
+    <precision>6</precision>
+
+
+
+
+  </widget>
+
+
+
+
+  <widget type="label" version="2.0.0">
+
+
+
+
+    <name>ETA1_Const_Label</name>
+
+
+
+
+    <x>945</x>
+
+
+
+
+    <y>660</y>
+
+
+
+
+    <width>75</width>
+
+
+
+
+    <height>24</height>
+
+
+
+
+    <text>eta1:</text>
+
+
+
+
+    <font>
+
+
+
+
+      <font family="Liberation Sans" style="BOLD" size="13.0"/>
+
+
+
+
+    </font>
+
+
+
+
+    <transparent>true</transparent>
+
+
+
+
+  </widget>
+
+
+
+
+  <widget type="textupdate" version="2.0.0">
+
+
+
+
+    <name>ETA1_Const</name>
+
+
+
+
+    <x>1023</x>
+
+
+
+
+    <y>657</y>
+
+
+
+
+    <width>145</width>
+
+
+
+
+    <height>28</height>
+
+
+
+
+    <pv_name>pva://$(P):ETA1</pv_name>
+
+
+
+
+    <precision>6</precision>
+
+
+
+
+  </widget>
+
+
+
+
+  <widget type="label" version="2.0.0">
+
+
+
+
+    <name>ETA2_Const_Label</name>
+
+
+
+
+    <x>45</x>
+
+
+
+
+    <y>715</y>
+
+
+
+
+    <width>75</width>
+
+
+
+
+    <height>24</height>
+
+
+
+
+    <text>eta2:</text>
+
+
+
+
+    <font>
+
+
+
+
+      <font family="Liberation Sans" style="BOLD" size="13.0"/>
+
+
+
+
+    </font>
+
+
+
+
+    <transparent>true</transparent>
+
+
+
+
+  </widget>
+
+
+
+
+  <widget type="textupdate" version="2.0.0">
+
+
+
+
+    <name>ETA2_Const</name>
+
+
+
+
+    <x>123</x>
+
+
+
+
+    <y>712</y>
+
+
+
+
+    <width>145</width>
+
+
+
+
+    <height>28</height>
+
+
+
+
+    <pv_name>pva://$(P):ETA2</pv_name>
+
+
+
+
+    <precision>6</precision>
+
+
+
+
+  </widget>
+
+
+
+
+  <widget type="label" version="2.0.0">
+
+
+
+
+    <name>K_Const_Label</name>
+
+
+
+
+    <x>345</x>
+
+
+
+
+    <y>715</y>
+
+
+
+
+    <width>75</width>
+
+
+
+
+    <height>24</height>
+
+
+
+
+    <text>K:</text>
+
+
+
+
+    <font>
+
+
+
+
+      <font family="Liberation Sans" style="BOLD" size="13.0"/>
+
+
+
+
+    </font>
+
+
+
+
+    <transparent>true</transparent>
+
+
+
+
+  </widget>
+
+
+
+
+  <widget type="textupdate" version="2.0.0">
+
+
+
+
+    <name>K_Const</name>
+
+
+
+
+    <x>423</x>
+
+
+
+
+    <y>712</y>
+
+
+
+
+    <width>145</width>
+
+
+
+
+    <height>28</height>
+
+
+
+
+    <pv_name>pva://$(P):K</pv_name>
+
+
+
+
+    <precision>6</precision>
+
+
+
+
+  </widget>
+
+
+
+
+  <widget type="label" version="2.0.0">
+
+
+
+
+    <name>SCALE_Const_Label</name>
+
+
+
+
+    <x>645</x>
+
+
+
+
+    <y>715</y>
+
+
+
+
+    <width>75</width>
+
+
+
+
+    <height>24</height>
+
+
+
+
+    <text>Scale:</text>
+
+
+
+
+    <font>
+
+
+
+
+      <font family="Liberation Sans" style="BOLD" size="13.0"/>
+
+
+
+
+    </font>
+
+
+
+
+    <transparent>true</transparent>
+
+
+
+
+  </widget>
+
+
+
+
+  <widget type="textupdate" version="2.0.0">
+
+
+
+
+    <name>SCALE_Const</name>
+
+
+
+
+    <x>723</x>
+
+
+
+
+    <y>712</y>
+
+
+
+
+    <width>145</width>
+
+
+
+
+    <height>28</height>
+
+
+
+
+    <pv_name>pva://$(P):SCALE</pv_name>
+
+
+
+
+    <precision>6</precision>
+
+
+
+
+  </widget>
+
+
+
+
+  <widget type="label" version="2.0.0">
+
+
+
+
+    <name>RED_CHISQ_Const_Label</name>
+
+
+
+
+    <x>945</x>
+
+
+
+
+    <y>715</y>
+
+
+
+
+    <width>75</width>
+
+
+
+
+    <height>24</height>
+
+
+
+
+    <text>red chi2:</text>
+
+
+
+
+    <font>
+
+
+
+
+      <font family="Liberation Sans" style="BOLD" size="13.0"/>
+
+
+
+
+    </font>
+
+
+
+
+    <transparent>true</transparent>
+
+
+
+
+  </widget>
+
+
+
+
+  <widget type="textupdate" version="2.0.0">
+
+
+
+
+    <name>RED_CHISQ_Const</name>
+
+
+
+
+    <x>1023</x>
+
+
+
+
+    <y>712</y>
+
+
+
+
+    <width>145</width>
+
+
+
+
+    <height>28</height>
+
+
+
+
+    <pv_name>pva://$(P):RED_CHISQ</pv_name>
+
+
+
+
+    <precision>5</precision>
+
+
+
+
+  </widget>
+
+
+
+
+  <widget type="label" version="2.0.0">
+
+
+
+
+    <name>Warning_Label</name>
+
+
+
+
+    <x>45</x>
+
+
+
+
+    <y>755</y>
+
+
+
+
+    <width>120</width>
+
+
+
+
+    <height>24</height>
+
+
+
+
+    <text>Status / warning:</text>
+
+
+
+
+    <font>
+
+
+
+
+      <font family="Liberation Sans" style="BOLD" size="13.0"/>
+
+
+
+
+    </font>
+
+
+
+
+    <transparent>true</transparent>
+
+
+
+
+  </widget>
+
+
+
+
+  <widget type="textupdate" version="2.0.0">
+
+
+
+
+    <name>WARNING</name>
+
+
+
+
+    <x>165</x>
+
+
+
+
+    <y>750</y>
+
+
+
+
+    <width>1045</width>
+
+
+
+
+    <height>35</height>
+
+
+
+
+    <pv_name>pva://$(P):WARNING</pv_name>
+
+
+
+
+    <format>6</format>
+
+
+
+
+    <wrap_words>true</wrap_words>
+
+
+
+
+  </widget>
+
+
+
+
+  <widget type="xyplot" version="3.0.0">
+
+
+
+
+    <name>NMR_Fit_Plot</name>
+
+
+
+
+    <x>40</x>
+
+
+
+
+    <y>830</y>
+
+
+
+
+    <width>1180</width>
+
+
+
+
+    <height>325</height>
+
+
+
+
+    <title>NMR Spectrum and Fitter Result</title>
+
+
+
+
+    <show_toolbar>true</show_toolbar>
+
+
+
+
+    <background_color>
+
+
+
+
+      <color red="255" green="255" blue="255"/>
+
+
+
+
+    </background_color>
+
+
+
+
+    <foreground_color>
+
+
+
+
+      <color red="0" green="0" blue="0"/>
+
+
+
+
+    </foreground_color>
+
+
+
+
+    <grid_color>
+
+
+
+
+      <color red="210" green="215" blue="220"/>
+
+
+
+
+    </grid_color>
+
+
+
+
+    <x_axis>
+
+
+
+
+      <title>Frequency (MHz)</title>
+
+
+
+
+      <autoscale>true</autoscale>
+
+
+
+
+      <log_scale>false</log_scale>
+
+
+
+
+      <show_grid>true</show_grid>
+
+
+
+
+    </x_axis>
+
+
+
+
+    <y_axes>
+
+
+
+
+      <y_axis>
+
+
+
+
+        <title>NMR Signal (arb. units)</title>
+
+
+
+
+        <autoscale>true</autoscale>
+
+
+
+
+        <log_scale>false</log_scale>
+
+
+
+
+        <show_grid>true</show_grid>
+
+
+
+
+        <on_right>false</on_right>
+
+
+
+
+      </y_axis>
+
+
+
+
+    </y_axes>
+
+
+
+
+    <traces>
+
+
+
+
+      <trace>
+
+
+
+
+        <name>Processed NMR</name>
+
+
+
+
+        <x_pv>pva://$(P):FREQS_MHZ</x_pv>
+
+
+
+
+        <y_pv>pva://$(P):DATA</y_pv>
+
+
+
+
+        <axis>0</axis>
+
+
+
+
+        <trace_type>1</trace_type>
+
+
+
+
+        <line_width>2</line_width>
+
+
+
+
+        <color>
+
+
+
+
+          <color red="0" green="53" blue="145"/>
+
+
+
+
+        </color>
+
+
+
+
+      </trace>
+
+
+
+
+      <trace>
+
+
+
+
+        <name>Total Fit</name>
+
+
+
+
+        <x_pv>pva://$(P):FREQS_MHZ</x_pv>
+
+
+
+
+        <y_pv>pva://$(P):TOTAL_FIT</y_pv>
+
+
+
+
+        <axis>0</axis>
+
+
+
+
+        <trace_type>1</trace_type>
+
+
+
+
+        <line_width>2</line_width>
+
+
+
+
+        <color>
+
+
+
+
+          <color red="200" green="50" blue="50"/>
+
+
+
+
+        </color>
+
+
+
+
+      </trace>
+
+
+
+
+    </traces>
+
+
+
+
+  </widget>
+
+
+
+
+  <widget type="label" version="2.0.0">
+
+
+
+
+    <name>Footer_Note</name>
+
+
+
+
+    <x>40</x>
+
+
+
+
+    <y>1162</y>
+
+
+
+
+    <width>1180</width>
+
+
+
+
+    <height>22</height>
+
+
+
+
+    <text>Fitter authority only. This screen does not control WaveGen LOAD, OUTPUT, RF, switches, ARM, or START.</text>
+
+
+
+
+    <font>
+
+
+
+
+      <font family="Liberation Sans" style="BOLD" size="11.0"/>
+
+
+
+
+    </font>
+
+
+
+
+    <foreground_color>
+
+
+
+
+      <color red="75" green="85" blue="95"/>
+
+
+
+
+    </foreground_color>
+
+
+
+
+    <horizontal_alignment>1</horizontal_alignment>
+
+
+
+
+    <transparent>true</transparent>
+
+
+
+
+  </widget>
+
+
+
+
+  <widget type="label" version="2.0.0">
+
+
+    <name>P_FIT_Unit</name>
+
+
+    <x>1182</x>
+
+
+    <y>325</y>
+
+
+    <width>25</width>
+
+
+    <height>24</height>
+
+
+    <text>%</text>
+
+
+    <font>
+
+
+      <font family="Liberation Sans" style="REGULAR" size="13.0"/>
+
+
+    </font>
+
+
+    <transparent>true</transparent>
+
+
+  </widget>
+
+
+  <widget type="label" version="2.0.0">
+
+
+    <name>P_AREA_Unit</name>
+
+
+    <x>927</x>
+
+
+    <y>365</y>
+
+
+    <width>25</width>
+
+
+    <height>24</height>
+
+
+    <text>%</text>
+
+
+    <font>
+
+
+      <font family="Liberation Sans" style="REGULAR" size="13.0"/>
+
+
+    </font>
+
+
+    <transparent>true</transparent>
+
+
+  </widget>
+
+
+  <widget type="label" version="2.0.0">
+
+
+    <name>OMEGD_Unit</name>
+
+
+    <x>1170</x>
+
+
+    <y>605</y>
+
+
+    <width>45</width>
+
+
+    <height>24</height>
+
+
+    <text>MHz</text>
+
+
+    <font>
+
+
+      <font family="Liberation Sans" style="REGULAR" size="13.0"/>
+
+
+    </font>
+
+
+    <transparent>true</transparent>
+
+
+  </widget>
+
+
+  <widget type="label" version="2.0.0">
+
+
+    <name>OMEGQ1_Unit</name>
+
+
+    <x>270</x>
+
+
+    <y>660</y>
+
+
+    <width>45</width>
+
+
+    <height>24</height>
+
+
+    <text>MHz</text>
+
+
+    <font>
+
+
+      <font family="Liberation Sans" style="REGULAR" size="13.0"/>
+
+
+    </font>
+
+
+    <transparent>true</transparent>
+
+
+  </widget>
+
+
+  <widget type="label" version="2.0.0">
+
+
+    <name>OMEGQ2_Unit</name>
+
+
+    <x>570</x>
+
+
+    <y>660</y>
+
+
+    <width>45</width>
+
+
+    <height>24</height>
+
+
+    <text>MHz</text>
+
+
+    <font>
+
+
+      <font family="Liberation Sans" style="REGULAR" size="13.0"/>
+
+
+    </font>
+
+
+    <transparent>true</transparent>
+
+
+  </widget>
+
+
+  <widget type="label" version="2.0.0">
+    <name>Mode_Select_Label</name>
+    <x>45</x>
+    <y>282</y>
+    <width>105</width>
+    <height>24</height>
+    <text>Mode:</text>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0"/>
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Mode_Equilibrium</name>
+    <x>150</x>
+    <y>275</y>
+    <width>92</width>
+    <height>32</height>
+    <actions>
+      <action type="write_pv">
+        <pv_name>pva://$(P):MODE_CMD</pv_name>
+        <value>equilibrium</value>
+        <description>Equilibrium</description>
+      </action>
+    </actions>
+    <text>Equilibrium</text>
+    <tooltip>Set fitter mode to equilibrium. Software fitter command only.</tooltip>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Mode_SSRF</name>
+    <x>247</x>
+    <y>275</y>
+    <width>62</width>
+    <height>32</height>
+    <actions>
+      <action type="write_pv">
+        <pv_name>pva://$(P):MODE_CMD</pv_name>
+        <value>ssRF</value>
+        <description>ssRF</description>
+      </action>
+    </actions>
+    <text>ssRF</text>
+    <tooltip>Set fitter mode to ssRF. Software fitter command only.</tooltip>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Mode_FreqHop</name>
+    <x>314</x>
+    <y>275</y>
+    <width>78</width>
+    <height>32</height>
+    <actions>
+      <action type="write_pv">
+        <pv_name>pva://$(P):MODE_CMD</pv_name>
+        <value>freq_hopping</value>
+        <description>Freq Hop</description>
+      </action>
+    </actions>
+    <text>Freq Hop</text>
+    <tooltip>Set fitter mode to freq_hopping. Software fitter command only.</tooltip>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Mode_Baseline</name>
+    <x>397</x>
+    <y>275</y>
+    <width>75</width>
+    <height>32</height>
+    <actions>
+      <action type="write_pv">
+        <pv_name>pva://$(P):MODE_CMD</pv_name>
+        <value>baseline</value>
+        <description>Baseline</description>
+      </action>
+    </actions>
+    <text>Baseline</text>
+    <tooltip>Set fitter mode to baseline. Software fitter command only.</tooltip>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Mode_NoNMR</name>
+    <x>477</x>
+    <y>275</y>
+    <width>75</width>
+    <height>32</height>
+    <actions>
+      <action type="write_pv">
+        <pv_name>pva://$(P):MODE_CMD</pv_name>
+        <value>no_nmr</value>
+        <description>No NMR</description>
+      </action>
+    </actions>
+    <text>No NMR</text>
+    <tooltip>Set fitter mode to no_nmr. Software fitter command only.</tooltip>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Mode_Current_Label</name>
+    <x>45</x>
+    <y>318</y>
+    <width>105</width>
+    <height>24</height>
+    <text>Current:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0"/>
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>MODE_RBV</name>
+    <x>150</x>
+    <y>314</y>
+    <width>180</width>
+    <height>28</height>
+    <pv_name>pva://$(P):MODE_RBV</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Material_Select_Label</name>
+    <x>45</x>
+    <y>357</y>
+    <width>105</width>
+    <height>24</height>
+    <text>Material:</text>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0"/>
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Material_Butanol</name>
+    <x>150</x>
+    <y>350</y>
+    <width>100</width>
+    <height>32</height>
+    <actions>
+      <action type="write_pv">
+        <pv_name>pva://$(P):MATERIAL_CMD</pv_name>
+        <value>d-butanol</value>
+        <description>d-butanol</description>
+      </action>
+    </actions>
+    <text>d-butanol</text>
+    <tooltip>Set fitter material to d-butanol. Changing material reseeds fitter constants.</tooltip>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Material_Propanediol</name>
+    <x>255</x>
+    <y>350</y>
+    <width>130</width>
+    <height>32</height>
+    <actions>
+      <action type="write_pv">
+        <pv_name>pva://$(P):MATERIAL_CMD</pv_name>
+        <value>d-propanediol</value>
+        <description>d-propanediol</description>
+      </action>
+    </actions>
+    <text>d-propanediol</text>
+    <tooltip>Set fitter material to d-propanediol. Changing material reseeds fitter constants.</tooltip>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Material_ND3</name>
+    <x>390</x>
+    <y>350</y>
+    <width>70</width>
+    <height>32</height>
+    <actions>
+      <action type="write_pv">
+        <pv_name>pva://$(P):MATERIAL_CMD</pv_name>
+        <value>ND3</value>
+        <description>ND3</description>
+      </action>
+    </actions>
+    <text>ND3</text>
+    <tooltip>Set fitter material to ND3. Changing material reseeds fitter constants.</tooltip>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Material_Warning</name>
+    <x>465</x>
+    <y>354</y>
+    <width>115</width>
+    <height>38</height>
+    <text>Changing material invalidates the current calibration.</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="10.0"/>
+    </font>
+    <foreground_color>
+      <color red="90" green="100" blue="110"/>
+    </foreground_color>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Material_Current_Label</name>
+    <x>45</x>
+    <y>395</y>
+    <width>105</width>
+    <height>24</height>
+    <text>Current:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0"/>
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>MATERIAL_RBV</name>
+    <x>150</x>
+    <y>391</y>
+    <width>180</width>
+    <height>28</height>
+    <pv_name>pva://$(P):MATERIAL_RBV</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Larmor_Label</name>
+    <x>45</x>
+    <y>435</y>
+    <width>105</width>
+    <height>24</height>
+    <text>Larmor:</text>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0"/>
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>LARMOR_KHZ_CMD</name>
+    <x>150</x>
+    <y>429</y>
+    <width>115</width>
+    <height>30</height>
+    <pv_name>pva://$(P):LARMOR_KHZ_CMD</pv_name>
+    <precision>2</precision>
+    <tooltip>Enter Larmor offset/frequency value and press Enter to apply.</tooltip>
+    <background_color>
+      <color red="255" green="255" blue="255"/>
+    </background_color>
+    <foreground_color>
+      <color red="0" green="0" blue="0"/>
+    </foreground_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Larmor_CMD_Units</name>
+    <x>272</x>
+    <y>435</y>
+    <width>40</width>
+    <height>24</height>
+    <text>kHz</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0"/>
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Larmor_Enter_Note</name>
+    <x>320</x>
+    <y>435</y>
+    <width>125</width>
+    <height>24</height>
+    <text>Press Enter to apply</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="10.0"/>
+    </font>
+    <foreground_color>
+      <color red="90" green="100" blue="110"/>
+    </foreground_color>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Larmor_Current_Label</name>
+    <x>455</x>
+    <y>435</y>
+    <width>60</width>
+    <height>24</height>
+    <text>Current:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0"/>
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>LARMOR_KHZ_RBV</name>
+    <x>515</x>
+    <y>429</y>
+    <width>55</width>
+    <height>30</height>
+    <pv_name>pva://$(P):LARMOR_KHZ_RBV</pv_name>
+    <precision>2</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Larmor_RBV_Units</name>
+    <x>572</x>
+    <y>435</y>
+    <width>30</width>
+    <height>24</height>
+    <text>kHz</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0"/>
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Calibration_Action_Label</name>
+    <x>45</x>
+    <y>477</y>
+    <width>105</width>
+    <height>24</height>
+    <text>Calibration:</text>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0"/>
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>UPDATE_CONSTANTS_ACTION</name>
+    <x>150</x>
+    <y>468</y>
+    <width>145</width>
+    <height>35</height>
+    <actions>
+      <action type="write_pv">
+        <pv_name>pva://$(P):UPDATE_CONSTANTS_CMD</pv_name>
+        <value>1</value>
+        <description>Update Constants</description>
+      </action>
+    </actions>
+    <text>Update Constants</text>
+    <tooltip>Run the full open fit over the recent equilibrium buffer. Software fitter action only.</tooltip>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Calibration_Action_Note</name>
+    <x>310</x>
+    <y>471</y>
+    <width>260</width>
+    <height>35</height>
+    <text>Use only in equilibrium mode with a suitable reference plateau.</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="10.0"/>
+    </font>
+    <foreground_color>
+      <color red="90" green="100" blue="110"/>
+    </foreground_color>
+    <transparent>true</transparent>
+  </widget>
+</display>

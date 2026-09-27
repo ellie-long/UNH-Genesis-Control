@@ -2,26 +2,9 @@
 
 ## Purpose
 
-Integrate the existing UNH deuteron NMR fitter and adaptive ssRF waveform
-generation into the Genesis Phase-I architecture without allowing analysis
-software to bypass EPICS safety, interlocks, authorization, or the ssRF
-sequencer.
+Integrate the UNH spin-1 NMR fitter and adaptive ssRF waveform generation into Genesis without allowing analysis software to bypass EPICS authorization, the ssRF sequencer, interlocks, or device write gates.
 
-Authoritative reference source:
-
-`Genesis-Mission-ssRF-Controller-main_Utsav.zip`
-
-The reference implementation contains:
-
-- `online_fitter/` — live/offline spin-1 NMR fitting
-- `Keysight/ssRF_sweep_height.py` — adaptive ssRF waveform generation
-- `Keysight/deuts.py` — legacy waveform-physics helper
-- direct Keysight/device-control code used by the older prototype
-
-Only the hardware-independent fitting and waveform mathematics are reused
-in the Genesis analysis layer.
-
-## Genesis architecture
+## Architecture
 
 ```text
 NMR acquisition
@@ -30,359 +13,270 @@ NMR acquisition
 online_fitter
       |
       v
-validated FitSnapshot
+FitSnapshot
       |
       v
-ssrf_analysis.waveform_planner
+waveform planner
       |
       v
-validated WaveformPlan
+WaveformPlan
       |
       v
-WaveGen waveform staging
+analysis stager
       |
       v
-Genesis sequencer
+SEQ:WAVEFORM_STAGE_REQ
       |
       v
-Genesis interlock / authorization
+Genesis ssRF sequencer
       |
       v
-Keysight + SMC100A + RF switches
+protected WGEN:WAVEFORM_CMD
+      |
+      v
+WaveGen IOC memory
+
+---------------- separate boundary ----------------
+
+LOAD_CMD -> instrument ARB -> READY -> ARM -> START
 ```
 
-Analysis determines what waveform should be used.
+Analysis determines the proposed waveform. Genesis determines whether it may be staged, loaded, and executed.
 
-Analysis does not determine whether hardware is allowed to execute it.
-
-The Genesis sequencer and interlock remain authoritative for all hardware
-execution.
-
-## Imported fitter
-
-The authoritative `online_fitter` package was copied source-identically
-into the Genesis repository.
-
-Core dependencies:
-
-- Python
-- NumPy
-- SciPy
-
-GUI dependencies are treated separately from the core fitter.
-
-The fitter supports:
-
-- baseline
-- equilibrium
-- ssRF / hole-burn
-- frequency hopping
-- no-NMR operation
-
-The live fitter protocol remains loopback-only.
-
-Default fitter input port:
-
-`127.0.0.1:8777`
-
-Default fit-result publisher:
-
-`127.0.0.1:8778`
-
-## Adaptive waveform planner
-
-Genesis provides:
-
-`ssrf_analysis/waveform_planner.py`
-
-It reproduces the adaptive waveform mathematics from the authoritative
-`Keysight/ssRF_sweep_height.py` implementation while removing:
-
-- PyVISA communication
-- direct Keysight writes
-- RF output control
-- switch control
-- continuous burn loops
-- automatic burn execution
-
-The planner supports:
-
-- ND3
-- deuterated butanol
-- Enhancement
-- Suppression
-- Zero
-
-It produces:
-
-- 8192 normalized ARB samples
-- physical-voltage representation
-- peak and shoulder frequency regions
-- height-weighting arrays
-- waveform period
-- WaveGen voltage bounds
-- fitter provenance information
-
-Regression tests compare the Genesis waveform directly against the
-authoritative implementation.
-
-## Current validated constants
-
-The authoritative prototype currently uses:
+## Online fitter
 
 ```text
-WaveGen ARB points = 8192
-Waveform period    = 0.010 s
-VHIGH              = +0.7 V
-VLOW               = -0.7 V
+input server   127.0.0.1:8777
+publisher      127.0.0.1:8778
 ```
 
-Normalized samples supplied to the Genesis WaveGen IOC remain:
+Supported modes include baseline, equilibrium, `ssRF`, frequency hopping, and no-NMR. In `ssRF` mode, `fit_type=hole-burnt` is expected for hole-burned fitting.
+
+## Fitter EPICS / Phoebus interface
+
+Prefix:
+
+```text
+UNH:GEN:SSRF:FIT
+```
+
+Important controls/readbacks include mode, material, Larmor, `Update Constants`, calibration state, fit type/model, polarization/tensor quantities, fitted constants, warnings/timestamps, and NMR/fit arrays.
+
+Operator page:
+
+```text
+gui/genesis_ssrf_fitter.bob
+```
+
+The fitter IOC and GUI contain no WaveGen, SMC, switch, ARM, START, or burn authority.
+
+## Calibration
+
+Use equilibrium mode with a representative equilibrium/reference plateau, fill the recent equilibrium buffer, then issue `Update Constants`.
+
+Successful calibration establishes fitted constants and reports:
+
+```text
+CALIBRATED = 1
+CONSTANTS_SOURCE = fit
+constants_good = true
+```
+
+Replay/demo calibration is software validation only. A current physical equilibrium/reference calibration is still required in the lab.
+
+## Polarization units
+
+Fitter polarization outputs are percent-valued.
+
+Planner inputs:
+
+```text
+polarization
+high_polarization
+```
+
+are explicit fractions. Do not silently convert fitter percentages into planner fractions.
+
+## Waveform planning
+
+Adaptive fitter-generated waveforms contain exactly:
+
+```text
+8192 normalized samples
+```
+
+with every sample finite and inside:
 
 ```text
 [-1, +1]
 ```
 
+Validated cases:
 
-## Safe waveform staging boundary
+```text
+Enhancement
+Suppression
+Zero
+```
 
-Genesis provides:
+Automatic planning requires a calibrated fitter result:
 
-`ssrf_analysis/waveform_stager.py`
+```text
+type = fit
+constants_good = true
+```
 
-The stager has one purpose only: transfer an already validated normalized
-waveform into the existing WaveGen IOC in-memory staging record.
+## Authorized staging boundary
 
-Its only permitted staging target is:
+The analysis layer must not write the protected WaveGen record directly.
 
-    UNH:GEN:SSRF:WGEN:WAVEFORM_CMD
+Analysis target:
 
-The stager validates:
+```text
+UNH:GEN:SSRF:SEQ:WAVEFORM_STAGE_REQ
+```
 
-- the `WaveformPlan` itself
-- exactly 8192 adaptive-waveform points
-- all samples are finite
-- all samples lie in `[-1, +1]`
+Sequencer forwarding target:
 
-The stager does not have authority to issue:
+```text
+UNH:GEN:SSRF:WGEN:WAVEFORM_CMD
+```
 
-- `LOAD_CMD`
-- `OUTPUT_CMD`
-- `PERIOD_CMD`
-- `VHIGH_CMD`
-- `VLOW_CMD`
-- SMC100A commands
-- RF/NMR switch commands
-- ARM
-- START
+The sequencer independently validates exact point count, finiteness, and normalized range before forwarding.
 
-`WAVEFORM_CMD` changes IOC memory only. It does not commit an ARB waveform
-to the physical Keysight.
+## Explicit IOC-memory acknowledgment
 
-This preserves an explicit separation between:
+WaveGen exposes:
 
-    PLAN -> STAGE
+```text
+UNH:GEN:SSRF:WGEN:WAVEFORM_STAGE_ID
+```
 
-and the independently controlled execution path:
+The staging protocol is:
 
-    LOAD -> READY -> ARM -> START
+```text
+read baseline WAVEFORM_STAGE_ID = N
+write WAVEFORM_CMD
+WaveGen validates/copies waveform
+WAVEFORM_POINTS = 8192
+WAVEFORM_STAGE_ID = N + 1
+sequencer reports STAGED
+```
 
+The sequencer requires a fresh stage ID plus `WAVEFORM_POINTS=8192`, preventing stale data from satisfying a new request.
 
-## Fitter publisher to waveform bridge
+## Stage versus load
 
-Genesis provides:
+IOC-memory stage state:
 
-`ssrf_analysis/fitter_waveform_bridge.py`
+```text
+WAVEFORM_STAGE_ID
+WAVEFORM_POINTS
+```
 
-This bridge consumes the existing online-fitter publisher rather than
-creating a new fitter interface.
+Instrument-load state:
 
-Publisher endpoint:
+```text
+WAVEFORM_ID
+ARB_POINTS_RBV
+WAVEFORM_READY
+```
 
-    127.0.0.1:8778
+During validated staging-only simulator tests:
 
-Transport:
+```text
+two consecutive stage requests succeeded
+SEQ WAVEFORM_STAGE_ID  = 2
+WGEN WAVEFORM_STAGE_ID = 2
+WAVEFORM_POINTS        = 8192
 
-    TCP
-    newline-delimited JSON
-    one fitter-result object per line
+WAVEFORM_ID            = 0
+ARB_POINTS_RBV         = 0
+WAVEFORM_READY         = 0
 
-The bridge is deliberately restricted to loopback hosts.
+WaveGen output          = OFF
+SMC RF                  = OFF
+SMC FM                  = OFF
+sequencer ARM           = OFF
+RF routes               = SAFE_IDLE
+```
 
-The validated analysis path is:
+Thus staging did not load the simulated instrument.
 
-    fitter publisher
-        -> FitSnapshot
-        -> WaveformPlan
-        -> WaveformStager
-        -> WAVEFORM_CMD
+## Prohibited analysis authority
 
-Only messages with:
+The fitter/planner/analysis stager may not directly issue:
 
-    type = fit
+```text
+LOAD_CMD
+OUTPUT_CMD
+PERIOD_CMD
+VHIGH_CMD
+VLOW_CMD
+SMC RF/FM commands
+NMR/ssRF switch commands
+ARM
+START
+burn execution
+```
 
-are accepted.
-
-Automatic waveform generation additionally requires calibrated fitter
-constants:
-
-    constants_good = true
-
-An uncalibrated fit is rejected before the staging writer is called.
-
-The bridge itself has no EPICS execution authority. It cannot issue:
-
-- `LOAD_CMD`
-- `OUTPUT_CMD`
-- SMC100A RF/FM commands
-- NMR or ssRF switch commands
-- ARM
-- START
-
-This keeps live NMR analysis logically upstream of the existing Genesis
-sequencer, interlock, authorization, and device layers.
-
-## Important unresolved hardware item
-
-The authoritative source numerically maps frequency offset in MHz to
-WaveGen voltage.
-
-That numerical convention is preserved for source equivalence but is NOT
-yet independently hardware-verified in Genesis.
-
-Therefore:
-
-`scaling_verified_for_hardware = False`
+## Physical scaling gate
 
 The physical relationship among:
 
-- NMR frequency offset
-- WaveGen voltage
-- SMC100A external-FM deviation
+```text
+NMR frequency offset
+WaveGen output voltage
+SMC100A external-FM deviation
+```
 
-must be confirmed during physical commissioning before real ssRF burns.
+is not yet independently verified on the current physical system.
 
-## Safety boundary
+Therefore:
 
-The fitter, waveform planner, and staging bridge may never directly perform:
+```text
+scaling_verified_for_hardware = False
+```
 
-- `LOAD_CMD`
-- WaveGen output enable
-- SMC RF enable
-- SMC FM enable
-- RF-switch changes
-- NMR-switch changes
-- ARM
-- START
-- burn execution
+No physical burn should be performed until that mapping is measured and validated.
 
-Those operations belong to the existing Genesis controlled execution path.
-
-## Current milestone status
+## Validated pre-lab status
 
 Validated:
 
-- authoritative fitter source located
-- fitter source imported source-identically
-- SciPy environment dependency installed
-- fitter imports successfully
-- loopback-only fitter server verified
-- non-loopback binding rejected
-- legacy `deuts.py` preserved source-identically
-- adaptive waveform planner extracted
-- six material/case waveform combinations match authoritative source
-- live measured-height waveform path matches authoritative source
-- uncalibrated fit input is rejected
-- safe `WAVEFORM_CMD` staging boundary implemented
-- staging authority contains exactly one IOC-memory PV
-- invalid plans are rejected before staging
-- non-8192 adaptive waveforms are rejected
-- out-of-range samples are rejected
-- fitter publisher endpoint fixed to loopback `127.0.0.1:8778`
-- non-loopback publisher hosts are rejected
-- non-fit publisher messages are rejected
-- calibrated fitter result generates exactly one 8192-point staging operation
-- uncalibrated fitter result generates zero staging operations
-- existing ssRF safety/sequencer regression tests remain passing
+- fitter source integration and loopback runtime;
+- fitter EPICS IOC;
+- Phoebus fitter operator interface;
+- replay through fitter EPICS;
+- `Update Constants` through Phoebus/EPICS;
+- calibrated `ssRF` / `hole-burnt` fit;
+- `constants_good=true`;
+- explicit planner polarization fractions;
+- Enhancement/Suppression/Zero 8192-point plans;
+- analysis-to-sequencer staging request;
+- sequencer-only protected WaveGen forwarding;
+- explicit WaveGen stage acknowledgment;
+- two consecutive fresh acknowledgments;
+- no `LOAD_CMD` during staging;
+- no `WAVEFORM_ID` or ARB change during staging;
+- `WAVEFORM_READY=0`;
+- WaveGen output and SMC RF/FM remained OFF;
+- sequencer remained DISARMED;
+- RF routing remained SAFE_IDLE;
+- physical hardware was not contacted during simulator validation.
 
-Next:
+## Next physical steps
 
-1. consume the existing fit-result publisher at `127.0.0.1:8778`
-2. convert each calibrated fit message into `FitSnapshot`
-3. generate `WaveformPlan`
-4. pass the plan through the safe stager
-5. validate this path without EPICS hardware execution
-6. validate IOC-memory staging with the WaveGen simulator
-7. add fit/waveform event metadata
-8. add operator helper commands after the runtime workflow is validated
-
-## 5C.3A software integration freeze
-
-5C.3A validates the software and data path required to turn a calibrated
-spin-1 NMR fitter result into an adaptive ssRF waveform without allowing
-the analysis layer to execute an RF burn.
-
-The completed path is:
-
-    online-fitter publisher
-        -> 127.0.0.1:8778 NDJSON
-        -> FitSnapshot
-        -> WaveformPlan
-        -> WaveformStager
-        -> UNH:GEN:SSRF:WGEN:WAVEFORM_CMD
-
-Validated behavior:
-
-- the fitter publisher interface remains loopback-only
-- only `type = fit` messages are accepted
-- uncalibrated fits are rejected before staging
-- the adaptive physics reproduces the authoritative controller source
-- ND3 and deuterated-butanol waveforms are supported
-- Enhancement, Suppression, and Zero cases are supported
-- the generated adaptive ARB contains exactly 8192 normalized samples
-- the staging layer can write only `WAVEFORM_CMD`
-- a real TCP/NDJSON message on port 8778 was staged through the actual
-  WaveGen IOC
-- after staging, `WAVEFORM_POINTS = 8192`
-- after staging, `WAVEFORM_READY = 0`
-- `WAVEFORM_ID` remains unchanged until an explicit hardware load
-- instrument-confirmed ARB point count remains unchanged during staging
-- WaveGen output remains OFF
-- WaveGen period, VHIGH, and VLOW remain unchanged
-- no `LOAD_CMD` is issued by the fitter path
-- no SMC100A command is issued by the fitter path
-- no switch command is issued by the fitter path
-- no ARM or START command is issued by the fitter path
-
-The one-shot runtime is:
-
-    python -m ssrf_analysis.fitter_stage_runtime --case Enhancement
-
-The default is dry-run. It receives and validates one fitter result and
-builds the waveform without performing an EPICS write.
-
-The `--stage` option has been validated only as a controlled commissioning
-operation against the isolated localhost WaveGen simulator/IOC. It is not
-exposed as a normal operator helper command at the 5C.3A freeze.
-
-Physical waveform execution remains outside this milestone.
-
-The legacy frequency-offset-to-voltage convention is still not independently
-verified against the physical WaveGen/SMC100A FM configuration:
-
-    scaling_verified_for_hardware = False
-
-That physical scaling must be verified during hardware commissioning before
-real ssRF burns.
-
-Live NMR acquisition is also intentionally deferred. The actual live fitter
-input path belongs to 5C.3B after physical connectivity and individual
-device commissioning.
-
-5C.3A is therefore frozen as:
-
-    FIT -> PLAN -> VALIDATE -> STAGE
-
-The later controlled execution path remains:
-
-    LOAD -> READY -> ARM -> START
+```text
+1. restore physical Keysight read-only IOC
+2. verify physical IDs/readbacks
+3. establish current equilibrium/reference calibration
+4. generate calibrated WaveformPlan
+5. stage through SEQ:WAVEFORM_STAGE_REQ
+6. verify physical IOC-memory ACK
+7. keep LOAD separate
+8. verify external-FM scaling
+9. controlled physical LOAD
+10. physical logging/fault/interlock validation
+11. full physical loop after all gates pass
+```

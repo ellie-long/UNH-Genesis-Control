@@ -48,6 +48,11 @@ ssrf_sequencer:
   - READY
   - STATE
   - REASON
+  - WAVEFORM_STAGE_ENABLED
+  - WAVEFORM_STAGE_POINTS
+  - WAVEFORM_STAGE_ID
+  - WAVEFORM_STAGE_STATE
+  - WAVEFORM_STAGE_REASON
 
   records:
     CARRIER_MHZ:
@@ -78,6 +83,18 @@ ssrf_sequencer:
       DESC: Sequencer burn readiness state
     REASON:
       DESC: Sequencer burn readiness reason
+    WAVEFORM_STAGE_ENABLED:
+      DESC: Sequencer waveform staging permission
+    WAVEFORM_STAGE_REQ:
+      DESC: Adaptive waveform staging request
+    WAVEFORM_STAGE_POINTS:
+      DESC: Points in most recent staging request
+    WAVEFORM_STAGE_ID:
+      DESC: Verified sequencer staging counter
+    WAVEFORM_STAGE_STATE:
+      DESC: Sequencer staging state
+    WAVEFORM_STAGE_REASON:
+      DESC: Sequencer staging status reason
     EXECUTION_ENABLED:
       DESC: ssRF execution layer enabled state
     EXECUTION_ARMED:

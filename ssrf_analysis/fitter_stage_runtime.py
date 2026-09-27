@@ -8,8 +8,9 @@ Default behavior is dry-run:
 - perform no EPICS write
 
 With --stage:
-- the only EPICS write permitted by this module is
-  UNH:GEN:SSRF:WGEN:WAVEFORM_CMD
+- the only EPICS write permitted by this module is the
+  sequencer staging-request PV
+- the analysis process never writes WaveGen WAVEFORM_CMD directly
 - the process exits after one accepted fit message
 
 Structured event logging is enabled by default and writes append-only JSONL
@@ -51,7 +52,7 @@ from ssrf_analysis.fitter_waveform_bridge import (
     iter_fit_messages,
 )
 from ssrf_analysis.waveform_stager import (
-    WAVEFORM_CMD_PV,
+    WAVEFORM_STAGE_REQUEST_PV,
     WaveformStager,
 )
 
@@ -61,7 +62,7 @@ class EpicsStageWriteError(RuntimeError):
 
 
 class EpicsWaveformWriter:
-    """Narrow EPICS writer that can write WAVEFORM_CMD only."""
+    """Submit a waveform only to the sequencer staging request PV."""
 
     def __init__(
         self,
@@ -82,14 +83,14 @@ class EpicsWaveformWriter:
         pv,
         value,
     ):
-        if pv != WAVEFORM_CMD_PV:
+        if pv != WAVEFORM_STAGE_REQUEST_PV:
             raise EpicsStageWriteError(
                 "runtime staging write rejected: "
                 f"{pv}"
             )
 
         await aioca.caput(
-            WAVEFORM_CMD_PV,
+            WAVEFORM_STAGE_REQUEST_PV,
             value,
             wait=True,
             timeout=self.timeout_s,
@@ -107,7 +108,7 @@ class DryRunWriter:
         pv,
         value,
     ):
-        if pv != WAVEFORM_CMD_PV:
+        if pv != WAVEFORM_STAGE_REQUEST_PV:
             raise EpicsStageWriteError(
                 "dry-run staging target rejected: "
                 f"{pv}"
@@ -369,8 +370,10 @@ def build_parser():
         "--stage",
         action="store_true",
         help=(
-            "Stage WAVEFORM_CMD to EPICS. "
-            "Without this flag, no EPICS write occurs."
+            "Submit one waveform to the Genesis sequencer "
+            "staging-request PV. The analysis process never writes "
+            "WaveGen WAVEFORM_CMD directly. Without this flag, no "
+            "EPICS write occurs."
         ),
     )
 

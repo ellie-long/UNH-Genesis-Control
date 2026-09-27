@@ -1,7 +1,11 @@
 """
 Safe Genesis ssRF waveform staging boundary.
 
-This layer may stage normalized ARB data into WaveGen IOC memory.
+This layer submits validated normalized ARB data to the Genesis
+sequencer staging-request interface.
+
+The analysis layer never writes the protected WaveGen WAVEFORM_CMD
+record directly.
 
 It has no authority to:
 - commit the waveform to hardware
@@ -19,14 +23,23 @@ import inspect
 
 import numpy as np
 
-
-WAVEFORM_CMD_PV = (
-    "UNH:GEN:SSRF:WGEN:WAVEFORM_CMD"
+from genesis_common.ssrf_waveform_contract import (
+    SEQUENCER_WAVEFORM_STAGE_REQUEST_PV,
 )
+
+
+WAVEFORM_STAGE_REQUEST_PV = (
+    SEQUENCER_WAVEFORM_STAGE_REQUEST_PV
+)
+
+# Compatibility alias for existing callers/tests.
+# This now names the SEQUENCER REQUEST PV, never the
+# protected WaveGen device-command PV.
+WAVEFORM_CMD_PV = WAVEFORM_STAGE_REQUEST_PV
 
 ALLOWED_STAGE_PVS = frozenset(
     {
-        WAVEFORM_CMD_PV,
+        WAVEFORM_STAGE_REQUEST_PV,
     }
 )
 
@@ -48,10 +61,13 @@ class StageReceipt:
 
 class WaveformStager:
     """
-    Narrow IOC-memory waveform stager.
+    Narrow sequencer-request waveform stager.
 
     The injected writer receives exactly one allowed PV:
-    WAVEFORM_CMD.
+    WAVEFORM_STAGE_REQUEST_PV.
+
+    Only the sequencer may forward the request to the protected
+    WaveGen WAVEFORM_CMD record.
     """
 
     def __init__(
@@ -102,7 +118,7 @@ class WaveformStager:
             )
 
         result = self._write(
-            WAVEFORM_CMD_PV,
+            WAVEFORM_STAGE_REQUEST_PV,
             values.copy(),
         )
 
@@ -110,7 +126,7 @@ class WaveformStager:
             await result
 
         return StageReceipt(
-            pv=WAVEFORM_CMD_PV,
+            pv=WAVEFORM_STAGE_REQUEST_PV,
             points=int(values.size),
             minimum=float(
                 np.min(values)

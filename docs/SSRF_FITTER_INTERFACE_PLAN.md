@@ -2,268 +2,138 @@
 
 ## Purpose
 
-Define the data interface between the online NMR fitter, the adaptive ssRF
-waveform planner, and the existing Genesis WaveGen staging layer.
+Define the fitter, planner, sequencer-staging, and WaveGen IOC-memory interfaces without granting hardware-execution authority.
 
-This document describes what data are accepted, validated, produced, and
-passed downstream. It does not grant hardware-execution authority.
-
-## Input: online fitter result
-
-The waveform planner consumes one calibrated fitter-publisher message.
-
-Required high-level fields:
+## Fitter publisher
 
 ```text
-type
-timestamp
-material
-model
-constants_good
-constants
+127.0.0.1:8778
+TCP
+newline-delimited JSON
 ```
 
-The fit must have:
+Automatic waveform generation accepts only:
 
 ```text
+type = fit
 constants_good = true
 ```
 
-Uncalibrated or preset-only fits are rejected for automatic waveform
-generation.
+## FitSnapshot
 
-## Required fit constants
+`FitSnapshot` is the validated fitter-to-planner boundary and includes the material/model/calibration state, fitted constants, processed frequency/data arrays, timestamp, and fit type required by the planner.
 
-Common:
+## WaveformPlan
 
-```text
-omegD
-omegQ1
-A1
-eta1
-scale
-phase
-r
-```
+Relevant fields include material/case, fit provenance, fitted frequencies, peak/shoulder regions and weights, control time/offset, normalized samples, physical-voltage representation, period and voltage bounds, point count, and scaling provenance.
 
-Butanol additionally requires:
+Adaptive requirements:
 
 ```text
-omegQ2
-eta2
-K
+waveform_points = 8192
+all samples finite
+all samples in [-1, +1]
 ```
 
-Optional measured-data arrays:
+## Polarization boundary
+
+Fitter polarization outputs are percentages.
+
+Planner `polarization` and `high_polarization` inputs are explicit fractions and are required arguments.
+
+## Analysis staging interface
+
+The analysis layer writes only:
 
 ```text
-freqs_mhz
-data
+UNH:GEN:SSRF:SEQ:WAVEFORM_STAGE_REQ
 ```
 
-If valid measured NMR data are supplied, they are used for adaptive
-per-frequency-bin weighting.
-
-If measured data are unavailable, the fitted model is used.
-
-## Genesis FitSnapshot
-
-`FitSnapshot` is the validated boundary between the fitter and the ssRF
-waveform planner.
-
-It contains:
-
-```text
-material
-model
-constants_good
-constants
-freqs_mhz
-data
-timestamp
-fit_type
-```
-
-## Genesis WaveformPlan
-
-The waveform planner returns a hardware-independent `WaveformPlan`.
-
-Important fields:
-
-```text
-material
-case
-
-fit_ts
-fit_type
-
-omegD_mhz
-frequency_shift_mhz
-
-f_peak_mhz
-f_shoulder_mhz
-
-peak_weights
-shoulder_weights
-peak_time_fraction
-
-control_time_s
-control_offset_mhz
-
-normalized_samples
-physical_voltage_v
-
-period_s
-vhigh_v
-vlow_v
-
-waveform_points
-r_high
-
-used_measured_heights
-
-legacy_offset_mhz_per_v
-scaling_verified_for_hardware
-```
-
-## Current WaveGen staging interface
-
-The existing Genesis Keysight IOC accepts normalized waveform data at:
+It does not write:
 
 ```text
 UNH:GEN:SSRF:WGEN:WAVEFORM_CMD
 ```
 
-Requirements:
+directly.
+
+## Sequencer staging gateway
+
+The sequencer validates:
 
 ```text
-2 <= number of points <= 8192
+exactly 8192 points
 all values finite
 all values in [-1, +1]
 ```
 
-For the adaptive fitter-generated waveform:
+The sequencer rejects staging while burn execution is starting/running, and START is blocked while staging is active.
 
-```text
-waveform_points = 8192
-```
+Staging itself does not require ARM because it changes IOC memory only.
 
-`WAVEFORM_CMD` stages waveform data in IOC memory.
+## WaveGen IOC-memory interface
 
-It does not itself commit the waveform to the physical Keysight.
-
-Physical waveform commit is a separate operation and remains under the
-Genesis execution and safety architecture.
-
-
-
-## Fitter-to-waveform bridge
-
-The Genesis fitter bridge consumes the existing loopback-only online-fitter
-publisher:
-
-    127.0.0.1:8778
-
-Transport:
-
-    TCP
-    newline-delimited JSON
-    one fitter-result object per line
-
-The bridge accepts only:
-
-    type = fit
-
-Automatic waveform generation additionally requires:
-
-    constants_good = true
-
-The validated software path is:
-
-    fitter publisher
-        -> FitSnapshot
-        -> WaveformPlan
-        -> WaveformStager
-        -> WAVEFORM_CMD
-
-An uncalibrated fitter result is rejected before the staging writer is
-called.
-
-The bridge does not contain authority for:
-
-- `LOAD_CMD`
-- `OUTPUT_CMD`
-- WaveGen scalar hardware commands
-- SMC100A RF/FM commands
-- NMR or ssRF switch commands
-- ARM
-- START
-- burn execution
-
-This keeps the analysis path upstream of the existing Genesis sequencer,
-interlock, authorization, and hardware-control layers.
-
-## Safe staging authority
-
-During 5C.3A, the fitter integration staging layer is intentionally limited
-to exactly one IOC-memory target:
-
-    UNH:GEN:SSRF:WGEN:WAVEFORM_CMD
-
-It must not directly issue:
-
-- `LOAD_CMD`
-- `OUTPUT_CMD`
-- `PERIOD_CMD`
-- `VHIGH_CMD`
-- `VLOW_CMD`
-- SMC RF commands
-- SMC FM commands
-- RF/NMR switch commands
-- ARM
-- START
-
-The staging operation therefore prepares waveform data without authorizing
-or initiating hardware execution.
-
-## Execution separation
-
-The analysis layer may generate:
-
-```text
-waveform samples
-waveform period
-WaveGen voltage bounds
-frequency regions
-fit metadata
-```
-
-Analysis must not automatically issue physical commands.
-
-The intended controlled progression is:
-
-```text
-FIT
- -> PLAN
- -> STAGE
- -> VALIDATE
- -> LOAD
- -> READY
- -> ARM
- -> START
-```
-
-Each later transition remains independently gated.
-
-## Current safe staging authority
-
-During 5C.3A, the fitter integration bridge is intentionally limited to:
+Protected command:
 
 ```text
 UNH:GEN:SSRF:WGEN:WAVEFORM_CMD
 ```
 
-It must not directly issue:
+Readbacks/acknowledgment:
+
+```text
+UNH:GEN:SSRF:WGEN:WAVEFORM_POINTS
+UNH:GEN:SSRF:WGEN:WAVEFORM_STAGE_ID
+```
+
+Protocol:
+
+```text
+baseline_id = WAVEFORM_STAGE_ID
+
+write WAVEFORM_CMD
+
+wait until:
+    WAVEFORM_STAGE_ID > baseline_id
+    and
+    WAVEFORM_POINTS == 8192
+```
+
+Only then may the sequencer report `STAGED`.
+
+## Stage versus load
+
+Staging:
+
+```text
+WAVEFORM_STAGE_ID increments
+WAVEFORM_POINTS = 8192
+```
+
+Separate instrument load:
+
+```text
+WAVEFORM_ID
+ARB_POINTS_RBV
+WAVEFORM_READY
+```
+
+A staging request must never issue `LOAD_CMD`.
+
+Validated simulator result after two stages:
+
+```text
+SEQ WAVEFORM_STAGE_ID  = 2
+WGEN WAVEFORM_STAGE_ID = 2
+WAVEFORM_POINTS        = 8192
+WAVEFORM_ID            = 0
+ARB_POINTS_RBV         = 0
+WAVEFORM_READY         = 0
+```
+
+## Prohibited analysis authority
+
+No direct analysis authority for:
 
 ```text
 LOAD_CMD
@@ -271,114 +141,108 @@ OUTPUT_CMD
 PERIOD_CMD
 VHIGH_CMD
 VLOW_CMD
-
-SMC RF commands
-SMC FM commands
+SMC commands
 switch commands
 ARM
 START
+burn execution
 ```
 
-This preserves the separation between analysis and hardware execution.
+## Fitter EPICS / Phoebus interface
 
-## Physical scaling status
-
-The legacy waveform implementation uses a numeric convention equivalent
-to:
+Prefix:
 
 ```text
-1 MHz offset -> 1 V numeric waveform value
+UNH:GEN:SSRF:FIT
 ```
 
-This convention is retained for source equivalence.
+Primary controls:
 
-It has not yet been independently verified against the current physical
-Keysight / SMC100A external-FM configuration.
+```text
+MODE_CMD
+MATERIAL_CMD
+LARMOR_KHZ_CMD
+UPDATE_CONSTANTS_CMD
+```
 
-Therefore:
+Primary status/readback:
+
+```text
+FITTER_UP
+PUBLISHER_CONNECTED
+MODE_RBV
+MATERIAL_RBV
+LARMOR_KHZ_RBV
+CALIBRATED
+UPDATE_BUSY
+CONSTANTS_SOURCE
+FIT_TYPE
+MODEL
+NPTS
+WARNING
+LAST_TS
+```
+
+Operator page:
+
+```text
+gui/genesis_ssrf_fitter.bob
+```
+
+## Physical scaling gate
+
+Until the current physical relation among NMR frequency offset, WaveGen voltage, and SMC100A external-FM deviation is measured:
 
 ```text
 scaling_verified_for_hardware = False
 ```
 
-Physical execution must remain blocked until the frequency-offset,
-WaveGen-voltage, and SMC external-FM mapping is verified during physical
-commissioning.
+## Validated progression
 
-## Phase-I status
+```text
+fitter publisher
+      |
+      v
+calibrated fit
+      |
+      v
+FitSnapshot
+      |
+      v
+WaveformPlan
+      |
+      v
+SEQ:WAVEFORM_STAGE_REQ
+      |
+      v
+sequencer validation
+      |
+      v
+protected WGEN:WAVEFORM_CMD
+      |
+      v
+WGEN:WAVEFORM_STAGE_ID acknowledgment
+      |
+      v
+IOC-memory STAGED
 
-Validated so far:
+-------------- separate controlled step --------------
 
-- calibrated fitter-result validation
-- `FitSnapshot` creation
-- ND3 and deuterated-butanol support
-- Enhancement, Suppression, and Zero waveform cases
-- 8192-point normalized waveform generation
-- measured-NMR height weighting
-- fitted-model fallback weighting
-- numerical agreement with the authoritative Utsav/Chhetra implementation
-- safe single-PV IOC-memory waveform staging
-- rejection of invalid, non-finite, out-of-range, or wrong-length staging data
-- existing Genesis ssRF safety regressions remain passing
+LOAD_CMD -> instrument ARB / READY -> interlocks / ARM / START
+```
 
-Next interface steps:
+## Pre-lab status
 
-1. safe WaveGen IOC-memory staging
-2. fitter publisher subscription
-3. simulator-only end-to-end validation
-4. fit/waveform event metadata
-5. operator helper commands
-6. physical scaling verification during hardware commissioning
+Validated:
 
-## 5C.3A validated interface state
+- calibrated fitter handling;
+- `FitSnapshot` creation;
+- 8192-point adaptive waveform generation;
+- operator calibration through Phoebus;
+- analysis-to-sequencer staging;
+- sequencer-only protected WaveGen forwarding;
+- explicit WaveGen stage acknowledgment;
+- two consecutive fresh stage acknowledgments;
+- no LOAD/output/RF/FM/ARM during staging.
 
-The validated Phase-I software interface is:
-
-    127.0.0.1:8778
-        -> calibrated fit message
-        -> FitSnapshot
-        -> WaveformPlan
-        -> WaveformStager
-        -> WAVEFORM_CMD
-
-The runtime consumes one newline-delimited JSON fitter result and exits after
-processing one accepted fit.
-
-Default runtime behavior is dry-run.
-
-The only EPICS staging target implemented in the runtime is:
-
-    UNH:GEN:SSRF:WGEN:WAVEFORM_CMD
-
-A controlled simulator validation confirmed:
-
-    WAVEFORM_POINTS = 8192
-    WAVEFORM_READY  = 0
-    WAVEFORM_ID     = unchanged
-    ARB_POINTS_RBV  = unchanged
-    OUTPUT_RBV      = 0
-
-Therefore IOC-memory staging and physical waveform loading remain distinct
-operations.
-
-The fitter runtime does not implement authority for:
-
-- `LOAD_CMD`
-- `OUTPUT_CMD`
-- WaveGen scalar hardware commands
-- SMC100A RF/FM commands
-- RF/NMR switch commands
-- ARM
-- START
-- burn execution
-
-The `--stage` runtime option is a commissioning mechanism, not a normal
-operator command at the 5C.3A freeze.
-
-The normal Genesis execution and access-security architecture remains
-authoritative for later physical execution.
-
-Physical MHz-to-voltage-to-external-FM scaling remains unverified and must
-remain blocked from real burn execution until physical commissioning.
-
-Live NMR input is deferred to 5C.3B.
+Next: physical current calibration, physical IOC-memory staging, external-FM scaling verification, controlled LOAD, and physical interlock/logging validation.
