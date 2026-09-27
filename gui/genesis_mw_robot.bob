@@ -1,0 +1,703 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<display version="2.0.0">
+  <name>Genesis Microwave - Positioning Robot</name>
+  <width>1040</width>
+  <height>900</height>
+  <macros>
+    <P>UNH:GEN:MW:ROBOT</P>
+  </macros>
+  <widget type="rectangle" version="2.0.0">
+    <name>Header_Background</name>
+    <x>0</x>
+    <y>0</y>
+    <width>1040</width>
+    <height>70</height>
+    <line_width>0</line_width>
+    <line_color>
+      <color red="0" green="53" blue="145" />
+    </line_color>
+    <background_color>
+      <color red="0" green="53" blue="145" />
+    </background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Title</name>
+    <x>20</x>
+    <y>13</y>
+    <width>640</width>
+    <height>32</height>
+    <text>UNH Genesis - Microwave Positioning Robot</text>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="22.0" />
+    </font>
+    <foreground_color>
+      <color red="255" green="255" blue="255" />
+    </foreground_color>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Subtitle</name>
+    <x>680</x>
+    <y>18</y>
+    <width>330</width>
+    <height>24</height>
+    <text>PCL602 status / commissioning</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="12.0" />
+    </font>
+    <foreground_color>
+      <color red="255" green="255" blue="255" />
+    </foreground_color>
+    <horizontal_alignment>2</horizontal_alignment>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>Status_Card</name>
+    <x>20</x>
+    <y>90</y>
+    <width>1000</width>
+    <height>210</height>
+    <line_width>2</line_width>
+    <line_color>
+      <color red="0" green="53" blue="145" />
+    </line_color>
+    <background_color>
+      <color red="240" green="241" blue="244" />
+    </background_color>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>Status_Card_Header</name>
+    <x>20</x>
+    <y>90</y>
+    <width>1000</width>
+    <height>38</height>
+    <line_width>0</line_width>
+    <line_color>
+      <color red="0" green="29" blue="82" />
+    </line_color>
+    <background_color>
+      <color red="0" green="29" blue="82" />
+    </background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Status_Card_Title</name>
+    <x>35</x>
+    <y>97</y>
+    <width>970</width>
+    <height>24</height>
+    <text>ROBOT STATUS</text>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="15.0" />
+    </font>
+    <foreground_color>
+      <color red="255" green="255" blue="255" />
+    </foreground_color>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>COMM_STATUS_L</name>
+    <x>40</x>
+    <y>145</y>
+    <width>110</width>
+    <height>24</height>
+    <text>Connected:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>COMM_STATUS_LED</name>
+    <x>150</x>
+    <y>142</y>
+    <width>26</width>
+    <height>26</height>
+    <pv_name>pva://$(P):COMM_STATUS</pv_name>
+    <bit>0</bit>
+    <off_color>
+      <color red="200" green="50" blue="50" />
+    </off_color>
+    <on_color>
+      <color red="30" green="160" blue="70" />
+    </on_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>SIMULATION_L</name>
+    <x>260</x>
+    <y>145</y>
+    <width>110</width>
+    <height>24</height>
+    <text>Simulation:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>SIMULATION_LED</name>
+    <x>370</x>
+    <y>142</y>
+    <width>26</width>
+    <height>26</height>
+    <pv_name>pva://$(P):SIMULATION</pv_name>
+    <bit>0</bit>
+    <off_color>
+      <color red="200" green="50" blue="50" />
+    </off_color>
+    <on_color>
+      <color red="30" green="160" blue="70" />
+    </on_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>X_REFERENCED_L</name>
+    <x>480</x>
+    <y>145</y>
+    <width>110</width>
+    <height>24</height>
+    <text>X referenced:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>X_REFERENCED_LED</name>
+    <x>590</x>
+    <y>142</y>
+    <width>26</width>
+    <height>26</height>
+    <pv_name>pva://$(P):X_REFERENCED</pv_name>
+    <bit>0</bit>
+    <off_color>
+      <color red="200" green="50" blue="50" />
+    </off_color>
+    <on_color>
+      <color red="30" green="160" blue="70" />
+    </on_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Y_REFERENCED_L</name>
+    <x>700</x>
+    <y>145</y>
+    <width>110</width>
+    <height>24</height>
+    <text>Y referenced:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>Y_REFERENCED_LED</name>
+    <x>810</x>
+    <y>142</y>
+    <width>26</width>
+    <height>26</height>
+    <pv_name>pva://$(P):Y_REFERENCED</pv_name>
+    <bit>0</bit>
+    <off_color>
+      <color red="200" green="50" blue="50" />
+    </off_color>
+    <on_color>
+      <color red="30" green="160" blue="70" />
+    </on_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Mode_L</name>
+    <x>40</x>
+    <y>190</y>
+    <width>105</width>
+    <height>24</height>
+    <text>Control mode:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Mode_V</name>
+    <x>145</x>
+    <y>188</y>
+    <width>155</width>
+    <height>25</height>
+    <pv_name>pva://$(P):CONTROL_MODE</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Firmware_L</name>
+    <x>340</x>
+    <y>190</y>
+    <width>80</width>
+    <height>24</height>
+    <text>Firmware:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Firmware_V</name>
+    <x>420</x>
+    <y>188</y>
+    <width>250</width>
+    <height>25</height>
+    <pv_name>pva://$(P):FIRMWARE</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>RobotError_L</name>
+    <x>40</x>
+    <y>235</y>
+    <width>55</width>
+    <height>24</height>
+    <text>Fault:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>RobotError_V</name>
+    <x>95</x>
+    <y>233</y>
+    <width>895</width>
+    <height>25</height>
+    <pv_name>pva://$(P):LAST_ERROR</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>Position_Card</name>
+    <x>20</x>
+    <y>320</y>
+    <width>1000</width>
+    <height>250</height>
+    <line_width>2</line_width>
+    <line_color>
+      <color red="0" green="53" blue="145" />
+    </line_color>
+    <background_color>
+      <color red="240" green="241" blue="244" />
+    </background_color>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>Position_Card_Header</name>
+    <x>20</x>
+    <y>320</y>
+    <width>1000</width>
+    <height>38</height>
+    <line_width>0</line_width>
+    <line_color>
+      <color red="0" green="29" blue="82" />
+    </line_color>
+    <background_color>
+      <color red="0" green="29" blue="82" />
+    </background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Position_Card_Title</name>
+    <x>35</x>
+    <y>327</y>
+    <width>970</width>
+    <height>24</height>
+    <text>POSITION / MOTION STATE</text>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="15.0" />
+    </font>
+    <foreground_color>
+      <color red="255" green="255" blue="255" />
+    </foreground_color>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Axis_H</name>
+    <x>45</x>
+    <y>375</y>
+    <width>80</width>
+    <height>24</height>
+    <text>Axis</text>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>User_H</name>
+    <x>145</x>
+    <y>375</y>
+    <width>120</width>
+    <height>24</height>
+    <text>User position</text>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Machine_H</name>
+    <x>315</x>
+    <y>375</y>
+    <width>140</width>
+    <height>24</height>
+    <text>Machine position</text>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Fresh_H</name>
+    <x>510</x>
+    <y>375</y>
+    <width>80</width>
+    <height>24</height>
+    <text>Fresh</text>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Busy_H</name>
+    <x>640</x>
+    <y>375</y>
+    <width>80</width>
+    <height>24</height>
+    <text>Moving</text>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Motor_H</name>
+    <x>775</x>
+    <y>375</y>
+    <width>80</width>
+    <height>24</height>
+    <text>Motor</text>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>X_Axis</name>
+    <x>45</x>
+    <y>420</y>
+    <width>80</width>
+    <height>24</height>
+    <text>X</text>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>X_CM</name>
+    <x>145</x>
+    <y>418</y>
+    <width>120</width>
+    <height>25</height>
+    <pv_name>pva://$(P):X_CM</pv_name>
+    <precision>4</precision>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>X_Machine</name>
+    <x>315</x>
+    <y>418</y>
+    <width>140</width>
+    <height>25</height>
+    <pv_name>pva://$(P):X_MACHINE_CM</pv_name>
+    <precision>4</precision>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>X_Fresh</name>
+    <x>530</x>
+    <y>417</y>
+    <width>26</width>
+    <height>26</height>
+    <pv_name>pva://$(P):X_POSITION_FRESH</pv_name>
+    <bit>0</bit>
+    <off_color>
+      <color red="200" green="50" blue="50" />
+    </off_color>
+    <on_color>
+      <color red="30" green="160" blue="70" />
+    </on_color>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>X_Busy</name>
+    <x>660</x>
+    <y>417</y>
+    <width>26</width>
+    <height>26</height>
+    <pv_name>pva://$(P):X_BUSY</pv_name>
+    <bit>0</bit>
+    <off_color>
+      <color red="150" green="155" blue="160" />
+    </off_color>
+    <on_color>
+      <color red="30" green="160" blue="70" />
+    </on_color>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>X_Motor</name>
+    <x>795</x>
+    <y>417</y>
+    <width>26</width>
+    <height>26</height>
+    <pv_name>pva://$(P):X_MOTOR_ENABLE</pv_name>
+    <bit>0</bit>
+    <off_color>
+      <color red="150" green="155" blue="160" />
+    </off_color>
+    <on_color>
+      <color red="30" green="160" blue="70" />
+    </on_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Y_Axis</name>
+    <x>45</x>
+    <y>480</y>
+    <width>80</width>
+    <height>24</height>
+    <text>Y</text>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Y_CM</name>
+    <x>145</x>
+    <y>478</y>
+    <width>120</width>
+    <height>25</height>
+    <pv_name>pva://$(P):Y_CM</pv_name>
+    <precision>4</precision>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Y_Machine</name>
+    <x>315</x>
+    <y>478</y>
+    <width>140</width>
+    <height>25</height>
+    <pv_name>pva://$(P):Y_MACHINE_CM</pv_name>
+    <precision>4</precision>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>Y_Fresh</name>
+    <x>530</x>
+    <y>477</y>
+    <width>26</width>
+    <height>26</height>
+    <pv_name>pva://$(P):Y_POSITION_FRESH</pv_name>
+    <bit>0</bit>
+    <off_color>
+      <color red="200" green="50" blue="50" />
+    </off_color>
+    <on_color>
+      <color red="30" green="160" blue="70" />
+    </on_color>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>Y_Busy</name>
+    <x>660</x>
+    <y>477</y>
+    <width>26</width>
+    <height>26</height>
+    <pv_name>pva://$(P):Y_BUSY</pv_name>
+    <bit>0</bit>
+    <off_color>
+      <color red="150" green="155" blue="160" />
+    </off_color>
+    <on_color>
+      <color red="30" green="160" blue="70" />
+    </on_color>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>Y_Motor</name>
+    <x>795</x>
+    <y>477</y>
+    <width>26</width>
+    <height>26</height>
+    <pv_name>pva://$(P):Y_MOTOR_ENABLE</pv_name>
+    <bit>0</bit>
+    <off_color>
+      <color red="150" green="155" blue="160" />
+    </off_color>
+    <on_color>
+      <color red="30" green="160" blue="70" />
+    </on_color>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>Safety_Card</name>
+    <x>20</x>
+    <y>590</y>
+    <width>1000</width>
+    <height>205</height>
+    <line_width>2</line_width>
+    <line_color>
+      <color red="0" green="53" blue="145" />
+    </line_color>
+    <background_color>
+      <color red="240" green="241" blue="244" />
+    </background_color>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>Safety_Card_Header</name>
+    <x>20</x>
+    <y>590</y>
+    <width>1000</width>
+    <height>38</height>
+    <line_width>0</line_width>
+    <line_color>
+      <color red="0" green="29" blue="82" />
+    </line_color>
+    <background_color>
+      <color red="0" green="29" blue="82" />
+    </background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Safety_Card_Title</name>
+    <x>35</x>
+    <y>597</y>
+    <width>970</width>
+    <height>24</height>
+    <text>MOTION SAFETY</text>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="15.0" />
+    </font>
+    <foreground_color>
+      <color red="255" green="255" blue="255" />
+    </foreground_color>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>ESTOP_L</name>
+    <x>45</x>
+    <y>645</y>
+    <width>150</width>
+    <height>24</height>
+    <text>Software STOP ALL:</text>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="bool_button" version="2.0.0">
+    <name>ESTOP</name>
+    <x>200</x>
+    <y>640</y>
+    <width>150</width>
+    <height>32</height>
+    <pv_name>pva://$(P):ESTOP</pv_name>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Limits_Config_L</name>
+    <x>410</x>
+    <y>645</y>
+    <width>145</width>
+    <height>24</height>
+    <text>Limits configurable:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>Limits_Config_LED</name>
+    <x>555</x>
+    <y>642</y>
+    <width>26</width>
+    <height>26</height>
+    <pv_name>pva://$(P):LIMITS_CONFIGURABLE</pv_name>
+    <bit>0</bit>
+    <off_color>
+      <color red="150" green="155" blue="160" />
+    </off_color>
+    <on_color>
+      <color red="30" green="160" blue="70" />
+    </on_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>X_Limits_L</name>
+    <x>635</x>
+    <y>645</y>
+    <width>105</width>
+    <height>24</height>
+    <text>X soft limits:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>X_Limits_LED</name>
+    <x>740</x>
+    <y>642</y>
+    <width>26</width>
+    <height>26</height>
+    <pv_name>pva://$(P):X_SOFT_LIMITS_ENABLED</pv_name>
+    <bit>0</bit>
+    <off_color>
+      <color red="150" green="155" blue="160" />
+    </off_color>
+    <on_color>
+      <color red="30" green="160" blue="70" />
+    </on_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Y_Limits_L</name>
+    <x>805</x>
+    <y>645</y>
+    <width>105</width>
+    <height>24</height>
+    <text>Y soft limits:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>Y_Limits_LED</name>
+    <x>910</x>
+    <y>642</y>
+    <width>26</width>
+    <height>26</height>
+    <pv_name>pva://$(P):Y_SOFT_LIMITS_ENABLED</pv_name>
+    <bit>0</bit>
+    <off_color>
+      <color red="150" green="155" blue="160" />
+    </off_color>
+    <on_color>
+      <color red="30" green="160" blue="70" />
+    </on_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Robot_Safety_Note</name>
+    <x>45</x>
+    <y>700</y>
+    <width>920</width>
+    <height>70</height>
+    <text>Motion commands, motor-enable controls, ZERO and HOME are intentionally not exposed here before physical robot commissioning. The known hardware reference is the home-switch position; software travel limits are not yet trusted.</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="12.0" />
+    </font>
+    <wrap_words>true</wrap_words>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Robot_Footer</name>
+    <x>30</x>
+    <y>825</y>
+    <width>980</width>
+    <height>50</height>
+    <text>Physical operation must begin from the verified home reference. Use the hardware enable/stop procedure during commissioning.</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="12.0" />
+    </font>
+    <wrap_words>true</wrap_words>
+    <transparent>true</transparent>
+  </widget>
+</display>

@@ -1,37 +1,29 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <display version="2.0.0">
   <name>Genesis Microwave Subsystem</name>
-  <width>840</width>
-  <height>540</height>
-
-  <macros>
-    <P>UNH:GEN:MW:PS</P>
-    <M>UNH:GEN:MAN:mw_spd1305x</M>
-  </macros>
-
-  <!-- =========================================================
-       UNH HEADER
-       Primary UNH blue: #003591 = RGB(0,53,145)
-       ========================================================= -->
+  <width>1180</width>
+  <height>1120</height>
   <widget type="rectangle" version="2.0.0">
-    <name>UNH_Header_Background</name>
+    <name>Header_Background</name>
     <x>0</x>
     <y>0</y>
-    <width>840</width>
+    <width>1180</width>
     <height>70</height>
     <line_width>0</line_width>
+    <line_color>
+      <color red="0" green="53" blue="145" />
+    </line_color>
     <background_color>
       <color red="0" green="53" blue="145" />
     </background_color>
   </widget>
-
   <widget type="label" version="2.0.0">
     <name>Title</name>
-    <text>UNH Genesis - Microwave Subsystem</text>
     <x>20</x>
-    <y>14</y>
-    <width>560</width>
+    <y>13</y>
+    <width>780</width>
     <height>32</height>
+    <text>UNH Genesis - Microwave Subsystem</text>
     <font>
       <font family="Liberation Sans" style="BOLD" size="22.0" />
     </font>
@@ -40,32 +32,28 @@
     </foreground_color>
     <transparent>true</transparent>
   </widget>
-
   <widget type="label" version="2.0.0">
     <name>Subtitle</name>
+    <x>820</x>
+    <y>18</y>
+    <width>330</width>
+    <height>24</height>
     <text>Phase-I subsystem overview</text>
-    <x>600</x>
-    <y>23</y>
-    <width>215</width>
-    <height>22</height>
     <font>
       <font family="Liberation Sans" style="REGULAR" size="12.0" />
     </font>
     <foreground_color>
       <color red="255" green="255" blue="255" />
     </foreground_color>
+    <horizontal_alignment>2</horizontal_alignment>
     <transparent>true</transparent>
   </widget>
-
-  <!-- =========================================================
-       SPD1305X DEVICE CARD
-       ========================================================= -->
   <widget type="rectangle" version="2.0.0">
-    <name>SPD1305X_Card</name>
+    <name>System_Status</name>
     <x>20</x>
     <y>90</y>
-    <width>800</width>
-    <height>345</height>
+    <width>1140</width>
+    <height>120</height>
     <line_width>2</line_width>
     <line_color>
       <color red="0" green="53" blue="145" />
@@ -74,135 +62,55 @@
       <color red="240" green="241" blue="244" />
     </background_color>
   </widget>
-
-  <!-- Dark UNH blue device heading -->
   <widget type="rectangle" version="2.0.0">
-    <name>SPD1305X_Header_Background</name>
+    <name>System_Status_Header</name>
     <x>20</x>
     <y>90</y>
-    <width>800</width>
-    <height>42</height>
+    <width>1140</width>
+    <height>38</height>
     <line_width>0</line_width>
+    <line_color>
+      <color red="0" green="29" blue="82" />
+    </line_color>
     <background_color>
       <color red="0" green="29" blue="82" />
     </background_color>
   </widget>
-
   <widget type="label" version="2.0.0">
-    <name>SPD1305X_Title</name>
-    <text>Microwave Power Supply - Siglent SPD1305X</text>
+    <name>System_Status_Title</name>
     <x>35</x>
-    <y>100</y>
-    <width>400</width>
+    <y>97</y>
+    <width>1110</width>
     <height>24</height>
+    <text>SYSTEM STATUS</text>
     <font>
-      <font family="Liberation Sans" style="BOLD" size="16.0" />
+      <font family="Liberation Sans" style="BOLD" size="15.0" />
     </font>
     <foreground_color>
       <color red="255" green="255" blue="255" />
     </foreground_color>
     <transparent>true</transparent>
   </widget>
-
   <widget type="label" version="2.0.0">
-    <name>SPD_Prefix</name>
-    <text>$(P)</text>
-    <x>560</x>
-    <y>102</y>
-    <width>235</width>
-    <height>20</height>
-    <horizontal_alignment>2</horizontal_alignment>
-    <foreground_color>
-      <color red="255" green="255" blue="255" />
-    </foreground_color>
+    <name>Status_0_Name</name>
+    <x>45</x>
+    <y>140</y>
+    <width>125</width>
+    <height>24</height>
+    <text>UCA</text>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
     <transparent>true</transparent>
   </widget>
-
-  <!-- IOC MANAGEMENT -->
-  <widget type="label" version="2.0.0">
-    <name>IOC_Heading</name>
-    <text>IOC</text>
-    <x>40</x>
-    <y>150</y>
-    <width>80</width>
-    <height>22</height>
-    <font>
-      <font family="Liberation Sans" style="BOLD" size="14.0" />
-    </font>
-  </widget>
-
-  <widget type="label" version="2.0.0">
-    <name>IOC_Control_Label</name>
-    <text>Run:</text>
-    <x>40</x>
-    <y>183</y>
-    <width>70</width>
-  </widget>
-
-  <widget type="bool_button" version="2.0.0">
-    <name>IOC_Control</name>
-    <pv_name>pva://$(M)_control</pv_name>
-    <x>115</x>
-    <y>180</y>
-    <width>85</width>
-    <height>25</height>
-    <tooltip>Start or stop the SPD1305X IOC through the Genesis IOC Manager.</tooltip>
-  </widget>
-
-  <widget type="label" version="2.0.0">
-    <name>Heartbeat_Label</name>
-    <text>HB age:</text>
-    <x>40</x>
-    <y>218</y>
-    <width>70</width>
-  </widget>
-
-  <widget type="textupdate" version="2.0.0">
-    <name>Heartbeat_Readback</name>
-    <pv_name>pva://$(M)_hb</pv_name>
-    <x>115</x>
-    <y>215</y>
-    <width>85</width>
-    <precision>0</precision>
-  </widget>
-
-  <widget type="label" version="2.0.0">
-    <name>Heartbeat_Units</name>
-    <text>s</text>
-    <x>205</x>
-    <y>218</y>
-    <width>25</width>
-  </widget>
-
-  <!-- DEVICE STATUS -->
-  <widget type="label" version="2.0.0">
-    <name>Status_Heading</name>
-    <text>Device status</text>
-    <x>270</x>
-    <y>150</y>
-    <width>130</width>
-    <height>22</height>
-    <font>
-      <font family="Liberation Sans" style="BOLD" size="14.0" />
-    </font>
-  </widget>
-
-  <widget type="label" version="2.0.0">
-    <name>COMM_Label</name>
-    <text>Connected:</text>
-    <x>270</x>
-    <y>183</y>
-    <width>90</width>
-  </widget>
-
   <widget type="led" version="2.0.0">
-    <name>COMM_LED</name>
-    <pv_name>pva://$(P):COMM</pv_name>
-    <bit>0</bit>
-    <x>365</x>
-    <y>180</y>
+    <name>Status_0_COMM_LED</name>
+    <x>175</x>
+    <y>137</y>
     <width>26</width>
     <height>26</height>
+    <pv_name>pva://UNH:GEN:MW:PS:COMM</pv_name>
+    <bit>0</bit>
     <off_color>
       <color red="200" green="50" blue="50" />
     </off_color>
@@ -210,227 +118,1705 @@
       <color red="30" green="160" blue="70" />
     </on_color>
   </widget>
-
   <widget type="textupdate" version="2.0.0">
-    <name>COMM_Readback</name>
-    <pv_name>pva://$(P):COMM</pv_name>
-    <x>400</x>
-    <y>182</y>
-    <width>70</width>
+    <name>Status_0_COMM</name>
+    <x>210</x>
+    <y>138</y>
+    <width>90</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:MW:PS:COMM</pv_name>
     <format>6</format>
   </widget>
-
   <widget type="label" version="2.0.0">
-    <name>Output_Label</name>
-    <text>Output:</text>
-    <x>270</x>
-    <y>218</y>
-    <width>90</width>
+    <name>Status_0_HB_Label</name>
+    <x>45</x>
+    <y>175</y>
+    <width>70</width>
+    <height>24</height>
+    <text>IOC HB:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
   </widget>
-
+  <widget type="textupdate" version="2.0.0">
+    <name>Status_0_HB</name>
+    <x>115</x>
+    <y>173</y>
+    <width>75</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:MAN:mw_spd1305x_hb</pv_name>
+    <precision>0</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Status_0_HB_Unit</name>
+    <x>195</x>
+    <y>175</y>
+    <width>20</width>
+    <height>24</height>
+    <text>s</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Status_1_Name</name>
+    <x>320</x>
+    <y>140</y>
+    <width>125</width>
+    <height>24</height>
+    <text>Vaunix</text>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
   <widget type="led" version="2.0.0">
-    <name>Output_LED</name>
-    <pv_name>pva://$(P):OUTPUT_RBV</pv_name>
-    <bit>0</bit>
-    <x>365</x>
-    <y>215</y>
+    <name>Status_1_COMM_LED</name>
+    <x>450</x>
+    <y>137</y>
     <width>26</width>
     <height>26</height>
+    <pv_name>pva://UNH:GEN:MW:SRC:MW_Connected</pv_name>
+    <bit>0</bit>
     <off_color>
-      <color red="170" green="170" blue="170" />
+      <color red="200" green="50" blue="50" />
     </off_color>
     <on_color>
       <color red="30" green="160" blue="70" />
     </on_color>
   </widget>
-
   <widget type="textupdate" version="2.0.0">
-    <name>Output_Readback</name>
-    <pv_name>pva://$(P):OUTPUT_RBV</pv_name>
-    <x>400</x>
-    <y>217</y>
+    <name>Status_1_COMM</name>
+    <x>485</x>
+    <y>138</y>
+    <width>90</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:MW:SRC:MW_Connected</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Status_1_HB_Label</name>
+    <x>320</x>
+    <y>175</y>
     <width>70</width>
-    <format>6</format>
-  </widget>
-
-  <widget type="label" version="2.0.0">
-    <name>Mode_Label</name>
-    <text>Mode:</text>
-    <x>270</x>
-    <y>253</y>
-    <width>90</width>
-  </widget>
-
-  <widget type="textupdate" version="2.0.0">
-    <name>Mode_Readback</name>
-    <pv_name>pva://$(P):MODE_RBV</pv_name>
-    <x>365</x>
-    <y>252</y>
-    <width>105</width>
-    <format>6</format>
-  </widget>
-
-  <!-- MEASUREMENTS -->
-  <widget type="label" version="2.0.0">
-    <name>Measurements_Heading</name>
-    <text>Measurements</text>
-    <x>520</x>
-    <y>150</y>
-    <width>140</width>
-    <height>22</height>
+    <height>24</height>
+    <text>IOC HB:</text>
     <font>
-      <font family="Liberation Sans" style="BOLD" size="14.0" />
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
     </font>
+    <transparent>true</transparent>
   </widget>
-
-  <widget type="label" version="2.0.0">
-    <name>Voltage_Label</name>
-    <text>Voltage:</text>
-    <x>520</x>
-    <y>183</y>
-    <width>80</width>
-  </widget>
-
   <widget type="textupdate" version="2.0.0">
-    <name>Voltage_Readback</name>
-    <pv_name>pva://$(P):VMEAS</pv_name>
-    <x>605</x>
-    <y>180</y>
-    <width>100</width>
-    <precision>3</precision>
+    <name>Status_1_HB</name>
+    <x>390</x>
+    <y>173</y>
+    <width>75</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:MAN:mw_vaunix_lms_hb</pv_name>
+    <precision>0</precision>
   </widget>
-
   <widget type="label" version="2.0.0">
-    <name>Voltage_Units</name>
-    <text>V</text>
-    <x>715</x>
-    <y>183</y>
-    <width>25</width>
+    <name>Status_1_HB_Unit</name>
+    <x>470</x>
+    <y>175</y>
+    <width>20</width>
+    <height>24</height>
+    <text>s</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
   </widget>
-
   <widget type="label" version="2.0.0">
-    <name>Current_Label</name>
-    <text>Current:</text>
-    <x>520</x>
-    <y>218</y>
-    <width>80</width>
+    <name>Status_2_Name</name>
+    <x>595</x>
+    <y>140</y>
+    <width>125</width>
+    <height>24</height>
+    <text>Supervisor</text>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <transparent>true</transparent>
   </widget>
-
+  <widget type="led" version="2.0.0">
+    <name>Status_2_COMM_LED</name>
+    <x>725</x>
+    <y>137</y>
+    <width>26</width>
+    <height>26</height>
+    <pv_name>pva://UNH:GEN:MW:SUP:SystemConnected</pv_name>
+    <bit>0</bit>
+    <off_color>
+      <color red="200" green="50" blue="50" />
+    </off_color>
+    <on_color>
+      <color red="30" green="160" blue="70" />
+    </on_color>
+  </widget>
   <widget type="textupdate" version="2.0.0">
-    <name>Current_Readback</name>
-    <pv_name>pva://$(P):IMEAS</pv_name>
-    <x>605</x>
-    <y>215</y>
-    <width>100</width>
-    <precision>3</precision>
-  </widget>
-
-  <widget type="label" version="2.0.0">
-    <name>Current_Units</name>
-    <text>A</text>
-    <x>715</x>
-    <y>218</y>
-    <width>25</width>
-  </widget>
-
-  <widget type="label" version="2.0.0">
-    <name>Power_Label</name>
-    <text>Power:</text>
-    <x>520</x>
-    <y>253</y>
-    <width>80</width>
-  </widget>
-
-  <widget type="textupdate" version="2.0.0">
-    <name>Power_Readback</name>
-    <pv_name>pva://$(P):PMEAS</pv_name>
-    <x>605</x>
-    <y>250</y>
-    <width>100</width>
-    <precision>3</precision>
-  </widget>
-
-  <widget type="label" version="2.0.0">
-    <name>Power_Units</name>
-    <text>W</text>
-    <x>715</x>
-    <y>253</y>
-    <width>25</width>
-  </widget>
-
-  <!-- ERROR -->
-  <widget type="label" version="2.0.0">
-    <name>Error_Label</name>
-    <text>Last error:</text>
-    <x>40</x>
-    <y>305</y>
+    <name>Status_2_COMM</name>
+    <x>760</x>
+    <y>138</y>
     <width>90</width>
-  </widget>
-
-  <widget type="textupdate" version="2.0.0">
-    <name>Error_Readback</name>
-    <pv_name>pva://$(P):ERROR</pv_name>
-    <x>135</x>
-    <y>302</y>
-    <width>645</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:MW:SUP:SystemConnected</pv_name>
     <format>6</format>
   </widget>
-
-  <!-- NAVIGATION -->
-  <widget type="action_button" version="3.0.0">
-    <name>Open_SPD1305X</name>
-    <actions>
-      <action type="open_display">
-        <file>genesis_mw_spd1305x.bob</file>
-        <target>window</target>
-        <description>Open SPD1305X device screen</description>
-      </action>
-    </actions>
-    <text>Open SPD1305X Device Controls</text>
-    <x>40</x>
-    <y>355</y>
-    <width>260</width>
-    <height>40</height>
-    <tooltip>Open the detailed Genesis SPD1305X control and diagnostic screen.</tooltip>
-  </widget>
-
   <widget type="label" version="2.0.0">
-    <name>Overview_Note</name>
-    <text>Subsystem view is for status and navigation. Detailed hardware commands remain on the device screen.</text>
-    <x>325</x>
-    <y>360</y>
-    <width>455</width>
-    <height>35</height>
-    <wrap_words>true</wrap_words>
+    <name>Status_2_HB_Label</name>
+    <x>595</x>
+    <y>175</y>
+    <width>70</width>
+    <height>24</height>
+    <text>IOC HB:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
   </widget>
-
-  <!-- =========================================================
-       FUTURE MICROWAVE DEVICES
-       ========================================================= -->
+  <widget type="textupdate" version="2.0.0">
+    <name>Status_2_HB</name>
+    <x>665</x>
+    <y>173</y>
+    <width>75</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:MAN:mw_supervisor_hb</pv_name>
+    <precision>0</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Status_2_HB_Unit</name>
+    <x>745</x>
+    <y>175</y>
+    <width>20</width>
+    <height>24</height>
+    <text>s</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Status_3_Name</name>
+    <x>870</x>
+    <y>140</y>
+    <width>125</width>
+    <height>24</height>
+    <text>Robot</text>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>Status_3_COMM_LED</name>
+    <x>1000</x>
+    <y>137</y>
+    <width>26</width>
+    <height>26</height>
+    <pv_name>pva://UNH:GEN:MW:ROBOT:COMM_STATUS</pv_name>
+    <bit>0</bit>
+    <off_color>
+      <color red="200" green="50" blue="50" />
+    </off_color>
+    <on_color>
+      <color red="30" green="160" blue="70" />
+    </on_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Status_3_COMM</name>
+    <x>1035</x>
+    <y>138</y>
+    <width>90</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:MW:ROBOT:COMM_STATUS</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Status_3_HB_Label</name>
+    <x>870</x>
+    <y>175</y>
+    <width>70</width>
+    <height>24</height>
+    <text>IOC HB:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Status_3_HB</name>
+    <x>940</x>
+    <y>173</y>
+    <width>75</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:MAN:mw_pcl602_hb</pv_name>
+    <precision>0</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Status_3_HB_Unit</name>
+    <x>1020</x>
+    <y>175</y>
+    <width>20</width>
+    <height>24</height>
+    <text>s</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
   <widget type="rectangle" version="2.0.0">
-    <name>Future_Device_Card</name>
+    <name>Supervisor_Card</name>
     <x>20</x>
-    <y>455</y>
-    <width>800</width>
-    <height>60</height>
+    <y>230</y>
+    <width>1140</width>
+    <height>305</height>
+    <line_width>2</line_width>
     <line_color>
       <color red="0" green="53" blue="145" />
     </line_color>
     <background_color>
-      <color red="255" green="255" blue="255" />
+      <color red="240" green="241" blue="244" />
     </background_color>
   </widget>
-
-  <widget type="label" version="2.0.0">
-    <name>Future_Device_Label</name>
-    <text>Additional Microwave devices will be added here as Phase-I IOC integrations are completed.</text>
-    <x>40</x>
-    <y>474</y>
-    <width>750</width>
-    <height>24</height>
-    <foreground_color>
-      <color red="92" green="104" blue="116" />
-    </foreground_color>
+  <widget type="rectangle" version="2.0.0">
+    <name>Supervisor_Card_Header</name>
+    <x>20</x>
+    <y>230</y>
+    <width>1140</width>
+    <height>38</height>
+    <line_width>0</line_width>
+    <line_color>
+      <color red="0" green="29" blue="82" />
+    </line_color>
+    <background_color>
+      <color red="0" green="29" blue="82" />
+    </background_color>
   </widget>
-
+  <widget type="label" version="2.0.0">
+    <name>Supervisor_Card_Title</name>
+    <x>35</x>
+    <y>237</y>
+    <width>1110</width>
+    <height>24</height>
+    <text>MICROWAVE OPERATION - SUPERVISOR</text>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="15.0" />
+    </font>
+    <foreground_color>
+      <color red="255" green="255" blue="255" />
+    </foreground_color>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>SUP_Connected_L</name>
+    <x>45</x>
+    <y>280</y>
+    <width>90</width>
+    <height>24</height>
+    <text>System:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>SUP_Connected_LED</name>
+    <x>135</x>
+    <y>277</y>
+    <width>26</width>
+    <height>26</height>
+    <pv_name>pva://UNH:GEN:MW:SUP:SystemConnected</pv_name>
+    <bit>0</bit>
+    <off_color>
+      <color red="200" green="50" blue="50" />
+    </off_color>
+    <on_color>
+      <color red="30" green="160" blue="70" />
+    </on_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>SUP_Connected_V</name>
+    <x>170</x>
+    <y>278</y>
+    <width>100</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:MW:SUP:SystemConnected</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>SUP_Permit_L</name>
+    <x>305</x>
+    <y>280</y>
+    <width>90</width>
+    <height>24</height>
+    <text>RF permit:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>SUP_Permit_LED</name>
+    <x>395</x>
+    <y>277</y>
+    <width>26</width>
+    <height>26</height>
+    <pv_name>pva://UNH:GEN:MW:SUP:RFPermissive</pv_name>
+    <bit>0</bit>
+    <off_color>
+      <color red="200" green="50" blue="50" />
+    </off_color>
+    <on_color>
+      <color red="30" green="160" blue="70" />
+    </on_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>SUP_Permit_V</name>
+    <x>430</x>
+    <y>278</y>
+    <width>100</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:MW:SUP:RFPermissive</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>SUP_Simulation_L</name>
+    <x>565</x>
+    <y>280</y>
+    <width>90</width>
+    <height>24</height>
+    <text>Simulation:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>SUP_Simulation_LED</name>
+    <x>655</x>
+    <y>277</y>
+    <width>26</width>
+    <height>26</height>
+    <pv_name>pva://UNH:GEN:MW:SUP:Simulation</pv_name>
+    <bit>0</bit>
+    <off_color>
+      <color red="200" green="50" blue="50" />
+    </off_color>
+    <on_color>
+      <color red="30" green="160" blue="70" />
+    </on_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>SUP_Simulation_V</name>
+    <x>690</x>
+    <y>278</y>
+    <width>110</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:MW:SUP:Simulation</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>SUP_RF_L</name>
+    <x>835</x>
+    <y>280</y>
+    <width>90</width>
+    <height>24</height>
+    <text>RF enable:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="slide_button" version="2.0.0">
+    <name>SUP_RF_CMD</name>
+    <x>925</x>
+    <y>277</y>
+    <width>120</width>
+    <height>28</height>
+    <pv_name>pva://UNH:GEN:MW:SUP:RFEnable</pv_name>
+    <label />
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>SUP_RF_LED</name>
+    <x>1060</x>
+    <y>277</y>
+    <width>26</width>
+    <height>26</height>
+    <pv_name>pva://UNH:GEN:MW:SUP:RFEnable</pv_name>
+    <bit>0</bit>
+    <off_color>
+      <color red="150" green="155" blue="160" />
+    </off_color>
+    <on_color>
+      <color red="30" green="160" blue="70" />
+    </on_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>SUP_Reason_L</name>
+    <x>45</x>
+    <y>320</y>
+    <width>145</width>
+    <height>24</height>
+    <text>Permit / block reason:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>SUP_Reason_V</name>
+    <x>195</x>
+    <y>318</y>
+    <width>915</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:MW:SUP:InterlockMessage</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>SUP_Freq_L</name>
+    <x>45</x>
+    <y>362</y>
+    <width>125</width>
+    <height>24</height>
+    <text>Output frequency:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textentry" version="2.0.0">
+    <name>SUP_Freq_CMD</name>
+    <x>175</x>
+    <y>359</y>
+    <width>120</width>
+    <height>28</height>
+    <pv_name>pva://UNH:GEN:MW:SUP:OutputFrequency</pv_name>
+    <precision>5</precision>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>SUP_Freq_RBV</name>
+    <x>310</x>
+    <y>360</y>
+    <width>120</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:MW:SUP:OutputFrequencyRBV</pv_name>
+    <precision>5</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>SUP_Freq_U</name>
+    <x>440</x>
+    <y>362</y>
+    <width>45</width>
+    <height>24</height>
+    <text>GHz</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>SUP_Central_L</name>
+    <x>520</x>
+    <y>362</y>
+    <width>125</width>
+    <height>24</height>
+    <text>Central frequency:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>SUP_Central_V</name>
+    <x>650</x>
+    <y>360</y>
+    <width>120</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:MW:SUP:CentralFrequency</pv_name>
+    <precision>5</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>SUP_Central_U</name>
+    <x>780</x>
+    <y>362</y>
+    <width>45</width>
+    <height>24</height>
+    <text>GHz</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>SUP_SweepState_L</name>
+    <x>850</x>
+    <y>362</y>
+    <width>100</width>
+    <height>24</height>
+    <text>Sweep state:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>SUP_SweepState_V</name>
+    <x>950</x>
+    <y>360</y>
+    <width>160</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:MW:SUP:SweepState</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>SUP_SweepStart_L</name>
+    <x>45</x>
+    <y>405</y>
+    <width>65</width>
+    <height>24</height>
+    <text>Start:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textentry" version="2.0.0">
+    <name>SUP_SweepStart_V</name>
+    <x>110</x>
+    <y>402</y>
+    <width>115</width>
+    <height>28</height>
+    <pv_name>pva://UNH:GEN:MW:SUP:SweepStart</pv_name>
+    <precision>5</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>SUP_SweepStop_L</name>
+    <x>315</x>
+    <y>405</y>
+    <width>65</width>
+    <height>24</height>
+    <text>Stop:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textentry" version="2.0.0">
+    <name>SUP_SweepStop_V</name>
+    <x>380</x>
+    <y>402</y>
+    <width>115</width>
+    <height>28</height>
+    <pv_name>pva://UNH:GEN:MW:SUP:SweepStop</pv_name>
+    <precision>5</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>SUP_SweepStep_L</name>
+    <x>585</x>
+    <y>405</y>
+    <width>65</width>
+    <height>24</height>
+    <text>Step:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textentry" version="2.0.0">
+    <name>SUP_SweepStep_V</name>
+    <x>650</x>
+    <y>402</y>
+    <width>115</width>
+    <height>28</height>
+    <pv_name>pva://UNH:GEN:MW:SUP:SweepStep</pv_name>
+    <precision>5</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>SUP_SweepDwell_L</name>
+    <x>855</x>
+    <y>405</y>
+    <width>65</width>
+    <height>24</height>
+    <text>Dwell:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textentry" version="2.0.0">
+    <name>SUP_SweepDwell_V</name>
+    <x>920</x>
+    <y>402</y>
+    <width>115</width>
+    <height>28</height>
+    <pv_name>pva://UNH:GEN:MW:SUP:SweepDwell</pv_name>
+    <precision>5</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>SUP_SweepStart_U</name>
+    <x>230</x>
+    <y>405</y>
+    <width>40</width>
+    <height>24</height>
+    <text>GHz</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>SUP_SweepStop_U</name>
+    <x>500</x>
+    <y>405</y>
+    <width>40</width>
+    <height>24</height>
+    <text>GHz</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>SUP_SweepStep_U</name>
+    <x>770</x>
+    <y>405</y>
+    <width>40</width>
+    <height>24</height>
+    <text>GHz</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>SUP_SweepDwell_U</name>
+    <x>1040</x>
+    <y>405</y>
+    <width>30</width>
+    <height>24</height>
+    <text>s</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="bool_button" version="2.0.0">
+    <name>SUP_SweepStart_CMD</name>
+    <x>45</x>
+    <y>450</y>
+    <width>150</width>
+    <height>30</height>
+    <pv_name>pva://UNH:GEN:MW:SUP:SweepStartCommand</pv_name>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>SUP_SweepStart_CMD_L</name>
+    <x>202</x>
+    <y>454</y>
+    <width>110</width>
+    <height>24</height>
+    <text>START SWEEP</text>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="bool_button" version="2.0.0">
+    <name>SUP_SweepStop_CMD</name>
+    <x>320</x>
+    <y>450</y>
+    <width>150</width>
+    <height>30</height>
+    <pv_name>pva://UNH:GEN:MW:SUP:SweepStopCommand</pv_name>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>SUP_SweepStop_CMD_L</name>
+    <x>477</x>
+    <y>454</y>
+    <width>105</width>
+    <height>24</height>
+    <text>STOP SWEEP</text>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>SUP_Progress_L</name>
+    <x>605</x>
+    <y>454</y>
+    <width>75</width>
+    <height>24</height>
+    <text>Progress:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>SUP_Progress_V</name>
+    <x>680</x>
+    <y>452</y>
+    <width>100</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:MW:SUP:SweepProgress</pv_name>
+    <precision>1</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>SUP_Progress_U</name>
+    <x>785</x>
+    <y>454</y>
+    <width>25</width>
+    <height>24</height>
+    <text>%</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>SUP_Current_L</name>
+    <x>835</x>
+    <y>454</y>
+    <width>70</width>
+    <height>24</height>
+    <text>Current:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>SUP_Current_V</name>
+    <x>905</x>
+    <y>452</y>
+    <width>120</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:MW:SUP:SweepCurrentFrequency</pv_name>
+    <precision>5</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>SUP_Current_U</name>
+    <x>1030</x>
+    <y>454</y>
+    <width>40</width>
+    <height>24</height>
+    <text>GHz</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>SUP_Error_L</name>
+    <x>45</x>
+    <y>495</y>
+    <width>120</width>
+    <height>24</height>
+    <text>Supervisor fault:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>SUP_Error_V</name>
+    <x>170</x>
+    <y>493</y>
+    <width>710</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:MW:SUP:LastError</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Open_Supervisor</name>
+    <x>900</x>
+    <y>489</y>
+    <width>220</width>
+    <height>34</height>
+    <actions>
+      <action type="open_display">
+        <file>genesis_mw_supervisor.bob</file>
+        <target>tab</target>
+        <description>Open Open Supervisor Controls</description>
+      </action>
+    </actions>
+    <text>Open Supervisor Controls</text>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>UCA_Card</name>
+    <x>20</x>
+    <y>555</y>
+    <width>555</width>
+    <height>235</height>
+    <line_width>2</line_width>
+    <line_color>
+      <color red="0" green="53" blue="145" />
+    </line_color>
+    <background_color>
+      <color red="240" green="241" blue="244" />
+    </background_color>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>UCA_Card_Header</name>
+    <x>20</x>
+    <y>555</y>
+    <width>555</width>
+    <height>38</height>
+    <line_width>0</line_width>
+    <line_color>
+      <color red="0" green="29" blue="82" />
+    </line_color>
+    <background_color>
+      <color red="0" green="29" blue="82" />
+    </background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>UCA_Card_Title</name>
+    <x>35</x>
+    <y>562</y>
+    <width>525</width>
+    <height>24</height>
+    <text>UCA POWER SUPPLY - SIGLENT SPD1305X</text>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="15.0" />
+    </font>
+    <foreground_color>
+      <color red="255" green="255" blue="255" />
+    </foreground_color>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>UCA_COMM_L</name>
+    <x>45</x>
+    <y>605</y>
+    <width>95</width>
+    <height>24</height>
+    <text>Connected:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>UCA_COMM_LED</name>
+    <x>140</x>
+    <y>602</y>
+    <width>26</width>
+    <height>26</height>
+    <pv_name>pva://UNH:GEN:MW:PS:COMM</pv_name>
+    <bit>0</bit>
+    <off_color>
+      <color red="200" green="50" blue="50" />
+    </off_color>
+    <on_color>
+      <color red="30" green="160" blue="70" />
+    </on_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>UCA_COMM_V</name>
+    <x>175</x>
+    <y>603</y>
+    <width>100</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:MW:PS:COMM</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>UCA_OUTPUT_L</name>
+    <x>305</x>
+    <y>605</y>
+    <width>70</width>
+    <height>24</height>
+    <text>Output:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>UCA_OUTPUT_LED</name>
+    <x>375</x>
+    <y>602</y>
+    <width>26</width>
+    <height>26</height>
+    <pv_name>pva://UNH:GEN:MW:PS:OUTPUT_RBV</pv_name>
+    <bit>0</bit>
+    <off_color>
+      <color red="200" green="50" blue="50" />
+    </off_color>
+    <on_color>
+      <color red="30" green="160" blue="70" />
+    </on_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>UCA_OUTPUT_V</name>
+    <x>410</x>
+    <y>603</y>
+    <width>100</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:MW:PS:OUTPUT_RBV</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>UCA_V_L</name>
+    <x>45</x>
+    <y>645</y>
+    <width>95</width>
+    <height>24</height>
+    <text>Voltage:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>UCA_V_V</name>
+    <x>140</x>
+    <y>643</y>
+    <width>110</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:MW:PS:VMEAS</pv_name>
+    <precision>4</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>UCA_V_U</name>
+    <x>260</x>
+    <y>645</y>
+    <width>30</width>
+    <height>24</height>
+    <text>V</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>UCA_I_L</name>
+    <x>45</x>
+    <y>677</y>
+    <width>95</width>
+    <height>24</height>
+    <text>Current:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>UCA_I_V</name>
+    <x>140</x>
+    <y>675</y>
+    <width>110</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:MW:PS:IMEAS</pv_name>
+    <precision>4</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>UCA_I_U</name>
+    <x>260</x>
+    <y>677</y>
+    <width>30</width>
+    <height>24</height>
+    <text>A</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>UCA_P_L</name>
+    <x>45</x>
+    <y>709</y>
+    <width>95</width>
+    <height>24</height>
+    <text>Power:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>UCA_P_V</name>
+    <x>140</x>
+    <y>707</y>
+    <width>110</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:MW:PS:PMEAS</pv_name>
+    <precision>4</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>UCA_P_U</name>
+    <x>260</x>
+    <y>709</y>
+    <width>30</width>
+    <height>24</height>
+    <text>W</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>UCA_Error_L</name>
+    <x>305</x>
+    <y>645</y>
+    <width>60</width>
+    <height>24</height>
+    <text>Fault:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>UCA_Error_V</name>
+    <x>365</x>
+    <y>643</y>
+    <width>175</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:MW:PS:ERROR</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Open_UCA</name>
+    <x>305</x>
+    <y>724</y>
+    <width>220</width>
+    <height>34</height>
+    <actions>
+      <action type="open_display">
+        <file>genesis_mw_spd1305x.bob</file>
+        <target>tab</target>
+        <description>Open Open UCA Details</description>
+      </action>
+    </actions>
+    <text>Open UCA Details</text>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>Vaunix_Card</name>
+    <x>600</x>
+    <y>555</y>
+    <width>560</width>
+    <height>235</height>
+    <line_width>2</line_width>
+    <line_color>
+      <color red="0" green="53" blue="145" />
+    </line_color>
+    <background_color>
+      <color red="240" green="241" blue="244" />
+    </background_color>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>Vaunix_Card_Header</name>
+    <x>600</x>
+    <y>555</y>
+    <width>560</width>
+    <height>38</height>
+    <line_width>0</line_width>
+    <line_color>
+      <color red="0" green="29" blue="82" />
+    </line_color>
+    <background_color>
+      <color red="0" green="29" blue="82" />
+    </background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Vaunix_Card_Title</name>
+    <x>615</x>
+    <y>562</y>
+    <width>530</width>
+    <height>24</height>
+    <text>MICROWAVE SOURCE - VAUNIX / BRIDGE12</text>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="15.0" />
+    </font>
+    <foreground_color>
+      <color red="255" green="255" blue="255" />
+    </foreground_color>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>VX_COMM_L</name>
+    <x>625</x>
+    <y>605</y>
+    <width>95</width>
+    <height>24</height>
+    <text>Connected:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>VX_COMM_LED</name>
+    <x>720</x>
+    <y>602</y>
+    <width>26</width>
+    <height>26</height>
+    <pv_name>pva://UNH:GEN:MW:SRC:MW_Connected</pv_name>
+    <bit>0</bit>
+    <off_color>
+      <color red="200" green="50" blue="50" />
+    </off_color>
+    <on_color>
+      <color red="30" green="160" blue="70" />
+    </on_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>VX_COMM_V</name>
+    <x>755</x>
+    <y>603</y>
+    <width>100</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:MW:SRC:MW_Connected</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>VX_LOCK_L</name>
+    <x>890</x>
+    <y>605</y>
+    <width>75</width>
+    <height>24</height>
+    <text>PLL lock:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>VX_LOCK_LED</name>
+    <x>965</x>
+    <y>602</y>
+    <width>26</width>
+    <height>26</height>
+    <pv_name>pva://UNH:GEN:MW:SRC:MW_Lock</pv_name>
+    <bit>0</bit>
+    <off_color>
+      <color red="200" green="50" blue="50" />
+    </off_color>
+    <on_color>
+      <color red="30" green="160" blue="70" />
+    </on_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>VX_OUT_L</name>
+    <x>625</x>
+    <y>645</y>
+    <width>105</width>
+    <height>24</height>
+    <text>Output freq:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>VX_OUT_V</name>
+    <x>735</x>
+    <y>643</y>
+    <width>115</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:MW:SRC:MW_OutFI</pv_name>
+    <precision>5</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>VX_OUT_U</name>
+    <x>855</x>
+    <y>645</y>
+    <width>45</width>
+    <height>24</height>
+    <text>GHz</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>VX_SYN_L</name>
+    <x>625</x>
+    <y>677</y>
+    <width>105</width>
+    <height>24</height>
+    <text>Synth freq:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>VX_SYN_V</name>
+    <x>735</x>
+    <y>675</y>
+    <width>115</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:MW:SRC:MW_FI</pv_name>
+    <precision>5</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>VX_SYN_U</name>
+    <x>855</x>
+    <y>677</y>
+    <width>45</width>
+    <height>24</height>
+    <text>GHz</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>VX_PWR_L</name>
+    <x>625</x>
+    <y>709</y>
+    <width>105</width>
+    <height>24</height>
+    <text>Source power:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>VX_PWR_V</name>
+    <x>735</x>
+    <y>707</y>
+    <width>115</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:MW:SRC:MW_PWRI</pv_name>
+    <precision>5</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>VX_PWR_U</name>
+    <x>855</x>
+    <y>709</y>
+    <width>45</width>
+    <height>24</height>
+    <text>dBm</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>VX_RF_L</name>
+    <x>925</x>
+    <y>645</y>
+    <width>65</width>
+    <height>24</height>
+    <text>Raw RF:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>VX_RF_LED</name>
+    <x>995</x>
+    <y>642</y>
+    <width>26</width>
+    <height>26</height>
+    <pv_name>pva://UNH:GEN:MW:SRC:MW_RF</pv_name>
+    <bit>0</bit>
+    <off_color>
+      <color red="150" green="155" blue="160" />
+    </off_color>
+    <on_color>
+      <color red="30" green="160" blue="70" />
+    </on_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>VX_SIM_L</name>
+    <x>925</x>
+    <y>681</y>
+    <width>80</width>
+    <height>24</height>
+    <text>Simulation:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>VX_SIM_LED</name>
+    <x>1005</x>
+    <y>678</y>
+    <width>26</width>
+    <height>26</height>
+    <pv_name>pva://UNH:GEN:MW:SRC:MW_Simulation</pv_name>
+    <bit>0</bit>
+    <off_color>
+      <color red="200" green="50" blue="50" />
+    </off_color>
+    <on_color>
+      <color red="30" green="160" blue="70" />
+    </on_color>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Open_Vaunix</name>
+    <x>915</x>
+    <y>724</y>
+    <width>220</width>
+    <height>34</height>
+    <actions>
+      <action type="open_display">
+        <file>genesis_mw_vaunix.bob</file>
+        <target>tab</target>
+        <description>Open Open Vaunix Details</description>
+      </action>
+    </actions>
+    <text>Open Vaunix Details</text>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>Robot_Card</name>
+    <x>20</x>
+    <y>810</y>
+    <width>1140</width>
+    <height>235</height>
+    <line_width>2</line_width>
+    <line_color>
+      <color red="0" green="53" blue="145" />
+    </line_color>
+    <background_color>
+      <color red="240" green="241" blue="244" />
+    </background_color>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>Robot_Card_Header</name>
+    <x>20</x>
+    <y>810</y>
+    <width>1140</width>
+    <height>38</height>
+    <line_width>0</line_width>
+    <line_color>
+      <color red="0" green="29" blue="82" />
+    </line_color>
+    <background_color>
+      <color red="0" green="29" blue="82" />
+    </background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Robot_Card_Title</name>
+    <x>35</x>
+    <y>817</y>
+    <width>1110</width>
+    <height>24</height>
+    <text>MICROWAVE POSITIONING ROBOT - PCL602</text>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="15.0" />
+    </font>
+    <foreground_color>
+      <color red="255" green="255" blue="255" />
+    </foreground_color>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>RB_COMM_L</name>
+    <x>45</x>
+    <y>860</y>
+    <width>90</width>
+    <height>24</height>
+    <text>Connected:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>RB_COMM_LED</name>
+    <x>135</x>
+    <y>857</y>
+    <width>26</width>
+    <height>26</height>
+    <pv_name>pva://UNH:GEN:MW:ROBOT:COMM_STATUS</pv_name>
+    <bit>0</bit>
+    <off_color>
+      <color red="200" green="50" blue="50" />
+    </off_color>
+    <on_color>
+      <color red="30" green="160" blue="70" />
+    </on_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>RB_SIM_L</name>
+    <x>190</x>
+    <y>860</y>
+    <width>85</width>
+    <height>24</height>
+    <text>Simulation:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>RB_SIM_LED</name>
+    <x>275</x>
+    <y>857</y>
+    <width>26</width>
+    <height>26</height>
+    <pv_name>pva://UNH:GEN:MW:ROBOT:SIMULATION</pv_name>
+    <bit>0</bit>
+    <off_color>
+      <color red="200" green="50" blue="50" />
+    </off_color>
+    <on_color>
+      <color red="30" green="160" blue="70" />
+    </on_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>RB_MODE_L</name>
+    <x>330</x>
+    <y>860</y>
+    <width>55</width>
+    <height>24</height>
+    <text>Mode:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>RB_MODE_V</name>
+    <x>385</x>
+    <y>858</y>
+    <width>130</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:MW:ROBOT:CONTROL_MODE</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>RB_X_L</name>
+    <x>45</x>
+    <y>903</y>
+    <width>30</width>
+    <height>24</height>
+    <text>X:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>RB_X_V</name>
+    <x>75</x>
+    <y>901</y>
+    <width>110</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:MW:ROBOT:X_CM</pv_name>
+    <precision>4</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>RB_X_U</name>
+    <x>190</x>
+    <y>903</y>
+    <width>35</width>
+    <height>24</height>
+    <text>cm</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>RB_Y_L</name>
+    <x>245</x>
+    <y>903</y>
+    <width>30</width>
+    <height>24</height>
+    <text>Y:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>RB_Y_V</name>
+    <x>275</x>
+    <y>901</y>
+    <width>110</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:MW:ROBOT:Y_CM</pv_name>
+    <precision>4</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>RB_Y_U</name>
+    <x>390</x>
+    <y>903</y>
+    <width>35</width>
+    <height>24</height>
+    <text>cm</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>RB_XREF_L</name>
+    <x>445</x>
+    <y>903</y>
+    <width>100</width>
+    <height>24</height>
+    <text>X referenced:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>RB_XREF_LED</name>
+    <x>545</x>
+    <y>900</y>
+    <width>26</width>
+    <height>26</height>
+    <pv_name>pva://UNH:GEN:MW:ROBOT:X_REFERENCED</pv_name>
+    <bit>0</bit>
+    <off_color>
+      <color red="200" green="50" blue="50" />
+    </off_color>
+    <on_color>
+      <color red="30" green="160" blue="70" />
+    </on_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>RB_YREF_L</name>
+    <x>600</x>
+    <y>903</y>
+    <width>100</width>
+    <height>24</height>
+    <text>Y referenced:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>RB_YREF_LED</name>
+    <x>700</x>
+    <y>900</y>
+    <width>26</width>
+    <height>26</height>
+    <pv_name>pva://UNH:GEN:MW:ROBOT:Y_REFERENCED</pv_name>
+    <bit>0</bit>
+    <off_color>
+      <color red="200" green="50" blue="50" />
+    </off_color>
+    <on_color>
+      <color red="30" green="160" blue="70" />
+    </on_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>RB_XBUSY_L</name>
+    <x>755</x>
+    <y>903</y>
+    <width>80</width>
+    <height>24</height>
+    <text>X moving:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>RB_XBUSY_LED</name>
+    <x>835</x>
+    <y>900</y>
+    <width>26</width>
+    <height>26</height>
+    <pv_name>pva://UNH:GEN:MW:ROBOT:X_BUSY</pv_name>
+    <bit>0</bit>
+    <off_color>
+      <color red="150" green="155" blue="160" />
+    </off_color>
+    <on_color>
+      <color red="30" green="160" blue="70" />
+    </on_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>RB_YBUSY_L</name>
+    <x>890</x>
+    <y>903</y>
+    <width>80</width>
+    <height>24</height>
+    <text>Y moving:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>RB_YBUSY_LED</name>
+    <x>970</x>
+    <y>900</y>
+    <width>26</width>
+    <height>26</height>
+    <pv_name>pva://UNH:GEN:MW:ROBOT:Y_BUSY</pv_name>
+    <bit>0</bit>
+    <off_color>
+      <color red="150" green="155" blue="160" />
+    </off_color>
+    <on_color>
+      <color red="30" green="160" blue="70" />
+    </on_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>RB_Error_L</name>
+    <x>45</x>
+    <y>948</y>
+    <width>90</width>
+    <height>24</height>
+    <text>Robot fault:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>RB_Error_V</name>
+    <x>135</x>
+    <y>946</y>
+    <width>700</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:MW:ROBOT:LAST_ERROR</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Open_Robot</name>
+    <x>890</x>
+    <y>942</y>
+    <width>220</width>
+    <height>34</height>
+    <actions>
+      <action type="open_display">
+        <file>genesis_mw_robot.bob</file>
+        <target>tab</target>
+        <description>Open Open Robot Details</description>
+      </action>
+    </actions>
+    <text>Open Robot Details</text>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Main_Safety_Note</name>
+    <x>30</x>
+    <y>1065</y>
+    <width>1120</width>
+    <height>38</height>
+    <text>Normal RF and frequency operation is through the Microwave Supervisor. Raw source and robot motion commissioning remain on dedicated procedures until physical validation is complete.</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="12.0" />
+    </font>
+    <wrap_words>true</wrap_words>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>SUP_RF_StateText</name>
+    <x>1090</x>
+    <y>278</y>
+    <width>55</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:MW:SUP:RFEnable</pv_name>
+    <format>6</format>
+  </widget>
 </display>
