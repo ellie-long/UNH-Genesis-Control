@@ -13,8 +13,9 @@ The currently validated live subsystem is:
 - EPICS IOC: `mw_spd1305x`
 - PV prefix: `UNH:GEN:MW:PS`
 - IOC Manager prefix: `UNH:GEN:MAN`
-- Main GUI: `gui/genesis_microwave.bob`
-- Device GUI: `gui/genesis_mw_spd1305x.bob`
+- Microwave subsystem GUI: `gui/genesis_microwave.bob`
+- SPD1305X detail GUI: `gui/genesis_mw_spd1305x.bob`
+- Normal startup entry GUI: `gui/genesis_ssrf.bob` (temporary Phase-I entry point)
 
 The Mac must be connected to the same lab network as the SPD1305X.
 
@@ -36,7 +37,7 @@ The script:
 6. Enables archiving.
 7. Checks the live SPD1305X connection and important PVs.
 8. Launches Phoebus with the Genesis PVAccess configuration.
-9. Opens the Microwave subsystem GUI.
+9. Opens the temporary Phase-I entry GUI (`gui/genesis_ssrf.bob`). Open `gui/genesis_microwave.bob` for the Microwave subsystem.
 
 Normal startup is intentionally read-only:
 
@@ -279,8 +280,50 @@ The following behavior has been validated with the physical SPD1305X:
 - OVP and OCP readback
 - Output-state readback
 - EPICS archiving
-- Twelve selected Microwave archive PVs
+- Common Microwave EPICS archiving
+- Microwave IOC heartbeat archival
+- 54 monitored PVs in the validated full Microwave simulation stack
 - IOC restart without modifying the physical hardware state
 - Restoration to read-only operation
 
 The physical output does not need to be energized merely to validate the software control architecture.
+
+---
+
+## Microwave Phase-I integration status
+
+The Microwave subsystem now contains:
+
+- Siglent SPD1305X UCA power-supply IOC;
+- Vaunix / Bridge12 source IOC;
+- Microwave Supervisor IOC;
+- PCL602 positioning-robot IOC;
+- `gui/genesis_microwave.bob` subsystem overview;
+- Supervisor, SPD1305X, Vaunix, and Robot detail screens;
+- common Genesis archiver integration;
+- IOC heartbeat archival;
+- common archive-viewer filtering and Microwave quick views.
+
+The physically validated normal-startup Microwave baseline remains the SPD1305X. Normal startup does **not** automatically launch physical Vaunix, Microwave Supervisor, or PCL602 Robot operation.
+
+The temporary Phase-I startup entry screen remains `gui/genesis_ssrf.bob`. Open `gui/genesis_microwave.bob` for the Microwave subsystem.
+
+Run Microwave regression with:
+
+```bash
+./scripts/genesisctl.sh test-mw
+```
+
+Launch the common archive viewer with:
+
+```bash
+./scripts/genesisctl.sh archive-viewer
+```
+
+The validated full Microwave simulation archive contained 51 device/subsystem records plus 3 IOC heartbeat records, for 54 monitored PVs total.
+
+Remaining physical commissioning requirements are documented in:
+
+```text
+docs/MICROWAVE_PHASE1_CLOSEOUT.md
+```

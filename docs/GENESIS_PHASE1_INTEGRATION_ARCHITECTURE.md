@@ -186,10 +186,20 @@ Examples:
 
 ### Microwave subsystem
 
-The Microwave subsystem can contain several devices. The first device already integrated is:
-- Siglent SPD1305X power supply
-Additional microwave devices can be added later without changing the device/subsystem architecture.
-A future subsystem level Phoebus screen may aggregate the individual Microwave device screens.
+The current Phase-I Microwave subsystem contains:
+
+- Siglent SPD1305X UCA power-supply IOC;
+- Vaunix / Bridge12 microwave-source IOC;
+- Microwave Supervisor IOC;
+- PCL602 positioning-robot IOC.
+
+The subsystem overview is `gui/genesis_microwave.bob`, with dedicated Supervisor, SPD1305X, Vaunix, and Robot detail screens.
+
+Normal RF/frequency operation is routed through the Microwave Supervisor. Raw source and robot-motion interfaces remain commissioning-level controls until physical validation is complete.
+
+All four Microwave components participate in the common Genesis IOC Manager and common archiving architecture. Device/subsystem archive records and IOC heartbeat PVs use the same timestamped CSV path used by the rest of Genesis.
+
+Additional Microwave devices can still be added without changing the device/subsystem architecture.
 
 ### Magnet subsystem
 

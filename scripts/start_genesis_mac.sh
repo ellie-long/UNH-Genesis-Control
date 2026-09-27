@@ -6,7 +6,9 @@ set -euo pipefail
 #
 # Starts:
 #   1. IOC Manager
-#   2. Microwave SPD1305X IOC
+#   2. Microwave SPD1305X IOC (read-only physical baseline)
+#      Vaunix, Microwave Supervisor and PCL602 Robot are NOT
+#      automatically started before physical commissioning.
 #   3. ssRF SMC100A IOC
 #   4. Keysight WaveGen IOC
 #   5. NMR switch IOC
@@ -27,7 +29,8 @@ ENV_NAME="genesis-p1"
 
 PHOEBUS_BIN="/Applications/CSS_Phoebus.app/Contents/MacOS/main.command"
 PHOEBUS_SETTINGS="${REPO_ROOT}/configs/phoebus/genesis_mac_settings.ini"
-# Temporary Phase-I commissioning entry screen.
+# Temporary Phase-I common entry screen.
+# Microwave subsystem GUI: gui/genesis_microwave.bob
 # Replace this with the future integrated Genesis overview GUI.
 MAIN_GUI="${REPO_ROOT}/gui/genesis_ssrf.bob"
 
@@ -85,7 +88,7 @@ command -v screen >/dev/null 2>&1 || {
 }
 
 [[ -f "${MAIN_GUI}" ]] || {
-    echo "ERROR: Genesis Microwave GUI not found:"
+    echo "ERROR: Genesis Phase-I entry GUI not found:"
     echo "  ${MAIN_GUI}"
     exit 1
 }
@@ -219,6 +222,10 @@ PY
 }
 
 start_managed_ioc "mw_spd1305x"
+
+echo "[SAFE] Microwave normal startup includes SPD1305X only."
+echo "[SAFE] Vaunix, Microwave Supervisor and PCL602 Robot remain manual commissioning IOCs."
+
 start_managed_ioc "ssrf_smc100a"
 start_managed_ioc "ssrf_keysight_wavegen"
 start_managed_ioc "ssrf_nmr_switch"

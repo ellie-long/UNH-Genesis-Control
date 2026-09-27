@@ -123,6 +123,124 @@ asyncio.run(main())
 PY
     fi
 
+    # Microwave Supervisor / Vaunix / Robot commissioning safety checks.
+    # Normal Genesis startup does not launch these IOCs yet. These checks
+    # protect shutdown after deliberate Microwave commissioning sessions.
+
+    if screen_session_exists "mw_supervisor"; then
+        echo "[CHECK] Microwave Supervisor RF state"
+        python - <<'PY'
+import asyncio
+import sys
+from aioca import caget
+
+async def main():
+    try:
+        rf_enable = await caget("UNH:GEN:MW:SUP:RFEnable", timeout=3)
+    except Exception as exc:
+        print(f"ERROR: Could not verify Microwave Supervisor RF state: {exc}")
+        print("Shutdown aborted.")
+        sys.exit(1)
+
+    print(f"Microwave Supervisor RFEnable = {rf_enable}")
+    if int(rf_enable) != 0:
+        print("ERROR: Microwave Supervisor still requests RF ON.")
+        print("Turn RF OFF before shutting down Genesis.")
+        sys.exit(1)
+
+    print("[OK] Microwave Supervisor RF request confirmed OFF.")
+
+asyncio.run(main())
+PY
+    fi
+
+    if screen_session_exists "mw_vaunix_lms"; then
+        echo "[CHECK] Vaunix / Bridge12 RF safe state"
+        python - <<'PY'
+import asyncio
+import sys
+from aioca import caget
+
+async def main():
+    names = {
+        "Connected": "UNH:GEN:MW:SRC:MW_Connected",
+        "RF": "UNH:GEN:MW:SRC:MW_RF",
+    }
+    values = {}
+    try:
+        for name, pv in names.items():
+            values[name] = await caget(pv, timeout=3)
+    except Exception as exc:
+        print(f"ERROR: Could not verify Vaunix state: {exc}")
+        print("Shutdown aborted.")
+        sys.exit(1)
+
+    for name, value in values.items():
+        print(f"Vaunix {name:10s} = {value}")
+
+    if int(values["Connected"]) != 1:
+        print("ERROR: Vaunix communication is not healthy.")
+        print("Cannot verify physical RF state.")
+        sys.exit(1)
+
+    if int(values["RF"]) != 0:
+        print("ERROR: Vaunix raw RF state is ON.")
+        print("Turn RF OFF before shutting down Genesis.")
+        sys.exit(1)
+
+    print("[OK] Vaunix RF confirmed OFF.")
+
+asyncio.run(main())
+PY
+    fi
+
+    if screen_session_exists "mw_pcl602"; then
+        echo "[CHECK] Microwave robot safe state"
+        python - <<'PY'
+import asyncio
+import sys
+from aioca import caget
+
+async def main():
+    names = {
+        "COMM": "UNH:GEN:MW:ROBOT:COMM_STATUS",
+        "X_BUSY": "UNH:GEN:MW:ROBOT:X_BUSY",
+        "Y_BUSY": "UNH:GEN:MW:ROBOT:Y_BUSY",
+        "X_MOTOR": "UNH:GEN:MW:ROBOT:X_MOTOR_ENABLE",
+        "Y_MOTOR": "UNH:GEN:MW:ROBOT:Y_MOTOR_ENABLE",
+    }
+    values = {}
+    try:
+        for name, pv in names.items():
+            values[name] = await caget(pv, timeout=3)
+    except Exception as exc:
+        print(f"ERROR: Could not verify Microwave robot state: {exc}")
+        print("Shutdown aborted.")
+        sys.exit(1)
+
+    for name, value in values.items():
+        print(f"Robot {name:10s} = {value}")
+
+    if int(values["COMM"]) != 1:
+        print("ERROR: Robot communication is not healthy.")
+        print("Cannot verify physical motion state.")
+        sys.exit(1)
+
+    unsafe = [
+        name for name in ("X_BUSY", "Y_BUSY", "X_MOTOR", "Y_MOTOR")
+        if int(values[name]) != 0
+    ]
+    if unsafe:
+        print("ERROR: Robot is not in shutdown-safe state: " + ", ".join(unsafe))
+        print("Stop motion and disable both motors before shutdown.")
+        sys.exit(1)
+
+    print("[OK] Robot stationary with motors disabled.")
+
+asyncio.run(main())
+PY
+    fi
+
     if screen_session_exists "ssrf_smc100a"; then
         echo "[CHECK] ssRF SMC100A safe state"
 

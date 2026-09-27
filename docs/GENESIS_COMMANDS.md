@@ -427,10 +427,9 @@ A different local port may be selected with:
 
     GENESIS_ARCHIVE_VIEWER_PORT=8517 genesis archive-viewer
 
-The Streamlit application contains the existing EPICS PV archive view and
-the Genesis ssRF Sessions page.
+The Streamlit application provides the common Genesis EPICS CSV archive viewer with subsystem filtering for Microwave and ssRF.
 
-The ssRF session page provides:
+Structured ssRF session/event data remain a separate data path from the current common CSV viewer. Historical ssRF CSV PVs remain viewable here.
 
 - NMR processed data and fitted spectrum
 - adaptive pre-resampling control trajectory
@@ -501,3 +500,67 @@ YYYY-MM-DD_HH-MM-SS_UTC
 Existing event/session data retain their UTC ISO-8601 timestamps.
 
 Physical write commissioning remains a separate controlled procedure.
+
+---
+
+# Microwave Phase-I commands
+
+## Run Microwave regression
+
+```bash
+genesis test-mw
+```
+
+Equivalent repository command:
+
+```bash
+./scripts/genesisctl.sh test-mw
+```
+
+This command is intended to run the Microwave Phase-I unit/integration regression plus the shared archive-viewer and SPD1305X regression tests.
+
+## Microwave GUI
+
+The Phase-I subsystem overview is:
+
+```text
+gui/genesis_microwave.bob
+```
+
+Normal RF/frequency operation is through the Supervisor screen.
+
+Raw Vaunix writes and robot motion remain commissioning-only until physical validation.
+
+## Microwave archive viewer
+
+```bash
+genesis archive-viewer
+```
+
+Select:
+
+```text
+Subsystem -> Microwave
+```
+
+and optionally choose:
+
+- UCA / PS;
+- Vaunix / SRC;
+- Supervisor / SUP;
+- Robot;
+- Phase-I quick views.
+
+The current `archive/archive_viewer.py` is the common Genesis EPICS CSV viewer. Historical ssRF CSV archives remain available through the same viewer. Structured ssRF event/session logging remains a separate data path.
+
+## Physical commissioning boundary
+
+Normal `genesis start` does not automatically start physical Vaunix, Microwave Supervisor, or PCL602 Robot operation.
+
+See:
+
+```text
+docs/MICROWAVE_PHASE1_CLOSEOUT.md
+```
+
+before physical Microwave commissioning.

@@ -1,64 +1,94 @@
-# Microwave supervisor IOC
+# Genesis Microwave Supervisor
 
-This IOC is the operator-facing layer above the existing `bridge12_mw` Vaunix
-IOC and `spd1305x` UCA power-supply IOC. It does not open either device. It uses
-their Channel Access PVs, and the operator screen uses only `MW_SUP:*` controls.
+The Microwave Supervisor is the subsystem-level EPICS coordination layer for the UNH Genesis Phase-I Microwave system.
 
-## Safety behavior
+It communicates only through EPICS PVs. It does not open the SPD1305X, Vaunix / Bridge12 source, Raspberry Pi shim, or robot transport directly.
 
-- RF OFF is always accepted.
-- Only an OFF-to-ON request is interlocked. Both device IOCs must be connected
-  and the measured UCA voltage (`CH1_VI`) must be 5.0 V +/- 0.10 V (configurable).
-- Once RF is confirmed ON, a later UCA voltage reduction does not trip RF.
-- Disconnection never causes an automatic RF-ON command. A running software
-  sweep stops on Vaunix disconnect or command failure.
-- `simulation: true` is the checked-in default. It serves all supervisor PVs
-  but makes no writes to the hardware IOCs.
+## Genesis hierarchy
 
-The original raw `MW_RF` PV remains available for device maintenance because
-EPICS Channel Access has no authorization layer here. Do not put that raw PV on
-operator screens. Production installations should additionally restrict raw
-PV writes with the site's EPICS access-security configuration.
+```text
+SPD1305X UCA IOC  ----\
+                       \
+                        -> Microwave Supervisor
+                       /      UNH:GEN:MW:SUP:*
+Vaunix source IOC ----/
 
-## Frequency and sweep
+PCL602 robot IOC remains an independent positioning device.
+```
 
-The public frequency is the microwave-box output in GHz. The box multiplies the
-Vaunix frequency by 12, so an operator request of 140 GHz writes 11.6666667 GHz
-to `MW_FC`. The accepted output range is 134--142 GHz. `MW_OutFI` is also now
-configured as the x12 output readback. Hz conversion remains in the Vaunix
-device layer and Pi shim.
+Normal RF and output-frequency operation is intended to pass through the Supervisor. Raw Vaunix controls remain commissioning/maintenance interfaces.
 
-The slow sweep is a non-blocking IOC state machine. It writes the initial point,
-dwells, writes each next point, and always includes the exact stop frequency
-once. The sign of the step must agree with sweep direction. Stop returns the
-sweep to Idle; Cancel records a Cancelled state. Both are responsive during a
-dwell and neither turns RF on or off.
+## Current frequency convention
 
-## Magic constants still required
+The checked-in Genesis Vaunix configuration uses:
 
-No gamma-d, dopant list, Magic+, or Magic- constants were found in the toolkit,
-GUI, Vaunix SDK examples, or LabVIEW-derived material present in this checkout.
-The YAML therefore contains intentional `null` placeholders. Magic actions are
-disabled logically (they report `LastError`) until real values are supplied.
+```text
+Synthesizer frequency : 11.5 to 11.8333333333 GHz
+Multiplier            : 12
+Microwave output       : 138 to 142 GHz
+```
 
-The implemented relationship is exactly:
+Older imported prototype material referred to 134 to 142 GHz. Genesis does not treat that older range as physically validated. Resolve the physical operating range with the experiment owners before RF commissioning.
 
-`output_GHz = central_GHz / gamma_d_over_2pi * magic_plus_or_minus_factor`
+## RF permissive
 
-Before enabling this feature, confirm the formula, the units of all three
-terms, the dopant names, and each +/- factor with the experiment owner. The
-result is also checked against the 134--142 GHz output range.
+RF OFF is always permitted.
 
-## Run
+An OFF-to-ON request requires:
 
-1. Leave `simulation: true`, start `python master_ioc.py -i microwave_supervisor`,
-   and open `gui/microwave_supervisor.bob` with macro `P=MYLAB`.
-2. Exercise RF permissive, conversion, Magic error reporting, and both sweep
-   directions without hardware writes.
-3. Start and verify the `spd1305x` and `bridge12_mw` IOCs independently.
-4. Set `simulation: false`, restart the supervisor, and use only the supervisor
-   screen for normal operation.
+- UCA IOC connected;
+- Vaunix IOC connected;
+- UCA measured voltage inside the configured software-validation window.
 
-Run the pure-logic tests with:
+The checked-in Supervisor configuration remains:
 
-`venv/bin/python -m unittest tests/test_microwave_supervisor.py`
+```yaml
+simulation: true
+```
+
+The current 5.0 V +/- 0.10 V threshold is for software/interlock validation. It is not a certified physical operating tolerance.
+
+## Magic-frequency actions
+
+Magic-frequency actions remain unavailable because the required experiment constants and dopant definitions have not been certified.
+
+Do not infer or substitute constants.
+
+## Phase-I operator interface
+
+Subsystem overview:
+
+```text
+gui/genesis_microwave.bob
+```
+
+Detail displays:
+
+```text
+gui/genesis_mw_supervisor.bob
+gui/genesis_mw_spd1305x.bob
+gui/genesis_mw_vaunix.bob
+gui/genesis_mw_robot.bob
+```
+
+Normal RF/frequency operation is through the Supervisor GUI. Raw Vaunix write controls and robot motion controls are intentionally not exposed as normal operator controls before physical commissioning.
+
+## Archive viewer
+
+Continuous Microwave PVs and IOC heartbeats use the common Genesis CSV archiver and viewer:
+
+```bash
+./scripts/genesisctl.sh archive-viewer
+```
+
+The viewer provides Microwave device grouping and Phase-I quick views.
+
+## Physical commissioning
+
+Before enabling physical RF or robot motion, follow:
+
+```text
+docs/MICROWAVE_PHASE1_CLOSEOUT.md
+```
+
+and the approved laboratory procedure.

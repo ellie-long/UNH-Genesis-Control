@@ -133,7 +133,9 @@ SSRF SIMULATOR
 
 TESTS
   test-ssrf            Run all test_ssrf*.py unit/regression tests.
-  archive-viewer       Launch read-only PV + ssRF session archive viewer.
+  test-mw              Run Microwave Phase-I unit/integration regression tests.
+  archive-viewer       Launch common read-only Genesis EPICS archive viewer.
+                       Includes Microwave/ssRF subsystem filtering.
   test-fitter          Run fitter/planner/stager/runtime integration tests.
   test-auth            Run Genesis/ssRF authorization-security tests.
   test-all             Run all Python unittest tests under tests/.
@@ -689,6 +691,36 @@ check_all() {
     git_state
 }
 
+test_mw() {
+    require_env
+
+    (
+        set -e
+        cd "${ROOT}"
+        export PYTHONPATH="${ROOT}"
+
+        echo "===== MICROWAVE REGRESSION ====="
+        python -m unittest discover \
+            -s tests \
+            -p 'test_microwave*.py' \
+            -v
+
+        echo
+        echo "===== MICROWAVE / COMMON ARCHIVE VIEWER ====="
+        python -m unittest \
+            tests.test_archive_viewer_filters \
+            -v
+
+        echo
+        echo "===== SPD1305X BASELINE REGRESSION ====="
+        python -m unittest discover \
+            -s tests \
+            -p 'test_spd1000x.py' \
+            -v
+    )
+}
+
+
 baseline() {
     banner
     echo "Frozen ssRF software/simulator milestone:"
@@ -822,6 +854,10 @@ case "${cmd}" in
 
     test-ssrf)
         test_ssrf
+        ;;
+
+    test-mw)
+        test_mw
         ;;
     test-auth)
         test_auth
