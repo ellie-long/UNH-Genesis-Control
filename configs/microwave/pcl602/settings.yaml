@@ -64,6 +64,15 @@ pcl602:
     LAST_ERROR:
       DESC: Last robot IOC error
 
+    CONTROLLER_ERROR:
+      DESC: PCL602 controller error code
+
+    X_SOFT_LIMITS_ENABLED:
+      DESC: X software travel-limit state
+
+    Y_SOFT_LIMITS_ENABLED:
+      DESC: Y software travel-limit state
+
     X_CM:
       DESC: X user position
 

@@ -74,6 +74,12 @@ pcl602:
       DESC: X motor enable
     Y_MOTOR_ENABLE:
       DESC: Y motor enable
+    CONTROLLER_ERROR:
+      DESC: PCL602 controller error code
+    X_SOFT_LIMITS_ENABLED:
+      DESC: X software travel-limit state
+    Y_SOFT_LIMITS_ENABLED:
+      DESC: Y software travel-limit state
   steps_per_cm: 10000
   simulation_minimum_steps: -1000000
   simulation_maximum_steps: 1000000
