@@ -4,7 +4,7 @@ import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[1]
 IOC = ROOT / "tools/ssrf_physical_no_rf_demo_ioc.py"
-GUI = ROOT / "gui/genesis_ssrf_demo.bob"
+GUI = ROOT / "gui/genesis_ssrf.bob"
 START = ROOT / "scripts/start_ssrf_physical_no_rf_demo.sh"
 
 

@@ -78,3 +78,51 @@ ARB load, physical ssRF routing, no-RF dwell, and automatic NMR restore.
 
 The main GUI shows every major execution state/reason and the relevant
 fitter, waveform, Keysight, SMC, and switch readbacks.
+## Final integrated main-GUI validation
+
+The physical no-RF commissioning workflow was successfully exercised
+from the normal `gui/genesis_ssrf.bob` operator screen.
+
+The operator sequence was:
+
+```text
+START FITTER
+  -> REPLAY EQ
+  -> CALIBRATE
+  -> ARM
+  -> BLAST / BURN
+```
+
+BLAST / BURN automatically performed:
+
+```text
+fresh ssRF fit
+  -> adaptive WaveformPlan
+  -> 8192-point physical Keysight ARB load
+  -> NMR switch 0 -> 3
+  -> ssRF switch 3 -> 0
+  -> no-RF commissioning dwell
+  -> ssRF switch 0 -> 3
+  -> NMR switch 3 -> 0
+  -> COMPLETE
+```
+
+Observed final state:
+
+```text
+Waveform stage      = LOADED
+Keysight ARB points = 8192
+Keysight output     = OFF
+NMR mask            = 0
+ssRF mask           = 3
+SMC RF              = OFF
+SMC FM              = OFF
+ARM                  = consumed / OFF
+Fit mode             = ssRF
+```
+
+Both physical Mini-Circuits switch boxes visibly actuated and returned.
+
+`gui/genesis_ssrf_demo.bob` was a temporary commissioning harness and
+has been removed. The physical no-RF commissioning backend and profile
+remain available for future controlled hardware checks.
