@@ -38,11 +38,12 @@ Then use `gui/genesis_ssrf.bob` only, in order:
 
 1. START FITTER
 2. REPLAY EQ
-3. UPDATE CONSTANTS
-4. ssRF MODE
-5. PREPARE / LOAD
-6. ARM
-7. RUN DEMO
+3. CALIBRATE
+4. ARM
+5. BLAST / BURN
+
+`ssRF MODE` is optional because BLAST/BURN selects the ssRF fitter mode and
+performs the fresh fit → WaveformPlan → physical load transaction automatically.
 
 Stop/restore:
 
@@ -131,3 +132,15 @@ remain available for future controlled hardware checks.
 ## Operator entry point
 
 The concise operator procedure is maintained in `docs/SSRF_OPERATOR_QUICK_START.md`. Use that document for the final start → GUI workflow → viewer → safe-stop sequence.
+
+## 2026-09-28 Phase-I acceptance
+
+The final lab acceptance and clean reproducibility run passed. The physical
+Keysight reported an 8192-point loaded/ready waveform with output OFF; both
+physical switches actuated and restored NMR mask 0 / ssRF mask 3; SMC RF/FM
+remained OFF; the workflow reached COMPLETE; and the final session
+`ssrf-20260928T173405Z-bd5ae96e` was archived with fit and waveform NPZ data.
+
+The acceptance exercise also motivated three operator hardening changes:
+Phoebus resource-forward retry during startup, exact stale physical-upload IOC
+cleanup/start/stop handling, and clearer main-GUI command/indicator semantics.

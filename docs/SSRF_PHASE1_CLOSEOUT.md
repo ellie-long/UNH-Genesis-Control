@@ -22,29 +22,42 @@ The current ssRF Phase-I control/integration scope has demonstrated:
 - detail screens opening as tabs in one Phoebus instance;
 - structured ssRF event/session logging and read-only session viewer.
 
-## Final acceptance still required
+## Final acceptance completed — 2026-09-28
 
-Before formally freezing ssRF Phase-I and moving laboratory effort to Microwave, perform one final operator acceptance run using only the final operator entry points:
+The Phase-I physical no-RF operator path was accepted in the lab and then
+reproduced from a clean start.
+
+Canonical operator path:
 
 ```text
 genesis ssrf-physical-status
 genesis ssrf-demo-start
+START FITTER → REPLAY EQ → CALIBRATE → ARM → BLAST/BURN
 genesis archive-viewer
 genesis ssrf-demo-stop
+genesis ssrf-physical-status
 ```
 
-Acceptance requires:
+Acceptance evidence:
 
-1. one clean Phoebus instance;
-2. the main landscape ssRF screen;
-3. detail screens opening as tabs;
-4. successful START FITTER → REPLAY EQ → CALIBRATE → ARM → BLAST/BURN;
-5. physical switch motion and restoration;
-6. 8192-point physical Keysight waveform loaded with output OFF;
-7. SMC RF OFF and FM OFF throughout;
-8. NMR mask 0 and ssRF mask 3 restored at completion;
-9. a correlated session/event record visible in the ssRF archive viewer;
-10. safe shutdown and clean runtime state.
+- physical Keysight accepted the fresh 8192-point adaptive ARB waveform;
+- `WAVEFORM_POINTS = 8192`, `ARB_POINTS_RBV = 8192`,
+  `WAVEFORM_READY = 1`, and WaveGen output remained OFF;
+- both physical Mini-Circuits switches audibly/visibly actuated;
+- automatic restoration returned NMR mask to 0 and ssRF mask to 3;
+- SMC RF and FM remained OFF throughout;
+- the workflow reached `COMPLETE` with ARM consumed;
+- correlated fit/waveform/session data were written and visible in the viewer;
+- successful session `ssrf-20260928T171935Z-4137581b` was followed by a clean
+  reproducibility run `ssrf-20260928T173405Z-bd5ae96e`;
+- the final reproducibility session contains both `fit_data.npz` and
+  `waveform_data.npz` and records `session_completed` with status `success`;
+- final shutdown left no workflow/fitter runtime, no physical Keysight upload
+  IOC, no screen session, SMC RF/FM OFF, NMR mask 0, ssRF mask 3, and
+  WaveGen output OFF.
+
+No additional ssRF physical no-RF laboratory run is required for this
+Phase-I milestone after the office-only hardening/regression closeout.
 
 ## Intentionally deferred amplified-RF / target work
 

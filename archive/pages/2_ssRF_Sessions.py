@@ -97,7 +97,7 @@ def main():
 
         if st.button(
             "Refresh sessions",
-            use_container_width=True,
+            width="stretch",
         ):
             st.rerun()
 
@@ -306,7 +306,7 @@ def main():
             if fig is not None:
                 st.plotly_chart(
                     fig,
-                    use_container_width=True,
+                    width="stretch",
                 )
             else:
                 st.info(
@@ -348,7 +348,7 @@ def main():
             if trajectory is not None:
                 st.plotly_chart(
                     trajectory,
-                    use_container_width=True,
+                    width="stretch",
                 )
 
             weighting = (
@@ -360,7 +360,7 @@ def main():
             if weighting is not None:
                 st.plotly_chart(
                     weighting,
-                    use_container_width=True,
+                    width="stretch",
                 )
 
             arb = create_arb_figure(
@@ -373,7 +373,7 @@ def main():
             if arb is not None:
                 st.plotly_chart(
                     arb,
-                    use_container_width=True,
+                    width="stretch",
                 )
 
             control_points = len(
@@ -426,7 +426,7 @@ def main():
         if timeline is not None:
             st.plotly_chart(
                 timeline,
-                use_container_width=True,
+                width="stretch",
             )
 
         frame = event_dataframe(
@@ -435,7 +435,7 @@ def main():
 
         st.dataframe(
             frame,
-            use_container_width=True,
+            width="stretch",
             hide_index=True,
         )
 

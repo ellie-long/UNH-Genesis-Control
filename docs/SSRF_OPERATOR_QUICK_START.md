@@ -49,7 +49,7 @@ genesis ssrf-demo-start
 
 The startup script performs the authoritative physical preflight, starts the physical Keysight upload-only IOC and the local no-RF workflow IOC, and opens the Genesis ssRF main GUI through the shared single-instance Phoebus launcher.
 
-The main screen should open as one landscape Phoebus tab. Device/fitter detail screens should open as additional tabs in the same Phoebus instance.
+The main screen should open automatically as one landscape Phoebus tab. The launcher waits/retries through the observed Phoebus resource-handler startup race. Device/fitter detail screens open as additional tabs in the same Phoebus instance.
 
 ## Operator sequence
 
@@ -167,6 +167,14 @@ WaveGen output    = OFF
 ```
 
 There should be no physical no-RF workflow/fitter runtime, no physical Keysight upload IOC, and no residual Genesis screen sessions associated with this workflow.
+
+## Retry after a failed waveform load
+
+If BLAST/BURN fails during physical waveform staging/loading, do not repeatedly
+press ARM/BLAST and do not start a second Keysight IOC manually. Use the normal
+safe stop, verify the baseline, and restart the complete PHYSICAL_NO_RF workflow.
+Startup now removes only stale instances of the dedicated physical-upload IOC
+before creating exactly one clean instance.
 
 ## Abort / abnormal condition
 

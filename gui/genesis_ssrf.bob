@@ -107,8 +107,8 @@
     <name>Status_0_COMM_LED</name>
     <x>175</x>
     <y>137</y>
-    <width>26</width>
-    <height>26</height>
+    <width>24</width>
+    <height>24</height>
     <pv_name>pva://UNH:GEN:SSRF:GEN:COMM</pv_name>
     <bit>0</bit>
     <off_color>
@@ -176,8 +176,8 @@
     <name>Status_1_COMM_LED</name>
     <x>450</x>
     <y>137</y>
-    <width>26</width>
-    <height>26</height>
+    <width>24</width>
+    <height>24</height>
     <pv_name>pva://UNH:GEN:SSRF:WGEN:COMM</pv_name>
     <bit>0</bit>
     <off_color>
@@ -245,8 +245,8 @@
     <name>Status_2_COMM_LED</name>
     <x>725</x>
     <y>137</y>
-    <width>26</width>
-    <height>26</height>
+    <width>24</width>
+    <height>24</height>
     <pv_name>pva://UNH:GEN:SSRF:NMR_SW:COMM</pv_name>
     <bit>0</bit>
     <off_color>
@@ -314,8 +314,8 @@
     <name>Status_3_COMM_LED</name>
     <x>1000</x>
     <y>137</y>
-    <width>26</width>
-    <height>26</height>
+    <width>24</width>
+    <height>24</height>
     <pv_name>pva://UNH:GEN:SSRF:RF_SW:COMM</pv_name>
     <bit>0</bit>
     <off_color>
@@ -576,8 +576,8 @@
     <name>SMC_Write_LED</name>
     <x>435</x>
     <y>278</y>
-    <width>26</width>
-    <height>26</height>
+    <width>24</width>
+    <height>24</height>
     <pv_name>pva://UNH:GEN:SSRF:GEN:WRITE_ENABLED</pv_name>
     <bit>0</bit>
     <off_color>
@@ -832,8 +832,8 @@
     <name>WG_Ready_LED</name>
     <x>1015</x>
     <y>278</y>
-    <width>26</width>
-    <height>26</height>
+    <width>24</width>
+    <height>24</height>
     <pv_name>pva://UNH:GEN:SSRF:WGEN:WAVEFORM_READY</pv_name>
     <bit>0</bit>
     <off_color>
@@ -868,8 +868,8 @@
     <name>WG_Write_LED</name>
     <x>1015</x>
     <y>318</y>
-    <width>26</width>
-    <height>26</height>
+    <width>24</width>
+    <height>24</height>
     <pv_name>pva://UNH:GEN:SSRF:WGEN:WRITE_ENABLED</pv_name>
     <bit>0</bit>
     <off_color>
@@ -1049,8 +1049,8 @@
     <name>NMR_Write_LED</name>
     <x>430</x>
     <y>616</y>
-    <width>26</width>
-    <height>26</height>
+    <width>24</width>
+    <height>24</height>
     <pv_name>pva://UNH:GEN:SSRF:NMR_SW:WRITE_ENABLED</pv_name>
     <bit>0</bit>
     <off_color>
@@ -1172,8 +1172,8 @@
     <name>RF_Write_LED</name>
     <x>995</x>
     <y>616</y>
-    <width>26</width>
-    <height>26</height>
+    <width>24</width>
+    <height>24</height>
     <pv_name>pva://UNH:GEN:SSRF:RF_SW:WRITE_ENABLED</pv_name>
     <bit>0</bit>
     <off_color>
@@ -1258,8 +1258,8 @@
     <name>ILK_Manager_LED</name>
     <x>115</x>
     <y>839</y>
-    <width>26</width>
-    <height>26</height>
+    <width>24</width>
+    <height>24</height>
     <pv_name>pva://UNH:GEN:MAN:ssrf_interlock_control</pv_name>
     <bit>0</bit>
     <off_color>
@@ -1287,8 +1287,8 @@
     <name>ILK_Inputs_LED</name>
     <x>250</x>
     <y>839</y>
-    <width>26</width>
-    <height>26</height>
+    <width>24</width>
+    <height>24</height>
     <pv_name>pva://UNH:GEN:SSRF:ILK:INPUTS_OK</pv_name>
     <bit>0</bit>
     <off_color>
@@ -1316,8 +1316,8 @@
     <name>ILK_OK_LED</name>
     <x>410</x>
     <y>839</y>
-    <width>26</width>
-    <height>26</height>
+    <width>24</width>
+    <height>24</height>
     <pv_name>pva://UNH:GEN:SSRF:ILK:INTERLOCK_OK</pv_name>
     <bit>0</bit>
     <off_color>
@@ -1368,8 +1368,8 @@
     <name>ILK_NMR_Permit_LED</name>
     <x>185</x>
     <y>878</y>
-    <width>26</width>
-    <height>26</height>
+    <width>24</width>
+    <height>24</height>
     <pv_name>pva://UNH:GEN:SSRF:ILK:NMR_CONNECT_PERMIT</pv_name>
     <bit>0</bit>
     <off_color>
@@ -1397,8 +1397,8 @@
     <name>ILK_SSRF_Permit_LED</name>
     <x>395</x>
     <y>878</y>
-    <width>26</width>
-    <height>26</height>
+    <width>24</width>
+    <height>24</height>
     <pv_name>pva://UNH:GEN:SSRF:ILK:SSRF_CONNECT_PERMIT</pv_name>
     <bit>0</bit>
     <off_color>
@@ -1426,8 +1426,8 @@
     <name>ILK_RF_Permit_LED</name>
     <x>590</x>
     <y>878</y>
-    <width>26</width>
-    <height>26</height>
+    <width>24</width>
+    <height>24</height>
     <pv_name>pva://UNH:GEN:SSRF:ILK:RF_ENABLE_PERMIT</pv_name>
     <bit>0</bit>
     <off_color>
@@ -1524,8 +1524,8 @@
     <name>SEQ_Manager_LED</name>
     <x>1264</x>
     <y>137</y>
-    <width>18</width>
-    <height>26</height>
+    <width>24</width>
+    <height>24</height>
     <pv_name>pva://UNH:GEN:MAN:ssrf_sequencer_control</pv_name>
     <bit>0</bit>
     <off_color>
@@ -1553,8 +1553,8 @@
     <name>SEQ_Params_LED</name>
     <x>1348</x>
     <y>137</y>
-    <width>18</width>
-    <height>26</height>
+    <width>24</width>
+    <height>24</height>
     <pv_name>pva://UNH:GEN:SSRF:SEQ:PARAMETERS_OK</pv_name>
     <bit>0</bit>
     <off_color>
@@ -1582,8 +1582,8 @@
     <name>SEQ_Ready_LED</name>
     <x>1414</x>
     <y>137</y>
-    <width>18</width>
-    <height>26</height>
+    <width>24</width>
+    <height>24</height>
     <pv_name>pva://UNH:GEN:SSRF:SEQ:READY</pv_name>
     <bit>0</bit>
     <off_color>
@@ -1731,9 +1731,9 @@
   <widget type="label" version="2.0.0">
     <name>Safety_Note</name>
     <x>30</x>
-    <y>980</y>
+    <y>1005</y>
     <width>1120</width>
-    <height>38</height>
+    <height>48</height>
     <text>Phase-I commissioning: read-only startup remains the default. Interlock permits are derived from confirmed hardware readbacks. MIXED switch masks (1 or 2) and unavailable inputs fail closed.</text>
     <font>
       <font family="Liberation Sans" style="REGULAR" size="12.0" />
@@ -1747,7 +1747,7 @@
 
   <widget type="rectangle" version="2.0.0">
     <name>Workflow_BurnPanel</name>
-    <x>1210</x><y>270</y><width>684</width><height>460</height>
+    <x>1210</x><y>270</y><width>684</width><height>650</height>
     <line_width>2</line_width>
     <line_color><color red="0" green="53" blue="145" /></line_color>
     <background_color><color red="240" green="241" blue="244" /></background_color>
@@ -1773,9 +1773,9 @@
   </widget>
 
   <widget type="label" version="2.0.0"><name>WF_Fitter_L</name><x>1222</x><y>335</y><width>66</width><height>24</height><text>Fitter running</text></widget>
-  <widget type="led" version="2.0.0"><name>WF_Fitter</name><x>1291</x><y>332</y><width>18</width><height>28</height><pv_name>pva://UNH:GEN:SSRF:SEQ:FITTER_UP</pv_name><bit>0</bit><off_color><color red="200" green="50" blue="50" /></off_color><on_color><color red="30" green="160" blue="70" /></on_color></widget>
+  <widget type="led" version="2.0.0"><name>WF_Fitter</name><x>1291</x><y>332</y><width>24</width><height>24</height><pv_name>pva://UNH:GEN:SSRF:SEQ:FITTER_UP</pv_name><bit>0</bit><off_color><color red="145" green="145" blue="145" /></off_color><on_color><color red="30" green="160" blue="70" /></on_color></widget>
   <widget type="label" version="2.0.0"><name>WF_Cal_L</name><x>1327</x><y>335</y><width>57</width><height>24</height><text>Calibrated</text></widget>
-  <widget type="led" version="2.0.0"><name>WF_Cal</name><x>1387</x><y>332</y><width>18</width><height>28</height><pv_name>pva://UNH:GEN:SSRF:SEQ:FITTER_CALIBRATED</pv_name><bit>0</bit><off_color><color red="210" green="130" blue="20" /></off_color><on_color><color red="30" green="160" blue="70" /></on_color></widget>
+  <widget type="led" version="2.0.0"><name>WF_Cal</name><x>1387</x><y>332</y><width>24</width><height>24</height><pv_name>pva://UNH:GEN:SSRF:SEQ:FITTER_CALIBRATED</pv_name><bit>0</bit><off_color><color red="145" green="145" blue="145" /></off_color><on_color><color red="30" green="160" blue="70" /></on_color></widget>
   <widget type="label" version="2.0.0"><name>WF_Mode_L</name><x>1423</x><y>335</y><width>42</width><height>24</height><text>Fit mode</text></widget>
   <widget type="textupdate" version="2.0.0"><name>WF_Mode</name><x>1465</x><y>332</y><width>72</width><height>28</height><pv_name>pva://UNH:GEN:SSRF:SEQ:FIT_MODE</pv_name></widget>
   <widget type="action_button" version="3.0.0">
@@ -1789,12 +1789,12 @@
   <widget type="label" version="2.0.0"><name>WF_Points_L</name><x>1423</x><y>380</y><width>54</width><height>24</height><text>ARB points</text></widget>
   <widget type="textupdate" version="2.0.0"><name>WF_Points</name><x>1480</x><y>377</y><width>54</width><height>28</height><pv_name>pva://UNH:GEN:SSRF:SEQ:WGEN_POINTS</pv_name></widget>
   <widget type="label" version="2.0.0"><name>WF_WReady_L</name><x>1558</x><y>380</y><width>60</width><height>24</height><text>WGen ready</text></widget>
-  <widget type="led" version="2.0.0"><name>WF_WReady</name><x>1621</x><y>377</y><width>18</width><height>28</height><pv_name>pva://UNH:GEN:SSRF:SEQ:WGEN_READY</pv_name><bit>0</bit><off_color><color red="210" green="130" blue="20" /></off_color><on_color><color red="30" green="160" blue="70" /></on_color></widget>
+  <widget type="led" version="2.0.0"><name>WF_WReady</name><x>1621</x><y>377</y><width>24</width><height>24</height><pv_name>pva://UNH:GEN:SSRF:SEQ:WGEN_READY</pv_name><bit>0</bit><off_color><color red="145" green="145" blue="145" /></off_color><on_color><color red="30" green="160" blue="70" /></on_color></widget>
   <widget type="label" version="2.0.0"><name>WF_WOut_L</name><x>1666</x><y>380</y><width>60</width><height>24</height><text>WGen output</text></widget>
   <widget type="textupdate" version="2.0.0"><name>WF_WOut</name><x>1729</x><y>377</y><width>48</width><height>28</height><pv_name>pva://UNH:GEN:SSRF:SEQ:WGEN_OUTPUT</pv_name></widget>
 
   <widget type="label" version="2.0.0"><name>WF_Safety_L</name><x>1222</x><y>425</y><width>60</width><height>24</height><text>No-RF lock</text></widget>
-  <widget type="led" version="2.0.0"><name>WF_Safety</name><x>1291</x><y>422</y><width>18</width><height>28</height><pv_name>pva://UNH:GEN:SSRF:SEQ:NO_RF_LOCK</pv_name><bit>0</bit><off_color><color red="200" green="50" blue="50" /></off_color><on_color><color red="30" green="160" blue="70" /></on_color></widget>
+  <widget type="led" version="2.0.0"><name>WF_Safety</name><x>1291</x><y>422</y><width>24</width><height>24</height><pv_name>pva://UNH:GEN:SSRF:SEQ:NO_RF_LOCK</pv_name><bit>0</bit><off_color><color red="200" green="50" blue="50" /></off_color><on_color><color red="30" green="160" blue="70" /></on_color></widget>
   <widget type="label" version="2.0.0"><name>WF_NMR_L</name><x>1327</x><y>425</y><width>54</width><height>24</height><text>NMR mask</text></widget>
   <widget type="textupdate" version="2.0.0"><name>WF_NMR</name><x>1384</x><y>422</y><width>39</width><height>28</height><pv_name>pva://UNH:GEN:SSRF:SEQ:NMR_MASK</pv_name></widget>
   <widget type="label" version="2.0.0"><name>WF_SSRF_L</name><x>1441</x><y>425</y><width>54</width><height>24</height><text>ssRF mask</text></widget>
@@ -1803,56 +1803,75 @@
   <widget type="textupdate" version="2.0.0"><name>WF_RF</name><x>1612</x><y>422</y><width>36</width><height>28</height><pv_name>pva://UNH:GEN:SSRF:SEQ:SMC_RF</pv_name></widget>
   <widget type="textupdate" version="2.0.0"><name>WF_FM</name><x>1651</x><y>422</y><width>36</width><height>28</height><pv_name>pva://UNH:GEN:SSRF:SEQ:SMC_FM</pv_name></widget>
   <widget type="label" version="2.0.0"><name>WF_Armed_L</name><x>1708</x><y>425</y><width>39</width><height>24</height><text>Armed</text></widget>
-  <widget type="led" version="2.0.0"><name>WF_Armed</name><x>1750</x><y>422</y><width>18</width><height>28</height><pv_name>pva://UNH:GEN:SSRF:SEQ:EXECUTION_ARMED</pv_name><bit>0</bit><off_color><color red="210" green="130" blue="20" /></off_color><on_color><color red="30" green="160" blue="70" /></on_color></widget>
+  <widget type="led" version="2.0.0"><name>WF_Armed</name><x>1750</x><y>422</y><width>24</width><height>24</height><pv_name>pva://UNH:GEN:SSRF:SEQ:EXECUTION_ARMED</pv_name><bit>0</bit><off_color><color red="145" green="145" blue="145" /></off_color><on_color><color red="220" green="140" blue="20" /></on_color></widget>
 
 
   <widget type="label" version="2.0.0">
     <name>WF_SetupLabel</name>
-    <x>1222</x><y>479</y><width>72</width><height>28</height>
-    <text>SETUP:</text>
+    <x>1222</x><y>475</y><width>220</width><height>26</height>
+    <text>SETUP COMMANDS</text>
     <font><font family="Liberation Sans" style="BOLD" size="13.0" /></font>
   </widget>
 
   <widget type="bool_button" version="2.0.0">
     <name>WF_START_FITTER</name>
-    <x>1230</x><y>475</y><width>145</width><height>34</height>
-    <pv_name>pva://UNH:GEN:SSRF:SEQ:START_FITTER_CMD</pv_name>
+    <x>1230</x><y>510</y><width>145</width><height>44</height>
+    <pv_name>pva://UNH:GEN:SSRF:SEQ:START_FITTER_CMD</pv_name><labels_from_pv>false</labels_from_pv><on_label>START FITTER</on_label><off_label>START FITTER</off_label>
   </widget>
 
   <widget type="bool_button" version="2.0.0">
     <name>WF_REPLAY_EQ</name>
-    <x>1385</x><y>475</y><width>145</width><height>34</height>
-    <pv_name>pva://UNH:GEN:SSRF:SEQ:REPLAY_EQ_CMD</pv_name>
+    <x>1385</x><y>510</y><width>145</width><height>44</height>
+    <pv_name>pva://UNH:GEN:SSRF:SEQ:REPLAY_EQ_CMD</pv_name><labels_from_pv>false</labels_from_pv><on_label>REPLAY EQ</on_label><off_label>REPLAY EQ</off_label>
   </widget>
 
   <widget type="bool_button" version="2.0.0">
     <name>WF_CALIBRATE</name>
-    <x>1540</x><y>475</y><width>145</width><height>34</height>
-    <pv_name>pva://UNH:GEN:SSRF:SEQ:UPDATE_CONSTANTS_CMD</pv_name>
+    <x>1540</x><y>510</y><width>145</width><height>44</height>
+    <pv_name>pva://UNH:GEN:SSRF:SEQ:UPDATE_CONSTANTS_CMD</pv_name><labels_from_pv>false</labels_from_pv><on_label>CALIBRATE</on_label><off_label>CALIBRATE</off_label>
   </widget>
 
   <widget type="bool_button" version="2.0.0">
     <name>WF_SSRF_MODE_CMD</name>
-    <x>1695</x><y>475</y><width>145</width><height>34</height>
-    <pv_name>pva://UNH:GEN:SSRF:SEQ:SET_SSRF_MODE_CMD</pv_name>
+    <x>1695</x><y>510</y><width>145</width><height>44</height>
+    <pv_name>pva://UNH:GEN:SSRF:SEQ:SET_SSRF_MODE_CMD</pv_name><labels_from_pv>false</labels_from_pv><on_label>ssRF MODE</on_label><off_label>ssRF MODE</off_label>
   </widget>
 
   <widget type="label" version="2.0.0">
     <name>WF_BlastNote</name>
-    <x>1741</x><y>475</y><width>132</width><height>36</height>
-    <text>Then ARM → BLAST / BURN</text>
+    <x>1222</x><y>580</y><width>620</width><height>28</height>
+    <text>EXECUTION — ARM before BLAST / BURN</text>
     <wrap_words>true</wrap_words>
   </widget>
 
 
-  <widget type="bool_button" version="2.0.0"><name>WF_ARM</name><x>1235</x><y>530</y><width>145</width><height>45</height><pv_name>pva://UNH:GEN:SSRF:SEQ:ARM_CMD</pv_name></widget>
-  <widget type="bool_button" version="2.0.0"><name>WF_DISARM</name><x>1390</x><y>530</y><width>130</width><height>45</height><pv_name>pva://UNH:GEN:SSRF:SEQ:DISARM_CMD</pv_name></widget>
-  <widget type="bool_button" version="2.0.0"><name>WF_BLAST</name><x>1535</x><y>520</y><width>190</width><height>65</height><pv_name>pva://UNH:GEN:SSRF:SEQ:START_CMD</pv_name></widget>
-  <widget type="bool_button" version="2.0.0"><name>WF_ABORT</name><x>1740</x><y>530</y><width>130</width><height>45</height><pv_name>pva://UNH:GEN:SSRF:SEQ:ABORT_CMD</pv_name></widget>
+  <widget type="bool_button" version="2.0.0"><name>WF_ARM</name><x>1235</x><y>620</y><width>145</width><height>52</height><pv_name>pva://UNH:GEN:SSRF:SEQ:ARM_CMD</pv_name><labels_from_pv>false</labels_from_pv><on_label>ARM</on_label><off_label>ARM</off_label></widget>
+  <widget type="bool_button" version="2.0.0"><name>WF_DISARM</name><x>1390</x><y>620</y><width>130</width><height>52</height><pv_name>pva://UNH:GEN:SSRF:SEQ:DISARM_CMD</pv_name><labels_from_pv>false</labels_from_pv><on_label>DISARM</on_label><off_label>DISARM</off_label></widget>
+  <widget type="bool_button" version="2.0.0"><name>WF_BLAST</name><x>1535</x><y>610</y><width>190</width><height>68</height><pv_name>pva://UNH:GEN:SSRF:SEQ:START_CMD</pv_name><labels_from_pv>false</labels_from_pv><on_label>BLAST / BURN</on_label><off_label>BLAST / BURN</off_label></widget>
+  <widget type="bool_button" version="2.0.0"><name>WF_ABORT</name><x>1740</x><y>620</y><width>130</width><height>52</height><pv_name>pva://UNH:GEN:SSRF:SEQ:ABORT_CMD</pv_name><labels_from_pv>false</labels_from_pv><on_label>ABORT</on_label><off_label>ABORT</off_label></widget>
 
-  <widget type="label" version="2.0.0"><name>WF_State_L</name><x>1230</x><y>613</y><width>70</width><height>24</height><text>Current step</text></widget>
-  <widget type="textupdate" version="2.0.0"><name>WF_State</name><x>1305</x><y>610</y><width>250</width><height>30</height><pv_name>pva://UNH:GEN:SSRF:SEQ:DEMO_STATE</pv_name></widget>
-  <widget type="label" version="2.0.0"><name>WF_Reason_L</name><x>1230</x><y>657</y><width>70</width><height>24</height><text>What is happening</text></widget>
-  <widget type="textupdate" version="2.0.0"><name>WF_Reason</name><x>1305</x><y>650</y><width>545</width><height>55</height><pv_name>pva://UNH:GEN:SSRF:SEQ:DEMO_REASON</pv_name></widget>
+  <widget type="label" version="2.0.0"><name>WF_State_L</name><x>1230</x><y>713</y><width>70</width><height>24</height><text>Current step</text></widget>
+  <widget type="textupdate" version="2.0.0"><name>WF_State</name><x>1305</x><y>708</y><width>250</width><height>30</height><pv_name>pva://UNH:GEN:SSRF:SEQ:DEMO_STATE</pv_name></widget>
+  <widget type="label" version="2.0.0"><name>WF_Reason_L</name><x>1230</x><y>758</y><width>70</width><height>24</height><text>What is happening</text></widget>
+  <widget type="textupdate" version="2.0.0"><name>WF_Reason</name><x>1305</x><y>750</y><width>545</width><height>55</height><pv_name>pva://UNH:GEN:SSRF:SEQ:DEMO_REASON</pv_name></widget>
 
+
+  <widget type="label" version="2.0.0">
+    <name>WF_ColorLegend</name>
+    <x>1230</x><y>825</y><width>630</width><height>26</height>
+    <text>Indicators: GREEN = ready/safe   GRAY = inactive   ORANGE = armed/attention   RED = unsafe/fault</text>
+    <font><font family="Liberation Sans" style="REGULAR" size="10.5" /></font>
+    <foreground_color><color red="85" green="95" blue="105" /></foreground_color>
+    <wrap_words>true</wrap_words>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>WF_ProfileNote</name>
+    <x>1230</x><y>862</y><width>635</width><height>46</height>
+    <text>When mode = PHYSICAL_NO_RF, normal-production device/detail PVs may be magenta because those IOCs are intentionally not started. Use the workflow mirrors above; do not start competing IOCs for cosmetics.</text>
+    <font><font family="Liberation Sans" style="REGULAR" size="10.5" /></font>
+    <foreground_color><color red="85" green="95" blue="105" /></foreground_color>
+    <wrap_words>true</wrap_words>
+    <transparent>true</transparent>
+  </widget>
 </display>

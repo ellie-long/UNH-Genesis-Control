@@ -8,7 +8,8 @@
 # Safety policy:
 #   - Normal startup uses the repository's read-only macOS startup script.
 #   - Simulator activation is explicit and requires all localhost backends.
-#   - Physical write commissioning is NOT automated here.
+#   - The validated PHYSICAL_NO_RF workflow is exposed only through explicit ssRF commands.
+#   - Amplified-RF / target-burn commissioning is NOT automated here.
 #   - Forced shutdown requires an explicit acknowledgement token.
 #   - This script never touches git stash.
 #

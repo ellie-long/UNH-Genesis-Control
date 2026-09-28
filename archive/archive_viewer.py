@@ -270,7 +270,7 @@ def main():
         show_raw_data = st.checkbox("Show raw data", value=False)
 
         # Load data button
-        load_data = st.button("Load Data", type="primary", use_container_width=True)
+        load_data = st.button("Load Data", type="primary", width="stretch")
 
     # Main content area
     if selected_pvs and load_data:
@@ -299,7 +299,7 @@ def main():
             with tab1:
                 st.subheader("Time Series Plot")
                 fig = create_time_series_plot(data_dict, title=f"{', '.join(selected_pvs)}")
-                st.plotly_chart(fig, use_container_width=True)
+                st.plotly_chart(fig, width="stretch")
 
                 # Download buttons
                 col1, col2 = st.columns(2)
@@ -365,7 +365,7 @@ def main():
 
                             st.dataframe(
                                 display_df,
-                                use_container_width=True,
+                                width="stretch",
                                 hide_index=True
                             )
 
@@ -378,7 +378,7 @@ def main():
                     for pv, df in data_dict.items():
                         if not df.empty and not df['Value'].isna().all():
                             fig = create_time_series_plot({pv: df}, title=pv)
-                            st.plotly_chart(fig, use_container_width=True)
+                            st.plotly_chart(fig, width="stretch")
 
     # Instructions when no data is loaded
     elif not selected_pvs:
