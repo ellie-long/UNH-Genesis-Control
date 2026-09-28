@@ -382,7 +382,7 @@
     <actions>
       <action type="open_display">
         <file>genesis_mw_spd1305x.bob</file>
-        <target>window</target>
+        <target>tab</target>
         <description>Open SPD1305X device screen</description>
       </action>
     </actions>

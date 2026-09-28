@@ -481,27 +481,10 @@ PY
 # Phoebus
 # ----------------------------------------------------------------
 
-if pgrep -f \
-    '/Applications/CSS_Phoebus.app/.*product-.*\.jar' \
-    >/dev/null 2>&1; then
-
-    echo
-    echo "Phoebus is already running."
-    echo "Close the existing Phoebus instance and rerun this script"
-    echo "if it was not started with the Genesis PVA configuration."
-    echo
-else
-    echo "[START] Phoebus"
-
-    : > /tmp/genesis_phoebus.log
-
-    "${PHOEBUS_BIN}" \
-        -settings "${PHOEBUS_SETTINGS}" \
-        -resource "${MAIN_GUI}" \
-        >/tmp/genesis_phoebus.log 2>&1
-
-    sleep 5
-fi
+echo "[START] Genesis Phoebus"
+"${REPO_ROOT}/scripts/start_genesis_phoebus.sh" \
+    "${PHOEBUS_SETTINGS}" \
+    "${MAIN_GUI}"
 
 echo
 echo "============================================================"

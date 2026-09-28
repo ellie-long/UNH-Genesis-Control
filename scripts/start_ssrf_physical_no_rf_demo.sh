@@ -129,12 +129,12 @@ PY
 
 echo
 echo "===== LAUNCH PHOEBUS ====="
-"$PHOEBUS" \
-  -settings "$SETTINGS" \
-  -resource "$GUI" \
-  >/tmp/genesis_ssrf_demo_phoebus.log 2>&1 &
+"$ROOT/scripts/start_genesis_phoebus.sh" \
+  "$SETTINGS" \
+  "$GUI" \
+  >/tmp/genesis_ssrf_demo_phoebus.log 2>&1
 
-sleep 4
+sleep 2
 
 echo
 echo "============================================================"
