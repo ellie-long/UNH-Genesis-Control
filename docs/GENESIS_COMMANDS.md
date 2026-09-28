@@ -293,3 +293,22 @@ Next laboratory work is physical calibration, physical IOC-memory staging, contr
 ## ssRF physical no-RF operator workflow
 
 Use `docs/SSRF_OPERATOR_QUICK_START.md` as the canonical operator procedure for physical no-RF start, execution, viewer inspection and safe shutdown.
+
+## Final physical ssRF source-control commands
+
+Current validated commands:
+
+    ./scripts/genesisctl.sh ssrf-physical-status
+    ./scripts/genesisctl.sh ssrf-deploy-keysight
+    ./scripts/genesisctl.sh ssrf-start
+    ./scripts/genesisctl.sh ssrf-stop
+
+Final GUI workflow:
+
+    NMR / CALIBRATE
+    → Burn Setup
+    → GENERATE / LOAD
+    → ARM
+    → BURN ONCE
+
+See `SSRF_FINAL_PHYSICAL_OPERATION.md`.

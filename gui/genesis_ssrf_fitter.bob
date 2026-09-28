@@ -564,7 +564,7 @@
 
 
 
-    <pv_name>pva://$(P):FITTER_UP</pv_name>
+    <pv_name>ca://$(P):FITTER_UP</pv_name>
 
 
 
@@ -639,7 +639,7 @@
 
 
 
-    <pv_name>pva://$(P):FITTER_UP</pv_name>
+    <pv_name>ca://$(P):FITTER_UP</pv_name>
 
 
 
@@ -739,7 +739,7 @@
 
 
 
-    <pv_name>pva://$(P):PUBLISHER_CONNECTED</pv_name>
+    <pv_name>ca://$(P):PUBLISHER_CONNECTED</pv_name>
 
 
 
@@ -814,7 +814,7 @@
 
 
 
-    <pv_name>pva://$(P):PUBLISHER_CONNECTED</pv_name>
+    <pv_name>ca://$(P):PUBLISHER_CONNECTED</pv_name>
 
 
 
@@ -914,7 +914,7 @@
 
 
 
-    <pv_name>pva://$(P):CALIBRATED</pv_name>
+    <pv_name>ca://$(P):CALIBRATED</pv_name>
 
 
 
@@ -989,7 +989,7 @@
 
 
 
-    <pv_name>pva://$(P):CALIBRATED</pv_name>
+    <pv_name>ca://$(P):CALIBRATED</pv_name>
 
 
 
@@ -1089,7 +1089,7 @@
 
 
 
-    <pv_name>pva://$(P):UPDATE_BUSY</pv_name>
+    <pv_name>ca://$(P):UPDATE_BUSY</pv_name>
 
 
 
@@ -1164,7 +1164,7 @@
 
 
 
-    <pv_name>pva://$(P):UPDATE_BUSY</pv_name>
+    <pv_name>ca://$(P):UPDATE_BUSY</pv_name>
 
 
 
@@ -1264,7 +1264,7 @@
 
 
 
-    <pv_name>pva://$(P):LAST_TS</pv_name>
+    <pv_name>ca://$(P):LAST_TS</pv_name>
 
 
 
@@ -1799,7 +1799,7 @@
 
 
 
-    <pv_name>pva://$(P):FIT_TYPE</pv_name>
+    <pv_name>ca://$(P):FIT_TYPE</pv_name>
 
 
 
@@ -1904,7 +1904,7 @@
 
 
 
-    <pv_name>pva://$(P):MODEL</pv_name>
+    <pv_name>ca://$(P):MODEL</pv_name>
 
 
 
@@ -2009,7 +2009,7 @@
 
 
 
-    <pv_name>pva://$(P):NPTS</pv_name>
+    <pv_name>ca://$(P):NPTS</pv_name>
 
 
 
@@ -2114,7 +2114,7 @@
 
 
 
-    <pv_name>pva://$(P):P_FIT</pv_name>
+    <pv_name>ca://$(P):P_FIT</pv_name>
 
 
 
@@ -2219,7 +2219,7 @@
 
 
 
-    <pv_name>pva://$(P):P_AREA</pv_name>
+    <pv_name>ca://$(P):P_AREA</pv_name>
 
 
 
@@ -2324,7 +2324,7 @@
 
 
 
-    <pv_name>pva://$(P):Q_FIT</pv_name>
+    <pv_name>ca://$(P):Q_FIT</pv_name>
 
 
 
@@ -2429,7 +2429,7 @@
 
 
 
-    <pv_name>pva://$(P):Q_EQ</pv_name>
+    <pv_name>ca://$(P):Q_EQ</pv_name>
 
 
 
@@ -2534,7 +2534,7 @@
 
 
 
-    <pv_name>pva://$(P):R</pv_name>
+    <pv_name>ca://$(P):R</pv_name>
 
 
 
@@ -2639,7 +2639,7 @@
 
 
 
-    <pv_name>pva://$(P):PHASE_DEG</pv_name>
+    <pv_name>ca://$(P):PHASE_DEG</pv_name>
 
 
 
@@ -3019,7 +3019,7 @@
 
 
 
-    <pv_name>pva://$(P):CONSTANTS_SOURCE</pv_name>
+    <pv_name>ca://$(P):CONSTANTS_SOURCE</pv_name>
 
 
 
@@ -3124,7 +3124,7 @@
 
 
 
-    <pv_name>pva://$(P):CC</pv_name>
+    <pv_name>ca://$(P):CC</pv_name>
 
 
 
@@ -3229,7 +3229,7 @@
 
 
 
-    <pv_name>pva://$(P):CC_DAQ</pv_name>
+    <pv_name>ca://$(P):CC_DAQ</pv_name>
 
 
 
@@ -3334,7 +3334,7 @@
 
 
 
-    <pv_name>pva://$(P):OMEGD</pv_name>
+    <pv_name>ca://$(P):OMEGD</pv_name>
 
 
 
@@ -3439,7 +3439,7 @@
 
 
 
-    <pv_name>pva://$(P):OMEGQ1</pv_name>
+    <pv_name>ca://$(P):OMEGQ1</pv_name>
 
 
 
@@ -3544,7 +3544,7 @@
 
 
 
-    <pv_name>pva://$(P):OMEGQ2</pv_name>
+    <pv_name>ca://$(P):OMEGQ2</pv_name>
 
 
 
@@ -3649,7 +3649,7 @@
 
 
 
-    <pv_name>pva://$(P):A1</pv_name>
+    <pv_name>ca://$(P):A1</pv_name>
 
 
 
@@ -3754,7 +3754,7 @@
 
 
 
-    <pv_name>pva://$(P):ETA1</pv_name>
+    <pv_name>ca://$(P):ETA1</pv_name>
 
 
 
@@ -3859,7 +3859,7 @@
 
 
 
-    <pv_name>pva://$(P):ETA2</pv_name>
+    <pv_name>ca://$(P):ETA2</pv_name>
 
 
 
@@ -3964,7 +3964,7 @@
 
 
 
-    <pv_name>pva://$(P):K</pv_name>
+    <pv_name>ca://$(P):K</pv_name>
 
 
 
@@ -4069,7 +4069,7 @@
 
 
 
-    <pv_name>pva://$(P):SCALE</pv_name>
+    <pv_name>ca://$(P):SCALE</pv_name>
 
 
 
@@ -4174,7 +4174,7 @@
 
 
 
-    <pv_name>pva://$(P):RED_CHISQ</pv_name>
+    <pv_name>ca://$(P):RED_CHISQ</pv_name>
 
 
 
@@ -4279,7 +4279,7 @@
 
 
 
-    <pv_name>pva://$(P):WARNING</pv_name>
+    <pv_name>ca://$(P):WARNING</pv_name>
 
 
 
@@ -4474,12 +4474,12 @@
 
 
 
-        <x_pv>pva://$(P):FREQS_MHZ</x_pv>
+        <x_pv>ca://$(P):FREQS_MHZ</x_pv>
 
 
 
 
-        <y_pv>pva://$(P):DATA</y_pv>
+        <y_pv>ca://$(P):DATA</y_pv>
 
 
 
@@ -4529,12 +4529,12 @@
 
 
 
-        <x_pv>pva://$(P):FREQS_MHZ</x_pv>
+        <x_pv>ca://$(P):FREQS_MHZ</x_pv>
 
 
 
 
-        <y_pv>pva://$(P):TOTAL_FIT</y_pv>
+        <y_pv>ca://$(P):TOTAL_FIT</y_pv>
 
 
 
@@ -4864,7 +4864,7 @@
     <height>32</height>
     <actions>
       <action type="write_pv">
-        <pv_name>pva://$(P):MODE_CMD</pv_name>
+        <pv_name>ca://$(P):MODE_CMD</pv_name>
         <value>equilibrium</value>
         <description>Equilibrium</description>
       </action>
@@ -4880,7 +4880,7 @@
     <height>32</height>
     <actions>
       <action type="write_pv">
-        <pv_name>pva://$(P):MODE_CMD</pv_name>
+        <pv_name>ca://$(P):MODE_CMD</pv_name>
         <value>ssRF</value>
         <description>ssRF</description>
       </action>
@@ -4896,7 +4896,7 @@
     <height>32</height>
     <actions>
       <action type="write_pv">
-        <pv_name>pva://$(P):MODE_CMD</pv_name>
+        <pv_name>ca://$(P):MODE_CMD</pv_name>
         <value>freq_hopping</value>
         <description>Freq Hop</description>
       </action>
@@ -4912,7 +4912,7 @@
     <height>32</height>
     <actions>
       <action type="write_pv">
-        <pv_name>pva://$(P):MODE_CMD</pv_name>
+        <pv_name>ca://$(P):MODE_CMD</pv_name>
         <value>baseline</value>
         <description>Baseline</description>
       </action>
@@ -4928,7 +4928,7 @@
     <height>32</height>
     <actions>
       <action type="write_pv">
-        <pv_name>pva://$(P):MODE_CMD</pv_name>
+        <pv_name>ca://$(P):MODE_CMD</pv_name>
         <value>no_nmr</value>
         <description>No NMR</description>
       </action>
@@ -4954,7 +4954,7 @@
     <y>314</y>
     <width>180</width>
     <height>28</height>
-    <pv_name>pva://$(P):MODE_RBV</pv_name>
+    <pv_name>ca://$(P):MODE_RBV</pv_name>
     <format>6</format>
   </widget>
   <widget type="label" version="2.0.0">
@@ -4977,7 +4977,7 @@
     <height>32</height>
     <actions>
       <action type="write_pv">
-        <pv_name>pva://$(P):MATERIAL_CMD</pv_name>
+        <pv_name>ca://$(P):MATERIAL_CMD</pv_name>
         <value>d-butanol</value>
         <description>d-butanol</description>
       </action>
@@ -4993,7 +4993,7 @@
     <height>32</height>
     <actions>
       <action type="write_pv">
-        <pv_name>pva://$(P):MATERIAL_CMD</pv_name>
+        <pv_name>ca://$(P):MATERIAL_CMD</pv_name>
         <value>d-propanediol</value>
         <description>d-propanediol</description>
       </action>
@@ -5009,7 +5009,7 @@
     <height>32</height>
     <actions>
       <action type="write_pv">
-        <pv_name>pva://$(P):MATERIAL_CMD</pv_name>
+        <pv_name>ca://$(P):MATERIAL_CMD</pv_name>
         <value>ND3</value>
         <description>ND3</description>
       </action>
@@ -5050,7 +5050,7 @@
     <y>391</y>
     <width>180</width>
     <height>28</height>
-    <pv_name>pva://$(P):MATERIAL_RBV</pv_name>
+    <pv_name>ca://$(P):MATERIAL_RBV</pv_name>
     <format>6</format>
   </widget>
   <widget type="label" version="2.0.0">
@@ -5071,7 +5071,7 @@
     <y>429</y>
     <width>115</width>
     <height>30</height>
-    <pv_name>pva://$(P):LARMOR_KHZ_CMD</pv_name>
+    <pv_name>ca://$(P):LARMOR_KHZ_CMD</pv_name>
     <precision>2</precision>
     <tooltip>Enter Larmor offset/frequency value and press Enter to apply.</tooltip>
     <background_color>
@@ -5126,7 +5126,7 @@
     <y>429</y>
     <width>55</width>
     <height>30</height>
-    <pv_name>pva://$(P):LARMOR_KHZ_RBV</pv_name>
+    <pv_name>ca://$(P):LARMOR_KHZ_RBV</pv_name>
     <precision>2</precision>
   </widget>
   <widget type="label" version="2.0.0">
@@ -5161,7 +5161,7 @@
     <height>35</height>
     <actions>
       <action type="write_pv">
-        <pv_name>pva://$(P):UPDATE_CONSTANTS_CMD</pv_name>
+        <pv_name>ca://$(P):UPDATE_CONSTANTS_CMD</pv_name>
         <value>1</value>
         <description>Update Constants</description>
       </action>

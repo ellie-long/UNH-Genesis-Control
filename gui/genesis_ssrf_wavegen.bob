@@ -109,7 +109,7 @@
     <y>142</y>
     <width>26</width>
     <height>26</height>
-    <pv_name>pva://UNH:GEN:SSRF:WGEN:COMM</pv_name>
+    <pv_name>ca://UNH:GEN:SSRF:WGEN:COMM</pv_name>
     <bit>0</bit>
     <off_color>
       <color red="200" green="50" blue="50" />
@@ -124,7 +124,7 @@
     <y>143</y>
     <width>110</width>
     <height>25</height>
-    <pv_name>pva://UNH:GEN:SSRF:WGEN:COMM</pv_name>
+    <pv_name>ca://UNH:GEN:SSRF:WGEN:COMM</pv_name>
     <format>6</format>
   </widget>
   <widget type="label" version="2.0.0">
@@ -145,7 +145,7 @@
     <y>142</y>
     <width>26</width>
     <height>26</height>
-    <pv_name>pva://UNH:GEN:SSRF:WGEN:WRITE_ENABLED</pv_name>
+    <pv_name>ca://UNH:GEN:SSRF:WGEN:WRITE_ENABLED</pv_name>
     <bit>0</bit>
     <off_color>
       <color red="210" green="130" blue="20" />
@@ -160,7 +160,7 @@
     <y>143</y>
     <width>150</width>
     <height>25</height>
-    <pv_name>pva://UNH:GEN:SSRF:WGEN:WRITE_ENABLED</pv_name>
+    <pv_name>ca://UNH:GEN:SSRF:WGEN:WRITE_ENABLED</pv_name>
     <format>6</format>
   </widget>
   <widget type="label" version="2.0.0">
@@ -181,7 +181,7 @@
     <y>143</y>
     <width>240</width>
     <height>25</height>
-    <pv_name>pva://UNH:GEN:SSRF:WGEN:LAST_OK</pv_name>
+    <pv_name>ca://UNH:GEN:SSRF:WGEN:LAST_OK</pv_name>
     <precision>3</precision>
   </widget>
   <widget type="label" version="2.0.0">
@@ -202,7 +202,7 @@
     <y>180</y>
     <width>830</width>
     <height>25</height>
-    <pv_name>pva://UNH:GEN:SSRF:WGEN:IDN</pv_name>
+    <pv_name>ca://UNH:GEN:SSRF:WGEN:IDN</pv_name>
     <format>6</format>
   </widget>
   <widget type="label" version="2.0.0">
@@ -223,7 +223,7 @@
     <y>215</y>
     <width>350</width>
     <height>25</height>
-    <pv_name>pva://UNH:GEN:SSRF:WGEN:ERROR</pv_name>
+    <pv_name>ca://UNH:GEN:SSRF:WGEN:ERROR</pv_name>
     <format>6</format>
   </widget>
   <widget type="label" version="2.0.0">
@@ -244,7 +244,7 @@
     <y>215</y>
     <width>360</width>
     <height>25</height>
-    <pv_name>pva://UNH:GEN:SSRF:WGEN:LAST_EVENT</pv_name>
+    <pv_name>ca://UNH:GEN:SSRF:WGEN:LAST_EVENT</pv_name>
     <format>6</format>
   </widget>
   <widget type="rectangle" version="2.0.0">
@@ -308,7 +308,7 @@
     <y>345</y>
     <width>125</width>
     <height>30</height>
-    <pv_name>pva://UNH:GEN:SSRF:WGEN:OUTPUT_CMD</pv_name>
+    <pv_name>ca://UNH:GEN:SSRF:WGEN:OUTPUT_CMD</pv_name>
     <enabled>false</enabled>
     <rules>
       <rule name="Connected and hardware writes enabled" prop_id="enabled" out_exp="false">
@@ -318,8 +318,8 @@
         <exp bool_exp="!(pv0 == 1 &amp;&amp; pv1 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pvSev1 == 0)">
           <value>false</value>
         </exp>
-        <pv_name>pva://UNH:GEN:SSRF:WGEN:COMM</pv_name>
-        <pv_name>pva://UNH:GEN:SSRF:WGEN:WRITE_ENABLED</pv_name>
+        <pv_name>ca://UNH:GEN:SSRF:WGEN:COMM</pv_name>
+        <pv_name>ca://UNH:GEN:SSRF:WGEN:WRITE_ENABLED</pv_name>
       </rule>
     </rules>
     <tooltip>IOC write gate must be explicitly enabled.</tooltip>
@@ -342,7 +342,7 @@
     <y>345</y>
     <width>145</width>
     <height>25</height>
-    <pv_name>pva://UNH:GEN:SSRF:WGEN:OUTPUT_RBV</pv_name>
+    <pv_name>ca://UNH:GEN:SSRF:WGEN:OUTPUT_RBV</pv_name>
     <format>6</format>
   </widget>
   <widget type="label" version="2.0.0">
@@ -363,7 +363,7 @@
     <y>390</y>
     <width>125</width>
     <height>28</height>
-    <pv_name>pva://UNH:GEN:SSRF:WGEN:PERIOD_CMD</pv_name>
+    <pv_name>ca://UNH:GEN:SSRF:WGEN:PERIOD_CMD</pv_name>
     <precision>6</precision>
     <enabled>false</enabled>
     <rules>
@@ -374,8 +374,8 @@
         <exp bool_exp="!(pv0 == 1 &amp;&amp; pv1 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pvSev1 == 0)">
           <value>false</value>
         </exp>
-        <pv_name>pva://UNH:GEN:SSRF:WGEN:COMM</pv_name>
-        <pv_name>pva://UNH:GEN:SSRF:WGEN:WRITE_ENABLED</pv_name>
+        <pv_name>ca://UNH:GEN:SSRF:WGEN:COMM</pv_name>
+        <pv_name>ca://UNH:GEN:SSRF:WGEN:WRITE_ENABLED</pv_name>
       </rule>
     </rules>
     <tooltip>IOC write gate must be explicitly enabled.</tooltip>
@@ -398,7 +398,7 @@
     <y>390</y>
     <width>145</width>
     <height>25</height>
-    <pv_name>pva://UNH:GEN:SSRF:WGEN:PERIOD_RBV</pv_name>
+    <pv_name>ca://UNH:GEN:SSRF:WGEN:PERIOD_RBV</pv_name>
     <precision>6</precision>
   </widget>
   <widget type="label" version="2.0.0">
@@ -431,7 +431,7 @@
     <y>435</y>
     <width>125</width>
     <height>28</height>
-    <pv_name>pva://UNH:GEN:SSRF:WGEN:VHIGH_CMD</pv_name>
+    <pv_name>ca://UNH:GEN:SSRF:WGEN:VHIGH_CMD</pv_name>
     <precision>4</precision>
     <enabled>false</enabled>
     <rules>
@@ -442,8 +442,8 @@
         <exp bool_exp="!(pv0 == 1 &amp;&amp; pv1 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pvSev1 == 0)">
           <value>false</value>
         </exp>
-        <pv_name>pva://UNH:GEN:SSRF:WGEN:COMM</pv_name>
-        <pv_name>pva://UNH:GEN:SSRF:WGEN:WRITE_ENABLED</pv_name>
+        <pv_name>ca://UNH:GEN:SSRF:WGEN:COMM</pv_name>
+        <pv_name>ca://UNH:GEN:SSRF:WGEN:WRITE_ENABLED</pv_name>
       </rule>
     </rules>
     <tooltip>IOC write gate must be explicitly enabled.</tooltip>
@@ -466,7 +466,7 @@
     <y>435</y>
     <width>145</width>
     <height>25</height>
-    <pv_name>pva://UNH:GEN:SSRF:WGEN:VHIGH_RBV</pv_name>
+    <pv_name>ca://UNH:GEN:SSRF:WGEN:VHIGH_RBV</pv_name>
     <precision>4</precision>
   </widget>
   <widget type="label" version="2.0.0">
@@ -499,7 +499,7 @@
     <y>480</y>
     <width>125</width>
     <height>28</height>
-    <pv_name>pva://UNH:GEN:SSRF:WGEN:VLOW_CMD</pv_name>
+    <pv_name>ca://UNH:GEN:SSRF:WGEN:VLOW_CMD</pv_name>
     <precision>4</precision>
     <enabled>false</enabled>
     <rules>
@@ -510,8 +510,8 @@
         <exp bool_exp="!(pv0 == 1 &amp;&amp; pv1 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pvSev1 == 0)">
           <value>false</value>
         </exp>
-        <pv_name>pva://UNH:GEN:SSRF:WGEN:COMM</pv_name>
-        <pv_name>pva://UNH:GEN:SSRF:WGEN:WRITE_ENABLED</pv_name>
+        <pv_name>ca://UNH:GEN:SSRF:WGEN:COMM</pv_name>
+        <pv_name>ca://UNH:GEN:SSRF:WGEN:WRITE_ENABLED</pv_name>
       </rule>
     </rules>
     <tooltip>IOC write gate must be explicitly enabled.</tooltip>
@@ -534,7 +534,7 @@
     <y>480</y>
     <width>145</width>
     <height>25</height>
-    <pv_name>pva://UNH:GEN:SSRF:WGEN:VLOW_RBV</pv_name>
+    <pv_name>ca://UNH:GEN:SSRF:WGEN:VLOW_RBV</pv_name>
     <precision>4</precision>
   </widget>
   <widget type="label" version="2.0.0">
@@ -610,7 +610,7 @@
     <y>613</y>
     <width>120</width>
     <height>25</height>
-    <pv_name>pva://UNH:GEN:SSRF:WGEN:WAVEFORM_POINTS</pv_name>
+    <pv_name>ca://UNH:GEN:SSRF:WGEN:WAVEFORM_POINTS</pv_name>
     <precision>0</precision>
   </widget>
   <widget type="label" version="2.0.0">
@@ -631,7 +631,7 @@
     <y>650</y>
     <width>120</width>
     <height>25</height>
-    <pv_name>pva://UNH:GEN:SSRF:WGEN:ARB_POINTS_RBV</pv_name>
+    <pv_name>ca://UNH:GEN:SSRF:WGEN:ARB_POINTS_RBV</pv_name>
     <precision>0</precision>
   </widget>
   <widget type="label" version="2.0.0">
@@ -652,7 +652,7 @@
     <y>613</y>
     <width>120</width>
     <height>25</height>
-    <pv_name>pva://UNH:GEN:SSRF:WGEN:WAVEFORM_ID</pv_name>
+    <pv_name>ca://UNH:GEN:SSRF:WGEN:WAVEFORM_ID</pv_name>
     <precision>0</precision>
   </widget>
   <widget type="label" version="2.0.0">
@@ -673,7 +673,7 @@
     <y>650</y>
     <width>120</width>
     <height>25</height>
-    <pv_name>pva://UNH:GEN:SSRF:WGEN:WAVEFORM_READY</pv_name>
+    <pv_name>ca://UNH:GEN:SSRF:WGEN:WAVEFORM_READY</pv_name>
     <format>6</format>
   </widget>
   <widget type="label" version="2.0.0">
@@ -694,7 +694,7 @@
     <y>608</y>
     <width>130</width>
     <height>30</height>
-    <pv_name>pva://UNH:GEN:SSRF:WGEN:LOAD_CMD</pv_name>
+    <pv_name>ca://UNH:GEN:SSRF:WGEN:LOAD_CMD</pv_name>
     <enabled>false</enabled>
     <rules>
       <rule name="Connected and hardware writes enabled" prop_id="enabled" out_exp="false">
@@ -704,8 +704,8 @@
         <exp bool_exp="!(pv0 == 1 &amp;&amp; pv1 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pvSev1 == 0)">
           <value>false</value>
         </exp>
-        <pv_name>pva://UNH:GEN:SSRF:WGEN:COMM</pv_name>
-        <pv_name>pva://UNH:GEN:SSRF:WGEN:WRITE_ENABLED</pv_name>
+        <pv_name>ca://UNH:GEN:SSRF:WGEN:COMM</pv_name>
+        <pv_name>ca://UNH:GEN:SSRF:WGEN:WRITE_ENABLED</pv_name>
       </rule>
     </rules>
     <tooltip>Loads the waveform already staged in IOC memory. This does not generate waveform samples.</tooltip>

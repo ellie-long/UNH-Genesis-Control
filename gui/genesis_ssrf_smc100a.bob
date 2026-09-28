@@ -106,7 +106,7 @@
     <y>142</y>
     <width>26</width>
     <height>26</height>
-    <pv_name>pva://$(P):COMM</pv_name>
+    <pv_name>ca://$(P):COMM</pv_name>
     <bit>0</bit>
     <off_color>
       <color red="200" green="50" blue="50" />
@@ -121,7 +121,7 @@
     <y>143</y>
     <width>115</width>
     <height>25</height>
-    <pv_name>pva://$(P):COMM</pv_name>
+    <pv_name>ca://$(P):COMM</pv_name>
     <format>6</format>
   </widget>
   <widget type="label" version="2.0.0">
@@ -142,7 +142,7 @@
     <y>142</y>
     <width>26</width>
     <height>26</height>
-    <pv_name>pva://$(P):WRITE_ENABLED</pv_name>
+    <pv_name>ca://$(P):WRITE_ENABLED</pv_name>
     <bit>0</bit>
     <off_color>
       <color red="210" green="130" blue="20" />
@@ -157,7 +157,7 @@
     <y>143</y>
     <width>150</width>
     <height>25</height>
-    <pv_name>pva://$(P):WRITE_ENABLED</pv_name>
+    <pv_name>ca://$(P):WRITE_ENABLED</pv_name>
     <format>6</format>
   </widget>
   <widget type="label" version="2.0.0">
@@ -178,7 +178,7 @@
     <y>143</y>
     <width>220</width>
     <height>25</height>
-    <pv_name>pva://$(P):LAST_OK</pv_name>
+    <pv_name>ca://$(P):LAST_OK</pv_name>
     <precision>3</precision>
   </widget>
   <widget type="label" version="2.0.0">
@@ -199,7 +199,7 @@
     <y>180</y>
     <width>845</width>
     <height>25</height>
-    <pv_name>pva://$(P):IDN</pv_name>
+    <pv_name>ca://$(P):IDN</pv_name>
     <format>6</format>
   </widget>
   <widget type="label" version="2.0.0">
@@ -220,7 +220,7 @@
     <y>213</y>
     <width>350</width>
     <height>25</height>
-    <pv_name>pva://$(P):ERROR</pv_name>
+    <pv_name>ca://$(P):ERROR</pv_name>
     <format>6</format>
   </widget>
   <widget type="label" version="2.0.0">
@@ -241,7 +241,7 @@
     <y>213</y>
     <width>375</width>
     <height>25</height>
-    <pv_name>pva://$(P):LAST_EVENT</pv_name>
+    <pv_name>ca://$(P):LAST_EVENT</pv_name>
     <format>6</format>
   </widget>
   <widget type="rectangle" version="2.0.0">
@@ -338,7 +338,7 @@
     <y>347</y>
     <width>120</width>
     <height>25</height>
-    <pv_name>pva://$(P):FREQ_CMD</pv_name>
+    <pv_name>ca://$(P):FREQ_CMD</pv_name>
     <precision>6</precision>
     <enabled>false</enabled>
     <rules>
@@ -349,8 +349,8 @@
         <exp bool_exp="!(pv0 == 1 &amp;&amp; pv1 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pvSev1 == 0)">
           <value>false</value>
         </exp>
-        <pv_name>pva://$(P):COMM</pv_name>
-        <pv_name>pva://$(P):WRITE_ENABLED</pv_name>
+        <pv_name>ca://$(P):COMM</pv_name>
+        <pv_name>ca://$(P):WRITE_ENABLED</pv_name>
       </rule>
     </rules>
     <tooltip>SMC100A carrier frequency command in MHz.</tooltip>
@@ -361,7 +361,7 @@
     <y>347</y>
     <width>120</width>
     <height>25</height>
-    <pv_name>pva://$(P):FREQ_RBV</pv_name>
+    <pv_name>ca://$(P):FREQ_RBV</pv_name>
     <precision>6</precision>
   </widget>
   <widget type="label" version="2.0.0">
@@ -394,7 +394,7 @@
     <y>387</y>
     <width>120</width>
     <height>25</height>
-    <pv_name>pva://$(P):LEVEL_CMD</pv_name>
+    <pv_name>ca://$(P):LEVEL_CMD</pv_name>
     <precision>2</precision>
     <enabled>false</enabled>
     <rules>
@@ -405,8 +405,8 @@
         <exp bool_exp="!(pv0 == 1 &amp;&amp; pv1 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pvSev1 == 0)">
           <value>false</value>
         </exp>
-        <pv_name>pva://$(P):COMM</pv_name>
-        <pv_name>pva://$(P):WRITE_ENABLED</pv_name>
+        <pv_name>ca://$(P):COMM</pv_name>
+        <pv_name>ca://$(P):WRITE_ENABLED</pv_name>
       </rule>
     </rules>
     <tooltip>SMC100A RF power level command in dBm.</tooltip>
@@ -417,7 +417,7 @@
     <y>387</y>
     <width>120</width>
     <height>25</height>
-    <pv_name>pva://$(P):LEVEL_RBV</pv_name>
+    <pv_name>ca://$(P):LEVEL_RBV</pv_name>
     <precision>2</precision>
   </widget>
   <widget type="label" version="2.0.0">
@@ -450,7 +450,7 @@
     <y>427</y>
     <width>120</width>
     <height>25</height>
-    <pv_name>pva://$(P):RF_CMD</pv_name>
+    <pv_name>ca://$(P):RF_CMD</pv_name>
     <label />
     <enabled>false</enabled>
     <rules>
@@ -461,8 +461,8 @@
         <exp bool_exp="!(pv0 == 1 &amp;&amp; pv1 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pvSev1 == 0)">
           <value>false</value>
         </exp>
-        <pv_name>pva://$(P):COMM</pv_name>
-        <pv_name>pva://$(P):WRITE_ENABLED</pv_name>
+        <pv_name>ca://$(P):COMM</pv_name>
+        <pv_name>ca://$(P):WRITE_ENABLED</pv_name>
       </rule>
     </rules>
     <tooltip>RF output command. IOC write gate must be enabled.</tooltip>
@@ -473,7 +473,7 @@
     <y>427</y>
     <width>26</width>
     <height>26</height>
-    <pv_name>pva://$(P):RF_RBV</pv_name>
+    <pv_name>ca://$(P):RF_RBV</pv_name>
     <bit>0</bit>
     <off_color>
       <color red="170" green="170" blue="170" />
@@ -488,7 +488,7 @@
     <y>428</y>
     <width>70</width>
     <height>25</height>
-    <pv_name>pva://$(P):RF_RBV</pv_name>
+    <pv_name>ca://$(P):RF_RBV</pv_name>
     <format>6</format>
   </widget>
   <widget type="rectangle" version="2.0.0">
@@ -585,7 +585,7 @@
     <y>347</y>
     <width>120</width>
     <height>25</height>
-    <pv_name>pva://$(P):FM_CMD</pv_name>
+    <pv_name>ca://$(P):FM_CMD</pv_name>
     <label />
     <enabled>false</enabled>
     <rules>
@@ -596,8 +596,8 @@
         <exp bool_exp="!(pv0 == 1 &amp;&amp; pv1 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pvSev1 == 0)">
           <value>false</value>
         </exp>
-        <pv_name>pva://$(P):COMM</pv_name>
-        <pv_name>pva://$(P):WRITE_ENABLED</pv_name>
+        <pv_name>ca://$(P):COMM</pv_name>
+        <pv_name>ca://$(P):WRITE_ENABLED</pv_name>
       </rule>
     </rules>
     <tooltip>Frequency modulation enable command.</tooltip>
@@ -608,7 +608,7 @@
     <y>347</y>
     <width>26</width>
     <height>26</height>
-    <pv_name>pva://$(P):FM_RBV</pv_name>
+    <pv_name>ca://$(P):FM_RBV</pv_name>
     <bit>0</bit>
     <off_color>
       <color red="170" green="170" blue="170" />
@@ -623,7 +623,7 @@
     <y>348</y>
     <width>70</width>
     <height>25</height>
-    <pv_name>pva://$(P):FM_RBV</pv_name>
+    <pv_name>ca://$(P):FM_RBV</pv_name>
     <format>6</format>
   </widget>
   <widget type="label" version="2.0.0">
@@ -644,7 +644,7 @@
     <y>387</y>
     <width>120</width>
     <height>25</height>
-    <pv_name>pva://$(P):FM_SOURCE_CMD</pv_name>
+    <pv_name>ca://$(P):FM_SOURCE_CMD</pv_name>
     <label />
     <enabled>false</enabled>
     <rules>
@@ -655,8 +655,8 @@
         <exp bool_exp="!(pv0 == 1 &amp;&amp; pv1 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pvSev1 == 0)">
           <value>false</value>
         </exp>
-        <pv_name>pva://$(P):COMM</pv_name>
-        <pv_name>pva://$(P):WRITE_ENABLED</pv_name>
+        <pv_name>ca://$(P):COMM</pv_name>
+        <pv_name>ca://$(P):WRITE_ENABLED</pv_name>
       </rule>
     </rules>
     <tooltip>FM source: 0 = INT, 1 = EXT.</tooltip>
@@ -667,7 +667,7 @@
     <y>387</y>
     <width>120</width>
     <height>25</height>
-    <pv_name>pva://$(P):FM_SOURCE_RBV</pv_name>
+    <pv_name>ca://$(P):FM_SOURCE_RBV</pv_name>
     <format>6</format>
   </widget>
   <widget type="label" version="2.0.0">
@@ -688,7 +688,7 @@
     <y>427</y>
     <width>120</width>
     <height>25</height>
-    <pv_name>pva://$(P):FM_DEV_CMD</pv_name>
+    <pv_name>ca://$(P):FM_DEV_CMD</pv_name>
     <precision>3</precision>
     <enabled>false</enabled>
     <rules>
@@ -699,8 +699,8 @@
         <exp bool_exp="!(pv0 == 1 &amp;&amp; pv1 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pvSev1 == 0)">
           <value>false</value>
         </exp>
-        <pv_name>pva://$(P):COMM</pv_name>
-        <pv_name>pva://$(P):WRITE_ENABLED</pv_name>
+        <pv_name>ca://$(P):COMM</pv_name>
+        <pv_name>ca://$(P):WRITE_ENABLED</pv_name>
       </rule>
     </rules>
     <tooltip>FM deviation command in kHz.</tooltip>
@@ -711,7 +711,7 @@
     <y>427</y>
     <width>120</width>
     <height>25</height>
-    <pv_name>pva://$(P):FM_DEV_RBV</pv_name>
+    <pv_name>ca://$(P):FM_DEV_RBV</pv_name>
     <precision>3</precision>
   </widget>
   <widget type="label" version="2.0.0">
@@ -820,7 +820,7 @@
     <y>602</y>
     <width>120</width>
     <height>25</height>
-    <pv_name>pva://$(P):SWEEP_START_CMD</pv_name>
+    <pv_name>ca://$(P):SWEEP_START_CMD</pv_name>
     <precision>2</precision>
     <enabled>false</enabled>
     <rules>
@@ -831,8 +831,8 @@
         <exp bool_exp="!(pv0 == 1 &amp;&amp; pv1 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pvSev1 == 0)">
           <value>false</value>
         </exp>
-        <pv_name>pva://$(P):COMM</pv_name>
-        <pv_name>pva://$(P):WRITE_ENABLED</pv_name>
+        <pv_name>ca://$(P):COMM</pv_name>
+        <pv_name>ca://$(P):WRITE_ENABLED</pv_name>
       </rule>
     </rules>
     <tooltip>Power sweep start level in dBm.</tooltip>
@@ -843,7 +843,7 @@
     <y>602</y>
     <width>120</width>
     <height>25</height>
-    <pv_name>pva://$(P):SWEEP_START_RBV</pv_name>
+    <pv_name>ca://$(P):SWEEP_START_RBV</pv_name>
     <precision>2</precision>
   </widget>
   <widget type="label" version="2.0.0">
@@ -876,7 +876,7 @@
     <y>642</y>
     <width>120</width>
     <height>25</height>
-    <pv_name>pva://$(P):SWEEP_STOP_CMD</pv_name>
+    <pv_name>ca://$(P):SWEEP_STOP_CMD</pv_name>
     <precision>2</precision>
     <enabled>false</enabled>
     <rules>
@@ -887,8 +887,8 @@
         <exp bool_exp="!(pv0 == 1 &amp;&amp; pv1 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pvSev1 == 0)">
           <value>false</value>
         </exp>
-        <pv_name>pva://$(P):COMM</pv_name>
-        <pv_name>pva://$(P):WRITE_ENABLED</pv_name>
+        <pv_name>ca://$(P):COMM</pv_name>
+        <pv_name>ca://$(P):WRITE_ENABLED</pv_name>
       </rule>
     </rules>
     <tooltip>Power sweep stop level in dBm.</tooltip>
@@ -899,7 +899,7 @@
     <y>642</y>
     <width>120</width>
     <height>25</height>
-    <pv_name>pva://$(P):SWEEP_STOP_RBV</pv_name>
+    <pv_name>ca://$(P):SWEEP_STOP_RBV</pv_name>
     <precision>2</precision>
   </widget>
   <widget type="label" version="2.0.0">
@@ -932,7 +932,7 @@
     <y>602</y>
     <width>120</width>
     <height>25</height>
-    <pv_name>pva://$(P):SWEEP_STEP_CMD</pv_name>
+    <pv_name>ca://$(P):SWEEP_STEP_CMD</pv_name>
     <precision>2</precision>
     <enabled>false</enabled>
     <rules>
@@ -943,8 +943,8 @@
         <exp bool_exp="!(pv0 == 1 &amp;&amp; pv1 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pvSev1 == 0)">
           <value>false</value>
         </exp>
-        <pv_name>pva://$(P):COMM</pv_name>
-        <pv_name>pva://$(P):WRITE_ENABLED</pv_name>
+        <pv_name>ca://$(P):COMM</pv_name>
+        <pv_name>ca://$(P):WRITE_ENABLED</pv_name>
       </rule>
     </rules>
     <tooltip>Power sweep step size in dB.</tooltip>
@@ -955,7 +955,7 @@
     <y>602</y>
     <width>120</width>
     <height>25</height>
-    <pv_name>pva://$(P):SWEEP_STEP_RBV</pv_name>
+    <pv_name>ca://$(P):SWEEP_STEP_RBV</pv_name>
     <precision>2</precision>
   </widget>
   <widget type="label" version="2.0.0">
@@ -988,7 +988,7 @@
     <y>642</y>
     <width>120</width>
     <height>25</height>
-    <pv_name>pva://$(P):SWEEP_DWELL_CMD</pv_name>
+    <pv_name>ca://$(P):SWEEP_DWELL_CMD</pv_name>
     <precision>2</precision>
     <enabled>false</enabled>
     <rules>
@@ -999,8 +999,8 @@
         <exp bool_exp="!(pv0 == 1 &amp;&amp; pv1 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pvSev1 == 0)">
           <value>false</value>
         </exp>
-        <pv_name>pva://$(P):COMM</pv_name>
-        <pv_name>pva://$(P):WRITE_ENABLED</pv_name>
+        <pv_name>ca://$(P):COMM</pv_name>
+        <pv_name>ca://$(P):WRITE_ENABLED</pv_name>
       </rule>
     </rules>
     <tooltip>Power sweep dwell time in ms.</tooltip>
@@ -1011,7 +1011,7 @@
     <y>642</y>
     <width>120</width>
     <height>25</height>
-    <pv_name>pva://$(P):SWEEP_DWELL_RBV</pv_name>
+    <pv_name>ca://$(P):SWEEP_DWELL_RBV</pv_name>
     <precision>2</precision>
   </widget>
   <widget type="label" version="2.0.0">
@@ -1044,7 +1044,7 @@
     <y>702</y>
     <width>120</width>
     <height>25</height>
-    <pv_name>pva://$(P):SWEEP_ARM_CMD</pv_name>
+    <pv_name>ca://$(P):SWEEP_ARM_CMD</pv_name>
     <label />
     <enabled>false</enabled>
     <rules>
@@ -1055,8 +1055,8 @@
         <exp bool_exp="!(pv0 == 1 &amp;&amp; pv1 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pvSev1 == 0)">
           <value>false</value>
         </exp>
-        <pv_name>pva://$(P):COMM</pv_name>
-        <pv_name>pva://$(P):WRITE_ENABLED</pv_name>
+        <pv_name>ca://$(P):COMM</pv_name>
+        <pv_name>ca://$(P):WRITE_ENABLED</pv_name>
       </rule>
     </rules>
     <tooltip>Arm or disarm the SMC100A power sweep.</tooltip>
@@ -1067,7 +1067,7 @@
     <y>702</y>
     <width>26</width>
     <height>26</height>
-    <pv_name>pva://$(P):SWEEP_ARM_RBV</pv_name>
+    <pv_name>ca://$(P):SWEEP_ARM_RBV</pv_name>
     <bit>0</bit>
     <off_color>
       <color red="170" green="170" blue="170" />
@@ -1082,7 +1082,7 @@
     <y>703</y>
     <width>70</width>
     <height>25</height>
-    <pv_name>pva://$(P):SWEEP_ARM_RBV</pv_name>
+    <pv_name>ca://$(P):SWEEP_ARM_RBV</pv_name>
     <format>6</format>
   </widget>
   <widget type="label" version="2.0.0">
@@ -1103,7 +1103,7 @@
     <y>700</y>
     <width>145</width>
     <height>28</height>
-    <pv_name>pva://$(P):SWEEP_TRIGGER_CMD</pv_name>
+    <pv_name>ca://$(P):SWEEP_TRIGGER_CMD</pv_name>
     <enabled>false</enabled>
     <rules>
       <rule name="Connected and hardware writes enabled" prop_id="enabled" out_exp="false">
@@ -1113,8 +1113,8 @@
         <exp bool_exp="!(pv0 == 1 &amp;&amp; pv1 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pvSev1 == 0)">
           <value>false</value>
         </exp>
-        <pv_name>pva://$(P):COMM</pv_name>
-        <pv_name>pva://$(P):WRITE_ENABLED</pv_name>
+        <pv_name>ca://$(P):COMM</pv_name>
+        <pv_name>ca://$(P):WRITE_ENABLED</pv_name>
       </rule>
     </rules>
     <tooltip>Momentary sweep trigger command. Controller returns the command PV to zero.</tooltip>

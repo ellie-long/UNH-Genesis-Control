@@ -47,6 +47,10 @@ ssrf_sequencer:
   - WAVEFORM_STAGE_ID
   - WAVEFORM_STAGE_STATE
   - WAVEFORM_STAGE_REASON
+  - PREPARED
+  - PREPARED_WAVEFORM_ID
+  - PREPARE_STATE
+  - PREPARE_REASON
 
   records:
     CARRIER_MHZ:
@@ -89,6 +93,14 @@ ssrf_sequencer:
       DESC: Sequencer staging state
     WAVEFORM_STAGE_REASON:
       DESC: Sequencer staging status reason
+    PREPARED:
+      DESC: Source prepared and waveform loaded
+    PREPARED_WAVEFORM_ID:
+      DESC: Loaded waveform identity
+    PREPARE_STATE:
+      DESC: Source preparation state
+    PREPARE_REASON:
+      DESC: Source preparation status reason
     EXECUTION_ENABLED:
       DESC: ssRF execution layer enabled state
     EXECUTION_ARMED:

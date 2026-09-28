@@ -500,3 +500,11 @@ Physical ssRF scaling remains:
     scaling_verified_for_hardware = False
 
 The next milestone is 5C.1 physical ssRF connectivity.
+
+## Final physical stack logging
+
+The final `ssrf-start` path uses sequencer/session JSON event logging and per-PV CSV archiving.
+
+Startup verifies the archiver before declaring the physical stack ready.
+
+See `SSRF_FINAL_PHYSICAL_OPERATION.md`.

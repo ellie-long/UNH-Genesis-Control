@@ -43,6 +43,11 @@ class TestSsrfAccessSecurityFoundation(
             text,
         )
 
+        self.assertIn(
+            "shrestha",
+            text,
+        )
+
     def test_policy_has_protected_command_group(self):
         text = POLICY.read_text()
 

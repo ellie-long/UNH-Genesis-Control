@@ -594,6 +594,91 @@ class SequenceExecutor:
                 ),
             )
 
+
+    async def run_preparation(
+        self,
+        plan,
+        recovery_steps=(),
+    ):
+        """Execute a pre-burn configuration/load plan.
+
+        Preparation is intentionally separate from ARM/BURN.  It may configure
+        source parameters and load the ARB while all energy-producing outputs
+        remain OFF.  On abort/failure after writes have begun, only the
+        preparation recovery plan is used; RF switches are never moved here.
+        """
+
+        plan = tuple(plan)
+        recovery_steps = tuple(recovery_steps)
+
+        self._warnings = []
+        self._completed = []
+        self._writes_started = False
+        self._current_step = ""
+
+        try:
+            for step in plan:
+                if await self._abort_now():
+                    self._current_step = step.name
+                    raise SequenceAbortError("abort requested")
+
+                await self._execute_step(step)
+                self._completed.append(step.name)
+
+        except SequenceAbortError as exc:
+            cleanup_attempted = False
+            cleanup_ok = False
+            reason = str(exc)
+
+            if self._writes_started and recovery_steps:
+                cleanup_attempted = True
+                cleanup_ok, cleanup_reason = await self._run_cleanup(recovery_steps)
+                if not cleanup_ok:
+                    reason = f"{reason}; recovery failed: {cleanup_reason}"
+
+            return ExecutionResult(
+                ok=False,
+                state=(STATE_ABORTED if not cleanup_attempted or cleanup_ok else STATE_CLEANUP_FAILED),
+                reason=reason,
+                completed_steps=tuple(self._completed),
+                failed_step=self._current_step,
+                cleanup_attempted=cleanup_attempted,
+                cleanup_ok=cleanup_ok,
+                warnings=tuple(self._warnings),
+            )
+
+        except Exception as exc:
+            cleanup_attempted = False
+            cleanup_ok = False
+            reason = str(exc)
+
+            if self._writes_started and recovery_steps:
+                cleanup_attempted = True
+                cleanup_ok, cleanup_reason = await self._run_cleanup(recovery_steps)
+                if not cleanup_ok:
+                    reason = f"{reason}; recovery failed: {cleanup_reason}"
+
+            return ExecutionResult(
+                ok=False,
+                state=(STATE_FAILED if not cleanup_attempted or cleanup_ok else STATE_CLEANUP_FAILED),
+                reason=reason,
+                completed_steps=tuple(self._completed),
+                failed_step=self._current_step,
+                cleanup_attempted=cleanup_attempted,
+                cleanup_ok=cleanup_ok,
+                warnings=tuple(self._warnings),
+            )
+
+        return ExecutionResult(
+            ok=True,
+            state=STATE_COMPLETE,
+            reason="preparation complete",
+            completed_steps=tuple(self._completed),
+            cleanup_attempted=False,
+            cleanup_ok=True,
+            warnings=tuple(self._warnings),
+        )
+
     # ------------------------------------------------------------
     # Full burn
     # ------------------------------------------------------------

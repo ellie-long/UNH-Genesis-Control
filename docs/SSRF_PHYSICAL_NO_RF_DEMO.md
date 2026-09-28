@@ -1,3 +1,13 @@
+## Legacy status — superseded
+
+This document records the earlier physical no-RF commissioning workflow.
+
+It is retained for historical traceability only and is not the final operator path.
+
+Use `SSRF_FINAL_PHYSICAL_OPERATION.md` and the `ssrf-start` / `ssrf-stop` workflow for current operation.
+
+---
+
 # Genesis ssRF Physical No-RF GUI Demo
 
 This dedicated Phase-I demonstration executes the operator workflow:

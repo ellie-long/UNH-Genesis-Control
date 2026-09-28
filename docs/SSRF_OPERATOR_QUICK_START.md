@@ -197,3 +197,24 @@ The following are **not part of this Phase-I no-RF operator workflow**:
 - actual polarization-manipulation measurement.
 
 These remain a separate amplified-RF/target commissioning milestone.
+
+## Final Phase-I physical source-control path
+
+Start:
+
+    ./scripts/genesisctl.sh ssrf-physical-status
+    ./scripts/genesisctl.sh ssrf-start
+
+Operate from the main Phoebus GUI:
+
+    NMR / CALIBRATE
+    → Burn Setup
+    → GENERATE / LOAD
+    → ARM
+    → BURN ONCE
+
+Stop:
+
+    ./scripts/genesisctl.sh ssrf-stop
+
+See `SSRF_FINAL_PHYSICAL_OPERATION.md`.

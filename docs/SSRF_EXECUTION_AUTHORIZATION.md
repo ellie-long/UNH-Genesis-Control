@@ -97,3 +97,11 @@ Before physical ssRF execution is enabled:
   controlled sequencer path;
 - keep `initialize_on_connect: false`;
 - perform controlled hardware commissioning before enabling a burn.
+
+## Final physical source-control authorization
+
+The adaptive waveform passes through the authorized analysis → sequencer → WaveGen staging boundary.
+
+The sequencer owns one-shot ARM and coordinated physical execution.
+
+See `SSRF_FINAL_PHYSICAL_OPERATION.md`.

@@ -225,6 +225,321 @@ def build_cleanup_plan():
     )
 
 
+
+def build_prepare_cleanup_plan():
+    """Fail-safe recovery for the pre-burn preparation phase.
+
+    Preparation never moves either RF switch and never intentionally enables
+    RF, FM, or WaveGen output.  If preparation fails after a write has begun,
+    recover only by de-energizing the source-side outputs and verifying them
+    OFF.  Target routing is left untouched.
+    """
+
+    return (
+        SequenceStep(
+            name="prepare_cleanup_disarm_sweep",
+            operation=OP_BEST_EFFORT_WRITE,
+            command_pv=f"{SMC}:SWEEP_ARM_CMD",
+            command_value=0,
+        ),
+        SequenceStep(
+            name="prepare_cleanup_rf_off",
+            operation=OP_BEST_EFFORT_WRITE,
+            command_pv=f"{SMC}:RF_CMD",
+            command_value=0,
+        ),
+        SequenceStep(
+            name="prepare_cleanup_fm_off",
+            operation=OP_BEST_EFFORT_WRITE,
+            command_pv=f"{SMC}:FM_CMD",
+            command_value=0,
+        ),
+        SequenceStep(
+            name="prepare_cleanup_wavegen_off",
+            operation=OP_BEST_EFFORT_WRITE,
+            command_pv=f"{WGEN}:OUTPUT_CMD",
+            command_value=0,
+        ),
+        _check(
+            "prepare_cleanup_verify_sweep_disarmed",
+            f"{SMC}:SWEEP_ARM_RBV",
+            0,
+        ),
+        _check(
+            "prepare_cleanup_verify_rf_off",
+            f"{SMC}:RF_RBV",
+            0,
+        ),
+        _check(
+            "prepare_cleanup_verify_fm_off",
+            f"{SMC}:FM_RBV",
+            0,
+        ),
+        _check(
+            "prepare_cleanup_verify_wavegen_off",
+            f"{WGEN}:OUTPUT_RBV",
+            0,
+        ),
+    )
+
+
+def build_prepare_plan(
+    parameters,
+    waveform_points,
+    waveform_id_before,
+):
+    """Configure and physically load one staged waveform with all outputs OFF.
+
+    This is the operator's GENERATE / LOAD preparation phase.  It performs no
+    RF-switch motion and never enables WaveGen output, SMC FM, or SMC RF.
+    """
+
+    parameters_ok, reason = validate_parameters(parameters)
+    if not parameters_ok:
+        raise ValueError(f"invalid burn parameters: {reason}")
+
+    points = int(waveform_points)
+    if points < 2:
+        raise ValueError("waveform_points must be >= 2")
+
+    waveform_id_before = int(waveform_id_before)
+    if waveform_id_before < 0:
+        raise ValueError("waveform_id_before must be >= 0")
+
+    sweep_step_db = parameters.sweep_step_db
+    sweep_dwell_ms = parameters.sweep_dwell_ms
+
+    return (
+        SequenceStep(
+            name="prepare_readiness",
+            operation=OP_READINESS_CHECK,
+            note="All hardware must be connected, writable, and de-energized.",
+        ),
+        _write_verify(
+            "prepare_wavegen_period",
+            f"{WGEN}:PERIOD_CMD",
+            float(parameters.fm_period_s),
+            f"{WGEN}:PERIOD_RBV",
+            float(parameters.fm_period_s),
+            rule="close",
+        ),
+        SequenceStep(
+            name="prepare_wavegen_voltage_window",
+            operation=OP_SAFE_VOLTAGE_WINDOW,
+            command_value=(float(parameters.vlow_v), float(parameters.vhigh_v)),
+            verify_rule="window",
+            verify_value=(float(parameters.vlow_v), float(parameters.vhigh_v)),
+        ),
+        _write_verify(
+            "prepare_smc_carrier",
+            f"{SMC}:FREQ_CMD",
+            float(parameters.carrier_mhz),
+            f"{SMC}:FREQ_RBV",
+            float(parameters.carrier_mhz),
+            rule="close",
+        ),
+        _write_verify(
+            "prepare_smc_resting_level",
+            f"{SMC}:LEVEL_CMD",
+            float(parameters.start_level_dbm),
+            f"{SMC}:LEVEL_RBV",
+            float(parameters.start_level_dbm),
+            rule="close",
+        ),
+        _write_verify(
+            "prepare_smc_fm_source",
+            f"{SMC}:FM_SOURCE_CMD",
+            1,
+            f"{SMC}:FM_SOURCE_RBV",
+            1,
+        ),
+        _write_verify(
+            "prepare_smc_fm_deviation",
+            f"{SMC}:FM_DEV_CMD",
+            float(parameters.fm_deviation_khz),
+            f"{SMC}:FM_DEV_RBV",
+            float(parameters.fm_deviation_khz),
+            rule="close",
+        ),
+        _write_verify(
+            "prepare_sweep_start",
+            f"{SMC}:SWEEP_START_CMD",
+            float(parameters.start_level_dbm),
+            f"{SMC}:SWEEP_START_RBV",
+            float(parameters.start_level_dbm),
+            rule="close",
+        ),
+        _write_verify(
+            "prepare_sweep_stop",
+            f"{SMC}:SWEEP_STOP_CMD",
+            float(parameters.target_level_dbm),
+            f"{SMC}:SWEEP_STOP_RBV",
+            float(parameters.target_level_dbm),
+            rule="close",
+        ),
+        _write_verify(
+            "prepare_sweep_step",
+            f"{SMC}:SWEEP_STEP_CMD",
+            float(sweep_step_db),
+            f"{SMC}:SWEEP_STEP_RBV",
+            float(sweep_step_db),
+            rule="close",
+        ),
+        _write_verify(
+            "prepare_sweep_dwell",
+            f"{SMC}:SWEEP_DWELL_CMD",
+            float(sweep_dwell_ms),
+            f"{SMC}:SWEEP_DWELL_RBV",
+            float(sweep_dwell_ms),
+            rule="close",
+        ),
+        _write_verify(
+            "prepare_sweep_shape",
+            f"{SMC}:SWEEP_SHAPE_CMD",
+            1,
+            f"{SMC}:SWEEP_SHAPE_RBV",
+            1,
+            note="1 = TRI",
+        ),
+        _write_verify(
+            "prepare_load_waveform",
+            f"{WGEN}:LOAD_CMD",
+            1,
+            f"{WGEN}:WAVEFORM_READY",
+            1,
+        ),
+        _check(
+            "prepare_verify_waveform_points",
+            f"{WGEN}:ARB_POINTS_RBV",
+            points,
+        ),
+        _check(
+            "prepare_verify_waveform_id_advanced",
+            f"{WGEN}:WAVEFORM_ID",
+            waveform_id_before,
+            rule="gt",
+        ),
+        _check("prepare_verify_smc_rf_off", f"{SMC}:RF_RBV", 0),
+        _check("prepare_verify_smc_fm_off", f"{SMC}:FM_RBV", 0),
+        _check("prepare_verify_sweep_disarmed", f"{SMC}:SWEEP_ARM_RBV", 0),
+        _check("prepare_verify_wavegen_off", f"{WGEN}:OUTPUT_RBV", 0),
+    )
+
+
+def build_prepared_burn_plan(
+    parameters,
+    waveform_points,
+    waveform_id_expected,
+    *,
+    guard_ms=500.0,
+):
+    """Execute one burn using a waveform that was already prepared/loaded."""
+
+    parameters_ok, reason = validate_parameters(parameters)
+    if not parameters_ok:
+        raise ValueError(f"invalid burn parameters: {reason}")
+
+    points = int(waveform_points)
+    if points < 2:
+        raise ValueError("waveform_points must be >= 2")
+
+    waveform_id_expected = int(waveform_id_expected)
+    if waveform_id_expected < 1:
+        raise ValueError("prepared waveform id must be >= 1")
+
+    guard_ms = float(guard_ms)
+    if guard_ms < 0:
+        raise ValueError("guard_ms must be >= 0")
+
+    sweep_dwell_ms = parameters.sweep_dwell_ms
+    total_wait_ms = 3.0 * sweep_dwell_ms + guard_ms
+
+    plan = [
+        SequenceStep(
+            name="burn_readiness",
+            operation=OP_READINESS_CHECK,
+            note="Re-check live fail-closed hardware readiness before burn.",
+        ),
+        _check("verify_prepared_waveform_ready", f"{WGEN}:WAVEFORM_READY", 1),
+        _check("verify_prepared_waveform_points", f"{WGEN}:ARB_POINTS_RBV", points),
+        _check("verify_prepared_waveform_id", f"{WGEN}:WAVEFORM_ID", waveform_id_expected),
+        _check("verify_smc_rf_off", f"{SMC}:RF_RBV", 0),
+        _check("verify_smc_fm_off", f"{SMC}:FM_RBV", 0),
+        _check("verify_sweep_disarmed", f"{SMC}:SWEEP_ARM_RBV", 0),
+        _check("verify_wavegen_off", f"{WGEN}:OUTPUT_RBV", 0),
+        _write_verify(
+            "disconnect_nmr",
+            f"{NMR_SW}:PORT_CMD",
+            1,
+            f"{NMR_SW}:MASK_RBV",
+            3,
+        ),
+        _check("reverify_nmr_disconnected", f"{NMR_SW}:MASK_RBV", 3),
+        _check("require_ssrf_connect_permit", f"{ILK}:SSRF_CONNECT_PERMIT", 1),
+        _write_verify(
+            "connect_ssrf",
+            f"{SSRF_SW}:PORT_CMD",
+            0,
+            f"{SSRF_SW}:MASK_RBV",
+            0,
+        ),
+        _write_verify(
+            "wavegen_on",
+            f"{WGEN}:OUTPUT_CMD",
+            1,
+            f"{WGEN}:OUTPUT_RBV",
+            1,
+        ),
+        _write_verify(
+            "smc_fm_on",
+            f"{SMC}:FM_CMD",
+            1,
+            f"{SMC}:FM_RBV",
+            1,
+        ),
+        _check("require_rf_enable_permit", f"{ILK}:RF_ENABLE_PERMIT", 1),
+        _write_verify(
+            "smc_rf_on",
+            f"{SMC}:RF_CMD",
+            1,
+            f"{SMC}:RF_RBV",
+            1,
+        ),
+        SequenceStep(
+            name="rf_settle",
+            operation=OP_WAIT,
+            command_value=100.0,
+            monitor_pv=f"{ILK}:RF_ENABLE_PERMIT",
+            verify_value=1,
+        ),
+        _write_verify(
+            "arm_sweep",
+            f"{SMC}:SWEEP_ARM_CMD",
+            1,
+            f"{SMC}:SWEEP_ARM_RBV",
+            1,
+        ),
+        _check("recheck_rf_enable_permit", f"{ILK}:RF_ENABLE_PERMIT", 1),
+        SequenceStep(
+            name="trigger_sweep",
+            operation=OP_TRIGGER,
+            command_pv=f"{SMC}:SWEEP_TRIGGER_CMD",
+            command_value=1,
+            monitor_pv=f"{ILK}:RF_ENABLE_PERMIT",
+            verify_value=1,
+        ),
+        SequenceStep(
+            name="wait_for_sweep",
+            operation=OP_WAIT,
+            command_value=total_wait_ms,
+            monitor_pv=f"{ILK}:RF_ENABLE_PERMIT",
+            verify_value=1,
+        ),
+    ]
+
+    plan.extend(build_cleanup_plan())
+    return tuple(plan)
+
 def build_burn_plan(
     parameters,
     waveform_points,

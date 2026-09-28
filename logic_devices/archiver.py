@@ -20,6 +20,11 @@ class Device(BaseDevice):
         self.time_increment = settings.get('time_increment', 60)  # Default 60 seconds
         self.pv_patterns = settings.get('pv_patterns', [])
         self.exclude_patterns = settings.get('exclude_patterns', [])
+        self.explicit_pvs = [
+            str(pv).strip()
+            for pv in settings.get('explicit_pvs', [])
+            if str(pv).strip()
+        ]
 
         # Storage for PV state
         self.monitored_pvs = {}  # {pv_name: {'value': x, 'timestamp': t, 'file': f}}
@@ -248,7 +253,14 @@ class Device(BaseDevice):
 
 
     async def _discover_pvs(self):
-        """Discover archive PVs from running IOC Manager entries."""
+        """Discover archive PVs or use an explicit deployment list."""
+        if self.explicit_pvs:
+            pv_list = list(dict.fromkeys(self.explicit_pvs))
+            print(
+                f"Archiver using {len(pv_list)} explicit PVs"
+            )
+            return pv_list
+
         pv_list = []
 
         try:

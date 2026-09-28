@@ -119,7 +119,7 @@ class TestSsrfFitterGuiStatic(
         ):
 
             self.assertIn(
-                f"pva://$(P):{name}",
+                f"ca://$(P):{name}",
                 self.pvs,
             )
 
@@ -148,7 +148,7 @@ class TestSsrfFitterGuiStatic(
                 action.findtext(
                     "pv_name"
                 ),
-                "pva://$(P):MODE_CMD",
+                "ca://$(P):MODE_CMD",
             )
 
             self.assertEqual(
@@ -179,7 +179,7 @@ class TestSsrfFitterGuiStatic(
                 action.findtext(
                     "pv_name"
                 ),
-                "pva://$(P):MATERIAL_CMD",
+                "ca://$(P):MATERIAL_CMD",
             )
 
             self.assertEqual(
@@ -200,7 +200,7 @@ class TestSsrfFitterGuiStatic(
                 "pv_name"
             ),
             (
-                "pva://$(P):"
+                "ca://$(P):"
                 "UPDATE_CONSTANTS_CMD"
             ),
         )
@@ -254,7 +254,7 @@ class TestSsrfFitterGuiStatic(
                 "pv_name"
             ),
             (
-                "pva://$(P):"
+                "ca://$(P):"
                 "LARMOR_KHZ_CMD"
             ),
         )
@@ -268,7 +268,7 @@ class TestSsrfFitterGuiStatic(
         ):
 
             self.assertIn(
-                f"pva://$(P):{name}",
+                f"ca://$(P):{name}",
                 self.pvs,
             )
 
@@ -288,7 +288,7 @@ class TestSsrfFitterGuiStatic(
         ):
 
             self.assertIn(
-                f"pva://$(P):{name}",
+                f"ca://$(P):{name}",
                 self.pvs,
             )
 
@@ -309,7 +309,7 @@ class TestSsrfFitterGuiStatic(
         ):
 
             self.assertIn(
-                f"pva://$(P):{name}",
+                f"ca://$(P):{name}",
                 self.pvs,
             )
 
@@ -350,7 +350,7 @@ class TestSsrfFitterGuiStatic(
             },
             {
                 (
-                    "pva://$(P):"
+                    "ca://$(P):"
                     "FREQS_MHZ"
                 ),
             },
@@ -365,11 +365,11 @@ class TestSsrfFitterGuiStatic(
             },
             {
                 (
-                    "pva://$(P):"
+                    "ca://$(P):"
                     "DATA"
                 ),
                 (
-                    "pva://$(P):"
+                    "ca://$(P):"
                     "TOTAL_FIT"
                 ),
             },
@@ -411,7 +411,7 @@ class TestSsrfFitterGuiStatic(
 
             self.assertTrue(
                 pv.startswith(
-                    "pva://"
+                    "ca://"
                 ),
                 msg=pv,
             )

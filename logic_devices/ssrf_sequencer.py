@@ -1,10 +1,10 @@
 """
 Genesis Phase-I ssRF burn sequencer.
 
-The normal Genesis profile remains read-only.  The dedicated
-localhost simulator commissioning profile may expose guarded
-START/ABORT controls and execute the frozen burn plan through
-the narrow EpicsIO boundary.
+Execution is disabled by default.  Authorized profiles may expose guarded
+PREPARE/ARM/START/ABORT controls and execute only through the narrow EpicsIO
+boundary.  The final physical profile requires a verified source-preparation
+phase before one-shot ARM + BURN.
 """
 
 from __future__ import annotations
@@ -39,6 +39,9 @@ from logic_devices.ssrf_sequence_executor import (
 )
 from logic_devices.ssrf_sequence_plan import (
     build_burn_plan,
+    build_prepare_cleanup_plan,
+    build_prepare_plan,
+    build_prepared_burn_plan,
 )
 
 STATE_UNKNOWN = "UNKNOWN"
@@ -55,7 +58,7 @@ EXEC_STATE_ABORTED = "ABORTED"
 
 
 class Device:
-    """Read-only Genesis ssRF sequencer burn-readiness IOC."""
+    """Genesis ssRF readiness, preparation, and one-shot burn sequencer."""
 
     def __init__(
         self,
@@ -67,8 +70,8 @@ class Device:
 
         self.pvs = {}
 
-        # Execution remains disabled by default.  Only the dedicated
-        # localhost simulator profile currently sets execution_enabled.
+        # Execution remains disabled by default.  Only an explicitly
+        # authorized simulator or physical profile may enable it.
         execution_enabled = bool(
             self.settings.get(
                 "execution_enabled",
@@ -95,6 +98,18 @@ class Device:
         self._start_requested = False
         self._abort_requested = False
         self._execution_task = None
+
+        # Final physical workflow separates source preparation/load from the
+        # one-shot ARM + BURN authorization.  Simulator/legacy profiles may
+        # leave require_prepared false for backwards-compatible regression.
+        self._require_prepared = bool(
+            self.settings.get("require_prepared", False)
+        )
+        self._prepare_requested = False
+        self._prepare_task = None
+        self._prepared = False
+        self._prepared_waveform_id = 0
+        self._prepared_signature = None
 
         # Analysis -> sequencer -> protected WaveGen staging boundary.
         #
@@ -332,11 +347,38 @@ class Device:
             "EXECUTION_REASON"
         )
 
+        self.pvs["PREPARED"] = builder.boolIn(
+            "PREPARED",
+            ZNAM="Not prepared",
+            ONAM="Prepared",
+        )
+
+        self.pvs["PREPARED_WAVEFORM_ID"] = builder.longIn(
+            "PREPARED_WAVEFORM_ID",
+            LOPR=0,
+        )
+
+        self.pvs["PREPARE_STATE"] = builder.stringIn(
+            "PREPARE_STATE"
+        )
+
+        self.pvs["PREPARE_REASON"] = builder.stringIn(
+            "PREPARE_REASON"
+        )
+
         execution_enabled = (
             self._execution_io.execution_enabled
         )
 
         if execution_enabled:
+            self.pvs["PREPARE_CMD"] = builder.boolOut(
+                "PREPARE_CMD",
+                ZNAM="IDLE",
+                ONAM="PREPARE",
+                always_update=True,
+                on_update_name=self._prepare_command,
+            )
+
             self.pvs["ARM_CMD"] = builder.boolOut(
                 "ARM_CMD",
                 ZNAM="IDLE",
@@ -369,6 +411,10 @@ class Device:
                 on_update_name=self._execution_command,
             )
 
+            self.pvs["PREPARE_CMD"].set(
+                0,
+                process=False,
+            )
             self.pvs["ARM_CMD"].set(
                 0,
                 process=False,
@@ -407,12 +453,22 @@ class Device:
         )
 
         self.pvs["EXECUTION_ARMED"].set(0)
+        self.pvs["PREPARED"].set(0)
+        self.pvs["PREPARED_WAVEFORM_ID"].set(0)
+        self._set_prepare_status(
+            "IDLE" if execution_enabled else "DISABLED",
+            "Generate/load required" if execution_enabled else "Execution disabled",
+        )
 
         self._set_execution_status(
             EXEC_STATE_IDLE
             if execution_enabled
             else EXEC_STATE_DISABLED,
-            "Simulator execution idle"
+            (
+                "Physical execution idle"
+                if self._execution_mode == "physical"
+                else "Simulator execution idle"
+            )
             if execution_enabled
             else "Inactive: execution disabled",
         )
@@ -433,6 +489,33 @@ class Device:
     def connect(self):
         """Logic IOC: no physical device connection is required."""
         return True
+
+    def _set_prepare_status(self, state, reason):
+        self.pvs["PREPARE_STATE"].set(str(state)[:39])
+        self.pvs["PREPARE_REASON"].set(str(reason)[:39])
+
+    def _set_prepared(self, prepared, *, waveform_id=0, signature=None):
+        self._prepared = bool(prepared)
+        self._prepared_waveform_id = int(waveform_id) if prepared else 0
+        self._prepared_signature = signature if prepared else None
+        self.pvs["PREPARED"].set(int(self._prepared))
+        self.pvs["PREPARED_WAVEFORM_ID"].set(self._prepared_waveform_id)
+        if not prepared:
+            self._set_execution_armed(False)
+
+    def _parameter_signature(self, parameters=None):
+        p = parameters or self._parameters()
+        return (
+            round(float(p.carrier_mhz), 12),
+            round(float(p.start_level_dbm), 12),
+            round(float(p.target_level_dbm), 12),
+            round(float(p.fm_deviation_khz), 12),
+            round(float(p.fm_period_s), 12),
+            round(float(p.vhigh_v), 12),
+            round(float(p.vlow_v), 12),
+            int(p.fm_repeats),
+            int(self.pvs["WAVEFORM_STAGE_ID"].get()),
+        )
 
     # ------------------------------------------------------------
     # Execution control
@@ -482,6 +565,42 @@ class Device:
                 process=False,
             )
 
+    def _prepare_command(self, new_value, pv):
+        """Latch one pre-burn source configuration/load request."""
+        self._reset_momentary_command("PREPARE_CMD")
+        if not bool(new_value):
+            return
+
+        if not self._execution_io.execution_enabled:
+            self._set_prepare_status("DISABLED", "Execution disabled")
+            return
+
+        running = (
+            (self._execution_task is not None and not self._execution_task.done())
+            or (self._prepare_task is not None and not self._prepare_task.done())
+            or self._start_requested
+            or self._prepare_requested
+        )
+        staging = (
+            self._waveform_stage_requested
+            or (self._waveform_stage_task is not None and not self._waveform_stage_task.done())
+        )
+
+        if running:
+            self._set_prepare_status("BLOCKED", "Sequence already active")
+            return
+        if staging:
+            self._set_prepare_status("BLOCKED", "Waveform staging active")
+            return
+        if int(self.pvs["WAVEFORM_STAGE_POINTS"].get()) != WAVEFORM_POINTS:
+            self._set_prepare_status("BLOCKED", "8192-point waveform not staged")
+            return
+
+        self._set_prepared(False)
+        self._abort_requested = False
+        self._prepare_requested = True
+        self._set_prepare_status("REQUESTED", "Preparation requested")
+
     def _execution_command(
         self,
         new_value,
@@ -517,12 +636,18 @@ class Device:
             return
 
         running = (
-            self._execution_task is not None
-            and not self._execution_task.done()
+            (self._execution_task is not None and not self._execution_task.done())
+            or (self._prepare_task is not None and not self._prepare_task.done())
         )
 
         if pv_name == "ARM_CMD":
-            if running or self._start_requested:
+            if self._require_prepared and not self._prepared:
+                self._set_execution_status(
+                    EXEC_STATE_IDLE,
+                    "Arm blocked: generate/load first",
+                )
+                return
+            if running or self._start_requested or self._prepare_requested:
                 self._set_execution_status(
                     EXEC_STATE_RUNNING,
                     "Cannot arm while sequence running",
@@ -546,7 +671,7 @@ class Device:
 
             # A disarm during or immediately before execution
             # also requests the existing graceful abort path.
-            if running or self._start_requested:
+            if running or self._start_requested or self._prepare_requested:
                 self._abort_requested = True
 
                 self._set_execution_status(
@@ -562,6 +687,13 @@ class Device:
             return
 
         if pv_name == "START_CMD":
+            if self._require_prepared and not self._prepared:
+                self._set_execution_status(
+                    EXEC_STATE_IDLE,
+                    "Start blocked: source not prepared",
+                )
+                return
+
             staging_active = (
                 self._waveform_stage_requested
                 or (
@@ -577,7 +709,7 @@ class Device:
                 )
                 return
 
-            if running or self._start_requested:
+            if running or self._start_requested or self._prepare_requested:
                 self._set_execution_status(
                     EXEC_STATE_RUNNING,
                     "Sequence already running",
@@ -626,7 +758,7 @@ class Device:
             False
         )
 
-        if running or self._start_requested:
+        if running or self._start_requested or self._prepare_requested:
             self._abort_requested = True
 
             self._set_execution_status(
@@ -714,6 +846,8 @@ class Device:
                 str(exc),
             )
             return
+
+        self._set_prepared(False)
 
         self._waveform_stage_values = (
             values.copy()
@@ -848,6 +982,68 @@ class Device:
             self._waveform_stage_values = None
             self._waveform_stage_task = None
 
+    def _service_prepare_request(self):
+        if not self._prepare_requested:
+            return
+        if self._prepare_task is not None and not self._prepare_task.done():
+            return
+        self._prepare_task = asyncio.create_task(self._run_prepare_request())
+
+    async def _run_prepare_request(self):
+        self._prepare_requested = False
+        self._set_prepared(False)
+
+        try:
+            if self._abort_requested:
+                self._set_prepare_status("ABORTED", "Aborted before preparation")
+                return
+
+            ready, reason = await self._executor_readiness()
+            if not ready:
+                self._set_prepare_status("BLOCKED", str(reason))
+                return
+
+            parameters = self._parameters()
+            waveform_points = int(await self._execution_io.read(
+                "UNH:GEN:SSRF:WGEN:WAVEFORM_POINTS"
+            ))
+            waveform_id_before = int(await self._execution_io.read(
+                "UNH:GEN:SSRF:WGEN:WAVEFORM_ID"
+            ))
+
+            plan = build_prepare_plan(parameters, waveform_points, waveform_id_before)
+            recovery = build_prepare_cleanup_plan()
+            self._set_prepare_status("RUNNING", "Configuring source and loading ARB")
+            result = await self._executor.run_preparation(plan, recovery)
+
+            if not result.ok:
+                self._set_prepare_status(result.state, result.reason)
+                return
+
+            waveform_ready = int(await self._execution_io.read(
+                "UNH:GEN:SSRF:WGEN:WAVEFORM_READY"
+            ))
+            arb_points = int(await self._execution_io.read(
+                "UNH:GEN:SSRF:WGEN:ARB_POINTS_RBV"
+            ))
+            waveform_id = int(await self._execution_io.read(
+                "UNH:GEN:SSRF:WGEN:WAVEFORM_ID"
+            ))
+
+            if waveform_ready != 1 or arb_points != WAVEFORM_POINTS or waveform_id <= waveform_id_before:
+                raise RuntimeError("WaveGen preparation verification failed")
+
+            signature = self._parameter_signature(parameters)
+            self._set_prepared(True, waveform_id=waveform_id, signature=signature)
+            self._set_prepare_status("PREPARED", "Source loaded; ready to ARM")
+
+        except Exception as exc:
+            self._set_prepared(False)
+            self._set_prepare_status("FAILED", str(exc))
+        finally:
+            self._abort_requested = False
+            self._prepare_task = None
+
     def _service_execution_request(self):
         """Start one background execution task from the IOC async loop."""
 
@@ -907,11 +1103,26 @@ class Device:
                 )
             )
 
-            plan = build_burn_plan(
-                parameters,
-                waveform_points,
-                waveform_id_before,
-            )
+            if self._require_prepared:
+                if not self._prepared:
+                    raise RuntimeError("Source is not prepared")
+                if self._prepared_signature != self._parameter_signature(parameters):
+                    self._set_prepared(False)
+                    raise RuntimeError("Prepared recipe changed; generate/load again")
+                if waveform_id_before != self._prepared_waveform_id:
+                    self._set_prepared(False)
+                    raise RuntimeError("Loaded waveform changed; generate/load again")
+                plan = build_prepared_burn_plan(
+                    parameters,
+                    waveform_points,
+                    self._prepared_waveform_id,
+                )
+            else:
+                plan = build_burn_plan(
+                    parameters,
+                    waveform_points,
+                    waveform_id_before,
+                )
 
             self._set_execution_status(
                 EXEC_STATE_RUNNING,
@@ -944,6 +1155,9 @@ class Device:
             )
 
         finally:
+            if self._require_prepared:
+                self._set_prepared(False)
+                self._set_prepare_status("IDLE", "Generate/load required for next burn")
             self._abort_requested = False
             self._execution_task = None
 
@@ -1030,10 +1244,7 @@ class Device:
         )
 
     async def _executor_abort_requested(self):
-        """Return the internal abort flag.
-
-        No operator ABORT control exists in 5B.6C.
-        """
+        """Return the latched operator/system abort request."""
 
         return bool(
             self._abort_requested
@@ -1120,6 +1331,7 @@ class Device:
         # Command callbacks only latch validated requests. Actual EPICS
         # forwarding/execution begins here on the IOC dispatcher loop.
         self._service_waveform_stage_request()
+        self._service_prepare_request()
         self._service_execution_request()
 
         # Parameter validation is entirely local.
@@ -1128,6 +1340,10 @@ class Device:
         self._publish_parameters(
             parameters
         )
+
+        if self._prepared and self._prepared_signature != self._parameter_signature(parameters):
+            self._set_prepared(False)
+            self._set_prepare_status("STALE", "Recipe changed; generate/load again")
 
         parameters_ok, reason = (
             validate_parameters(

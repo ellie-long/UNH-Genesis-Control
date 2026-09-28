@@ -74,8 +74,9 @@ START_SCRIPT="${ROOT}/scripts/start_genesis_mac.sh"
 STOP_SCRIPT="${ROOT}/scripts/stop_genesis_mac.sh"
 SIM_SCRIPT="${ROOT}/scripts/start_ssrf_sim_active.sh"
 SSRF_PHYSICAL_STATUS_SCRIPT="${ROOT}/scripts/check_ssrf_physical_readonly.sh"
-SSRF_DEMO_START_SCRIPT="${ROOT}/scripts/start_ssrf_physical_no_rf_demo.sh"
-SSRF_DEMO_STOP_SCRIPT="${ROOT}/scripts/stop_ssrf_physical_no_rf_demo.sh"
+SSRF_FINAL_START_SCRIPT="${ROOT}/scripts/start_ssrf_physical.sh"
+SSRF_FINAL_STOP_SCRIPT="${ROOT}/scripts/stop_ssrf_physical.sh"
+SSRF_KEYSIGHT_DEPLOY_SCRIPT="${ROOT}/scripts/deploy_ssrf_keysight_pi.sh"
 
 require_file() {
     [ -f "$1" ] || die "Required file not found: $1"
@@ -121,12 +122,14 @@ EVERYDAY
                        READ-ONLY; stash is never modified.
   endpoints            Show configured device endpoint/write safety settings.
 
-SSRF PHYSICAL NO-RF
+SSRF PHYSICAL OPERATION
   ssrf-physical-status Read-only physical ssRF/Keysight status and safe baseline.
-  ssrf-demo-start      Start the validated physical no-RF ssRF operator workflow.
-                       This does not itself enable RF/FM/WaveGen output.
-  ssrf-demo-stop       Safely stop the physical no-RF workflow and verify
-                       the restored physical baseline.
+  ssrf-deploy-keysight Deploy the final Keysight IOC/runtime to the Raspberry Pi.
+                       This does not start an IOC or send hardware commands.
+  ssrf-start           Start the single final physical ssRF stack and operator GUI.
+                       Startup remains disarmed with RF/FM/WaveGen output OFF.
+  ssrf-stop            Request fail-safe ABORT, verify the restored baseline,
+                       then stop the final physical ssRF stack.
 
 SSRF SIMULATOR
   sim-check            Check required localhost simulator endpoints:
@@ -166,9 +169,9 @@ Important:
   * initialize_on_connect=false must remain a safety invariant.
   * "sim-start" is for localhost simulator commissioning, not lab hardware.
   * "physical-status" remains a backwards-compatible read-only status alias.
-  * The explicit ssrf-demo-start/stop commands expose only the validated
-    PHYSICAL_NO_RF commissioning workflow. They are not amplified-RF or
-    target-burn commands.
+  * ssrf-start is the single operator-facing physical ssRF workflow.
+  * Startup never arms a burn and initialize_on_connect=false remains invariant.
+  * GENERATE / LOAD prepares the source with all energy-producing outputs OFF.
   * This helper never runs git stash/pop/drop/clear.
 
 Examples:
@@ -176,8 +179,9 @@ Examples:
   genesis status
   genesis physical-status
   genesis ssrf-physical-status
-  genesis ssrf-demo-start
-  genesis ssrf-demo-stop
+  genesis ssrf-deploy-keysight
+  genesis ssrf-start
+  genesis ssrf-stop
   genesis endpoints
   genesis stop
 
@@ -214,7 +218,7 @@ doctor() {
 
     echo
     echo "===== REQUIRED REPOSITORY SCRIPTS ====="
-    for f in "${START_SCRIPT}" "${STOP_SCRIPT}" "${SIM_SCRIPT}" "${SSRF_PHYSICAL_STATUS_SCRIPT}" "${SSRF_DEMO_START_SCRIPT}" "${SSRF_DEMO_STOP_SCRIPT}"; do
+    for f in "${START_SCRIPT}" "${STOP_SCRIPT}" "${SIM_SCRIPT}" "${SSRF_PHYSICAL_STATUS_SCRIPT}" "${SSRF_FINAL_START_SCRIPT}" "${SSRF_FINAL_STOP_SCRIPT}" "${SSRF_KEYSIGHT_DEPLOY_SCRIPT}"; do
         if [ -f "${f}" ]; then
             pass "${f#${ROOT}/}"
         else
@@ -787,28 +791,31 @@ check_all() {
 ssrf_physical_status() {
     require_env
     echo
-    echo "===== SSRF PHYSICAL NO-RF STATUS ====="
+    echo "===== SSRF PHYSICAL READ-ONLY STATUS ====="
     echo
     echo "+ ./scripts/check_ssrf_physical_readonly.sh"
     "${SSRF_PHYSICAL_STATUS_SCRIPT}"
 }
 
-ssrf_demo_start() {
+ssrf_deploy_keysight() {
     require_env
     echo
-    echo "===== START SSRF PHYSICAL NO-RF OPERATOR WORKFLOW ====="
-    echo
-    echo "+ ./scripts/start_ssrf_physical_no_rf_demo.sh"
-    "${SSRF_DEMO_START_SCRIPT}"
+    echo "===== DEPLOY FINAL SSRF KEYSIGHT RUNTIME ====="
+    "${SSRF_KEYSIGHT_DEPLOY_SCRIPT}"
 }
 
-ssrf_demo_stop() {
+ssrf_final_start() {
     require_env
     echo
-    echo "===== STOP SSRF PHYSICAL NO-RF OPERATOR WORKFLOW ====="
+    echo "===== START FINAL PHYSICAL SSRF OPERATION ====="
+    "${SSRF_FINAL_START_SCRIPT}"
+}
+
+ssrf_final_stop() {
+    require_env
     echo
-    echo "+ ./scripts/stop_ssrf_physical_no_rf_demo.sh"
-    "${SSRF_DEMO_STOP_SCRIPT}"
+    echo "===== STOP FINAL PHYSICAL SSRF OPERATION ====="
+    "${SSRF_FINAL_STOP_SCRIPT}"
 }
 
 baseline() {
@@ -871,11 +878,14 @@ case "${cmd}" in
     ssrf-physical-status)
         ssrf_physical_status
         ;;
-    ssrf-demo-start)
-        ssrf_demo_start
+    ssrf-deploy-keysight)
+        ssrf_deploy_keysight
         ;;
-    ssrf-demo-stop)
-        ssrf_demo_stop
+    ssrf-start)
+        ssrf_final_start
+        ;;
+    ssrf-stop)
+        ssrf_final_stop
         ;;
 
     sim-check)

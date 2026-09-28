@@ -419,3 +419,19 @@ overall architecture.
 ## 15. Integration principle
 
 Genesis devices do not need identical hardware implementations. They do need compatible integration behavior. Hardware specific complexity remains at the device layer. EPICS provides the common interface that allows individual devices to become subsystems, subsystems to become the integrated Phase-I system, and the integrated system to later support machine learning and AI-assisted control.
+
+## Final ssRF physical ownership boundary
+
+Final ownership:
+
+    SMC100A IOC          → SMC100A
+    Keysight WaveGen IOC → Keysight WaveGen
+    NMR switch IOC       → receiver-protection switch
+    ssRF switch IOC      → burn-path switch
+    Interlock            → safety decisions only
+    Sequencer            → coordinated execution only
+    Fitter / Burn Setup  → analysis and waveform planning only
+
+No legacy/demo IOC participates in final physical operation.
+
+See `SSRF_FINAL_PHYSICAL_OPERATION.md`.
