@@ -284,3 +284,8 @@ The following behavior has been validated with the physical SPD1305X:
 - Restoration to read-only operation
 
 The physical output does not need to be energized merely to validate the software control architecture.
+
+
+## ssRF physical no-RF workflow
+
+For the validated physical no-RF ssRF operator workflow, use `docs/SSRF_OPERATOR_QUICK_START.md`. The normal Genesis startup remains read-only and is not redefined as a burn command.

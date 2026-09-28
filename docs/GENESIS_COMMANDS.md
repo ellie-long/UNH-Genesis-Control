@@ -288,3 +288,8 @@ stash@{0}: On feature/microwave-genesis-integration: WIP stop_genesis_mac.sh bef
 ```
 
 Next laboratory work is physical calibration, physical IOC-memory staging, controlled LOAD, external-FM scaling verification, and physical interlock/logging validation.
+
+
+## ssRF physical no-RF operator workflow
+
+Use `docs/SSRF_OPERATOR_QUICK_START.md` as the canonical operator procedure for physical no-RF start, execution, viewer inspection and safe shutdown.

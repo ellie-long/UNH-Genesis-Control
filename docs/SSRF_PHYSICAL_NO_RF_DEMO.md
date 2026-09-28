@@ -126,3 +126,8 @@ Both physical Mini-Circuits switch boxes visibly actuated and returned.
 `gui/genesis_ssrf_demo.bob` was a temporary commissioning harness and
 has been removed. The physical no-RF commissioning backend and profile
 remain available for future controlled hardware checks.
+
+
+## Operator entry point
+
+The concise operator procedure is maintained in `docs/SSRF_OPERATOR_QUICK_START.md`. Use that document for the final start → GUI workflow → viewer → safe-stop sequence.
