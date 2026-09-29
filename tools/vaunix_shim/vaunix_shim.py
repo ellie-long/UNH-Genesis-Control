@@ -243,17 +243,8 @@ class LabBrick:
         self._check(self.api.set_rf(self.device_id, False), "disable RF")
 
     def _enforce_safe_state(self):
-        """Make an out-of-range startup non-radiating."""
-        limits = self.allowed_frequency_limits()
-        try:
-            carrier_ok = self._within(self.frequency(), limits)
-            start = self._frequency_value(self.api.get_sweep_start, "sweep start")
-            end = self._frequency_value(self.api.get_sweep_end, "sweep end")
-            sweep_ok = self._within(start, limits) and self._within(end, limits)
-        except VaunixError:
-            carrier_ok = sweep_ok = False
-        if not carrier_ok or not sweep_ok:
-            self._stop_and_mute()
+        """Always stop sweeps and disable RF whenever a device is opened."""
+        self._stop_and_mute()
 
     def frequency(self):
         raw = int(self.api.get_frequency(self.device_id))

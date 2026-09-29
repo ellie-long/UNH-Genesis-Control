@@ -5,10 +5,10 @@ Wants=network-online.target
 
 [Service]
 Type=simple
-User=pi
-ExecStart=/usr/bin/python3 /opt/vaunix_shim/vaunix_shim.py --port 1701
-Restart=always
-RestartSec=5
+WorkingDirectory=/home/unhpoltarg/vaunix_shim
+ExecStart=/usr/bin/python3 /home/unhpoltarg/vaunix_shim/vaunix_shim.py --library /home/unhpoltarg/vaunix_shim/liblmshid.so --bind 0.0.0.0 --port 1701 --serial 15033 --minimum-hz 11500000000 --maximum-hz 11833333333
+Restart=on-failure
+RestartSec=3
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=default.target

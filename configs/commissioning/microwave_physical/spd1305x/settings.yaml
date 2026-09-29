@@ -1,0 +1,64 @@
+general:
+  prefix: UNH:GEN:MW:PS
+  log_dir: logs
+  epics_addr_list: None
+  delay: 0.5
+spd1305x:
+  module: microwave_ioc.spd1305x.toolkit_device
+  autostart: false
+  ip: 192.168.1.13
+  port: 5025
+  timeout: 5.0
+  delay: 1.0
+  command_delay: 0.05
+  write_enabled: true
+  initialize_on_connect: false
+  channels:
+  - CH1
+  max_voltage: 5.0
+  max_current: 0.1
+  archive_records:
+  - VSET_RBV
+  - VMEAS
+  - ISET_RBV
+  - IMEAS
+  - PMEAS
+  - OUTPUT_RBV
+  - MODE_RBV
+  - OVP_RBV
+  - OCP_RBV
+  - COMM
+  - ERROR
+  records:
+    VSET_CMD:
+      DESC: Voltage setpoint command
+    VSET_RBV:
+      DESC: Voltage setpoint readback
+    VMEAS:
+      DESC: Measured output voltage
+    ISET_CMD:
+      DESC: Current limit command
+    ISET_RBV:
+      DESC: Current limit readback
+    IMEAS:
+      DESC: Measured output current
+    PMEAS:
+      DESC: Measured output power
+    OUTPUT_CMD:
+      DESC: Output enable command
+    OUTPUT_RBV:
+      DESC: Output state readback
+    MODE_RBV:
+      DESC: CV or CC mode readback
+    OVP_CMD:
+      DESC: Overvoltage protection command
+    OVP_RBV:
+      DESC: Overvoltage protection readback
+    OCP_CMD:
+      DESC: Overcurrent protection command
+    OCP_RBV:
+      DESC: Overcurrent protection readback
+    COMM:
+      DESC: Instrument communication status
+    ERROR:
+      DESC: Last IOC or instrument error
