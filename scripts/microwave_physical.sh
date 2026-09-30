@@ -747,25 +747,9 @@ start_stack() {
     rf_ready
 
     if [[ -x "$PHOEBUS" ]]; then
-        if ! pgrep -f \
-            "CSS_Phoebus" \
-            >/dev/null 2>&1
-        then
-            nohup "$PHOEBUS" \
-                -settings \
-                "$ROOT/configs/phoebus/genesis_mac_settings.ini" \
-                -resource \
-                "$ROOT/gui/genesis_microwave.bob" \
-                >/tmp/genesis_microwave_phoebus.log \
-                2>&1 &
-
-            echo \
-                "[START] Phoebus Microwave GUI"
-        else
-            echo \
-                "[OK] Phoebus already running; " \
-                "open gui/genesis_microwave.bob"
-        fi
+        echo "[INFO] Microwave hardware/control stack is ready."
+        echo "[INFO] GUI is independent; launch when wanted with:"
+        echo "       ./scripts/start_microwave_phoebus.sh"
     fi
 }
 

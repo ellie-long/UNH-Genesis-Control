@@ -190,7 +190,9 @@ PY
 
 echo
 echo "===== OPEN FINAL OPERATOR GUI ====="
-"$ROOT/scripts/start_genesis_phoebus.sh" "$PHOEBUS_SETTINGS" "$GUI"
+echo "[INFO] ssRF hardware/control stack is ready."
+echo "[INFO] GUI is independent; launch when wanted with:"
+echo "       ./scripts/start_ssrf_phoebus.sh"
 
 echo
 echo "============================================================"

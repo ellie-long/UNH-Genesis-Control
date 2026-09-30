@@ -6,7 +6,7 @@ general:
 spd1305x:
   module: microwave_ioc.spd1305x.toolkit_device
   autostart: false
-  ip: 192.168.1.13
+  ip: 192.168.1.19
   port: 5025
   timeout: 5.0
   delay: 1.0
