@@ -15,6 +15,24 @@ from plotly.subplots import make_subplots
 from datetime import datetime, timedelta
 from pathlib import Path
 
+try:
+    from viewer_filters import (
+        SUBSYSTEM_OPTIONS,
+        MICROWAVE_GROUP_OPTIONS,
+        MICROWAVE_PRESETS,
+        filter_pvs,
+        resolve_microwave_preset,
+    )
+except ImportError:
+    # Supports module-style imports used by Genesis tests.
+    from archive.viewer_filters import (
+        SUBSYSTEM_OPTIONS,
+        MICROWAVE_GROUP_OPTIONS,
+        MICROWAVE_PRESETS,
+        filter_pvs,
+        resolve_microwave_preset,
+    )
+
 # Page configuration
 st.set_page_config(
     page_title="EPICS Archive Viewer",
@@ -117,6 +135,16 @@ def load_pv_data(archive_path, pv_name, start_date, end_date):
 
     return pd.DataFrame()
 
+def compact_axis_label(pv_name):
+    """Short display-only PV label for plot axes."""
+    label = str(pv_name)
+
+    if label.startswith("UNH:GEN_"):
+        label = label[len("UNH:GEN_"):]
+
+    return label.replace("_", ":")
+
+
 def create_time_series_plot(data_dict, title=""):
     """Create time series plot for multiple PVs"""
     fig = make_subplots(specs=[[{"secondary_y": True}]])
@@ -145,19 +173,52 @@ def create_time_series_plot(data_dict, title=""):
             secondary_y=idx > 0 and len(data_dict) == 2  # Use secondary y-axis for 2nd PV only
         )
 
-    # Update layout
-    fig.update_xaxes(title_text="Time", showgrid=True, gridcolor='lightgray')
-    fig.update_yaxes(title_text="Value", showgrid=True, gridcolor='lightgray')
+    # Common plot layout. Keep enough margin for both y-axis titles.
+    fig.update_xaxes(
+        title_text="Time",
+        showgrid=True,
+        gridcolor='lightgray',
+        automargin=True,
+    )
+
+    fig.update_yaxes(
+        title_text="Value",
+        showgrid=True,
+        gridcolor='lightgray',
+        automargin=True,
+    )
 
     if len(data_dict) == 2:
         pv_names = list(data_dict.keys())
-        fig.update_yaxes(title_text=pv_names[0], secondary_y=False)
-        fig.update_yaxes(title_text=pv_names[1], secondary_y=True)
+
+        fig.update_yaxes(
+            title_text=compact_axis_label(pv_names[0]),
+            secondary_y=False,
+            automargin=True,
+            title_standoff=14,
+        )
+
+        fig.update_yaxes(
+            title_text=compact_axis_label(pv_names[1]),
+            secondary_y=True,
+            automargin=True,
+            title_standoff=14,
+        )
 
     fig.update_layout(
         title=title,
         hovermode='x unified',
         height=500,
+
+        # Explicit outer margins prevent the secondary-axis title from
+        # being clipped by the Streamlit plot container.
+        margin=dict(
+            l=115,
+            r=175,
+            t=80,
+            b=75,
+        ),
+
         showlegend=True,
         legend=dict(
             yanchor="top",
@@ -218,14 +279,85 @@ def main():
             st.error(f"No archived PVs found in '{archive_path}'")
             return
 
-        st.subheader(f"Available PVs ({len(available_pvs)})")
+        # Optional organization layer over the existing generic
+        # archived-PV viewer. This does not alter CSV loading or plotting.
+        st.subheader("Archive Scope")
 
-        # PV selection
+        subsystem = st.selectbox(
+            "Subsystem",
+            options=SUBSYSTEM_OPTIONS,
+            index=0,
+            help=(
+                "Filter the existing Genesis EPICS archive by subsystem. "
+                "This does not change archived data."
+            ),
+        )
+
+        microwave_group = "All Microwave"
+
+        if subsystem == "Microwave":
+            microwave_group = st.selectbox(
+                "Microwave device group",
+                options=MICROWAVE_GROUP_OPTIONS,
+                index=0,
+            )
+
+        filtered_pvs = filter_pvs(
+            available_pvs,
+            subsystem=subsystem,
+            microwave_group=microwave_group,
+        )
+
+        if not filtered_pvs:
+            st.warning(
+                "No archived PVs match the selected scope."
+            )
+            return
+
+        st.caption(
+            f"Showing {len(filtered_pvs)} of "
+            f"{len(available_pvs)} archived PVs"
+        )
+
+        preset_name = "Manual selection"
+
+        if subsystem == "Microwave":
+            preset_name = st.selectbox(
+                "Quick view",
+                options=list(MICROWAVE_PRESETS),
+                index=0,
+                help=(
+                    "Optional Phase-I Microwave plot presets. "
+                    "Manual PV selection remains available."
+                ),
+            )
+
+        default_pvs = resolve_microwave_preset(
+            filtered_pvs,
+            preset_name,
+        )
+
+        if not default_pvs:
+            default_pvs = [
+                filtered_pvs[0]
+            ]
+
+        st.subheader(
+            f"Available PVs ({len(filtered_pvs)})"
+        )
+
+        # Existing manual PV selection remains the primary viewer interface.
         selected_pvs = st.multiselect(
             "Select PVs to plot",
-            options=available_pvs,
-            default=available_pvs[0] if available_pvs else None,
-            help="Select up to 4 PVs to plot together"
+            options=filtered_pvs,
+            default=default_pvs,
+            help="Select up to 4 PVs to plot together",
+            key=(
+                "pv_selection_"
+                f"{subsystem}_"
+                f"{microwave_group}_"
+                f"{preset_name}"
+            ),
         )
 
         if len(selected_pvs) > 4:

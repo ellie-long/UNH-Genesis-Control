@@ -1,0 +1,26 @@
+general:
+  prefix: UNH:GEN
+  log_dir: logs
+
+  # IOC Manager + archiver + simulated Microwave IOCs.
+  epics_addr_list: "127.0.0.1:5064 127.0.0.1:5067 127.0.0.1:5069 127.0.0.1:5085 127.0.0.1:5087"
+
+  delay: 0.5
+
+archiver:
+  module: logic_devices.archiver
+  autostart: false
+
+  archive_path: archive/data
+
+  # Discover only the Microwave simulation manager entries.
+  settings_file: configs/commissioning/microwave_sim/ioc_manager/settings.yaml
+
+  # Same Genesis PV-archive policy as normal operation.
+  deadband: 0.01
+  time_increment: 300
+
+  delay: 5
+
+  channels:
+    - None

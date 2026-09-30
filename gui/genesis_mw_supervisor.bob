@@ -1,0 +1,881 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<display version="2.0.0">
+  <name>Genesis Microwave - Supervisor</name>
+  <width>1040</width>
+  <height>900</height>
+  <macros>
+    <P>UNH:GEN:MW:SUP</P>
+  </macros>
+  <widget type="rectangle" version="2.0.0">
+    <name>Header_Background</name>
+    <x>0</x>
+    <y>0</y>
+    <width>1040</width>
+    <height>70</height>
+    <line_width>0</line_width>
+    <line_color>
+      <color red="0" green="53" blue="145" />
+    </line_color>
+    <background_color>
+      <color red="0" green="53" blue="145" />
+    </background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Title</name>
+    <x>20</x>
+    <y>13</y>
+    <width>640</width>
+    <height>32</height>
+    <text>UNH Genesis - Microwave Supervisor</text>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="22.0" />
+    </font>
+    <foreground_color>
+      <color red="255" green="255" blue="255" />
+    </foreground_color>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Subtitle</name>
+    <x>680</x>
+    <y>18</y>
+    <width>330</width>
+    <height>24</height>
+    <text>Normal RF / sweep operation</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="12.0" />
+    </font>
+    <foreground_color>
+      <color red="255" green="255" blue="255" />
+    </foreground_color>
+    <horizontal_alignment>2</horizontal_alignment>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>Status_Card</name>
+    <x>20</x>
+    <y>90</y>
+    <width>1000</width>
+    <height>205</height>
+    <line_width>2</line_width>
+    <line_color>
+      <color red="0" green="53" blue="145" />
+    </line_color>
+    <background_color>
+      <color red="240" green="241" blue="244" />
+    </background_color>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>Status_Card_Header</name>
+    <x>20</x>
+    <y>90</y>
+    <width>1000</width>
+    <height>38</height>
+    <line_width>0</line_width>
+    <line_color>
+      <color red="0" green="29" blue="82" />
+    </line_color>
+    <background_color>
+      <color red="0" green="29" blue="82" />
+    </background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Status_Card_Title</name>
+    <x>35</x>
+    <y>97</y>
+    <width>970</width>
+    <height>24</height>
+    <text>SYSTEM SAFETY / PERMISSIVE</text>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="15.0" />
+    </font>
+    <foreground_color>
+      <color red="255" green="255" blue="255" />
+    </foreground_color>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>SystemConnected_L</name>
+    <x>40</x>
+    <y>145</y>
+    <width>90</width>
+    <height>24</height>
+    <text>System:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>SystemConnected_LED</name>
+    <x>130</x>
+    <y>142</y>
+    <width>26</width>
+    <height>26</height>
+    <pv_name>pva://$(P):SystemConnected</pv_name>
+    <bit>0</bit>
+    <off_color>
+      <color red="200" green="50" blue="50" />
+    </off_color>
+    <on_color>
+      <color red="30" green="160" blue="70" />
+    </on_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>UCAConnected_L</name>
+    <x>250</x>
+    <y>145</y>
+    <width>90</width>
+    <height>24</height>
+    <text>UCA:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>UCAConnected_LED</name>
+    <x>340</x>
+    <y>142</y>
+    <width>26</width>
+    <height>26</height>
+    <pv_name>pva://$(P):UCAConnected</pv_name>
+    <bit>0</bit>
+    <off_color>
+      <color red="200" green="50" blue="50" />
+    </off_color>
+    <on_color>
+      <color red="30" green="160" blue="70" />
+    </on_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>VaunixConnected_L</name>
+    <x>460</x>
+    <y>145</y>
+    <width>90</width>
+    <height>24</height>
+    <text>Vaunix:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>VaunixConnected_LED</name>
+    <x>550</x>
+    <y>142</y>
+    <width>26</width>
+    <height>26</height>
+    <pv_name>pva://$(P):VaunixConnected</pv_name>
+    <bit>0</bit>
+    <off_color>
+      <color red="200" green="50" blue="50" />
+    </off_color>
+    <on_color>
+      <color red="30" green="160" blue="70" />
+    </on_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>RFPermissive_L</name>
+    <x>670</x>
+    <y>145</y>
+    <width>90</width>
+    <height>24</height>
+    <text>RF Permit:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>RFPermissive_LED</name>
+    <x>760</x>
+    <y>142</y>
+    <width>26</width>
+    <height>26</height>
+    <pv_name>pva://$(P):RFPermissive</pv_name>
+    <bit>0</bit>
+    <off_color>
+      <color red="200" green="50" blue="50" />
+    </off_color>
+    <on_color>
+      <color red="30" green="160" blue="70" />
+    </on_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Simulation_L</name>
+    <x>850</x>
+    <y>145</y>
+    <width>90</width>
+    <height>24</height>
+    <text>Simulation:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>Simulation_LED</name>
+    <x>940</x>
+    <y>142</y>
+    <width>26</width>
+    <height>26</height>
+    <pv_name>pva://$(P):Simulation</pv_name>
+    <bit>0</bit>
+    <off_color>
+      <color red="200" green="50" blue="50" />
+    </off_color>
+    <on_color>
+      <color red="30" green="160" blue="70" />
+    </on_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>UCA_V_L</name>
+    <x>40</x>
+    <y>185</y>
+    <width>105</width>
+    <height>24</height>
+    <text>UCA voltage:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>UCA_V</name>
+    <x>145</x>
+    <y>183</y>
+    <width>120</width>
+    <height>25</height>
+    <pv_name>pva://$(P):UCAVoltage</pv_name>
+    <precision>4</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>UCA_V_U</name>
+    <x>270</x>
+    <y>185</y>
+    <width>30</width>
+    <height>24</height>
+    <text>V</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Interlock_L</name>
+    <x>320</x>
+    <y>185</y>
+    <width>100</width>
+    <height>24</height>
+    <text>Permit reason:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Interlock_V</name>
+    <x>420</x>
+    <y>183</y>
+    <width>570</width>
+    <height>25</height>
+    <pv_name>pva://$(P):InterlockMessage</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>LastError_L</name>
+    <x>40</x>
+    <y>225</y>
+    <width>110</width>
+    <height>24</height>
+    <text>Supervisor fault:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>LastError_V</name>
+    <x>150</x>
+    <y>223</y>
+    <width>840</width>
+    <height>25</height>
+    <pv_name>pva://$(P):LastError</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>RF_Card</name>
+    <x>20</x>
+    <y>315</y>
+    <width>1000</width>
+    <height>210</height>
+    <line_width>2</line_width>
+    <line_color>
+      <color red="0" green="53" blue="145" />
+    </line_color>
+    <background_color>
+      <color red="240" green="241" blue="244" />
+    </background_color>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>RF_Card_Header</name>
+    <x>20</x>
+    <y>315</y>
+    <width>1000</width>
+    <height>38</height>
+    <line_width>0</line_width>
+    <line_color>
+      <color red="0" green="29" blue="82" />
+    </line_color>
+    <background_color>
+      <color red="0" green="29" blue="82" />
+    </background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>RF_Card_Title</name>
+    <x>35</x>
+    <y>322</y>
+    <width>970</width>
+    <height>24</height>
+    <text>RF / FREQUENCY CONTROL</text>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="15.0" />
+    </font>
+    <foreground_color>
+      <color red="255" green="255" blue="255" />
+    </foreground_color>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Freq_L</name>
+    <x>45</x>
+    <y>395</y>
+    <width>145</width>
+    <height>24</height>
+    <text>Output frequency</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Freq_CMD_H</name>
+    <x>205</x>
+    <y>360</y>
+    <width>100</width>
+    <height>24</height>
+    <text>Command</text>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Freq_RBV_H</name>
+    <x>355</x>
+    <y>360</y>
+    <width>100</width>
+    <height>24</height>
+    <text>Readback</text>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textentry" version="2.0.0">
+    <name>Freq_CMD</name>
+    <x>195</x>
+    <y>392</y>
+    <width>125</width>
+    <height>28</height>
+    <pv_name>pva://$(P):OutputFrequency</pv_name>
+    <precision>5</precision>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Freq_RBV</name>
+    <x>345</x>
+    <y>393</y>
+    <width>125</width>
+    <height>25</height>
+    <pv_name>pva://$(P):OutputFrequencyRBV</pv_name>
+    <precision>5</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Freq_U</name>
+    <x>480</x>
+    <y>395</y>
+    <width>45</width>
+    <height>24</height>
+    <text>GHz</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>RF_L</name>
+    <x>45</x>
+    <y>442</y>
+    <width>145</width>
+    <height>24</height>
+    <text>RF enable</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="slide_button" version="2.0.0">
+    <name>RF_CMD</name>
+    <x>195</x>
+    <y>439</y>
+    <width>125</width>
+    <height>28</height>
+    <pv_name>pva://$(P):RFEnable</pv_name>
+    <label />
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>RF_LED</name>
+    <x>345</x>
+    <y>440</y>
+    <width>26</width>
+    <height>26</height>
+    <pv_name>pva://$(P):RFEnable</pv_name>
+    <bit>0</bit>
+    <off_color>
+      <color red="150" green="155" blue="160" />
+    </off_color>
+    <on_color>
+      <color red="30" green="160" blue="70" />
+    </on_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Central_L</name>
+    <x>580</x>
+    <y>395</y>
+    <width>135</width>
+    <height>24</height>
+    <text>Central frequency:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Central_V</name>
+    <x>720</x>
+    <y>393</y>
+    <width>125</width>
+    <height>25</height>
+    <pv_name>pva://$(P):CentralFrequency</pv_name>
+    <precision>5</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Central_U</name>
+    <x>855</x>
+    <y>395</y>
+    <width>45</width>
+    <height>24</height>
+    <text>GHz</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Magic_Note</name>
+    <x>580</x>
+    <y>438</y>
+    <width>390</width>
+    <height>60</height>
+    <text>Magic-frequency actions are intentionally unavailable until the experiment constants are certified.</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="12.0" />
+    </font>
+    <wrap_words>true</wrap_words>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>Sweep_Card</name>
+    <x>20</x>
+    <y>545</y>
+    <width>1000</width>
+    <height>285</height>
+    <line_width>2</line_width>
+    <line_color>
+      <color red="0" green="53" blue="145" />
+    </line_color>
+    <background_color>
+      <color red="240" green="241" blue="244" />
+    </background_color>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>Sweep_Card_Header</name>
+    <x>20</x>
+    <y>545</y>
+    <width>1000</width>
+    <height>38</height>
+    <line_width>0</line_width>
+    <line_color>
+      <color red="0" green="29" blue="82" />
+    </line_color>
+    <background_color>
+      <color red="0" green="29" blue="82" />
+    </background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Sweep_Card_Title</name>
+    <x>35</x>
+    <y>552</y>
+    <width>970</width>
+    <height>24</height>
+    <text>SOFTWARE SWEEP</text>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="15.0" />
+    </font>
+    <foreground_color>
+      <color red="255" green="255" blue="255" />
+    </foreground_color>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>SweepStart_L</name>
+    <x>45</x>
+    <y>600</y>
+    <width>65</width>
+    <height>24</height>
+    <text>Start:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textentry" version="2.0.0">
+    <name>SweepStart</name>
+    <x>110</x>
+    <y>597</y>
+    <width>105</width>
+    <height>28</height>
+    <pv_name>pva://$(P):SweepStart</pv_name>
+    <precision>5</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>SweepStart_U</name>
+    <x>220</x>
+    <y>600</y>
+    <width>40</width>
+    <height>24</height>
+    <text>GHz</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>SweepStop_L</name>
+    <x>285</x>
+    <y>600</y>
+    <width>65</width>
+    <height>24</height>
+    <text>Stop:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textentry" version="2.0.0">
+    <name>SweepStop</name>
+    <x>350</x>
+    <y>597</y>
+    <width>105</width>
+    <height>28</height>
+    <pv_name>pva://$(P):SweepStop</pv_name>
+    <precision>5</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>SweepStop_U</name>
+    <x>460</x>
+    <y>600</y>
+    <width>40</width>
+    <height>24</height>
+    <text>GHz</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>SweepStep_L</name>
+    <x>525</x>
+    <y>600</y>
+    <width>65</width>
+    <height>24</height>
+    <text>Step:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textentry" version="2.0.0">
+    <name>SweepStep</name>
+    <x>590</x>
+    <y>597</y>
+    <width>105</width>
+    <height>28</height>
+    <pv_name>pva://$(P):SweepStep</pv_name>
+    <precision>5</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>SweepStep_U</name>
+    <x>700</x>
+    <y>600</y>
+    <width>40</width>
+    <height>24</height>
+    <text>GHz</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>SweepDwell_L</name>
+    <x>765</x>
+    <y>600</y>
+    <width>65</width>
+    <height>24</height>
+    <text>Dwell:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textentry" version="2.0.0">
+    <name>SweepDwell</name>
+    <x>830</x>
+    <y>597</y>
+    <width>105</width>
+    <height>28</height>
+    <pv_name>pva://$(P):SweepDwell</pv_name>
+    <precision>5</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>SweepDwell_U</name>
+    <x>940</x>
+    <y>600</y>
+    <width>40</width>
+    <height>24</height>
+    <text>s</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="bool_button" version="2.0.0">
+    <name>SweepStartCommand</name>
+    <x>45</x>
+    <y>650</y>
+    <width>130</width>
+    <height>30</height>
+    <pv_name>pva://$(P):SweepStartCommand</pv_name>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>SweepStartCommand_L</name>
+    <x>182</x>
+    <y>654</y>
+    <width>60</width>
+    <height>24</height>
+    <text>START</text>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="bool_button" version="2.0.0">
+    <name>SweepStopCommand</name>
+    <x>265</x>
+    <y>650</y>
+    <width>130</width>
+    <height>30</height>
+    <pv_name>pva://$(P):SweepStopCommand</pv_name>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>SweepStopCommand_L</name>
+    <x>402</x>
+    <y>654</y>
+    <width>60</width>
+    <height>24</height>
+    <text>STOP</text>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="bool_button" version="2.0.0">
+    <name>SweepCancel</name>
+    <x>485</x>
+    <y>650</y>
+    <width>130</width>
+    <height>30</height>
+    <pv_name>pva://$(P):SweepCancel</pv_name>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>SweepCancel_L</name>
+    <x>622</x>
+    <y>654</y>
+    <width>75</width>
+    <height>24</height>
+    <text>CANCEL</text>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>SweepState_L</name>
+    <x>45</x>
+    <y>710</y>
+    <width>125</width>
+    <height>24</height>
+    <text>State:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>SweepState_V</name>
+    <x>170</x>
+    <y>708</y>
+    <width>130</width>
+    <height>25</height>
+    <pv_name>pva://$(P):SweepState</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>SweepPoint_L</name>
+    <x>350</x>
+    <y>710</y>
+    <width>125</width>
+    <height>24</height>
+    <text>Point:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>SweepPoint_V</name>
+    <x>475</x>
+    <y>708</y>
+    <width>130</width>
+    <height>25</height>
+    <pv_name>pva://$(P):SweepPoint</pv_name>
+    <precision>0</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>SweepTotal_L</name>
+    <x>655</x>
+    <y>710</y>
+    <width>125</width>
+    <height>24</height>
+    <text>Total:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>SweepTotal_V</name>
+    <x>780</x>
+    <y>708</y>
+    <width>130</width>
+    <height>25</height>
+    <pv_name>pva://$(P):SweepTotal</pv_name>
+    <precision>0</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>SweepProgress_L</name>
+    <x>45</x>
+    <y>750</y>
+    <width>125</width>
+    <height>24</height>
+    <text>Progress:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>SweepProgress_V</name>
+    <x>170</x>
+    <y>748</y>
+    <width>130</width>
+    <height>25</height>
+    <pv_name>pva://$(P):SweepProgress</pv_name>
+    <precision>1</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>SweepCurrentFrequency_L</name>
+    <x>350</x>
+    <y>750</y>
+    <width>125</width>
+    <height>24</height>
+    <text>Current frequency:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>SweepCurrentFrequency_V</name>
+    <x>475</x>
+    <y>748</y>
+    <width>130</width>
+    <height>25</height>
+    <pv_name>pva://$(P):SweepCurrentFrequency</pv_name>
+    <precision>5</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>SweepError_L</name>
+    <x>655</x>
+    <y>750</y>
+    <width>95</width>
+    <height>24</height>
+    <text>Sweep fault:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>SweepError_V</name>
+    <x>750</x>
+    <y>748</y>
+    <width>240</width>
+    <height>25</height>
+    <pv_name>pva://$(P):SweepError</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Supervisor_Footer</name>
+    <x>30</x>
+    <y>850</y>
+    <width>980</width>
+    <height>35</height>
+    <text>Supervisor is the normal operator control path. RF OFF remains allowed; RF ON is checked by the software permissive.</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="12.0" />
+    </font>
+    <wrap_words>true</wrap_words>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>RF_StateText</name>
+    <x>380</x>
+    <y>440</y>
+    <width>80</width>
+    <height>25</height>
+    <pv_name>pva://$(P):RFEnable</pv_name>
+    <format>6</format>
+  </widget>
+</display>

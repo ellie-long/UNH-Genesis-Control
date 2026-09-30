@@ -1,29 +1,33 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <display version="2.0.0">
   <name>Genesis Microwave - Siglent SPD1305X</name>
-  <width>680</width>
-  <height>830</height>
+  <width>1040</width>
+  <height>870</height>
   <macros>
     <P>UNH:GEN:MW:PS</P>
+    <M>UNH:GEN:MAN:mw_spd1305x</M>
   </macros>
   <widget type="rectangle" version="2.0.0">
-    <name>UNH_Header_Background</name>
+    <name>Header_Background</name>
     <x>0</x>
     <y>0</y>
-    <width>680</width>
+    <width>1040</width>
     <height>70</height>
     <line_width>0</line_width>
+    <line_color>
+      <color red="0" green="53" blue="145" />
+    </line_color>
     <background_color>
       <color red="0" green="53" blue="145" />
     </background_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Title</name>
-    <text>UNH Genesis Microwave - Siglent SPD1305X</text>
     <x>20</x>
-    <y>14</y>
-    <width>440</width>
+    <y>13</y>
+    <width>650</width>
     <height>32</height>
+    <text>UNH Genesis - Siglent SPD1305X</text>
     <font>
       <font family="Liberation Sans" style="BOLD" size="22.0" />
     </font>
@@ -33,14 +37,58 @@
     <transparent>true</transparent>
   </widget>
   <widget type="label" version="2.0.0">
-    <name>Prefix_Label</name>
-    <text>PV prefix: $(P)</text>
-    <x>470</x>
-    <y>23</y>
-    <width>190</width>
-    <height>22</height>
+    <name>Subtitle</name>
+    <x>700</x>
+    <y>18</y>
+    <width>310</width>
+    <height>24</height>
+    <text>Microwave UCA power supply</text>
     <font>
       <font family="Liberation Sans" style="REGULAR" size="12.0" />
+    </font>
+    <foreground_color>
+      <color red="255" green="255" blue="255" />
+    </foreground_color>
+    <horizontal_alignment>2</horizontal_alignment>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>Status_Card</name>
+    <x>20</x>
+    <y>90</y>
+    <width>1000</width>
+    <height>190</height>
+    <line_width>2</line_width>
+    <line_color>
+      <color red="0" green="53" blue="145" />
+    </line_color>
+    <background_color>
+      <color red="240" green="241" blue="244" />
+    </background_color>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>Status_Card_Header</name>
+    <x>20</x>
+    <y>90</y>
+    <width>1000</width>
+    <height>38</height>
+    <line_width>0</line_width>
+    <line_color>
+      <color red="0" green="29" blue="82" />
+    </line_color>
+    <background_color>
+      <color red="0" green="29" blue="82" />
+    </background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Status_Card_Title</name>
+    <x>35</x>
+    <y>97</y>
+    <width>970</width>
+    <height>24</height>
+    <text>DEVICE STATUS / COMMISSIONING</text>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="15.0" />
     </font>
     <foreground_color>
       <color red="255" green="255" blue="255" />
@@ -48,64 +96,438 @@
     <transparent>true</transparent>
   </widget>
   <widget type="label" version="2.0.0">
-    <name>Status_Heading</name>
-    <class>COMMENT</class>
-    <text>Supply status</text>
-    <x>20</x>
-    <y>80</y>
-    <width>180</width>
-    <height>25</height>
-    <font use_class="true">
-      <font name="Comment" family="Liberation Sans" style="ITALIC" size="14.0" />
+    <name>Manager_L</name>
+    <x>40</x>
+    <y>145</y>
+    <width>75</width>
+    <height>24</height>
+    <text>Managed:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
     </font>
-    <transparent use_class="true">true</transparent>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>Manager_LED</name>
+    <x>115</x>
+    <y>142</y>
+    <width>26</width>
+    <height>26</height>
+    <pv_name>pva://$(M)_control</pv_name>
+    <bit>0</bit>
+    <off_color>
+      <color red="200" green="50" blue="50" />
+    </off_color>
+    <on_color>
+      <color red="30" green="160" blue="70" />
+    </on_color>
   </widget>
   <widget type="label" version="2.0.0">
-    <name>Connection_Label</name>
-    <text>Connection:</text>
-    <x>20</x>
-    <y>115</y>
-    <width>120</width>
+    <name>HB_L</name>
+    <x>175</x>
+    <y>145</y>
+    <width>65</width>
+    <height>24</height>
+    <text>IOC HB:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
   </widget>
   <widget type="textupdate" version="2.0.0">
-    <name>Connection_Readback</name>
-    <pv_name>pva://$(P):COMM</pv_name>
-    <x>145</x>
-    <y>115</y>
-    <width>180</width>
-    <format>6</format>
+    <name>HB_V</name>
+    <x>240</x>
+    <y>143</y>
+    <width>75</width>
+    <height>25</height>
+    <pv_name>pva://$(M)_hb</pv_name>
+    <precision>0</precision>
   </widget>
   <widget type="label" version="2.0.0">
-    <name>Error_Label</name>
-    <text>Last error:</text>
-    <x>20</x>
-    <y>150</y>
+    <name>HB_U</name>
+    <x>320</x>
+    <y>145</y>
+    <width>20</width>
+    <height>24</height>
+    <text>s</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>COMM_L</name>
+    <x>380</x>
+    <y>145</y>
     <width>90</width>
+    <height>24</height>
+    <text>Connected:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>COMM_LED</name>
+    <x>470</x>
+    <y>142</y>
+    <width>26</width>
+    <height>26</height>
+    <pv_name>pva://$(P):COMM</pv_name>
+    <bit>0</bit>
+    <off_color>
+      <color red="200" green="50" blue="50" />
+    </off_color>
+    <on_color>
+      <color red="30" green="160" blue="70" />
+    </on_color>
   </widget>
   <widget type="textupdate" version="2.0.0">
-    <name>Error_Readback</name>
-    <pv_name>pva://$(P):ERROR</pv_name>
-    <x>145</x>
-    <y>150</y>
-    <width>510</width>
+    <name>COMM_V</name>
+    <x>505</x>
+    <y>143</y>
+    <width>105</width>
+    <height>25</height>
+    <pv_name>pva://$(P):COMM</pv_name>
     <format>6</format>
   </widget>
   <widget type="label" version="2.0.0">
-    <name>Output_Label</name>
+    <name>Output_L</name>
+    <x>650</x>
+    <y>145</y>
+    <width>65</width>
+    <height>24</height>
     <text>Output:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>Output_LED</name>
+    <x>715</x>
+    <y>142</y>
+    <width>26</width>
+    <height>26</height>
+    <pv_name>pva://$(P):OUTPUT_RBV</pv_name>
+    <bit>0</bit>
+    <off_color>
+      <color red="150" green="155" blue="160" />
+    </off_color>
+    <on_color>
+      <color red="30" green="160" blue="70" />
+    </on_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Output_V</name>
+    <x>750</x>
+    <y>143</y>
+    <width>100</width>
+    <height>25</height>
+    <pv_name>pva://$(P):OUTPUT_RBV</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Mode_L</name>
+    <x>875</x>
+    <y>145</y>
+    <width>50</width>
+    <height>24</height>
+    <text>Mode:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Mode_V</name>
+    <x>925</x>
+    <y>143</y>
+    <width>70</width>
+    <height>25</height>
+    <pv_name>pva://$(P):MODE_RBV</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Error_L</name>
+    <x>40</x>
+    <y>205</y>
+    <width>85</width>
+    <height>24</height>
+    <text>Last error:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Error_V</name>
+    <x>125</x>
+    <y>203</y>
+    <width>870</width>
+    <height>25</height>
+    <pv_name>pva://$(P):ERROR</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>Measurement_Card</name>
     <x>20</x>
-    <y>195</y>
-    <width>120</width>
+    <y>300</y>
+    <width>480</width>
+    <height>260</height>
+    <line_width>2</line_width>
+    <line_color>
+      <color red="0" green="53" blue="145" />
+    </line_color>
+    <background_color>
+      <color red="240" green="241" blue="244" />
+    </background_color>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>Measurement_Card_Header</name>
+    <x>20</x>
+    <y>300</y>
+    <width>480</width>
+    <height>38</height>
+    <line_width>0</line_width>
+    <line_color>
+      <color red="0" green="29" blue="82" />
+    </line_color>
+    <background_color>
+      <color red="0" green="29" blue="82" />
+    </background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Measurement_Card_Title</name>
+    <x>35</x>
+    <y>307</y>
+    <width>450</width>
+    <height>24</height>
+    <text>LIVE MEASUREMENTS</text>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="15.0" />
+    </font>
+    <foreground_color>
+      <color red="255" green="255" blue="255" />
+    </foreground_color>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>VMEAS_L</name>
+    <x>45</x>
+    <y>355</y>
+    <width>115</width>
+    <height>24</height>
+    <text>Voltage:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>VMEAS_V</name>
+    <x>170</x>
+    <y>353</y>
+    <width>125</width>
+    <height>25</height>
+    <pv_name>pva://$(P):VMEAS</pv_name>
+    <precision>4</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>VMEAS_U</name>
+    <x>305</x>
+    <y>355</y>
+    <width>30</width>
+    <height>24</height>
+    <text>V</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>IMEAS_L</name>
+    <x>45</x>
+    <y>395</y>
+    <width>115</width>
+    <height>24</height>
+    <text>Current:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>IMEAS_V</name>
+    <x>170</x>
+    <y>393</y>
+    <width>125</width>
+    <height>25</height>
+    <pv_name>pva://$(P):IMEAS</pv_name>
+    <precision>4</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>IMEAS_U</name>
+    <x>305</x>
+    <y>395</y>
+    <width>30</width>
+    <height>24</height>
+    <text>A</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>PMEAS_L</name>
+    <x>45</x>
+    <y>435</y>
+    <width>115</width>
+    <height>24</height>
+    <text>Power:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>PMEAS_V</name>
+    <x>170</x>
+    <y>433</y>
+    <width>125</width>
+    <height>25</height>
+    <pv_name>pva://$(P):PMEAS</pv_name>
+    <precision>4</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>PMEAS_U</name>
+    <x>305</x>
+    <y>435</y>
+    <width>30</width>
+    <height>24</height>
+    <text>W</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>VSET_RBV_L</name>
+    <x>45</x>
+    <y>475</y>
+    <width>115</width>
+    <height>24</height>
+    <text>Voltage set RBV:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>VSET_RBV_V</name>
+    <x>170</x>
+    <y>473</y>
+    <width>125</width>
+    <height>25</height>
+    <pv_name>pva://$(P):VSET_RBV</pv_name>
+    <precision>4</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>VSET_RBV_U</name>
+    <x>305</x>
+    <y>475</y>
+    <width>30</width>
+    <height>24</height>
+    <text>V</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>ISET_RBV_L</name>
+    <x>45</x>
+    <y>515</y>
+    <width>115</width>
+    <height>24</height>
+    <text>Current set RBV:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>ISET_RBV_V</name>
+    <x>170</x>
+    <y>513</y>
+    <width>125</width>
+    <height>25</height>
+    <pv_name>pva://$(P):ISET_RBV</pv_name>
+    <precision>4</precision>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>Control_Card</name>
+    <x>520</x>
+    <y>300</y>
+    <width>500</width>
+    <height>260</height>
+    <line_width>2</line_width>
+    <line_color>
+      <color red="0" green="53" blue="145" />
+    </line_color>
+    <background_color>
+      <color red="240" green="241" blue="244" />
+    </background_color>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>Control_Card_Header</name>
+    <x>520</x>
+    <y>300</y>
+    <width>500</width>
+    <height>38</height>
+    <line_width>0</line_width>
+    <line_color>
+      <color red="0" green="29" blue="82" />
+    </line_color>
+    <background_color>
+      <color red="0" green="29" blue="82" />
+    </background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Control_Card_Title</name>
+    <x>535</x>
+    <y>307</y>
+    <width>470</width>
+    <height>24</height>
+    <text>OUTPUT / PROTECTION COMMANDS</text>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="15.0" />
+    </font>
+    <foreground_color>
+      <color red="255" green="255" blue="255" />
+    </foreground_color>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Output_CMD_L</name>
+    <x>545</x>
+    <y>355</y>
+    <width>110</width>
+    <height>24</height>
+    <text>Output:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
   </widget>
   <widget type="slide_button" version="2.0.0">
-    <name>Output_Control</name>
+    <name>Output_CMD</name>
+    <x>660</x>
+    <y>352</y>
+    <width>130</width>
+    <height>28</height>
     <pv_name>pva://$(P):OUTPUT_CMD</pv_name>
     <label />
-    <x>145</x>
-    <y>195</y>
-    <width>120</width>
-    <height>25</height>
-    <tooltip>Toggle supply output. Requires an active connection; the IOC may also be configured read-only.</tooltip>
     <enabled>false</enabled>
     <rules>
       <rule name="Connected supply required" prop_id="enabled" out_exp="false">
@@ -120,126 +542,24 @@
     </rules>
   </widget>
   <widget type="label" version="2.0.0">
-    <name>Mode_Label</name>
-    <text>Regulation:</text>
-    <x>330</x>
-    <y>195</y>
-    <width>90</width>
-  </widget>
-  <widget type="textupdate" version="2.0.0">
-    <name>Mode_Readback</name>
-    <pv_name>pva://$(P):MODE_RBV</pv_name>
-    <x>420</x>
-    <y>195</y>
-    <width>100</width>
-    <format>6</format>
-  </widget>
-  <widget type="label" version="2.0.0">
-    <name>Measurements_Heading</name>
-    <class>COMMENT</class>
-    <text>Live measurements</text>
-    <x>20</x>
-    <y>250</y>
-    <width>180</width>
-    <height>25</height>
-    <font use_class="true">
-      <font name="Comment" family="Liberation Sans" style="ITALIC" size="14.0" />
-    </font>
-    <transparent use_class="true">true</transparent>
-  </widget>
-  <widget type="label" version="2.0.0">
-    <name>Voltage_RBV_Label</name>
-    <text>Voltage:</text>
-    <x>20</x>
-    <y>285</y>
-    <width>120</width>
-  </widget>
-  <widget type="textupdate" version="2.0.0">
-    <name>Voltage_Readback</name>
-    <pv_name>pva://$(P):VMEAS</pv_name>
-    <x>145</x>
-    <y>285</y>
-    <width>120</width>
-    <precision>3</precision>
-  </widget>
-  <widget type="label" version="2.0.0">
-    <name>Voltage_Units</name>
-    <text>V</text>
-    <x>275</x>
-    <y>285</y>
-    <width>30</width>
-  </widget>
-  <widget type="label" version="2.0.0">
-    <name>Current_RBV_Label</name>
-    <text>Current:</text>
-    <x>330</x>
-    <y>285</y>
-    <width>90</width>
-  </widget>
-  <widget type="textupdate" version="2.0.0">
-    <name>Current_Readback</name>
-    <pv_name>pva://$(P):IMEAS</pv_name>
-    <x>420</x>
-    <y>285</y>
-    <width>120</width>
-    <precision>3</precision>
-  </widget>
-  <widget type="label" version="2.0.0">
-    <name>Current_Units</name>
-    <text>A</text>
-    <x>550</x>
-    <y>285</y>
-    <width>30</width>
-  </widget>
-  <widget type="label" version="2.0.0">
-    <name>Power_RBV_Label</name>
-    <text>Power:</text>
-    <x>20</x>
-    <y>320</y>
-    <width>120</width>
-  </widget>
-  <widget type="textupdate" version="2.0.0">
-    <name>Power_Readback</name>
-    <pv_name>pva://$(P):PMEAS</pv_name>
-    <x>145</x>
-    <y>320</y>
-    <width>120</width>
-    <precision>3</precision>
-  </widget>
-  <widget type="label" version="2.0.0">
-    <name>Power_Units</name>
-    <text>W</text>
-    <x>275</x>
-    <y>320</y>
-    <width>30</width>
-  </widget>
-  <widget type="label" version="2.0.0">
-    <name>Settings_Heading</name>
-    <class>COMMENT</class>
-    <text>Output commands</text>
-    <x>20</x>
-    <y>375</y>
-    <width>180</width>
-    <height>25</height>
-    <font use_class="true">
-      <font name="Comment" family="Liberation Sans" style="ITALIC" size="14.0" />
-    </font>
-    <transparent use_class="true">true</transparent>
-  </widget>
-  <widget type="label" version="2.0.0">
-    <name>Voltage_SP_Label</name>
+    <name>VSET_CMD_L</name>
+    <x>545</x>
+    <y>395</y>
+    <width>110</width>
+    <height>24</height>
     <text>Voltage setpoint:</text>
-    <x>20</x>
-    <y>410</y>
-    <width>120</width>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
   </widget>
-  <widget type="textentry" version="3.0.0">
-    <name>Voltage_Setpoint</name>
+  <widget type="textentry" version="2.0.0">
+    <name>VSET_CMD_V</name>
+    <x>660</x>
+    <y>392</y>
+    <width>130</width>
+    <height>28</height>
     <pv_name>pva://$(P):VSET_CMD</pv_name>
-    <x>145</x>
-    <y>410</y>
-    <width>120</width>
-    <precision>3</precision>
     <enabled>false</enabled>
     <rules>
       <rule name="Connected supply required" prop_id="enabled" out_exp="false">
@@ -252,29 +572,38 @@
         <pv_name>pva://$(P):COMM</pv_name>
       </rule>
     </rules>
-    <tooltip>Controller enforces code-only ceilings. Rejected requests appear in Last error. Values refresh on the next successful poll.</tooltip>
   </widget>
   <widget type="label" version="2.0.0">
-    <name>Voltage_SP_Units</name>
-    <text>V</text>
-    <x>275</x>
-    <y>410</y>
+    <name>VSET_CMD_U</name>
+    <x>800</x>
+    <y>395</y>
     <width>30</width>
+    <height>24</height>
+    <text>V</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
   </widget>
   <widget type="label" version="2.0.0">
-    <name>Current_SP_Label</name>
+    <name>ISET_CMD_L</name>
+    <x>545</x>
+    <y>435</y>
+    <width>110</width>
+    <height>24</height>
     <text>Current limit:</text>
-    <x>330</x>
-    <y>410</y>
-    <width>90</width>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
   </widget>
-  <widget type="textentry" version="3.0.0">
-    <name>Current_Setpoint</name>
+  <widget type="textentry" version="2.0.0">
+    <name>ISET_CMD_V</name>
+    <x>660</x>
+    <y>432</y>
+    <width>130</width>
+    <height>28</height>
     <pv_name>pva://$(P):ISET_CMD</pv_name>
-    <x>420</x>
-    <y>410</y>
-    <width>120</width>
-    <precision>3</precision>
     <enabled>false</enabled>
     <rules>
       <rule name="Connected supply required" prop_id="enabled" out_exp="false">
@@ -287,29 +616,38 @@
         <pv_name>pva://$(P):COMM</pv_name>
       </rule>
     </rules>
-    <tooltip>Controller enforces code-only ceilings. Rejected requests appear in Last error. Values refresh on the next successful poll.</tooltip>
   </widget>
   <widget type="label" version="2.0.0">
-    <name>Current_SP_Units</name>
-    <text>A</text>
-    <x>550</x>
-    <y>410</y>
+    <name>ISET_CMD_U</name>
+    <x>800</x>
+    <y>435</y>
     <width>30</width>
+    <height>24</height>
+    <text>A</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
   </widget>
   <widget type="label" version="2.0.0">
-    <name>OVP_Label</name>
+    <name>OVP_CMD_L</name>
+    <x>545</x>
+    <y>475</y>
+    <width>110</width>
+    <height>24</height>
     <text>OVP limit:</text>
-    <x>20</x>
-    <y>445</y>
-    <width>120</width>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
   </widget>
-  <widget type="textentry" version="3.0.0">
-    <name>OVP_Setpoint</name>
+  <widget type="textentry" version="2.0.0">
+    <name>OVP_CMD_V</name>
+    <x>660</x>
+    <y>472</y>
+    <width>130</width>
+    <height>28</height>
     <pv_name>pva://$(P):OVP_CMD</pv_name>
-    <x>145</x>
-    <y>445</y>
-    <width>120</width>
-    <precision>3</precision>
     <enabled>false</enabled>
     <rules>
       <rule name="Connected supply required" prop_id="enabled" out_exp="false">
@@ -322,29 +660,38 @@
         <pv_name>pva://$(P):COMM</pv_name>
       </rule>
     </rules>
-    <tooltip>Protection trip threshold. Applied only when writes are enabled; hardware readback is shown below.</tooltip>
   </widget>
   <widget type="label" version="2.0.0">
-    <name>OVP_Units</name>
-    <text>V</text>
-    <x>275</x>
-    <y>445</y>
+    <name>OVP_CMD_U</name>
+    <x>800</x>
+    <y>475</y>
     <width>30</width>
+    <height>24</height>
+    <text>V</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
   </widget>
   <widget type="label" version="2.0.0">
-    <name>OCP_Label</name>
+    <name>OCP_CMD_L</name>
+    <x>545</x>
+    <y>515</y>
+    <width>110</width>
+    <height>24</height>
     <text>OCP limit:</text>
-    <x>330</x>
-    <y>445</y>
-    <width>90</width>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
   </widget>
-  <widget type="textentry" version="3.0.0">
-    <name>OCP_Setpoint</name>
+  <widget type="textentry" version="2.0.0">
+    <name>OCP_CMD_V</name>
+    <x>660</x>
+    <y>512</y>
+    <width>130</width>
+    <height>28</height>
     <pv_name>pva://$(P):OCP_CMD</pv_name>
-    <x>420</x>
-    <y>445</y>
-    <width>120</width>
-    <precision>3</precision>
     <enabled>false</enabled>
     <rules>
       <rule name="Connected supply required" prop_id="enabled" out_exp="false">
@@ -357,228 +704,257 @@
         <pv_name>pva://$(P):COMM</pv_name>
       </rule>
     </rules>
-    <tooltip>Protection trip threshold. Applied only when writes are enabled; hardware readback is shown below.</tooltip>
   </widget>
   <widget type="label" version="2.0.0">
-    <name>OCP_Units</name>
+    <name>OCP_CMD_U</name>
+    <x>800</x>
+    <y>515</y>
+    <width>30</width>
+    <height>24</height>
     <text>A</text>
-    <x>550</x>
-    <y>445</y>
-    <width>30</width>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
   </widget>
-  <widget type="label" version="2.0.0">
-    <name>Limit_Heading</name>
-    <x>20</x>
-    <y>490</y>
-    <width>500</width>
-    <height>25</height>
-    <text>IOC entry ceilings (read-only display)</text>
-  </widget>
-  <widget type="label" version="2.0.0">
-    <name>Voltage_Max_Label</name>
-    <x>20</x>
-    <y>520</y>
-    <width>120</width>
-    <height>25</height>
-    <text>Voltage max:</text>
-  </widget>
-  <widget type="textupdate" version="2.0.0">
-    <name>Voltage_Max</name>
-    <x>145</x>
-    <y>520</y>
-    <width>120</width>
-    <height>25</height>
-    <pv_name>pva://$(P):VSET_CMD.DRVH</pv_name>
-    <precision>3</precision>
-    <show_units>false</show_units>
-  </widget>
-  <widget type="label" version="2.0.0">
-    <name>Voltage_Max_Units</name>
-    <x>275</x>
-    <y>520</y>
-    <width>30</width>
-    <height>25</height>
-    <text>V</text>
-  </widget>
-  <widget type="label" version="2.0.0">
-    <name>Current_Max_Label</name>
-    <x>330</x>
-    <y>520</y>
-    <width>90</width>
-    <height>25</height>
-    <text>Current max:</text>
-  </widget>
-  <widget type="textupdate" version="2.0.0">
-    <name>Current_Max</name>
-    <x>420</x>
-    <y>520</y>
-    <width>120</width>
-    <height>25</height>
-    <pv_name>pva://$(P):ISET_CMD.DRVH</pv_name>
-    <precision>3</precision>
-    <show_units>false</show_units>
-  </widget>
-  <widget type="label" version="2.0.0">
-    <name>Current_Max_Units</name>
-    <x>550</x>
-    <y>520</y>
-    <width>30</width>
-    <height>25</height>
-    <text>A</text>
-  </widget>
-  <widget type="label" version="2.0.0">
-    <name>Limit_Help</name>
-    <x>20</x>
-    <y>550</y>
-    <width>640</width>
-    <height>25</height>
-    <text>Output caps: 5 V / 0.1 A. Protection defaults: 5.1 V / 0.11 A.</text>
-  </widget>
-  <widget type="label" version="2.0.0">
-    <name>Recovery_Help</name>
+  <widget type="rectangle" version="2.0.0">
+    <name>Readback_Card</name>
     <x>20</x>
     <y>580</y>
-    <width>640</width>
-    <height>25</height>
-    <text>Reconnect re-reads hardware state; automatic initialization is configuration-controlled.</text>
+    <width>1000</width>
+    <height>160</height>
+    <line_width>2</line_width>
+    <line_color>
+      <color red="0" green="53" blue="145" />
+    </line_color>
+    <background_color>
+      <color red="240" green="241" blue="244" />
+    </background_color>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>Readback_Card_Header</name>
+    <x>20</x>
+    <y>580</y>
+    <width>1000</width>
+    <height>38</height>
+    <line_width>0</line_width>
+    <line_color>
+      <color red="0" green="29" blue="82" />
+    </line_color>
+    <background_color>
+      <color red="0" green="29" blue="82" />
+    </background_color>
   </widget>
   <widget type="label" version="2.0.0">
-    <name>Recovery_Action</name>
-    <x>20</x>
-    <y>610</y>
-    <width>640</width>
-    <height>25</height>
-    <text>Wait for Connected before issuing commands; read-only mode rejects hardware writes.</text>
-  </widget>
-  <widget type="label" version="2.0.0">
-    <name>Disconnected_Help</name>
-    <x>20</x>
-    <y>640</y>
-    <width>640</width>
-    <height>25</height>
-    <text>While disconnected, readings may be stale; commands are not queued.</text>
-  </widget>
-
-  <widget type="label" version="2.0.0">
-    <name>Genesis_Hardware_Readbacks</name>
-    <class>COMMENT</class>
-    <text>Hardware readbacks</text>
-    <x>20</x>
-    <y>675</y>
-    <width>200</width>
-    <height>25</height>
-    <font use_class="true">
-      <font name="Comment" family="Liberation Sans" style="ITALIC" size="14.0" />
+    <name>Readback_Card_Title</name>
+    <x>35</x>
+    <y>587</y>
+    <width>970</width>
+    <height>24</height>
+    <text>HARDWARE READBACKS / ENTRY CEILINGS</text>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="15.0" />
     </font>
-    <transparent use_class="true">true</transparent>
+    <foreground_color>
+      <color red="255" green="255" blue="255" />
+    </foreground_color>
+    <transparent>true</transparent>
   </widget>
-
   <widget type="label" version="2.0.0">
-    <name>Output_RBV_Label</name>
-    <text>Output actual:</text>
-    <x>20</x>
-    <y>710</y>
+    <name>RB_0_L</name>
+    <x>45</x>
+    <y>635</y>
     <width>120</width>
+    <height>24</height>
+    <text>OVP readback:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
   </widget>
   <widget type="textupdate" version="2.0.0">
-    <name>Output_RBV</name>
-    <pv_name>pva://$(P):OUTPUT_RBV</pv_name>
-    <x>145</x>
-    <y>710</y>
-    <width>120</width>
-    <format>6</format>
-  </widget>
-
-  <widget type="label" version="2.0.0">
-    <name>VSET_RBV_Label</name>
-    <text>Voltage set RBV:</text>
-    <x>20</x>
-    <y>745</y>
-    <width>120</width>
-  </widget>
-  <widget type="textupdate" version="2.0.0">
-    <name>VSET_RBV</name>
-    <pv_name>pva://$(P):VSET_RBV</pv_name>
-    <x>145</x>
-    <y>745</y>
-    <width>120</width>
-    <precision>3</precision>
-  </widget>
-  <widget type="label" version="2.0.0">
-    <name>VSET_RBV_Units</name>
-    <text>V</text>
-    <x>275</x>
-    <y>745</y>
-    <width>30</width>
-  </widget>
-
-  <widget type="label" version="2.0.0">
-    <name>ISET_RBV_Label</name>
-    <text>Current set RBV:</text>
-    <x>330</x>
-    <y>745</y>
-    <width>90</width>
-  </widget>
-  <widget type="textupdate" version="2.0.0">
-    <name>ISET_RBV</name>
-    <pv_name>pva://$(P):ISET_RBV</pv_name>
-    <x>420</x>
-    <y>745</y>
-    <width>120</width>
-    <precision>3</precision>
-  </widget>
-  <widget type="label" version="2.0.0">
-    <name>ISET_RBV_Units</name>
-    <text>A</text>
-    <x>550</x>
-    <y>745</y>
-    <width>30</width>
-  </widget>
-
-  <widget type="label" version="2.0.0">
-    <name>OVP_RBV_Label</name>
-    <text>OVP RBV:</text>
-    <x>20</x>
-    <y>780</y>
-    <width>120</width>
-  </widget>
-  <widget type="textupdate" version="2.0.0">
-    <name>OVP_RBV</name>
+    <name>RB_0_V</name>
+    <x>170</x>
+    <y>633</y>
+    <width>125</width>
+    <height>25</height>
     <pv_name>pva://$(P):OVP_RBV</pv_name>
-    <x>145</x>
-    <y>780</y>
-    <width>120</width>
-    <precision>3</precision>
+    <precision>4</precision>
   </widget>
   <widget type="label" version="2.0.0">
-    <name>OVP_RBV_Units</name>
-    <text>V</text>
-    <x>275</x>
-    <y>780</y>
+    <name>RB_0_U</name>
+    <x>305</x>
+    <y>635</y>
     <width>30</width>
+    <height>24</height>
+    <text>V</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
   </widget>
-
   <widget type="label" version="2.0.0">
-    <name>OCP_RBV_Label</name>
-    <text>OCP RBV:</text>
-    <x>330</x>
-    <y>780</y>
-    <width>90</width>
+    <name>RB_1_L</name>
+    <x>525</x>
+    <y>635</y>
+    <width>120</width>
+    <height>24</height>
+    <text>OCP readback:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
   </widget>
   <widget type="textupdate" version="2.0.0">
-    <name>OCP_RBV</name>
+    <name>RB_1_V</name>
+    <x>650</x>
+    <y>633</y>
+    <width>125</width>
+    <height>25</height>
     <pv_name>pva://$(P):OCP_RBV</pv_name>
-    <x>420</x>
-    <y>780</y>
-    <width>120</width>
-    <precision>3</precision>
+    <precision>4</precision>
   </widget>
   <widget type="label" version="2.0.0">
-    <name>OCP_RBV_Units</name>
-    <text>A</text>
-    <x>550</x>
-    <y>780</y>
+    <name>RB_1_U</name>
+    <x>785</x>
+    <y>635</y>
     <width>30</width>
+    <height>24</height>
+    <text>A</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
   </widget>
-
+  <widget type="label" version="2.0.0">
+    <name>RB_2_L</name>
+    <x>45</x>
+    <y>680</y>
+    <width>120</width>
+    <height>24</height>
+    <text>Voltage max:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>RB_2_V</name>
+    <x>170</x>
+    <y>678</y>
+    <width>125</width>
+    <height>25</height>
+    <pv_name>pva://$(P):VSET_CMD.DRVH</pv_name>
+    <precision>4</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>RB_2_U</name>
+    <x>305</x>
+    <y>680</y>
+    <width>30</width>
+    <height>24</height>
+    <text>V</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>RB_3_L</name>
+    <x>525</x>
+    <y>680</y>
+    <width>120</width>
+    <height>24</height>
+    <text>Current max:</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>RB_3_V</name>
+    <x>650</x>
+    <y>678</y>
+    <width>125</width>
+    <height>25</height>
+    <pv_name>pva://$(P):ISET_CMD.DRVH</pv_name>
+    <precision>4</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>RB_3_U</name>
+    <x>785</x>
+    <y>680</y>
+    <width>30</width>
+    <height>24</height>
+    <text>A</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>Safety_Card</name>
+    <x>20</x>
+    <y>760</y>
+    <width>1000</width>
+    <height>90</height>
+    <line_width>2</line_width>
+    <line_color>
+      <color red="0" green="53" blue="145" />
+    </line_color>
+    <background_color>
+      <color red="240" green="241" blue="244" />
+    </background_color>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>Safety_Card_Header</name>
+    <x>20</x>
+    <y>760</y>
+    <width>1000</width>
+    <height>38</height>
+    <line_width>0</line_width>
+    <line_color>
+      <color red="0" green="29" blue="82" />
+    </line_color>
+    <background_color>
+      <color red="0" green="29" blue="82" />
+    </background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Safety_Card_Title</name>
+    <x>35</x>
+    <y>767</y>
+    <width>970</width>
+    <height>24</height>
+    <text>PHASE-I SAFETY / RECOVERY</text>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="15.0" />
+    </font>
+    <foreground_color>
+      <color red="255" green="255" blue="255" />
+    </foreground_color>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Safety_Text</name>
+    <x>40</x>
+    <y>808</y>
+    <width>960</width>
+    <height>34</height>
+    <text>IOC source ceilings are 5 V / 0.1 A. Protection defaults are 5.1 V / 0.11 A. Reconnect re-reads hardware state; commands are not queued while disconnected. Normal deployment remains read-only until hardware-write commissioning is explicitly enabled.</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="12.0" />
+    </font>
+    <wrap_words>true</wrap_words>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>ISET_RBV_U</name>
+    <x>305</x>
+    <y>515</y>
+    <width>30</width>
+    <height>24</height>
+    <text>A</text>
+    <transparent>true</transparent>
+  </widget>
 </display>

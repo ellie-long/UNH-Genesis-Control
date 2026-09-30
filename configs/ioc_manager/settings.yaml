@@ -4,7 +4,7 @@ general:
 
   # Local macOS prototype: each local CA server uses a distinct port.
   # Replace with deployment network configuration on the final DAQ system.
-  epics_addr_list: "127.0.0.1:5064 127.0.0.1:5066 127.0.0.1:5067 127.0.0.1:5068 127.0.0.1:5070 127.0.0.1:5071 127.0.0.1:5072 127.0.0.1:5073 127.0.0.1:5074"
+  epics_addr_list: "127.0.0.1:5064 127.0.0.1:5066 127.0.0.1:5067 127.0.0.1:5068 127.0.0.1:5069 127.0.0.1:5070 127.0.0.1:5071 127.0.0.1:5072 127.0.0.1:5073 127.0.0.1:5074 127.0.0.1:5085 127.0.0.1:5087"
 
   manager_ca_server_port: 5064
   manager_pva_server_port: 5075
@@ -20,6 +20,36 @@ mw_spd1305x:
   # Local macOS prototype ports.
   ca_server_port: 5066
   pva_server_port: 5076
+
+mw_vaunix_lms:
+  autostart: false
+  settings_folder: configs/microwave/vaunix_lms
+  ioc: vaunix_lms
+  heartbeat_pv: UNH:GEN:MW:SRC:MAN:vaunix_lms_time
+
+  # Local macOS prototype ports.
+  ca_server_port: 5069
+  pva_server_port: 5079
+
+mw_supervisor:
+  autostart: false
+  settings_folder: configs/microwave/supervisor
+  ioc: microwave_supervisor
+  heartbeat_pv: UNH:GEN:MW:SUP:MAN:microwave_supervisor_time
+
+  # Local macOS prototype ports.
+  ca_server_port: 5085
+  pva_server_port: 5086
+
+mw_pcl602:
+  autostart: false
+  settings_folder: configs/microwave/pcl602
+  ioc: pcl602
+  heartbeat_pv: UNH:GEN:MW:ROBOT:MAN:pcl602_time
+
+  # Local macOS prototype ports.
+  ca_server_port: 5087
+  pva_server_port: 5088
 
 ssrf_smc100a:
   autostart: false

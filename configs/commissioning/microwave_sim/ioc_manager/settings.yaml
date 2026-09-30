@@ -1,0 +1,28 @@
+general:
+  prefix: UNH:GEN
+  log_dir: logs
+  epics_addr_list: 127.0.0.1:5064 127.0.0.1:5069 127.0.0.1:5085 127.0.0.1:5087
+  manager_ca_server_port: 5064
+  manager_pva_server_port: 5075
+  delay: 0.5
+mw_vaunix_lms:
+  autostart: false
+  settings_folder: configs/commissioning/microwave_sim/vaunix_lms
+  ioc: vaunix_lms
+  heartbeat_pv: UNH:GEN:MW:SRC:MAN:vaunix_lms_time
+  ca_server_port: 5069
+  pva_server_port: 5079
+mw_supervisor:
+  autostart: false
+  settings_folder: configs/commissioning/microwave_sim/supervisor
+  ioc: microwave_supervisor
+  heartbeat_pv: UNH:GEN:MW:SUP:MAN:microwave_supervisor_time
+  ca_server_port: 5085
+  pva_server_port: 5086
+mw_pcl602:
+  autostart: false
+  settings_folder: configs/commissioning/microwave_sim/pcl602
+  ioc: pcl602
+  heartbeat_pv: UNH:GEN:MW:ROBOT:MAN:pcl602_time
+  ca_server_port: 5087
+  pva_server_port: 5088

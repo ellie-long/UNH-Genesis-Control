@@ -1,0 +1,887 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+PROFILE="${ROOT}/configs/commissioning/microwave_physical"
+MANAGER_CA="127.0.0.1:5064"
+ALL_CA="127.0.0.1:5064 127.0.0.1:5066 127.0.0.1:5067 127.0.0.1:5069 127.0.0.1:5085 127.0.0.1:5087"
+PHOEBUS="/Applications/CSS_Phoebus.app/Contents/MacOS/main.command"
+
+die() {
+    echo "[STOP] $*" >&2
+    exit 1
+}
+
+require_env() {
+    [[ "${CONDA_DEFAULT_ENV:-}" == "genesis-p1" ]] \
+        || die "activate conda environment genesis-p1 first"
+}
+
+screen_exists() {
+    screen -ls 2>/dev/null | grep -Eq "[.]${1}[[:space:]]"
+}
+
+manager_put() {
+    local name="$1"
+    local value="$2"
+
+    EPICS_CA_ADDR_LIST="${MANAGER_CA}" \
+    EPICS_CA_AUTO_ADDR_LIST=NO \
+    python - "$name" "$value" <<'PY'
+import asyncio
+import sys
+from aioca import caput, caget
+
+name = sys.argv[1]
+value = int(sys.argv[2])
+pv = f"UNH:GEN:MAN:{name}_control"
+
+async def main():
+    await caput(pv, value, wait=True, timeout=3)
+    await asyncio.sleep(4 if value == 1 else 2)
+    print(pv, "=", await caget(pv, timeout=3))
+
+asyncio.run(main())
+PY
+}
+
+start_manager() {
+    if screen_exists "ioc-manager"; then
+        die "an IOC Manager is already running; use '$0 stop' first"
+    fi
+
+    screen -dmS ioc-manager bash -lc \
+        "cd '$ROOT' && \
+         exec env \
+         EPICS_CAS_SERVER_PORT=5064 \
+         EPICS_PVA_SERVER_PORT=5075 \
+         '$CONDA_PREFIX/bin/python' ioc_manager.py \
+         -s '$PROFILE/ioc_manager'"
+
+    sleep 3
+
+    EPICS_CA_ADDR_LIST="${MANAGER_CA}" \
+    EPICS_CA_AUTO_ADDR_LIST=NO \
+    python - <<'PY'
+import asyncio
+from aioca import caget
+
+async def main():
+    await caget(
+        "UNH:GEN:MAN:mw_spd1305x_control",
+        timeout=5,
+    )
+    print("[PASS] physical IOC Manager online")
+
+asyncio.run(main())
+PY
+}
+
+set_uca_safe() {
+    EPICS_CA_ADDR_LIST="127.0.0.1:5066" \
+    EPICS_CA_AUTO_ADDR_LIST=NO \
+    python - <<'PY'
+import asyncio
+import sys
+from aioca import caget, caput
+
+P = "UNH:GEN:MW:PS"
+
+async def main():
+    if int(await caget(f"{P}:COMM", timeout=4)) != 1:
+        sys.exit("[STOP] UCA IOC is not connected")
+
+    await caput(
+        f"{P}:VSET_CMD",
+        5.0,
+        wait=True,
+        timeout=3,
+    )
+
+    await caput(
+        f"{P}:ISET_CMD",
+        0.05,
+        wait=True,
+        timeout=3,
+    )
+
+    await caput(
+        f"{P}:OVP_CMD",
+        5.1,
+        wait=True,
+        timeout=3,
+    )
+
+    await caput(
+        f"{P}:OCP_CMD",
+        0.11,
+        wait=True,
+        timeout=3,
+    )
+
+    await caput(
+        f"{P}:OUTPUT_CMD",
+        1,
+        wait=True,
+        timeout=3,
+    )
+
+    await asyncio.sleep(1.5)
+
+    v = float(
+        await caget(
+            f"{P}:VMEAS",
+            timeout=3,
+        )
+    )
+
+    output = int(
+        await caget(
+            f"{P}:OUTPUT_RBV",
+            timeout=3,
+        )
+    )
+
+    print("UCA VMEAS  =", v)
+    print("UCA OUTPUT =", output)
+
+    if output != 1 or not 4.9 <= v <= 5.1:
+        sys.exit(
+            "[STOP] UCA failed safe 5 V state"
+        )
+
+    print("[PASS] UCA at safe 5 V state")
+
+asyncio.run(main())
+PY
+}
+
+check_vaunix_service() {
+    ssh unhpoltarg@mmWaveRobot.local \
+        'systemctl --user restart vaunix-shim.service &&
+         sleep 2 &&
+         systemctl --user --no-pager --full status vaunix-shim.service |
+         sed -n "1,18p"'
+
+    python - <<'PY'
+import socket
+import sys
+
+def ask(command):
+    with socket.create_connection(
+        ("mmWaveRobot.local", 1701),
+        timeout=4,
+    ) as s:
+        f = s.makefile("rb")
+        s.sendall((command + "\n").encode())
+        return f.readline(4096).decode().strip()
+
+identity = ask("*IDN?")
+state = ask("READ?")
+
+print("*IDN? ->", identity)
+print("READ? ->", state)
+
+if not identity.endswith(",HARDWARE"):
+    sys.exit(
+        "[STOP] Vaunix shim is not in HARDWARE mode"
+    )
+
+fields = state.split()
+
+if len(fields) != 5:
+    sys.exit("[STOP] invalid Vaunix READ? response")
+
+if int(fields[2]) != 0:
+    sys.exit("[STOP] Vaunix RF is not OFF")
+
+print(
+    "[PASS] Vaunix hardware service online "
+    "with RF OFF"
+)
+PY
+}
+
+prepare_source() {
+    EPICS_CA_ADDR_LIST="127.0.0.1:5069 127.0.0.1:5085" \
+    EPICS_CA_AUTO_ADDR_LIST=NO \
+    python - <<'PY'
+import asyncio
+import sys
+from aioca import caget, caput
+
+S = "UNH:GEN:MW:SRC"
+P = "UNH:GEN:MW:SUP"
+
+async def main():
+    rf = int(
+        await caget(
+            f"{S}:MW_RF",
+            timeout=3,
+        )
+    )
+
+    if rf != 0:
+        await caput(
+            f"{S}:MW_RF",
+            0,
+            wait=True,
+            timeout=3,
+        )
+        await asyncio.sleep(0.5)
+
+    await caput(
+        f"{S}:MW_FC",
+        11.666666667,
+        wait=True,
+        timeout=3,
+    )
+
+    await caput(
+        f"{S}:MW_PWRC",
+        10.0,
+        wait=True,
+        timeout=3,
+    )
+
+    await asyncio.sleep(1)
+
+    output = float(
+        await caget(
+            f"{S}:MW_OutFI",
+            timeout=3,
+        )
+    )
+
+    power = float(
+        await caget(
+            f"{S}:MW_PWRI",
+            timeout=3,
+        )
+    )
+
+    rf = int(
+        await caget(
+            f"{S}:MW_RF",
+            timeout=3,
+        )
+    )
+
+    if not 139.9 <= output <= 140.1:
+        sys.exit(
+            "[STOP] source is not at 140 GHz"
+        )
+
+    if abs(power - 10.0) > 0.26:
+        sys.exit(
+            "[STOP] source power is not +10 dBm"
+        )
+
+    if rf != 0:
+        sys.exit(
+            "[STOP] RF unexpectedly ON"
+        )
+
+    await caput(
+        f"{P}:OutputFrequency",
+        140.0,
+        wait=True,
+        timeout=3,
+    )
+
+    await asyncio.sleep(0.5)
+
+    print(
+        "Output frequency =",
+        await caget(
+            f"{S}:MW_OutFI",
+            timeout=3,
+        ),
+        "GHz",
+    )
+
+    print(
+        "Source power     =",
+        await caget(
+            f"{S}:MW_PWRI",
+            timeout=3,
+        ),
+        "dBm",
+    )
+
+    print(
+        "RF               =",
+        await caget(
+            f"{S}:MW_RF",
+            timeout=3,
+        ),
+    )
+
+    print(
+        "Supervisor cmd   =",
+        await caget(
+            f"{P}:OutputFrequency",
+            timeout=3,
+        ),
+    )
+
+    print(
+        "[PASS] source prepared at "
+        "140 GHz / +10 dBm / RF OFF"
+    )
+
+asyncio.run(main())
+PY
+}
+
+enable_archiver() {
+    EPICS_CA_ADDR_LIST="127.0.0.1:5067" \
+    EPICS_CA_AUTO_ADDR_LIST=NO \
+    python - <<'PY'
+import asyncio
+import sys
+from aioca import caput, caget
+
+async def main():
+    await caput(
+        "UNH:GEN:Archive_Enable",
+        1,
+        wait=True,
+        timeout=3,
+    )
+
+    await asyncio.sleep(5)
+
+    status = int(
+        await caget(
+            "UNH:GEN:Archive_Status",
+            timeout=3,
+        )
+    )
+
+    count = int(
+        await caget(
+            "UNH:GEN:Archive_PV_Count",
+            timeout=3,
+        )
+    )
+
+    print("Archive_Status   =", status)
+    print("Archive_PV_Count =", count)
+
+    if status != 1 or count <= 0:
+        sys.exit(
+            "[STOP] archiver is not monitoring "
+            "the physical stack"
+        )
+
+    print("[PASS] archiver running")
+
+asyncio.run(main())
+PY
+}
+
+status_stack() {
+    EPICS_CA_ADDR_LIST="${ALL_CA}" \
+    EPICS_CA_AUTO_ADDR_LIST=NO \
+    python - <<'PY'
+import asyncio
+from aioca import caget
+
+PVS = [
+    ("UCA COMM", "UNH:GEN:MW:PS:COMM"),
+    ("UCA V", "UNH:GEN:MW:PS:VMEAS"),
+    ("UCA OUT", "UNH:GEN:MW:PS:OUTPUT_RBV"),
+    (
+        "Source connected",
+        "UNH:GEN:MW:SRC:MW_Connected",
+    ),
+    (
+        "Output GHz",
+        "UNH:GEN:MW:SRC:MW_OutFI",
+    ),
+    (
+        "Power dBm",
+        "UNH:GEN:MW:SRC:MW_PWRI",
+    ),
+    ("RF", "UNH:GEN:MW:SRC:MW_RF"),
+    ("PLL", "UNH:GEN:MW:SRC:MW_Lock"),
+    (
+        "Robot COMM",
+        "UNH:GEN:MW:ROBOT:COMM_STATUS",
+    ),
+    (
+        "Robot mode",
+        "UNH:GEN:MW:ROBOT:CONTROL_MODE",
+    ),
+    ("X busy", "UNH:GEN:MW:ROBOT:X_BUSY"),
+    ("Y busy", "UNH:GEN:MW:ROBOT:Y_BUSY"),
+    (
+        "System connected",
+        "UNH:GEN:MW:SUP:SystemConnected",
+    ),
+    (
+        "RF permissive",
+        "UNH:GEN:MW:SUP:RFPermissive",
+    ),
+    (
+        "Supervisor RF",
+        "UNH:GEN:MW:SUP:RFEnable",
+    ),
+    (
+        "Archive status",
+        "UNH:GEN:Archive_Status",
+    ),
+    (
+        "Archive PVs",
+        "UNH:GEN:Archive_PV_Count",
+    ),
+]
+
+async def main():
+    for label, pv in PVS:
+        try:
+            value = await caget(
+                pv,
+                timeout=3,
+            )
+        except Exception as exc:
+            value = f"ERROR: {exc}"
+
+        print(
+            f"{label:20s} = {value}"
+        )
+
+asyncio.run(main())
+PY
+}
+
+rf_ready() {
+    EPICS_CA_ADDR_LIST="${ALL_CA}" \
+    EPICS_CA_AUTO_ADDR_LIST=NO \
+    python - <<'PY'
+import asyncio
+import sys
+from aioca import caget
+
+async def get(pv):
+    return await caget(
+        pv,
+        timeout=3,
+    )
+
+async def main():
+    uca_comm = int(
+        await get(
+            "UNH:GEN:MW:PS:COMM"
+        )
+    )
+
+    uca_v = float(
+        await get(
+            "UNH:GEN:MW:PS:VMEAS"
+        )
+    )
+
+    uca_out = int(
+        await get(
+            "UNH:GEN:MW:PS:OUTPUT_RBV"
+        )
+    )
+
+    src_conn = int(
+        await get(
+            "UNH:GEN:MW:SRC:MW_Connected"
+        )
+    )
+
+    output = float(
+        await get(
+            "UNH:GEN:MW:SRC:MW_OutFI"
+        )
+    )
+
+    power = float(
+        await get(
+            "UNH:GEN:MW:SRC:MW_PWRI"
+        )
+    )
+
+    rf = int(
+        await get(
+            "UNH:GEN:MW:SRC:MW_RF"
+        )
+    )
+
+    lock = int(
+        await get(
+            "UNH:GEN:MW:SRC:MW_Lock"
+        )
+    )
+
+    test_mode = int(
+        await get(
+            "UNH:GEN:MW:SRC:MW_TestMode"
+        )
+    )
+
+    robot_mode = int(
+        await get(
+            "UNH:GEN:MW:ROBOT:CONTROL_MODE"
+        )
+    )
+
+    x_busy = int(
+        await get(
+            "UNH:GEN:MW:ROBOT:X_BUSY"
+        )
+    )
+
+    y_busy = int(
+        await get(
+            "UNH:GEN:MW:ROBOT:Y_BUSY"
+        )
+    )
+
+    system_connected = int(
+        await get(
+            "UNH:GEN:MW:SUP:SystemConnected"
+        )
+    )
+
+    permit = int(
+        await get(
+            "UNH:GEN:MW:SUP:RFPermissive"
+        )
+    )
+
+    supervisor_rf = int(
+        await get(
+            "UNH:GEN:MW:SUP:RFEnable"
+        )
+    )
+
+    archive = int(
+        await get(
+            "UNH:GEN:Archive_Status"
+        )
+    )
+
+    count = int(
+        await get(
+            "UNH:GEN:Archive_PV_Count"
+        )
+    )
+
+    checks = [
+        (
+            uca_comm == 1,
+            "UCA connected",
+        ),
+        (
+            uca_out == 1
+            and 4.9 <= uca_v <= 5.1,
+            "UCA approximately 5 V and ON",
+        ),
+        (
+            src_conn == 1,
+            "Vaunix connected",
+        ),
+        (
+            test_mode == 0,
+            "Vaunix hardware mode",
+        ),
+        (
+            138.0 <= output <= 142.0,
+            "frequency within 138-142 GHz",
+        ),
+        (
+            139.9 <= output <= 140.1,
+            "commissioning baseline "
+            "approximately 140 GHz",
+        ),
+        (
+            abs(power - 10.0) <= 0.26,
+            "source power +10 dBm",
+        ),
+        (
+            rf == 0
+            and supervisor_rf == 0,
+            "RF OFF",
+        ),
+        (
+            lock == 1,
+            "PLL locked",
+        ),
+        (
+            robot_mode == 0
+            and x_busy == 0
+            and y_busy == 0,
+            "robot Disabled and idle",
+        ),
+        (
+            system_connected == 1
+            and permit == 1,
+            "Supervisor connected and "
+            "RF permitted",
+        ),
+        (
+            archive == 1
+            and count > 0,
+            "archiver active",
+        ),
+    ]
+
+    failed = False
+
+    for ok, label in checks:
+        print(
+            "[PASS]" if ok else "[FAIL]",
+            label,
+        )
+        failed |= not ok
+
+    if failed:
+        sys.exit(
+            "[STOP] RF readiness check failed"
+        )
+
+    print()
+    print(
+        "MANUAL CONFIRMATIONS STILL REQUIRED:"
+    )
+    print(
+        "  1. VDI-175T green light ON."
+    )
+    print(
+        "  2. SIG readout visible."
+    )
+    print(
+        "  3. Aluminum/foil reflector available."
+    )
+    print(
+        "  4. Keep reflected power <10%."
+    )
+    print(
+        "  5. UCA 5 V before RF enable "
+        "or robot movement."
+    )
+    print(
+        "  6. For initial SIG check, begin "
+        "near 4 V and do not go below 3.5 V."
+    )
+    print()
+    print(
+        "[READY] software/control chain ready "
+        "for final RF/SIG test"
+    )
+
+asyncio.run(main())
+PY
+}
+
+start_stack() {
+    require_env
+
+    [[ -d "$PROFILE/ioc_manager" ]] \
+        || die \
+        "physical profile not found: $PROFILE"
+
+    echo \
+        "===== START PHYSICAL MICROWAVE STACK ====="
+
+    start_manager
+
+    echo
+    echo "===== START UCA FIRST ====="
+
+    manager_put mw_spd1305x 1
+    set_uca_safe
+
+    echo
+    echo "The apparatus procedure requires:"
+    echo "  - VDI-175T green light ON"
+    echo "  - UCA already at 5 V"
+    echo "  - USB connected only after the above state"
+    echo
+
+    read -r -p \
+        "Type READY after the physical USB/VDI sequence is satisfied: " \
+        answer
+
+    [[ "$answer" == "READY" ]] \
+        || die \
+        "physical confirmation not supplied"
+
+    echo
+    echo "===== VAUNIX HARDWARE SERVICE ====="
+
+    check_vaunix_service
+
+    echo
+    echo \
+        "===== START VAUNIX / ROBOT / SUPERVISOR ====="
+
+    manager_put mw_vaunix_lms 1
+    manager_put mw_pcl602 1
+    manager_put mw_supervisor 1
+
+    echo
+    echo \
+        "===== PREPARE SOURCE WITH RF OFF ====="
+
+    prepare_source
+
+    echo
+    echo "===== START ARCHIVER ====="
+
+    manager_put archiver 1
+    enable_archiver
+
+    echo
+    echo "===== FINAL STATUS ====="
+
+    status_stack
+
+    echo
+    rf_ready
+
+    if [[ -x "$PHOEBUS" ]]; then
+        if ! pgrep -f \
+            "CSS_Phoebus" \
+            >/dev/null 2>&1
+        then
+            nohup "$PHOEBUS" \
+                -settings \
+                "$ROOT/configs/phoebus/genesis_mac_settings.ini" \
+                -resource \
+                "$ROOT/gui/genesis_microwave.bob" \
+                >/tmp/genesis_microwave_phoebus.log \
+                2>&1 &
+
+            echo \
+                "[START] Phoebus Microwave GUI"
+        else
+            echo \
+                "[OK] Phoebus already running; " \
+                "open gui/genesis_microwave.bob"
+        fi
+    fi
+}
+
+stop_stack() {
+    require_env
+
+    echo \
+        "===== SAFE SOFTWARE SHUTDOWN ====="
+
+    EPICS_CA_ADDR_LIST="${ALL_CA}" \
+    EPICS_CA_AUTO_ADDR_LIST=NO \
+    python - <<'PY'
+import asyncio
+from aioca import caput
+
+async def safe_put(pv, value):
+    try:
+        await caput(
+            pv,
+            value,
+            wait=True,
+            timeout=3,
+        )
+        print(
+            "[SAFE]",
+            pv,
+            "<-",
+            value,
+        )
+    except Exception as exc:
+        print(
+            "[WARN]",
+            pv,
+            exc,
+        )
+
+async def main():
+    await safe_put(
+        "UNH:GEN:MW:SUP:RFEnable",
+        0,
+    )
+
+    await safe_put(
+        "UNH:GEN:MW:SRC:MW_RF",
+        0,
+    )
+
+    await safe_put(
+        "UNH:GEN:MW:PS:VSET_CMD",
+        5.0,
+    )
+
+    await safe_put(
+        "UNH:GEN:MW:ROBOT:CONTROL_MODE",
+        0,
+    )
+
+    await safe_put(
+        "UNH:GEN:Archive_Enable",
+        0,
+    )
+
+asyncio.run(main())
+PY
+
+    if screen_exists "ioc-manager"; then
+        manager_put mw_pcl602 0 || true
+        manager_put mw_supervisor 0 || true
+        manager_put mw_vaunix_lms 0 || true
+        manager_put archiver 0 || true
+        manager_put mw_spd1305x 0 || true
+
+        screen \
+            -S ioc-manager \
+            -X quit \
+            || true
+    fi
+
+    echo
+    echo "Software stack stopped."
+    echo \
+        "Complete the physical shutdown in this order:"
+    echo "  1. Confirm UCA = 5 V."
+    echo "  2. Confirm LabBrick RF OFF."
+    echo "  3. Unplug USB at the green box."
+    echo "  4. Turn OFF VDI-175T."
+    echo \
+        "  5. Replace USB-input sticker if required."
+    echo "  6. Turn OFF UCA power supply."
+}
+
+case "${1:-}" in
+    start)
+        start_stack
+        ;;
+
+    status)
+        require_env
+        status_stack
+        ;;
+
+    rf-ready)
+        require_env
+        rf_ready
+        ;;
+
+    stop)
+        stop_stack
+        ;;
+
+    *)
+        echo "Usage:"
+        echo "  $0 start"
+        echo "  $0 status"
+        echo "  $0 rf-ready"
+        echo "  $0 stop"
+        exit 2
+        ;;
+esac

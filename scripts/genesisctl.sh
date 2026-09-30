@@ -147,7 +147,9 @@ SSRF SIMULATOR
 
 TESTS
   test-ssrf            Run all test_ssrf*.py unit/regression tests.
-  archive-viewer       Launch read-only PV + ssRF session archive viewer.
+  test-mw              Run Microwave Phase-I unit/integration regression tests.
+  archive-viewer       Launch common read-only Genesis EPICS archive viewer.
+                       Includes Microwave/ssRF subsystem filtering.
   test-fitter          Run fitter/planner/stager/runtime integration tests.
   test-auth            Run Genesis/ssRF authorization-security tests.
   test-all             Run all Python unittest tests under tests/.
@@ -288,7 +290,7 @@ show_screens() {
 show_processes() {
     echo "===== GENESIS PROCESSES ====="
     pgrep -fl \
-        'master_ioc.py|ioc_manager.py|archiver.py|phoebus|CSS_Phoebus|ssrf|smc100a|keysight|spd1305x' \
+        'master_ioc.py|ioc_manager.py|archiver.py|phoebus|CSS_Phoebus|ssrf|smc100a|keysight|spd1305x|vaunix_lms|microwave_supervisor|pcl602' \
         || echo "No matching Genesis processes found."
 }
 
@@ -367,7 +369,7 @@ pv_status() {
 
     if [ -z "${addr_list}" ]; then
         # Current local macOS development ports. This is a fallback only.
-        addr_list="127.0.0.1:5064 127.0.0.1:5066 127.0.0.1:5067 127.0.0.1:5068 127.0.0.1:5070 127.0.0.1:5071 127.0.0.1:5072 127.0.0.1:5073 127.0.0.1:5074"
+        addr_list="127.0.0.1:5064 127.0.0.1:5066 127.0.0.1:5067 127.0.0.1:5068 127.0.0.1:5069 127.0.0.1:5070 127.0.0.1:5071 127.0.0.1:5072 127.0.0.1:5073 127.0.0.1:5074 127.0.0.1:5085 127.0.0.1:5087"
     fi
 
     EPICS_CA_AUTO_ADDR_LIST=NO \
@@ -818,6 +820,36 @@ ssrf_final_stop() {
     "${SSRF_FINAL_STOP_SCRIPT}"
 }
 
+test_mw() {
+    require_env
+
+    (
+        set -e
+        cd "${ROOT}"
+        export PYTHONPATH="${ROOT}"
+
+        echo "===== MICROWAVE REGRESSION ====="
+        python -m unittest discover \
+            -s tests \
+            -p 'test_microwave*.py' \
+            -v
+
+        echo
+        echo "===== MICROWAVE / COMMON ARCHIVE VIEWER ====="
+        python -m unittest \
+            tests.test_archive_viewer_filters \
+            -v
+
+        echo
+        echo "===== SPD1305X BASELINE REGRESSION ====="
+        python -m unittest discover \
+            -s tests \
+            -p 'test_spd1000x.py' \
+            -v
+    )
+}
+
+
 baseline() {
     banner
     echo "Frozen ssRF software/simulator milestone:"
@@ -964,6 +996,10 @@ case "${cmd}" in
 
     test-ssrf)
         test_ssrf
+        ;;
+
+    test-mw)
+        test_mw
         ;;
     test-auth)
         test_auth
