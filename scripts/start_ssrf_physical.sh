@@ -129,7 +129,7 @@ start_local_ioc genesis-ssrf-sequencer configs/ssrf_physical/sequencer ssrf_sequ
 echo
 echo "===== START FITTER + BURN SETUP ANALYSIS ====="
 mkdir -p "$ROOT/logs"
-screen -dmS genesis-ssrf-fitter bash -lc "cd '$ROOT' && env EPICS_CAS_SERVER_PORT=5069 EPICS_PVA_SERVER_PORT=5079 EPICS_CA_MAX_ARRAY_BYTES=262144 PYTHONPATH='$ROOT' '$PYTHON_BIN' -u -m online_fitter.epics_run --replace --material d-butanol --mode equilibrium >> '$ROOT/logs/genesis-ssrf-fitter.log' 2>&1"
+screen -dmS genesis-ssrf-fitter bash -lc "cd '$ROOT' && env EPICS_CAS_SERVER_PORT=5100 EPICS_PVA_SERVER_PORT=5101 EPICS_CA_MAX_ARRAY_BYTES=262144 PYTHONPATH='$ROOT' '$PYTHON_BIN' -u -m online_fitter.epics_run --replace --material d-butanol --mode equilibrium >> '$ROOT/logs/genesis-ssrf-fitter.log' 2>&1"
 sleep 3
 session_exists genesis-ssrf-fitter || { tail -100 "$ROOT/logs/genesis-ssrf-fitter.log"; exit 1; }
 start_local_ioc genesis-ssrf-recipe configs/ssrf_physical/burn_recipe burn_recipe 5090 5091
@@ -155,7 +155,7 @@ PY
 
 echo
 echo "===== VERIFY FINAL EPICS SURFACE ====="
-env EPICS_CA_AUTO_ADDR_LIST=NO EPICS_CA_ADDR_LIST="127.0.0.1:5068 192.168.1.24:5064 127.0.0.1:5071 127.0.0.1:5072 127.0.0.1:5073 127.0.0.1:5074 127.0.0.1:5069 127.0.0.1:5090 127.0.0.1:5092" EPICS_CA_MAX_ARRAY_BYTES=262144 python - <<'PY'
+env EPICS_CA_AUTO_ADDR_LIST=NO EPICS_CA_ADDR_LIST="127.0.0.1:5068 192.168.1.24:5064 127.0.0.1:5071 127.0.0.1:5072 127.0.0.1:5073 127.0.0.1:5074 127.0.0.1:5100 127.0.0.1:5090 127.0.0.1:5092" EPICS_CA_MAX_ARRAY_BYTES=262144 python - <<'PY'
 import asyncio
 from aioca import caget
 
