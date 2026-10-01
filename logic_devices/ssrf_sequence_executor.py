@@ -145,7 +145,7 @@ class SequenceExecutor:
             self.read(pv)
         )
 
-        if value is None:
+        if value is None or getattr(value, "severity", 0):
             raise SequenceExecutionError(
                 f"{pv} unavailable"
             )
@@ -568,6 +568,12 @@ class SequenceExecutor:
     # ------------------------------------------------------------
     # Cleanup
     # ------------------------------------------------------------
+
+    async def cleanup(self, steps):
+        """Universal safe-off, including idle/external output states."""
+        self._warnings = []
+        self._completed = []
+        return await self._run_cleanup(steps)
 
     async def _run_cleanup(
         self,

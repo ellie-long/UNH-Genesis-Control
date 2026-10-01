@@ -290,25 +290,32 @@ stash@{0}: On feature/microwave-genesis-integration: WIP stop_genesis_mac.sh bef
 Next laboratory work is physical calibration, physical IOC-memory staging, controlled LOAD, external-FM scaling verification, and physical interlock/logging validation.
 
 
-## ssRF physical no-RF operator workflow
+## Current physical ssRF operation
 
-Use `docs/SSRF_OPERATOR_QUICK_START.md` as the canonical operator procedure for physical no-RF start, execution, viewer inspection and safe shutdown.
+Complete system / non-invasive GUI reuse:
 
-## Final physical ssRF source-control commands
+    ./scripts/start_ssrf_system.sh
 
-Current validated commands:
+Lower-level controls:
 
-    ./scripts/genesisctl.sh ssrf-physical-status
-    ./scripts/genesisctl.sh ssrf-deploy-keysight
     ./scripts/genesisctl.sh ssrf-start
+    ./scripts/start_ssrf_phoebus.sh
     ./scripts/genesisctl.sh ssrf-stop
 
-Final GUI workflow:
+Startup verifies safe source-OFF/disarmed state. Reopening a complete live
+stack observes local processes/sessions only and preserves manual RF/FM.
+`ssrf-physical-status` is an explicit diagnostic/safe-OFF preflight, not runtime
+health. `ssrf-deploy-keysight` deploys files without starting devices.
 
-    NMR / CALIBRATE
-    → Burn Setup
-    → GENERATE / LOAD
-    → ARM
-    → BURN ONCE
+Choose the intended GUI workflow:
 
-See `SSRF_FINAL_PHYSICAL_OPERATION.md`.
+- Plain RF: select carrier/level → MANUAL ARM → RF ON; no calibration gate.
+- Optional FM: stage/select waveform → PREPARE → MANUAL ARM → RF ON → FM ON.
+- Adaptive burn: calibrated fitter → GENERATE / LOAD → ARM → BURN ONCE.
+
+RF OFF / either DISARM / ABORT request common verified safe cleanup, even idle.
+STOP verifies the safe baseline before owner termination; lock/verification
+failure retains owners and returns nonzero. ACF/direct-CA ownership remains a
+physical acceptance item. The current canonical procedure is
+`SSRF_OPERATOR_QUICK_START.md`; details are in `SSRF_FINAL_PHYSICAL_OPERATION.md`.
+Historical no-RF commissioning records retain their historical commands.

@@ -18,6 +18,7 @@ Safety properties
 from __future__ import annotations
 
 import asyncio
+import math
 
 import aioca
 
@@ -118,6 +119,28 @@ class EpicsIO:
             pv,
             timeout=self.timeout_s,
         )
+
+    async def read_safety(self, pv):
+        """Read scalar value with actual alarm status/severity (aioca 1.8.1).
+
+        Raw reads remain unchanged. Safety consumers must never substitute a
+        raw read when metadata is missing. Reject all alarms, as intended by
+        the existing executor/manual verification policy.
+        """
+        value = await aioca.caget(pv, format=aioca.FORMAT_TIME,
+                                 timeout=self.timeout_s)
+        if not all(hasattr(value, name) for name in ("severity", "status", "ok")):
+            raise RuntimeError(f"{pv}: safety metadata unavailable")
+        if not value.ok or value.severity != 0 or value.status != 0:
+            raise RuntimeError(f"{pv}: invalid/alarmed readback severity={value.severity} status={value.status}")
+        if isinstance(value, str):
+            return value
+        try:
+            if not math.isfinite(float(value)):
+                raise ValueError("nonfinite")
+        except (TypeError, ValueError, OverflowError) as exc:
+            raise RuntimeError(f"{pv}: invalid safety scalar value") from exc
+        return value
 
     async def write(
         self,

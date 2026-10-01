@@ -1,220 +1,119 @@
-# Genesis ssRF Phase-I Operator Quick Start
+# Genesis ssRF physical operator quick start
 
-## Scope
+The validated physical source-control baseline starts safely with SMC RF OFF,
+SMC FM OFF, WaveGen OFF, sweep disarmed and execution disarmed. The guarded
+manual-RF extension is software validated and requires physical acceptance
+before lab use. Restart/fault recovery never restores RF or an arm.
 
-This guide is for the validated **physical no-RF ssRF workflow**. It demonstrates the complete Genesis control path using the real Keysight WaveGen and physical RF switches while keeping:
+Use this checkout's repository root and the `genesis-p1` environment. Do not
+start a second instrument owner or use a different checkout's devices library.
 
-- SMC RF OFF
-- SMC FM OFF
-- Keysight WaveGen output OFF
-- LZY amplifier unpowered
-- target burn disabled
-
-It is **not** the procedure for an amplified-RF or target-connected ssRF burn.
-
-## Before starting
-
-From the Genesis repository:
+## Start or reopen the GUI
 
 ```bash
-cd /Users/shrestha/project/unh/genesis/Development/genesis-phase1
-conda activate genesis-p1
-export PYTHONPATH="$PWD"
+./scripts/start_ssrf_system.sh
 ```
 
-Confirm that the repository is clean and that the physical system is at its safe baseline:
+With no stack, this uses the existing physical startup/preflight then opens the
+GUI. With a complete live local stack, it checks only processes/sessions and
+opens/reuses the GUI without requiring RF OFF or probing IOC-owned instruments.
+Partial/ambiguous ownership is refused. The remote Keysight owner must still be
+healthy; the reuse decision is local process/session liveness, not remote health.
+
+Lower-level commands:
 
 ```bash
-git status
-genesis ssrf-physical-status
+./scripts/genesisctl.sh ssrf-start       # hardware/control stack, initially safe
+./scripts/start_ssrf_phoebus.sh          # GUI only
+./scripts/genesisctl.sh ssrf-stop        # verified safe shutdown
 ```
 
-Expected safe physical baseline:
+`ssrf-physical-status` remains an explicit direct diagnostic/safe-OFF preflight,
+not a runtime-health check during RF operation. `ssrf-deploy-keysight` deploys
+runtime files only. Historical no-RF demonstration procedures are in
+`SSRF_PHYSICAL_NO_RF_DEMO.md`; they are not the current operator workflow.
+
+## 1. Plain manual RF
+
+Set **Manual carrier MHz** and **Manual RF level dBm**, then deliberately press:
 
 ```text
-SMC frequency   = 33 MHz
-SMC level       = -120 dBm
-SMC RF          = OFF
-SMC FM          = OFF
-NMR switch      = mask 0
-ssRF switch     = mask 3
-WaveGen output  = OFF
+MANUAL ARM → RF ON
 ```
 
-## Start the physical no-RF workflow
+Each RF ON requires explicit manual arm. RF ON consumes it, verifies hard safety
+inputs and routing, disconnects NMR, connects ssRF, checks RF-enable permission,
+and enables/verifies SMC RF. FM/WaveGen stay OFF and the sweep stays disarmed.
+
+Fitter result, freshness, calibration, constants_good, P_fit, adaptive recipe,
+and adaptive waveform preparation are **not plain-RF authorization**. WaveGen
+communication/output readback is required only to verify safe source state.
+Observe manual state/reason/fault, hardware readbacks and interlock permits.
+
+## 2. Optional manual FM
+
+While idle, explicitly stage an operator-selected finite normalized 8192-point
+waveform through `SEQ:WAVEFORM_STAGE_REQ`. Select the sequencer carrier/level,
+FM deviation/period and WaveGen high/low voltages before preparation. The current
+preparation uses the validated source configuration/load path, including its
+burn-parameter validation; it does not enable source outputs or move switches.
+
+```text
+PREPARE SELECTED FM WAVEFORM → MANUAL ARM → RF ON → FM ON
+```
+
+FM requires verified external-FM settings, WaveGen communications/write
+permission, voltage/period readbacks and prepared waveform identity/points.
+It does not require fitter calibration and never triggers an adaptive burn or
+sweep. **FM OFF** turns FM and WaveGen OFF while leaving plain RF ON.
+
+## 3. Adaptive fitter-driven one-shot burn
+
+```text
+NMR / CALIBRATE → Burn Setup → GENERATE / LOAD → ARM → BURN ONCE
+```
+
+This separate analysis workflow requires a valid current calibrated fitter
+result to generate its adaptive waveform. GENERATE / LOAD configures/loads
+sources with outputs OFF. The burn arm is distinct from MANUAL ARM and is
+consumed by one burn. Each subsequent burn requires new preparation and arm.
+
+## Safe OFF, abort and shutdown
+
+**RF OFF**, either **DISARM**, and **ABORT** request common safe de-energization
+from idle, manual RF/FM, preparation or adaptive execution. Each clears arms
+and independently attempts sweep disarm, SMC RF OFF, SMC FM OFF and WaveGen OFF.
+Actual EPICS status/severity and source values must verify OFF before routing
+changes. Cleanup then disconnects ssRF and, with NMR-connect permission,
+restores NMR. The safe baseline is:
+
+```text
+RF=0  FM=0  WaveGen=0  sweep=0  RF switch mask=3  NMR switch mask=0
+```
+
+CLEANUP_FAILED means the safe state was not verified. Do not force routing or
+assume NMR is protected. Correct the fault and request safe OFF again; RF never
+resumes automatically and requires a fresh explicit arm.
 
 ```bash
-genesis ssrf-demo-start
+./scripts/genesisctl.sh ssrf-stop
 ```
 
-The startup script performs the authoritative physical preflight, starts the physical Keysight upload-only IOC and the local no-RF workflow IOC, and opens the Genesis ssRF main GUI through the shared single-instance Phoebus launcher.
+STOP uses fresh sequencer safe-off acknowledgment and verifies the baseline
+before terminating owners. Missing-sequencer recovery acquires exclusive
+command ownership before device-IOC fallback. Ownership/verification failure
+retains physical owners and returns nonzero. Concurrent lifecycle requests
+fail safely rather than creating competing command streams.
 
-The main screen should open automatically as one landscape Phoebus tab. The launcher waits/retries through the observed Phoebus resource-handler startup race. Device/fitter detail screens open as additional tabs in the same Phoebus instance.
+## Physical acceptance still required
 
-## Operator sequence
+- Confirm hardware routing, source readbacks and safe-OFF recovery.
+- Measure transition/fault/abort response timing, including failed reads.
+- Verify CA identity/ACF and exclusive command policy. ACF is unchanged; allowed
+  direct-CA clients can still bypass ordering. Disabled expert output/routing
+  GUI controls are not a security boundary.
+- Integrate the later validated subsystem-scoped Phoebus shutdown helper; this
+  branch does not terminate Phoebus during ssRF STOP.
 
-Use the main `Genesis ssRF Subsystem` GUI.
-
-Press:
-
-```text
-START FITTER
-→ REPLAY EQ
-→ CALIBRATE
-→ ARM
-→ BLAST / BURN
-```
-
-`ssRF MODE` is optional for this workflow because BLAST/BURN switches the fitter to the ssRF mode automatically before generating the fresh waveform.
-
-The BLAST/BURN transaction performs:
-
-```text
-fresh ssRF fit
-→ adaptive WaveformPlan
-→ 8192-point Keysight ARB load
-→ verify Keysight output remains OFF
-→ NMR switch disconnect
-→ ssRF switch connect
-→ no-RF commissioning dwell
-→ ssRF switch disconnect
-→ NMR switch restore
-→ COMPLETE
-```
-
-Expected completion state:
-
-```text
-Execution mode   = PHYSICAL_NO_RF
-Fitter           = running
-Calibrated       = yes
-Fit mode         = ssRF
-Waveform state   = LOADED
-ARB points       = 8192
-WaveGen ready    = yes
-WaveGen output   = OFF
-SMC RF           = OFF
-SMC FM           = OFF
-NMR mask         = 0
-ssRF mask        = 3
-ARM              = consumed / OFF
-Current step     = COMPLETE
-```
-
-## Main GUI during PHYSICAL_NO_RF
-
-The right-side workflow panel contains the authoritative commissioning mirrors used by the validated physical no-RF workflow.
-
-Some left-side hardware cards belong to the normal Genesis deployment IOC namespace. If those production IOCs are intentionally not running in the isolated `PHYSICAL_NO_RF` profile, their widgets can appear disconnected/magenta. Do not start competing hardware IOCs merely to make those cards populate.
-
-For the physical no-RF demonstration, use the workflow panel for:
-
-- execution mode;
-- fitter state and calibration;
-- fit mode;
-- waveform state;
-- ARB point count;
-- WaveGen readiness/output;
-- NMR/ssRF switch masks;
-- SMC RF/FM state;
-- ARM state;
-- current workflow step and reason.
-
-## Archive/session viewer
-
-Launch the read-only viewer in another terminal:
-
-```bash
-genesis archive-viewer
-```
-
-Default URL:
-
-```text
-http://127.0.0.1:8501
-```
-
-Use the `ssRF Sessions` page to inspect the correlated fit, waveform, event timeline and session record.
-
-For final Phase-I acceptance, verify that a fresh physical no-RF demonstration run is represented by the expected session/event data.
-
-Stop the viewer with `Ctrl-C`.
-
-## Safe shutdown
-
-When finished:
-
-```bash
-genesis ssrf-demo-stop
-```
-
-Then verify:
-
-```bash
-genesis ssrf-physical-status
-genesis processes
-genesis screens
-```
-
-The final physical state must show:
-
-```text
-SMC RF            = OFF
-SMC FM            = OFF
-NMR mask          = 0
-ssRF mask         = 3
-WaveGen output    = OFF
-```
-
-There should be no physical no-RF workflow/fitter runtime, no physical Keysight upload IOC, and no residual Genesis screen sessions associated with this workflow.
-
-## Retry after a failed waveform load
-
-If BLAST/BURN fails during physical waveform staging/loading, do not repeatedly
-press ARM/BLAST and do not start a second Keysight IOC manually. Use the normal
-safe stop, verify the baseline, and restart the complete PHYSICAL_NO_RF workflow.
-Startup now removes only stale instances of the dedicated physical-upload IOC
-before creating exactly one clean instance.
-
-## Abort / abnormal condition
-
-If the workflow is active and an operator needs to stop the transaction, use the GUI `ABORT` control.
-
-If RF OFF cannot be confirmed, do not reconnect NMR merely by assumption. Follow the physical commissioning safety procedure and establish the RF state first.
-
-Do not use the generic force-stop command unless the normal safe shutdown procedure cannot be used and the operator understands that `force-stop` bypasses hardware-state verification.
-
-## Deferred hardware work
-
-The following are **not part of this Phase-I no-RF operator workflow**:
-
-- direct RF-through measurement of the upper ssRF switch path;
-- powered LZY-22+ commissioning;
-- SPD3303X-E validation under amplifier load;
-- MFJ-945E orientation/tuning validation;
-- amplified RF power measurement;
-- target-connected ssRF burn;
-- actual polarization-manipulation measurement.
-
-These remain a separate amplified-RF/target commissioning milestone.
-
-## Final Phase-I physical source-control path
-
-Start:
-
-    ./scripts/genesisctl.sh ssrf-physical-status
-    ./scripts/genesisctl.sh ssrf-start
-
-Operate from the main Phoebus GUI:
-
-    NMR / CALIBRATE
-    → Burn Setup
-    → GENERATE / LOAD
-    → ARM
-    → BURN ONCE
-
-Stop:
-
-    ./scripts/genesisctl.sh ssrf-stop
-
-See `SSRF_FINAL_PHYSICAL_OPERATION.md`.
+Powered downstream RF-chain/target commissioning remains a separate step.
+See `SSRF_FINAL_PHYSICAL_OPERATION.md` for sequence and authorization details.

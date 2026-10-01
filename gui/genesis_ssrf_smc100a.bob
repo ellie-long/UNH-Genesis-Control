@@ -453,19 +453,7 @@
     <pv_name>ca://$(P):RF_CMD</pv_name>
     <label />
     <enabled>false</enabled>
-    <rules>
-      <rule name="Connected and hardware writes enabled" prop_id="enabled" out_exp="false">
-        <exp bool_exp="pv0 == 1 &amp;&amp; pv1 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pvSev1 == 0">
-          <value>true</value>
-        </exp>
-        <exp bool_exp="!(pv0 == 1 &amp;&amp; pv1 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pvSev1 == 0)">
-          <value>false</value>
-        </exp>
-        <pv_name>ca://$(P):COMM</pv_name>
-        <pv_name>ca://$(P):WRITE_ENABLED</pv_name>
-      </rule>
-    </rules>
-    <tooltip>RF output command. IOC write gate must be enabled.</tooltip>
+    <tooltip>Use guarded controls on the main ssRF display.</tooltip>
   </widget>
   <widget type="led" version="2.0.0">
     <name>RFOut_LED</name>
@@ -588,19 +576,7 @@
     <pv_name>ca://$(P):FM_CMD</pv_name>
     <label />
     <enabled>false</enabled>
-    <rules>
-      <rule name="Connected and hardware writes enabled" prop_id="enabled" out_exp="false">
-        <exp bool_exp="pv0 == 1 &amp;&amp; pv1 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pvSev1 == 0">
-          <value>true</value>
-        </exp>
-        <exp bool_exp="!(pv0 == 1 &amp;&amp; pv1 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pvSev1 == 0)">
-          <value>false</value>
-        </exp>
-        <pv_name>ca://$(P):COMM</pv_name>
-        <pv_name>ca://$(P):WRITE_ENABLED</pv_name>
-      </rule>
-    </rules>
-    <tooltip>Frequency modulation enable command.</tooltip>
+    <tooltip>Use guarded controls on the main ssRF display.</tooltip>
   </widget>
   <widget type="led" version="2.0.0">
     <name>FMState_LED</name>
@@ -1047,19 +1023,7 @@
     <pv_name>ca://$(P):SWEEP_ARM_CMD</pv_name>
     <label />
     <enabled>false</enabled>
-    <rules>
-      <rule name="Connected and hardware writes enabled" prop_id="enabled" out_exp="false">
-        <exp bool_exp="pv0 == 1 &amp;&amp; pv1 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pvSev1 == 0">
-          <value>true</value>
-        </exp>
-        <exp bool_exp="!(pv0 == 1 &amp;&amp; pv1 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pvSev1 == 0)">
-          <value>false</value>
-        </exp>
-        <pv_name>ca://$(P):COMM</pv_name>
-        <pv_name>ca://$(P):WRITE_ENABLED</pv_name>
-      </rule>
-    </rules>
-    <tooltip>Arm or disarm the SMC100A power sweep.</tooltip>
+    <tooltip>Use guarded controls on the main ssRF display.</tooltip>
   </widget>
   <widget type="led" version="2.0.0">
     <name>SweepArm_LED</name>
@@ -1105,19 +1069,7 @@
     <height>28</height>
     <pv_name>ca://$(P):SWEEP_TRIGGER_CMD</pv_name>
     <enabled>false</enabled>
-    <rules>
-      <rule name="Connected and hardware writes enabled" prop_id="enabled" out_exp="false">
-        <exp bool_exp="pv0 == 1 &amp;&amp; pv1 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pvSev1 == 0">
-          <value>true</value>
-        </exp>
-        <exp bool_exp="!(pv0 == 1 &amp;&amp; pv1 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pvSev1 == 0)">
-          <value>false</value>
-        </exp>
-        <pv_name>ca://$(P):COMM</pv_name>
-        <pv_name>ca://$(P):WRITE_ENABLED</pv_name>
-      </rule>
-    </rules>
-    <tooltip>Momentary sweep trigger command. Controller returns the command PV to zero.</tooltip>
+    <tooltip>Use guarded controls on the main ssRF display.</tooltip>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Safety_Note</name>

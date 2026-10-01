@@ -286,6 +286,11 @@ The following behavior has been validated with the physical SPD1305X:
 The physical output does not need to be energized merely to validate the software control architecture.
 
 
-## ssRF physical no-RF workflow
+## ssRF physical operator workflow
 
-For the validated physical no-RF ssRF operator workflow, use `docs/SSRF_OPERATOR_QUICK_START.md`. The normal Genesis startup remains read-only and is not redefined as a burn command.
+Use `./scripts/start_ssrf_system.sh` for physical stack startup or non-invasive
+GUI reuse during existing RF operation. Use `./scripts/genesisctl.sh ssrf-stop`
+for verified safe shutdown. See `SSRF_OPERATOR_QUICK_START.md` for plain manual
+RF, optional manual FM and adaptive one-shot burns. Startup remains source-OFF
+and disarmed; fitter calibration is not plain-RF authorization. The generic
+Microwave startup described above is a separate workflow.

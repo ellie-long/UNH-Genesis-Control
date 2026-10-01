@@ -107,3 +107,15 @@ ssrf_sequencer:
       DESC: Start guarded simulator burn
     ABORT_CMD:
       DESC: Request burn abort and cleanup
+
+    MANUAL_ARM_CMD: {DESC: Guarded manual manual_arm_cmd}
+    MANUAL_DISARM_CMD: {DESC: Guarded manual manual_disarm_cmd}
+    RF_ON_CMD: {DESC: Guarded manual rf_on_cmd}
+    RF_OFF_CMD: {DESC: Guarded manual rf_off_cmd}
+    FM_ON_CMD: {DESC: Guarded manual fm_on_cmd}
+    FM_OFF_CMD: {DESC: Guarded manual fm_off_cmd}
+    MANUAL_ARMED: {DESC: Guarded manual manual_armed}
+    MANUAL_STATE: {DESC: Guarded manual manual_state}
+    MANUAL_REASON: {DESC: Guarded manual manual_reason}
+    SAFE_OFF_ID: {DESC: Completed safe-off request counter}
+    MANUAL_FAULT: {DESC: Last manual fault before safe-off}

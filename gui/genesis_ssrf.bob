@@ -2,7 +2,7 @@
 <display version="2.0.0">
   <name>Genesis ssRF Subsystem</name>
   <width>1920</width>
-  <height>1080</height>
+  <height>1390</height>
   <widget type="rectangle" version="2.0.0">
     <name>Header_Background</name>
     <x>0</x>
@@ -1718,7 +1718,7 @@
     <y>212</y>
     <width>648</width>
     <height>22</height>
-    <text>Normal deployment is read-only. Burn execution is available only in the dedicated commissioning profile with one-shot ARM + START.</text>
+    <text>Physical operation uses guarded sequencer commands. Adaptive burns require GENERATE / LOAD and one-shot ARM + START.</text>
     <font>
       <font family="Liberation Sans" style="REGULAR" size="11.0" />
     </font>
@@ -1734,7 +1734,7 @@
     <y>1005</y>
     <width>1120</width>
     <height>48</height>
-    <text>Phase-I commissioning: read-only startup remains the default. Interlock permits are derived from confirmed hardware readbacks. MIXED switch masks (1 or 2) and unavailable inputs fail closed.</text>
+    <text>Startup never enables source outputs or arms execution. Interlock permits are derived from confirmed hardware readbacks. MIXED switch masks (1 or 2) and unavailable inputs fail closed.</text>
     <font>
       <font family="Liberation Sans" style="REGULAR" size="12.0" />
     </font>
@@ -1768,7 +1768,7 @@
 
   <widget type="label" version="2.0.0"><name>WF_FitterLabel</name><x>1225</x><y>328</y><width>65</width><height>24</height><text>Fitter</text></widget>
   <widget type="led" version="2.0.0"><name>WF_Fitter</name><x>1288</x><y>326</y><width>24</width><height>24</height><pv_name>ca://UNH:GEN:SSRF:FIT:FITTER_UP</pv_name><bit>0</bit><off_color><color red="190" green="60" blue="60" /></off_color><on_color><color red="30" green="160" blue="70" /></on_color></widget>
-  <widget type="label" version="2.0.0"><name>WF_CalLabel</name><x>1325</x><y>328</y><width>72</width><height>24</height><text>Calibrated</text></widget>
+  <widget type="label" version="2.0.0"><name>WF_CalLabel</name><x>1325</x><y>328</y><width>72</width><height>24</height><text>Fit calibrated</text></widget>
   <widget type="led" version="2.0.0"><name>WF_Cal</name><x>1398</x><y>326</y><width>24</width><height>24</height><pv_name>ca://UNH:GEN:SSRF:FIT:CALIBRATED</pv_name><bit>0</bit><off_color><color red="145" green="145" blue="145" /></off_color><on_color><color red="30" green="160" blue="70" /></on_color></widget>
   <widget type="label" version="2.0.0"><name>WF_FitAgeL</name><x>1440</x><y>328</y><width>65</width><height>24</height><text>Fit age</text></widget>
   <widget type="textupdate" version="2.0.0"><name>WF_FitAge</name><x>1502</x><y>325</y><width>70</width><height>28</height><pv_name>ca://UNH:GEN:SSRF:RECIPE:FIT_AGE_S</pv_name></widget>
@@ -1834,11 +1834,48 @@
   <widget type="label" version="2.0.0"><name>WF_ReasonL</name><x>1495</x><y>800</y><width>62</width><height>24</height><text>Reason</text></widget>
   <widget type="textupdate" version="2.0.0"><name>WF_Reason</name><x>1555</x><y>792</y><width>330</width><height>38</height><pv_name>ca://UNH:GEN:SSRF:SEQ:EXECUTION_REASON</pv_name></widget>
   <widget type="label" version="2.0.0"><name>WF_RecipeReasonL</name><x>1225</x><y>842</y><width>90</width><height>24</height><text>Setup state</text></widget>
-  <widget type="textupdate" version="2.0.0"><name>WF_RecipeReason</name><x>1315</x><y>836</y><width>570</width><height>38</height><pv_name>ca://UNH:GEN:SSRF:RECIPE:STATE</pv_name></widget>
+  <widget type="textupdate" version="2.0.0"><name>WF_RecipeReason</name><x>1315</x><y>836</y><width>570</width><height>38</height><pv_name>ca://UNH:GEN:SSRF:RECIPE:REASON</pv_name></widget>
 
   <widget type="action_button" version="3.0.0"><name>WF_OpenSMC</name><x>1230</x><y>900</y><width>115</width><height>34</height><actions><action type="open_display"><file>genesis_ssrf_smc100a.bob</file><target>tab</target><description>Open SMC detail</description></action></actions><text>SMC Detail</text></widget>
   <widget type="action_button" version="3.0.0"><name>WF_OpenWGen</name><x>1355</x><y>900</y><width>125</width><height>34</height><actions><action type="open_display"><file>genesis_ssrf_wavegen.bob</file><target>tab</target><description>Open WaveGen detail</description></action></actions><text>WaveGen Detail</text></widget>
   <widget type="action_button" version="3.0.0"><name>WF_OpenSwitches</name><x>1490</x><y>900</y><width>125</width><height>34</height><actions><action type="open_display"><file>genesis_ssrf_switches.bob</file><target>tab</target><description>Open switch detail</description></action></actions><text>Switches</text></widget>
   <widget type="label" version="2.0.0"><name>WF_SafetyNote</name><x>1630</x><y>895</y><width>250</width><height>52</height><text>GENERATE / LOAD configures the sources with all outputs OFF. Each BURN ONCE requires a fresh one-shot ARM.</text><wrap_words>true</wrap_words><font><font family="Liberation Sans" style="REGULAR" size="10.0" /></font></widget>
 
+
+<widget type="label" version="2.0.0"><name>ManualHeader</name><x>30</x><y>1080</y><width>1750</width><height>30</height><text>MANUAL RF — explicit ARM then RF ON; fitter/calibration applies only to adaptive planning. FM requires a selected staged/prepared waveform.</text></widget>
+<widget type="action_button" version="3.0.0"><name>Manual_MANUAL_ARM_CMD</name><x>30</x><y>1120</y><width>225</width><height>45</height><text>MANUAL ARM</text><actions><action type="write_pv"><pv_name>ca://UNH:GEN:SSRF:SEQ:MANUAL_ARM_CMD</pv_name><value>1</value><description>MANUAL ARM</description></action></actions></widget>
+<widget type="action_button" version="3.0.0"><name>Manual_MANUAL_DISARM_CMD</name><x>275</x><y>1120</y><width>225</width><height>45</height><text>DISARM / SAFE OFF</text><actions><action type="write_pv"><pv_name>ca://UNH:GEN:SSRF:SEQ:MANUAL_DISARM_CMD</pv_name><value>1</value><description>DISARM / SAFE OFF</description></action></actions></widget>
+<widget type="action_button" version="3.0.0"><name>Manual_RF_ON_CMD</name><x>520</x><y>1120</y><width>225</width><height>45</height><text>RF ON</text><actions><action type="write_pv"><pv_name>ca://UNH:GEN:SSRF:SEQ:RF_ON_CMD</pv_name><value>1</value><description>RF ON</description></action></actions></widget>
+<widget type="action_button" version="3.0.0"><name>Manual_RF_OFF_CMD</name><x>765</x><y>1120</y><width>225</width><height>45</height><text>RF OFF</text><actions><action type="write_pv"><pv_name>ca://UNH:GEN:SSRF:SEQ:RF_OFF_CMD</pv_name><value>1</value><description>RF OFF</description></action></actions></widget>
+<widget type="action_button" version="3.0.0"><name>Manual_FM_ON_CMD</name><x>1010</x><y>1120</y><width>225</width><height>45</height><text>FM ON</text><actions><action type="write_pv"><pv_name>ca://UNH:GEN:SSRF:SEQ:FM_ON_CMD</pv_name><value>1</value><description>FM ON</description></action></actions></widget>
+<widget type="action_button" version="3.0.0"><name>Manual_FM_OFF_CMD</name><x>1255</x><y>1120</y><width>225</width><height>45</height><text>FM OFF</text><actions><action type="write_pv"><pv_name>ca://UNH:GEN:SSRF:SEQ:FM_OFF_CMD</pv_name><value>1</value><description>FM OFF</description></action></actions></widget>
+<widget type="action_button" version="3.0.0"><name>Manual_ABORT_CMD</name><x>1500</x><y>1120</y><width>225</width><height>45</height><text>ABORT</text><actions><action type="write_pv"><pv_name>ca://UNH:GEN:SSRF:SEQ:ABORT_CMD</pv_name><value>1</value><description>ABORT</description></action></actions></widget>
+<widget type="textupdate" version="2.0.0"><name>ManualStatus0</name><x>30</x><y>1190</y><width>270</width><height>30</height><pv_name>ca://UNH:GEN:SSRF:SEQ:MANUAL_STATE</pv_name></widget>
+<widget type="label" version="2.0.0"><name>ManualLabel0</name><x>30</x><y>1165</y><width>270</width><height>25</height><text>Manual state</text></widget>
+<widget type="textupdate" version="2.0.0"><name>ManualStatus1</name><x>310</x><y>1190</y><width>270</width><height>30</height><pv_name>ca://UNH:GEN:SSRF:SEQ:MANUAL_REASON</pv_name></widget>
+<widget type="label" version="2.0.0"><name>ManualLabel1</name><x>310</x><y>1165</y><width>270</width><height>25</height><text>Operating reason</text></widget>
+<widget type="textupdate" version="2.0.0"><name>ManualStatus2</name><x>590</x><y>1190</y><width>270</width><height>30</height><pv_name>ca://UNH:GEN:SSRF:SEQ:MANUAL_ARMED</pv_name></widget>
+<widget type="label" version="2.0.0"><name>ManualLabel2</name><x>590</x><y>1165</y><width>270</width><height>25</height><text>Manual armed</text></widget>
+<widget type="textupdate" version="2.0.0"><name>ManualStatus3</name><x>870</x><y>1190</y><width>270</width><height>30</height><pv_name>ca://UNH:GEN:SSRF:GEN:RF_RBV</pv_name></widget>
+<widget type="label" version="2.0.0"><name>ManualLabel3</name><x>870</x><y>1165</y><width>270</width><height>25</height><text>SMC RF readback</text></widget>
+<widget type="textupdate" version="2.0.0"><name>ManualStatus4</name><x>1150</x><y>1190</y><width>270</width><height>30</height><pv_name>ca://UNH:GEN:SSRF:GEN:FM_RBV</pv_name></widget>
+<widget type="label" version="2.0.0"><name>ManualLabel4</name><x>1150</x><y>1165</y><width>270</width><height>25</height><text>SMC FM readback</text></widget>
+<widget type="textupdate" version="2.0.0"><name>ManualStatus5</name><x>1430</x><y>1190</y><width>270</width><height>30</height><pv_name>ca://UNH:GEN:SSRF:WGEN:OUTPUT_RBV</pv_name></widget>
+<widget type="label" version="2.0.0"><name>ManualLabel5</name><x>1430</x><y>1165</y><width>270</width><height>25</height><text>WaveGen output readback</text></widget>
+
+<widget type="label" version="2.0.0"><name>ManualParamLabel0</name><x>30</x><y>1250</y><width>250</width><height>25</height><text>Manual carrier MHz</text></widget>
+<widget type="textentry" version="3.0.0"><name>ManualParam0</name><x>280</x><y>1250</y><width>130</width><height>25</height><pv_name>ca://UNH:GEN:SSRF:SEQ:CARRIER_MHZ</pv_name></widget>
+<widget type="label" version="2.0.0"><name>ManualParamLabel1</name><x>480</x><y>1250</y><width>250</width><height>25</height><text>Manual RF level dBm</text></widget>
+<widget type="textentry" version="3.0.0"><name>ManualParam1</name><x>730</x><y>1250</y><width>130</width><height>25</height><pv_name>ca://UNH:GEN:SSRF:SEQ:TARGET_LEVEL_DBM</pv_name></widget>
+<widget type="action_button" version="3.0.0"><name>ManualPrepareFM</name><x>940</x><y>1250</y><width>300</width><height>35</height><text>PREPARE SELECTED FM WAVEFORM</text><actions><action type="write_pv"><pv_name>ca://UNH:GEN:SSRF:SEQ:PREPARE_CMD</pv_name><value>1</value><description>Prepare before manual ARM</description></action></actions></widget>
+<widget type="textupdate" version="2.0.0"><name>ManualFault</name><x>1270</x><y>1250</y><width>500</width><height>35</height><pv_name>ca://UNH:GEN:SSRF:SEQ:MANUAL_FAULT</pv_name></widget>
+
+<widget type="label" version="2.0.0"><name>ManualFMParamLabel0</name><x>30</x><y>1320</y><width>250</width><height>25</height><text>FM deviation kHz (set before prepare)</text></widget>
+<widget type="textentry" version="3.0.0"><name>ManualFMParam0</name><x>280</x><y>1320</y><width>130</width><height>25</height><pv_name>ca://UNH:GEN:SSRF:SEQ:FM_DEV_KHZ</pv_name></widget>
+<widget type="label" version="2.0.0"><name>ManualFMParamLabel1</name><x>480</x><y>1320</y><width>250</width><height>25</height><text>FM period s (set before prepare)</text></widget>
+<widget type="textentry" version="3.0.0"><name>ManualFMParam1</name><x>730</x><y>1320</y><width>130</width><height>25</height><pv_name>ca://UNH:GEN:SSRF:SEQ:FM_PERIOD_S</pv_name></widget>
+<widget type="label" version="2.0.0"><name>ManualFMParamLabel2</name><x>930</x><y>1320</y><width>250</width><height>25</height><text>WaveGen high V (set before prepare)</text></widget>
+<widget type="textentry" version="3.0.0"><name>ManualFMParam2</name><x>1180</x><y>1320</y><width>130</width><height>25</height><pv_name>ca://UNH:GEN:SSRF:SEQ:VHIGH_V</pv_name></widget>
+<widget type="label" version="2.0.0"><name>ManualFMParamLabel3</name><x>1380</x><y>1320</y><width>250</width><height>25</height><text>WaveGen low V (set before prepare)</text></widget>
+<widget type="textentry" version="3.0.0"><name>ManualFMParam3</name><x>1630</x><y>1320</y><width>130</width><height>25</height><pv_name>ca://UNH:GEN:SSRF:SEQ:VLOW_V</pv_name></widget>
 </display>
