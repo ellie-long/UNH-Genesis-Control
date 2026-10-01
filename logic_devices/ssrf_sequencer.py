@@ -167,7 +167,7 @@ class Device:
     # ------------------------------------------------------------
 
     def _create_pvs(self):
-        # User/ML supplied burn parameters.
+        # Manual RF and user/ML supplied burn parameters.
         # These modify IOC memory only at this stage.
         self.pvs["CARRIER_MHZ"] = builder.aOut(
             "CARRIER_MHZ",
@@ -179,6 +179,13 @@ class Device:
             ),
             EGU="MHz",
             PREC=6,
+        )
+
+        self.pvs["MANUAL_LEVEL_DBM"] = builder.aOut(
+            "MANUAL_LEVEL_DBM",
+            initial_value=float(self.settings.get("manual_level_dbm", -120.0)),
+            EGU="dBm",
+            PREC=2,
         )
 
         self.pvs["START_LEVEL_DBM"] = builder.aOut(
@@ -651,8 +658,10 @@ class Device:
             if name == "MANUAL_ARM_CMD":
                 await self._manual.arm()
             elif name == "RF_ON_CMD":
-                p = self._parameters()
-                await self._manual.rf_on(p.carrier_mhz, p.target_level_dbm)
+                await self._manual.rf_on(
+                    float(self.pvs["CARRIER_MHZ"].get()),
+                    float(self.pvs["MANUAL_LEVEL_DBM"].get()),
+                )
             elif name == "FM_ON_CMD":
                 if not self._prepared or self._prepared_signature != self._parameter_signature():
                     raise RuntimeError("Prepare selected waveform before manual ARM")
