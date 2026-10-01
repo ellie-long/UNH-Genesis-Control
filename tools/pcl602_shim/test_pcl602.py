@@ -36,7 +36,7 @@ with patch.dict(sys.modules, {'softioc': types.SimpleNamespace(builder=builder, 
                              '_pcl_test_devices': package,
                              '_pcl_test_devices.instruments': instruments}):
     for name, path in [('_pcl_test_devices.base_device', root/'devices/base_device.py'),
-                        ('_pcl_test_devices.instruments.pcl602', root/'devices/instruments/pcl602.py')]:
+                        ('_pcl_test_devices.instruments.pcl602', root/'microwave_ioc/pcl602/toolkit_device.py')]:
         spec = importlib.util.spec_from_file_location(name, path)
         module = importlib.util.module_from_spec(spec)
         sys.modules[name] = module

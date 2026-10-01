@@ -680,7 +680,7 @@
     <y>700</y>
     <width>920</width>
     <height>70</height>
-    <text>Motion commands, motor-enable controls, ZERO and HOME are intentionally not exposed here before physical robot commissioning. The known hardware reference is the home-switch position; software travel limits are not yet trusted.</text>
+    <text>Select Disabled, EPICS or Joystick ownership explicitly. STOP ALL disables both modes and preserves holding current. Joystick motion requires neutral with deadman released after mode changes or reconnects. Limits remain enforced by the shim. Confirm reference, limits and button mapping before physical commissioning.</text>
     <font>
       <font family="Liberation Sans" style="REGULAR" size="12.0" />
     </font>
@@ -699,5 +699,63 @@
     </font>
     <wrap_words>true</wrap_words>
     <transparent>true</transparent>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Control_Disabled</name><x>690</x><y>188</y><width>95</width><height>28</height>
+    <actions><action type="write_pv"><pv_name>pva://$(P):CONTROL_MODE</pv_name>
+      <value>0</value><description>Select Disabled ownership</description></action></actions>
+    <text>Disabled</text><tooltip>Stops both axes before changing ownership. Joystick requires neutral and released deadman before movement.</tooltip>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Control_EPICS</name><x>790</x><y>188</y><width>95</width><height>28</height>
+    <actions><action type="write_pv"><pv_name>pva://$(P):CONTROL_MODE</pv_name>
+      <value>1</value><description>Select EPICS ownership</description></action></actions>
+    <text>EPICS</text><tooltip>Stops both axes before changing ownership. Joystick requires neutral and released deadman before movement.</tooltip>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Control_Joystick</name><x>890</x><y>188</y><width>95</width><height>28</height>
+    <actions><action type="write_pv"><pv_name>pva://$(P):CONTROL_MODE</pv_name>
+      <value>2</value><description>Select Joystick ownership</description></action></actions>
+    <text>Joystick</text><tooltip>Stops both axes before changing ownership. Joystick requires neutral and released deadman before movement.</tooltip>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Joystick_L</name><x>40</x><y>275</y><width>85</width><height>24</height>
+    <text>Joystick:</text><transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Joystick_V</name><x>125</x><y>275</y><width>145</width><height>24</height>
+    <pv_name>pva://$(P):JOYSTICK_CONNECTED</pv_name><format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>JoystickActive_L</name><x>340</x><y>275</y><width>125</width><height>24</height>
+    <text>Deadman active:</text><transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>JoystickActive_V</name><x>465</x><y>275</y><width>145</width><height>24</height>
+    <pv_name>pva://$(P):JOYSTICK_ACTIVE</pv_name><format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>StopState_L</name><x>690</x><y>275</y><width>130</width><height>24</height>
+    <text>Stop / inhibit:</text><transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>StopState_V</name><x>820</x><y>275</y><width>145</width><height>24</height>
+    <pv_name>pva://$(P):MOTION_INHIBITED</pv_name><format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>XHardwareLimits_L</name><x>45</x><y>780</y><width>155</width><height>24</height>
+    <text>X hardware limits:</text><transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>XHardwareLimits_V</name><x>200</x><y>780</y><width>145</width><height>24</height>
+    <pv_name>pva://$(P):X_LIMITS</pv_name><format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>YHardwareLimits_L</name><x>410</x><y>780</y><width>155</width><height>24</height>
+    <text>Y hardware limits:</text><transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>YHardwareLimits_V</name><x>565</x><y>780</y><width>145</width><height>24</height>
+    <pv_name>pva://$(P):Y_LIMITS</pv_name><format>6</format>
   </widget>
 </display>

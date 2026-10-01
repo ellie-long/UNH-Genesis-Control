@@ -1819,4 +1819,36 @@
     <pv_name>pva://UNH:GEN:MW:SUP:RFEnable</pv_name>
     <format>6</format>
   </widget>
+  <widget type="label" version="2.0.0">
+    <name>RB_JOY_L</name><x>45</x><y>990</y><width>85</width><height>24</height>
+    <text>Joystick:</text><transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>RB_JOY_V</name><x>130</x><y>990</y><width>145</width><height>24</height>
+    <pv_name>pva://UNH:GEN:MW:ROBOT:JOYSTICK_CONNECTED</pv_name><format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>RB_STOP_L</name><x>345</x><y>990</y><width>120</width><height>24</height>
+    <text>Stop / inhibit:</text><transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>RB_STOP_V</name><x>465</x><y>990</y><width>145</width><height>24</height>
+    <pv_name>pva://UNH:GEN:MW:ROBOT:MOTION_INHIBITED</pv_name><format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>RB_XLIMIT_L</name><x>660</x><y>990</y><width>100</width><height>24</height>
+    <text>X HW limits:</text><transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>RB_XLIMIT_V</name><x>760</x><y>990</y><width>145</width><height>24</height>
+    <pv_name>pva://UNH:GEN:MW:ROBOT:X_LIMITS</pv_name><format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>RB_YLIMIT_L</name><x>915</x><y>990</y><width>100</width><height>24</height>
+    <text>Y HW limits:</text><transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>RB_YLIMIT_V</name><x>1015</x><y>990</y><width>145</width><height>24</height>
+    <pv_name>pva://UNH:GEN:MW:ROBOT:Y_LIMITS</pv_name><format>6</format>
+  </widget>
 </display>

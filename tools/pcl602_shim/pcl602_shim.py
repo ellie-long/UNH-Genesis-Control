@@ -187,6 +187,7 @@ class Robot:
                     self.motion.joystick_connected and
                     time.monotonic() - self.last_joystick > 1.0):
                 self.disable('Joystick updates stopped: motion disabled')
+                self.motion.joystick_connected = False
 
     def joystick_disconnected(self):
         with self.lock:
@@ -211,9 +212,10 @@ class Robot:
             if self.owner is None or self.fault:
                 return
             try:
-                for a in Axis:
-                    if directions.get(a, 0) and not self.values[a.value]['motor_enabled']:
-                        raise Refused('motor is disabled')
+                if self.motion.mode == ControlMode.JOYSTICK:
+                    for a in Axis:
+                        if directions.get(a, 0) and not self.values[a.value]['motor_enabled']:
+                            raise Refused('motor is disabled')
                 self.motion.joystick_command(directions, deadman)
                 self.last_joystick = time.monotonic()
             except Exception as exc:
@@ -269,7 +271,7 @@ class Robot:
                        'STOP', 'ZERO', 'MOTOR_ENABLE', 'MAX_SPEED', 'ACCEL', 'SPEED_MODE',
                        'SET_LIMITS', 'SET_MACHINE_POSITION'}
             if op not in allowed: raise Refused('unknown command; homing is disabled')
-            if self.fault and op not in ('READ', 'STOP_ALL'):
+            if self.fault and op not in ('READ', 'STOP_ALL', 'STOP'):
                 raise Refused('USB fault latched; inspect hardware and restart shim')
             try:
                 result = self._execute(op, request)
