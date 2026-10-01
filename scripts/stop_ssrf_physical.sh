@@ -30,11 +30,26 @@ import asyncio
 import os
 from logic_devices.ssrf_shutdown import establish_safe_shutdown
 from logic_devices.ssrf_epics_io import EpicsIO
+from pathlib import Path
+from tools.phoebus_shutdown import close_instance
 
 async def main():
+    gui_error = None
+    root = Path.cwd()
+    try:
+        await close_instance(root / "configs/phoebus/ssrf_physical.ini",
+                             root / "gui/genesis_ssrf.bob")
+    except Exception as exc:
+        gui_error = exc
+        print(f"[WARN] ssRF Phoebus close failed: {exc}; still attempting hardware safety")
     io = EpicsIO(execution_enabled=True)
     # Requests sequencer ABORT_CMD, or guarded OFF fallback if it is absent.
-    await establish_safe_shutdown(io, sequencer_expected=os.environ["GENESIS_SSRF_SEQ_PRESENT"] == "1", lifecycle_held=True)
+    try:
+        await establish_safe_shutdown(io, sequencer_expected=os.environ["GENESIS_SSRF_SEQ_PRESENT"] == "1", lifecycle_held=True)
+    except Exception as exc:
+        if gui_error:
+            raise RuntimeError(f"ssRF Phoebus close failed: {gui_error}; hardware safe-off failed: {exc}") from exc
+        raise
     # Final explicit baseline verification before owner termination.
     rf=int(await io.read_safety("UNH:GEN:SSRF:GEN:RF_RBV"))
     fm=int(await io.read_safety("UNH:GEN:SSRF:GEN:FM_RBV"))
@@ -44,6 +59,8 @@ async def main():
     if not (rf,fm,wg,sr,nm)==(0,0,0,3,0):
         raise RuntimeError("safe baseline not confirmed; refusing to stop IOCs")
     print("[PASS] safe baseline confirmed")
+    if gui_error:
+        raise RuntimeError(f"ssRF Phoebus close failed: {gui_error}; safe baseline confirmed")
 
 try:
     asyncio.run(main())

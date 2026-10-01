@@ -58,6 +58,12 @@ class FakeIO:
             if isinstance(value, Exception):
                 raise value
             return value
+        if pv.endswith(':MW_RF_ERROR'):
+            return ''
+        if pv.endswith((':MW_RF_TIME', ':MW_RF_DONE_TIME')):
+            return 1
+        if pv.endswith((':MW_RF_VALID', ':MW_RF_READY', ':MW_RF_STATE', ':RFValid', ':RFState')):
+            return 1
         if pv.endswith('_time'):
             return 2
         if pv.endswith((':VMEAS', ':VSET_RBV')):
@@ -105,19 +111,39 @@ class Lifecycle(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(set(r.names), set(shutdown.ORDER))
 
     async def test_actual_rf_on_stale_poll_disconnected_or_test_mode_fail(self):
-        for pv, value in [('UNH:GEN:MW:SRC:MW_RF', 1),
+        for pv, value in [('UNH:GEN:MW:SRC:MW_RF_RBV', 1),
+                          ('UNH:GEN:MW:SRC:MW_RF_VALID', 0),
+                          ('UNH:GEN:MW:SRC:MW_RF_STATE', 0),
+                          ('UNH:GEN:MW:SRC:MW_RF_TIME', 0),
+                          ('UNH:GEN:MW:SRC:MW_RF_DONE_TIME', 0),
+                          ('UNH:GEN:MW:SRC:MW_RF_READY', 0),
+                          ('UNH:GEN:MW:SRC:MW_RF_ERROR', 'OFF failed'),
+                          ('UNH:GEN:MW:SRC:MW_SweepActive', 1),
+                          ('UNH:GEN:MW:SUP:RFValid', 0),
+                          ('UNH:GEN:MW:SUP:RFState', 0),
+                          ('UNH:GEN:MW:SUP:SweepState', 1),
+                          ('UNH:GEN:MW:SRC:MW_RF_RBV', RuntimeError('unavailable')),
                           ('UNH:GEN:MW:SRC:MAN:vaunix_lms_time', 0),
                           ('UNH:GEN:MW:SRC:MW_Connected', 0),
                           ('UNH:GEN:MW:SRC:MW_TestMode', 1),
                           ('UNH:GEN:MW:PS:VMEAS', 4),
                           ('UNH:GEN:MW:ROBOT:X_BUSY', 1)]:
             r = FakeRuntime()
-            ticks = iter([1, 1, 1, 20])
+            ticks = iter([1] * 8 + [20] * 8)
             async def safe(names, io):
-                await shutdown.establish_safe(names, io, sleep=no_sleep, now=lambda: next(ticks))
+                await shutdown.establish_safe(names, io, sleep=no_sleep, now=lambda: next(ticks, 20))
             with self.assertRaisesRegex(RuntimeError, 'Safety verification failed'):
                 await shutdown.run(r, FakeIO(r.events, {pv: value}), safety=safe)
             self.assertFalse(any(e[0] == 'quit' for e in r.events))
+
+    async def test_legacy_and_request_state_are_not_rf_evidence(self):
+        r = FakeRuntime()
+        await self.execute(r, {'UNH:GEN:MW:SRC:MW_RF': 1,
+                               'UNH:GEN:MW:SUP:RFEnable': 1})
+        self.assertEqual(r.names, {})
+        self.assertIn(('put', 'UNH:GEN:MW:SRC:MW_RF_CMD', 0), r.events)
+        self.assertNotIn(('get', 'UNH:GEN:MW:SRC:MW_RF'), r.events)
+        self.assertNotIn(('get', 'UNH:GEN:MW:SUP:RFEnable'), r.events)
 
     async def test_survivor_fails_and_keeps_dependencies(self):
         r = FakeRuntime(survivor='mw_supervisor')
@@ -172,9 +198,9 @@ class Lifecycle(unittest.IsolatedAsyncioTestCase):
             if pv.endswith(':RFEnable'):
                 raise RuntimeError('put failed')
         io.caput = put
-        ticks = iter([1, 1, 1, 20])
+        ticks = iter([1] * 8 + [20] * 8)
         with self.assertRaisesRegex(RuntimeError, 'command failures'):
-            await shutdown.establish_safe(shutdown.ORDER, io, sleep=no_sleep, now=lambda: next(ticks))
+            await shutdown.establish_safe(shutdown.ORDER, io, sleep=no_sleep, now=lambda: next(ticks, 20))
         self.assertEqual(len([e for e in events if e[0] == 'put']), 4)
 
     async def test_supervisor_without_source_owner_fails_before_commands(self):

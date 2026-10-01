@@ -144,18 +144,21 @@ def ownership(snapshot):
 
 
 async def establish_safe(names, io, timeout=12, sleep=asyncio.sleep, now=time.time):
-    """Attempt every applicable command, then require fresh successful IOC polls."""
+    """Require completed OFF commands and fresh vendor OFF/sweep confirmation."""
     commands = {
         'mw_supervisor': [('UNH:GEN:MW:SUP:RFEnable', 0)],
-        'mw_vaunix_lms': [('UNH:GEN:MW:SRC:MW_RF', 0)],
+        'mw_vaunix_lms': [('UNH:GEN:MW:SRC:MW_RF_CMD', 0)],
         'mw_spd1305x': [('UNH:GEN:MW:PS:VSET_CMD', 5.0)],
         'mw_pcl602': [('UNH:GEN:MW:ROBOT:CONTROL_MODE', 0)],
     }
     failures = []
+    rf_after = now()
     for name in ('mw_supervisor', 'mw_vaunix_lms', 'mw_spd1305x', 'mw_pcl602'):
         if name in names:
             for pv, value in commands.get(name, []):
                 try:
+                    if name == 'mw_vaunix_lms':
+                        rf_after = now()
                     await io.caput(pv, value, wait=True, timeout=3)
                     print(f'[COMMAND] {pv} <- {value}')
                 except Exception as exc:
@@ -174,13 +177,24 @@ async def establish_safe(names, io, timeout=12, sleep=asyncio.sleep, now=time.ti
         checks = []
         if 'mw_vaunix_lms' in names or 'mw_supervisor' in names:
             p = 'UNH:GEN:MW:SRC'
+            rf_time = await get(p + ':MW_RF_TIME')
             checks.extend([await fresh(p, 'vaunix_lms'), await get(p + ':MW_Connected') == 1,
                            await get(p + ':MW_Simulation') == 0, await get(p + ':MW_TestMode') == 0,
-                           await get(p + ':MW_RF') == 0])
+                           await get(p + ':MW_RF_RBV') == 0,
+                           await get(p + ':MW_RF_VALID') == 1,
+                           await get(p + ':MW_RF_STATE') == 1,
+                           rf_after <= rf_time <= now(),
+                           rf_time >= now() - 4.0,
+                           rf_after <= await get(p + ':MW_RF_DONE_TIME') <= now(),
+                           await get(p + ':MW_RF_READY') == 1,
+                           await get(p + ':MW_SweepActive') == 0,
+                           not str(await io.caget(p + ':MW_RF_ERROR', timeout=2))])
         if 'mw_supervisor' in names:
             p = 'UNH:GEN:MW:SUP'
             checks.extend([await fresh(p, 'microwave_supervisor'), await get(p + ':Simulation') == 0,
-                           await get(p + ':RFEnable') == 0, await get(p + ':SweepState') != 1])
+                           await get(p + ':RFActual') == 0, await get(p + ':RFValid') == 1,
+                           await get(p + ':RFState') == 1,
+                           await get(p + ':SweepState') in (0, 2, 3, 4)])
         if 'mw_spd1305x' in names:
             p = 'UNH:GEN:MW:PS'
             checks.extend([await fresh(p, 'spd1305x'), await get(p + ':COMM') == 1,
