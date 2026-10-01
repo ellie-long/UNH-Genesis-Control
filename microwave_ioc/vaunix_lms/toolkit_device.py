@@ -342,7 +342,7 @@ class Device(BaseDevice):
         channel = self.channel
         self.pvs[channel + "_FI"] = builder.aIn(channel + "_FI", **self.sevr)
         self.pvs[channel + "_FC"] = builder.aOut(
-            channel + "_FC", on_update_name=self.do_sets, **self.sevr)
+            channel + "_FC", on_update_name=self.do_sets, always_update=True, **self.sevr)
         self.pvs[channel + "_OutFI"] = builder.aIn(channel + "_OutFI", **self.sevr)
         self.pvs[channel + "_PWRI"] = builder.aIn(channel + "_PWRI", **self.sevr)
         self.pvs[channel + "_PWRC"] = builder.aOut(
