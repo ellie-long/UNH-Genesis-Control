@@ -124,7 +124,7 @@ class MicrowaveGUI(unittest.TestCase):
 
         self.assertEqual(
             match.findtext("pv_name"),
-            "pva://UNH:GEN:MW:SUP:RFEnable",
+            "pva://UNH:GEN:MW:SUP:RFState",
         )
 
     def test_supervisor_rf_column_is_below_header_band(self):

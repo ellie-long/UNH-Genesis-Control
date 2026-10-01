@@ -1,5 +1,23 @@
 # Vaunix LMS shim and IOC
 
+## Current Genesis RF-control contract
+
+See [deliberate RF operation](../../docs/MICROWAVE_RF_OPERATION.md) for the
+current command/readback model and physical acceptance requirements. The
+Genesis physical IOC acquires `CONTROL ACQUIRE`, renews `CONTROL HEARTBEAT`,
+and monitors `CONTROL?`. Mutating commands require the exclusive connection
+lease. Default `--lease-timeout` is 6 seconds; expiry or owner disconnect attempts
+independent sweep stop and verified RF OFF. Diagnostic queries do not renew
+ownership. Reacquisition starts OFF. This is ownership, not authentication or
+a guarantee against vendor/USB/hardware failure.
+
+The current IOC lives in `microwave_ioc/vaunix_lms/toolkit_device.py`. Genesis
+has an explicit in-process local simulation profile requiring no vendor library
+or network; it is distinct from the ARM library vendor test mode described
+below. Dedicated physical profiles set `shim.start_with_ioc: false`, so the IOC
+does not SSH/start the service implicitly. The legacy deployment examples
+below are not the current physical-startup procedure.
+
 The ARM-only Vaunix library runs on the Raspberry Pi. The EPICS IOC runs on the
 laptop. `run_from_laptop.py` makes that split one command:
 

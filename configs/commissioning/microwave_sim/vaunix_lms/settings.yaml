@@ -24,6 +24,7 @@ vaunix_lms:
   - MW_OutFI
   - MW_PWRI
   - MW_RF
+  - MW_RF_CMD
   - MW_Ref
   - MW_Lock
   - MW_Connected
@@ -34,6 +35,15 @@ vaunix_lms:
   - MW_SweepStepI
   - MW_SweepTimeI
   - MW_SweepActive
+  - MW_RF_RBV
+  - MW_RF_VALID
+  - MW_RF_READY
+  - MW_RF_DONE_TIME
+  - MW_RF_TIME
+  - MW_RF_STATE
+  - MW_CONTROL_OWNED
+  - MW_CONTROL_SESSION
+  - MW_RF_ERROR
   records:
     MW_FI:
       DESC: Synthesizer frequency readback
@@ -61,7 +71,27 @@ vaunix_lms:
       DRVL: -40.0
       DRVH: 10.0
     MW_RF:
-      DESC: Raw Vaunix RF enable
+      DESC: Legacy OFF-only command; not readback
+    MW_RF_CMD:
+      DESC: Supervised RF command
+    MW_RF_RBV:
+      DESC: Vendor-derived RF actual state
+    MW_RF_VALID:
+      DESC: Vendor RF readback validity
+    MW_RF_READY:
+      DESC: Safe baseline verified for RF control
+    MW_RF_STATE:
+      DESC: UNKNOWN OFF or ON vendor RF state
+    MW_RF_TIME:
+      DESC: Last successful vendor RF read time
+    MW_RF_DONE_TIME:
+      DESC: Last RF command completion time
+    MW_CONTROL_OWNED:
+      DESC: Exclusive remote control lease owned
+    MW_CONTROL_SESSION:
+      DESC: Safe control acquisition generation
+    MW_RF_ERROR:
+      DESC: RF command or confirmation error
     MW_Ref:
       DESC: Reference source selection
     MW_Lock:
@@ -125,3 +155,34 @@ vaunix_lms:
   simulation_power_dbm: -40.0
   simulation_sweep_step_ghz: 0.001
   simulation_sweep_time_ms: 1000
+
+  rf_safety:
+    required_voltage: 5.0
+    tolerance: 0.1
+    maximum_readback_age: 4.0
+    frequency_min_ghz: 11.5
+    frequency_max_ghz: 11.8333333333
+    power_min_dbm: -40.0
+    power_max_dbm: 10.0
+  rf_safety_pvs:
+    uca_connected: UNH:GEN:MW:PS:COMM
+    uca_voltage: UNH:GEN:MW:PS:VMEAS
+    uca_output: UNH:GEN:MW:PS:OUTPUT_RBV
+    uca_time: UNH:GEN:MW:PS:MAN:spd1305x_time
+    vaunix_connected: UNH:GEN:MW:SRC:MW_Connected
+    vaunix_time: UNH:GEN:MW:SRC:MAN:vaunix_lms_time
+    simulation: UNH:GEN:MW:SRC:MW_Simulation
+    test_mode: UNH:GEN:MW:SRC:MW_TestMode
+    frequency: UNH:GEN:MW:SRC:MW_FI
+    power: UNH:GEN:MW:SRC:MW_PWRI
+    pll: UNH:GEN:MW:SRC:MW_Lock
+    rf_actual: UNH:GEN:MW:SRC:MW_RF_RBV
+    rf_valid: UNH:GEN:MW:SRC:MW_RF_VALID
+    rf_time: UNH:GEN:MW:SRC:MW_RF_TIME
+    control_owned: UNH:GEN:MW:SRC:MW_CONTROL_OWNED
+    session: UNH:GEN:MW:SRC:MW_CONTROL_SESSION
+    supervisor_request: UNH:GEN:MW:SUP:RFEnable
+    supervisor_time: UNH:GEN:MW:SUP:MAN:microwave_supervisor_time
+    rf_error: UNH:GEN:MW:SRC:MW_RF_ERROR
+    rf_ready: UNH:GEN:MW:SRC:MW_RF_READY
+    rf_done_time: UNH:GEN:MW:SRC:MW_RF_DONE_TIME

@@ -31,23 +31,13 @@ Therefore the current output-frequency range is **138 to 142 GHz**.
 
 Older imported Microwave Supervisor documentation referred to 134 to 142 GHz. That range is not treated as validated by the current Genesis configuration and must be resolved with the experiment owners before physical RF commissioning.
 
-## RF permissive
+## RF operation
 
-The Supervisor permits an OFF-to-ON RF request only when:
+`RFEnable` is the deliberate operator request. Vendor actual/readback and validity are separate. Repeated OFF and RFAbort stop sequencing and verify fresh vendor RF OFF. Startup and reconnect do not restore ON; the remote exclusive lease/watchdog handles client loss while the shim remains functional.
 
-- the Vaunix IOC reports connected;
-- the UCA IOC reports connected; and
-- measured UCA voltage is within the configured window around the required voltage.
+ON requires fresh source/UCA communications, UCA output ON near 5 V, physical source mode, valid carrier/power inside existing limits, PLL lock and exclusive ownership. The 5 V condition is transition-only. Calibration is diagnostic and is not an RF-enable gate. Physical and explicit simulation profiles remain separate.
 
-RF OFF remains allowed.
-
-The checked-in Supervisor configuration remains:
-
-```yaml
-simulation: true
-```
-
-The current 5.0 V +/- 0.10 V window is used for software/interlock validation and must not be treated as a certified physical operating tolerance until confirmed for the microwave system.
+See [current RF operation and integration requirements](MICROWAVE_RF_OPERATION.md) for exact PVs, protocol, manual protections, software tests and outstanding physical acceptance.
 
 ## Magic frequencies
 

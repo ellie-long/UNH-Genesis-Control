@@ -11,6 +11,8 @@ import argparse
 import asyncio
 import ctypes
 import logging
+import math
+import time
 from pathlib import Path
 
 LOG = logging.getLogger("vaunix-shim")
@@ -152,6 +154,9 @@ class LabBrick:
             self.device_id, self.serial = matches[0]
         self._check(self.api.open_device(self.device_id), "open device")
         try:
+            # Mute immediately after opening, before diagnostic/limit queries
+            # which may fail. A failure never leaves an unattempted RF OFF.
+            self._enforce_safe_state()
             name = ctypes.create_string_buffer(MAX_MODEL_NAME)
             result = int(self.api.get_model_name(self.device_id, name))
             if result <= 0:
@@ -222,6 +227,9 @@ class LabBrick:
             raise VaunixError("invalid power limits returned by the library")
 
     def _configure_frequency_limits(self):
+        for value in (self.configured_minimum_hz, self.configured_maximum_hz):
+            if value is not None and (not math.isfinite(value) or value <= 0):
+                raise VaunixError("invalid configured frequency limit")
         self.allowed_min_hz = max(
             self.minimum_frequency_hz,
             self.configured_minimum_hz or self.minimum_frequency_hz)
@@ -239,8 +247,20 @@ class LabBrick:
         return limits[0] <= value <= limits[1]
 
     def _stop_and_mute(self):
-        self._check(self.api.start_sweep(self.device_id, False), "stop sweep")
-        self._check(self.api.set_rf(self.device_id, False), "disable RF")
+        errors = []
+        for operation in (lambda: self._check(self.api.start_sweep(self.device_id, False), "stop sweep"),
+                          lambda: self._check(self.api.set_rf(self.device_id, False), "disable RF")):
+            try:
+                operation()
+            except Exception as exc:
+                errors.append(str(exc))
+        try:
+            if self.rf() != 0:
+                errors.append("RF OFF not confirmed")
+        except Exception as exc:
+            errors.append(str(exc))
+        if errors:
+            raise VaunixError("; ".join(errors))
 
     def _enforce_safe_state(self):
         """Always stop sweeps and disable RF whenever a device is opened."""
@@ -289,6 +309,9 @@ class LabBrick:
 
     def set_rf(self, enabled):
         if enabled:
+            self.power()  # Validate the actual vendor power against device limits.
+            if not self.pll_locked():
+                raise VaunixError("cannot enable RF: PLL unlocked")
             limits = self.allowed_frequency_limits()
             if not self._within(self.frequency(), limits):
                 raise VaunixError("cannot enable RF: carrier is outside currently allowed limits")
@@ -306,6 +329,7 @@ class LabBrick:
         enabled = bool(enabled)
         if enabled == self.test_mode: return int(self.test_mode)
         previous = self.test_mode
+        self._stop_and_mute()  # Mute the physical device before leaving its mode.
         self.close()
         self.test_mode = enabled
         try:
@@ -456,13 +480,112 @@ class Protocol:
         return bool(value)
 
 
+class ControlLease:
+    """Exclusive connection-bound control; callers serialize all methods.
+
+    No read request renews ownership. The watchdog uses monotonic time and
+    runs on the remote process independently of the laptop.
+    """
+
+    def __init__(self, protocol, timeout=6.0, now=time.monotonic):
+        if not math.isfinite(timeout) or timeout <= 0:
+            raise ValueError("lease timeout must be finite and positive")
+        self.protocol, self.timeout, self.now = protocol, timeout, now
+        self.owner = None
+        self.deadline = 0.0
+        self.last_error = ""
+
+    def safe_off(self):
+        errors = []
+        brick = self.protocol.brick
+        # Independent attempts: a broken sweep stop must never suppress mute.
+        for operation in (lambda: brick.set_sweep_flag("RUN", False),
+                          lambda: brick.set_rf(False)):
+            try:
+                operation()
+            except Exception as exc:
+                errors.append(str(exc))
+        try:
+            if brick.rf() != 0:
+                errors.append("RF OFF not confirmed")
+        except Exception as exc:
+            errors.append(str(exc))
+        try:
+            if brick.sweep_state()[-1] != 0:
+                errors.append("sweep stop not confirmed")
+        except Exception as exc:
+            errors.append(str(exc))
+        self.last_error = "; ".join(errors)
+        return not errors
+
+    def revoke(self):
+        self.owner, self.deadline = None, 0.0
+        self.safe_off()
+
+    def expire(self):
+        if self.owner is not None and self.now() >= self.deadline:
+            self.revoke()
+        elif self.owner is None and self.last_error:
+            self.safe_off()  # Retry failed cleanup while the vendor is reachable.
+
+    def disconnect(self, client):
+        if self.owner is client:
+            self.revoke()
+
+    def dispatch(self, request, client):
+        command = request.strip().upper()
+        # Diagnostic requests never initiate hardware-changing cleanup.
+        if not command.split()[0:1] or not command.split()[0].endswith("?"):
+            self.expire()
+        if command == "CONTROL ACQUIRE":
+            if self.owner is not None:
+                return "ERR control already owned"
+            if not self.safe_off():
+                return "ERR safe acquisition failed: " + self.last_error
+            self.owner, self.deadline = client, self.now() + self.timeout
+            return f"OK {self.timeout:g}"
+        if command == "CONTROL HEARTBEAT":
+            if self.owner is not client:
+                return "ERR control not owned"
+            self.deadline = self.now() + self.timeout
+            return f"OK {self.timeout:g}"
+        if command == "CONTROL RELEASE":
+            if self.owner is not client:
+                return "ERR control not owned"
+            self.revoke()
+            return "ERR " + self.last_error if self.last_error else "OK 0"
+        if command == "CONTROL?":
+            return str(int(self.owner is client and self.now() < self.deadline))
+        # All mutating commands require the lease, including mode/settings.
+        verb = command.split()[0] if command else ""
+        if not verb.endswith("?") and self.owner is not client:
+            return "ERR control not owned"
+        fields = request.split()
+        if verb == "RF":
+            try:
+                enabled = self.protocol._boolean(fields[1:], "RF")
+            except VaunixError as exc:
+                return "ERR " + str(exc)
+            if not enabled:
+                return "OK 0" if self.safe_off() else "ERR " + self.last_error
+            if self.last_error:
+                return "ERR safe OFF baseline not confirmed"
+        return self.protocol.dispatch(request)
+
+
 class Server:
-    def __init__(self, protocol):
+    def __init__(self, protocol, lease_timeout=6.0):
         self.protocol, self.lock = protocol, asyncio.Lock()
+        self.lease = ControlLease(protocol, lease_timeout)
+
+    async def watchdog(self):
+        while True:
+            await asyncio.sleep(min(0.1, self.lease.timeout / 4))
+            async with self.lock:
+                await asyncio.to_thread(self.lease.expire)
 
     async def client(self, reader, writer):
-        peer = writer.get_extra_info("peername")
-        LOG.info("client connected: %s", peer)
+        client = object()
         try:
             while line := await reader.readline():
                 if len(line) > 4096:
@@ -470,15 +593,19 @@ class Server:
                 else:
                     request = line.decode("ascii", "replace").strip()
                     async with self.lock:
-                        response = await asyncio.to_thread(self.protocol.dispatch, request)
+                        response = await asyncio.to_thread(self.lease.dispatch, request, client)
                 writer.write((response + "\n").encode("ascii"))
                 await writer.drain()
-        except (BrokenPipeError, ConnectionResetError):
+        except (ConnectionError, ValueError):
             pass
         finally:
+            async with self.lock:
+                await asyncio.to_thread(self.lease.disconnect, client)
             writer.close()
-            await writer.wait_closed()
-            LOG.info("client disconnected: %s", peer)
+            try:
+                await writer.wait_closed()
+            except ConnectionError:
+                pass
 
 
 async def run(args):
@@ -489,10 +616,18 @@ async def run(args):
                      maximum_hz=args.maximum_hz)
     brick.open()
     try:
-        server = Server(Protocol(brick))
+        server = Server(Protocol(brick), args.lease_timeout)
         listener = await asyncio.start_server(server.client, args.bind, args.port)
         LOG.info("listening on %s", ", ".join(str(s.getsockname()) for s in listener.sockets))
-        async with listener: await listener.serve_forever()
+        watchdog = asyncio.create_task(server.watchdog())
+        try:
+            async with listener:
+                await listener.serve_forever()
+        finally:
+            watchdog.cancel()
+            await asyncio.gather(watchdog, return_exceptions=True)
+            async with server.lock:
+                await asyncio.to_thread(server.lease.revoke)
     finally:
         brick.close()
 
@@ -509,6 +644,7 @@ def parse_args():
     parser.add_argument("--maximum-hz", type=float)
     parser.add_argument("--bind", default="0.0.0.0")
     parser.add_argument("--port", type=int, default=1701)
+    parser.add_argument("--lease-timeout", type=float, default=6.0)
     parser.add_argument("--log-level", default="INFO",
                         choices=("DEBUG", "INFO", "WARNING", "ERROR"))
     return parser.parse_args()

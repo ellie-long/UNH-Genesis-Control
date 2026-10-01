@@ -2,7 +2,7 @@
 <display version="2.0.0">
   <name>Genesis Microwave Subsystem</name>
   <width>1180</width>
-  <height>1120</height>
+  <height>1220</height>
   <widget type="rectangle" version="2.0.0">
     <name>Header_Background</name>
     <x>0</x>
@@ -524,7 +524,7 @@
     <y>280</y>
     <width>90</width>
     <height>24</height>
-    <text>RF enable:</text>
+    <text>RF request:</text>
     <font>
       <font family="Liberation Sans" style="REGULAR" size="13.0" />
     </font>
@@ -545,7 +545,7 @@
     <y>277</y>
     <width>26</width>
     <height>26</height>
-    <pv_name>pva://UNH:GEN:MW:SUP:RFEnable</pv_name>
+    <pv_name>pva://UNH:GEN:MW:SUP:RFActual</pv_name>
     <bit>0</bit>
     <off_color>
       <color red="150" green="155" blue="160" />
@@ -553,6 +553,14 @@
     <on_color>
       <color red="30" green="160" blue="70" />
     </on_color>
+    <visible>false</visible>
+    <rules>
+      <rule name="Fresh RF readback only" prop_id="visible" out_exp="false">
+        <exp bool_exp="pv0 == 1 &amp;&amp; pvSev0 == 0"><value>true</value></exp>
+        <exp bool_exp="!(pv0 == 1 &amp;&amp; pvSev0 == 0)"><value>false</value></exp>
+        <pv_name>pva://UNH:GEN:MW:SUP:RFValid</pv_name>
+      </rule>
+    </rules>
   </widget>
   <widget type="label" version="2.0.0">
     <name>SUP_Reason_L</name>
@@ -1406,7 +1414,7 @@
     <y>645</y>
     <width>65</width>
     <height>24</height>
-    <text>Raw RF:</text>
+    <text>RF actual:</text>
     <font>
       <font family="Liberation Sans" style="REGULAR" size="13.0" />
     </font>
@@ -1418,7 +1426,7 @@
     <y>642</y>
     <width>26</width>
     <height>26</height>
-    <pv_name>pva://UNH:GEN:MW:SRC:MW_RF</pv_name>
+    <pv_name>pva://UNH:GEN:MW:SRC:MW_RF_RBV</pv_name>
     <bit>0</bit>
     <off_color>
       <color red="150" green="155" blue="160" />
@@ -1426,6 +1434,14 @@
     <on_color>
       <color red="30" green="160" blue="70" />
     </on_color>
+    <visible>false</visible>
+    <rules>
+      <rule name="Valid source RF readback only" prop_id="visible" out_exp="false">
+        <exp bool_exp="pv0 == 1 &amp;&amp; pvSev0 == 0"><value>true</value></exp>
+        <exp bool_exp="!(pv0 == 1 &amp;&amp; pvSev0 == 0)"><value>false</value></exp>
+        <pv_name>pva://UNH:GEN:MW:SRC:MW_RF_VALID</pv_name>
+      </rule>
+    </rules>
   </widget>
   <widget type="label" version="2.0.0">
     <name>VX_SIM_L</name>
@@ -1803,7 +1819,7 @@
     <y>1065</y>
     <width>1120</width>
     <height>38</height>
-    <text>Normal RF and frequency operation is through the Microwave Supervisor. Raw source and robot motion commissioning remain on dedicated procedures until physical validation is complete.</text>
+    <text>RF request uses the Supervisor. Use RF OFF / ABORT for verified shutdown of RF and sweeps. UNKNOWN is not confirmed OFF. VDI/SIG checks remain manual; calibration is diagnostic.</text>
     <font>
       <font family="Liberation Sans" style="REGULAR" size="12.0" />
     </font>
@@ -1816,7 +1832,76 @@
     <y>278</y>
     <width>55</width>
     <height>25</height>
-    <pv_name>pva://UNH:GEN:MW:SUP:RFEnable</pv_name>
+    <pv_name>pva://UNH:GEN:MW:SUP:RFState</pv_name>
+    <format>6</format>
+  </widget>
+<widget type="label" version="2.0.0">
+    <name>RF_RFState_Label</name>
+    <x>45</x>
+    <y>1110</y>
+    <width>440</width>
+    <height>25</height>
+    <text>Vendor RF state (UNKNOWN / OFF / ON)</text>
+  </widget>
+<widget type="textupdate" version="2.0.0">
+    <name>RF_RFState_Value</name>
+    <x>490</x>
+    <y>1110</y>
+    <width>160</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:MW:SUP:RFState</pv_name>
+    <format>6</format>
+  </widget>
+<widget type="label" version="2.0.0">
+    <name>RF_RFValid_Label</name>
+    <x>45</x>
+    <y>1140</y>
+    <width>440</width>
+    <height>25</height>
+    <text>Vendor RF readback valid</text>
+  </widget>
+<widget type="textupdate" version="2.0.0">
+    <name>RF_RFValid_Value</name>
+    <x>490</x>
+    <y>1140</y>
+    <width>160</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:MW:SUP:RFValid</pv_name>
+  </widget>
+<widget type="label" version="2.0.0">
+    <name>RF_ControlOwned_Label</name>
+    <x>45</x>
+    <y>1170</y>
+    <width>440</width>
+    <height>25</height>
+    <text>Exclusive source control owned</text>
+  </widget>
+<widget type="textupdate" version="2.0.0">
+    <name>RF_ControlOwned_Value</name>
+    <x>490</x>
+    <y>1170</y>
+    <width>160</width>
+    <height>25</height>
+    <pv_name>pva://UNH:GEN:MW:SUP:ControlOwned</pv_name>
+  </widget>
+<widget type="action_button" version="3.0.0">
+    <name>RF_OFF_ABORT</name>
+    <x>700</x>
+    <y>1110</y>
+    <width>270</width>
+    <height>50</height>
+    <text>RF OFF / ABORT</text>
+    <actions>
+      <action type="write_pv">
+        <pv_name>pva://UNH:GEN:MW:SUP:RFAbort</pv_name>
+        <value>1</value>
+      </action>
+    </actions>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>VX_RF_ActualState</name>
+    <x>1030</x><y>642</y><width>85</width><height>26</height>
+    <pv_name>pva://UNH:GEN:MW:SRC:MW_RF_STATE</pv_name>
     <format>6</format>
   </widget>
 </display>

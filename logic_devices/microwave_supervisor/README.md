@@ -30,23 +30,13 @@ Microwave output       : 138 to 142 GHz
 
 Older imported prototype material referred to 134 to 142 GHz. Genesis does not treat that older range as physically validated. Resolve the physical operating range with the experiment owners before RF commissioning.
 
-## RF permissive
+## RF operation
 
-RF OFF is always permitted.
+`RFEnable` is the deliberate operator request. Vendor actual/readback and validity are separate. Repeated OFF and RFAbort stop sequencing and verify fresh vendor RF OFF. Startup and reconnect do not restore ON; the remote exclusive lease/watchdog handles client loss while the shim remains functional.
 
-An OFF-to-ON request requires:
+ON requires fresh source/UCA communications, UCA output ON near 5 V, physical source mode, valid carrier/power inside existing limits, PLL lock and exclusive ownership. The 5 V condition is transition-only. Calibration is diagnostic and is not an RF-enable gate. Physical and explicit simulation profiles remain separate.
 
-- UCA IOC connected;
-- Vaunix IOC connected;
-- UCA measured voltage inside the configured software-validation window.
-
-The checked-in Supervisor configuration remains:
-
-```yaml
-simulation: true
-```
-
-The current 5.0 V +/- 0.10 V threshold is for software/interlock validation. It is not a certified physical operating tolerance.
+See [current RF operation and integration requirements](../../docs/MICROWAVE_RF_OPERATION.md) for exact PVs, protocol, manual protections, software tests and outstanding physical acceptance.
 
 ## Magic-frequency actions
 

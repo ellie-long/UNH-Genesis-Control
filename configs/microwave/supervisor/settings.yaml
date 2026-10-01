@@ -26,7 +26,7 @@ microwave_supervisor:
     uca_voltage: UNH:GEN:MW:PS:VMEAS
 
     vaunix_connected: UNH:GEN:MW:SRC:MW_Connected
-    vaunix_rf: UNH:GEN:MW:SRC:MW_RF
+    vaunix_rf: UNH:GEN:MW:SRC:MW_RF_CMD
     vaunix_frequency_command: UNH:GEN:MW:SRC:MW_FC
     vaunix_frequency_readback: UNH:GEN:MW:SRC:MW_FI
 
@@ -67,6 +67,10 @@ microwave_supervisor:
     - SweepError
     - Simulation
 
+    - RFActual
+    - RFValid
+    - RFState
+    - ControlOwned
   records:
     SystemConnected:
       DESC: Microwave subsystem connectivity
@@ -151,3 +155,32 @@ microwave_supervisor:
 
     Simulation:
       DESC: Supervisor simulation state
+
+  rf_safety:
+    required_voltage: 5.0
+    tolerance: 0.1
+    maximum_readback_age: 4.0
+    frequency_min_ghz: 11.5
+    frequency_max_ghz: 11.8333333333
+    power_min_dbm: -40.0
+    power_max_dbm: 10.0
+  rf_safety_pvs:
+    uca_connected: UNH:GEN:MW:PS:COMM
+    uca_voltage: UNH:GEN:MW:PS:VMEAS
+    uca_output: UNH:GEN:MW:PS:OUTPUT_RBV
+    uca_time: UNH:GEN:MW:PS:MAN:spd1305x_time
+    vaunix_connected: UNH:GEN:MW:SRC:MW_Connected
+    vaunix_time: UNH:GEN:MW:SRC:MAN:vaunix_lms_time
+    simulation: UNH:GEN:MW:SRC:MW_Simulation
+    test_mode: UNH:GEN:MW:SRC:MW_TestMode
+    frequency: UNH:GEN:MW:SRC:MW_FI
+    power: UNH:GEN:MW:SRC:MW_PWRI
+    pll: UNH:GEN:MW:SRC:MW_Lock
+    rf_actual: UNH:GEN:MW:SRC:MW_RF_RBV
+    rf_valid: UNH:GEN:MW:SRC:MW_RF_VALID
+    rf_time: UNH:GEN:MW:SRC:MW_RF_TIME
+    control_owned: UNH:GEN:MW:SRC:MW_CONTROL_OWNED
+    session: UNH:GEN:MW:SRC:MW_CONTROL_SESSION
+    rf_error: UNH:GEN:MW:SRC:MW_RF_ERROR
+    rf_ready: UNH:GEN:MW:SRC:MW_RF_READY
+    rf_done_time: UNH:GEN:MW:SRC:MW_RF_DONE_TIME

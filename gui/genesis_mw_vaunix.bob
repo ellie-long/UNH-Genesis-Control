@@ -2,7 +2,7 @@
 <display version="2.0.0">
   <name>Genesis Microwave - Vaunix Source</name>
   <width>1040</width>
-  <height>820</height>
+  <height>780</height>
   <macros>
     <P>UNH:GEN:MW:SRC</P>
   </macros>
@@ -220,7 +220,7 @@
     <y>192</y>
     <width>26</width>
     <height>26</height>
-    <pv_name>pva://$(P):MW_RF</pv_name>
+    <pv_name>pva://$(P):MW_RF_RBV</pv_name>
     <bit>0</bit>
     <off_color>
       <color red="150" green="155" blue="160" />
@@ -228,6 +228,14 @@
     <on_color>
       <color red="30" green="160" blue="70" />
     </on_color>
+    <visible>false</visible>
+    <rules>
+      <rule name="Fresh RF readback only" prop_id="visible" out_exp="false">
+        <exp bool_exp="pv0 == 1 &amp;&amp; pvSev0 == 0"><value>true</value></exp>
+        <exp bool_exp="!(pv0 == 1 &amp;&amp; pvSev0 == 0)"><value>false</value></exp>
+        <pv_name>pva://$(P):MW_RF_VALID</pv_name>
+      </rule>
+    </rules>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>RawRF_V</name>
@@ -235,7 +243,7 @@
     <y>193</y>
     <width>100</width>
     <height>25</height>
-    <pv_name>pva://$(P):MW_RF</pv_name>
+    <pv_name>pva://$(P):MW_RF_STATE</pv_name>
     <format>6</format>
   </widget>
   <widget type="rectangle" version="2.0.0">
@@ -571,11 +579,75 @@
     <y>745</y>
     <width>980</width>
     <height>55</height>
-    <text>Raw Vaunix write controls are intentionally not exposed on this screen. Normal RF/frequency control uses the Microwave Supervisor. Direct device writes remain commissioning-only until physical source/VDI validation is complete.</text>
+    <text>Vendor RF state and exclusive control lease are diagnostic here. Use the Microwave Supervisor for deliberate RF ON or RF OFF / ABORT. UNKNOWN is not confirmed OFF.</text>
     <font>
       <font family="Liberation Sans" style="REGULAR" size="12.0" />
     </font>
     <wrap_words>true</wrap_words>
     <transparent>true</transparent>
+  </widget>
+<widget type="label" version="2.0.0">
+    <name>MW_RF_VALID_Label</name>
+    <x>45</x>
+    <y>630</y>
+    <width>440</width>
+    <height>25</height>
+    <text>Vendor RF readback valid</text>
+  </widget>
+<widget type="textupdate" version="2.0.0">
+    <name>MW_RF_VALID_Value</name>
+    <x>490</x>
+    <y>630</y>
+    <width>480</width>
+    <height>25</height>
+    <pv_name>pva://$(P):MW_RF_VALID</pv_name>
+  </widget>
+<widget type="label" version="2.0.0">
+    <name>MW_CONTROL_OWNED_Label</name>
+    <x>45</x>
+    <y>660</y>
+    <width>440</width>
+    <height>25</height>
+    <text>Exclusive control lease owned</text>
+  </widget>
+<widget type="textupdate" version="2.0.0">
+    <name>MW_CONTROL_OWNED_Value</name>
+    <x>490</x>
+    <y>660</y>
+    <width>480</width>
+    <height>25</height>
+    <pv_name>pva://$(P):MW_CONTROL_OWNED</pv_name>
+  </widget>
+<widget type="label" version="2.0.0">
+    <name>MW_CONTROL_SESSION_Label</name>
+    <x>45</x>
+    <y>690</y>
+    <width>440</width>
+    <height>25</height>
+    <text>Control session (changes on reconnect)</text>
+  </widget>
+<widget type="textupdate" version="2.0.0">
+    <name>MW_CONTROL_SESSION_Value</name>
+    <x>490</x>
+    <y>690</y>
+    <width>480</width>
+    <height>25</height>
+    <pv_name>pva://$(P):MW_CONTROL_SESSION</pv_name>
+  </widget>
+<widget type="label" version="2.0.0">
+    <name>MW_RF_ERROR_Label</name>
+    <x>45</x>
+    <y>720</y>
+    <width>440</width>
+    <height>25</height>
+    <text>RF operation error</text>
+  </widget>
+<widget type="textupdate" version="2.0.0">
+    <name>MW_RF_ERROR_Value</name>
+    <x>490</x>
+    <y>720</y>
+    <width>480</width>
+    <height>25</height>
+    <pv_name>pva://$(P):MW_RF_ERROR</pv_name>
   </widget>
 </display>

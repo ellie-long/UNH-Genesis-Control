@@ -163,3 +163,13 @@ Joystick validation is deferred and is not required for the Microwave RF/SIG
 commissioning or cooldown operation. Normal startup therefore leaves the robot
 in Disabled mode. Test joystick control separately before relying on it for
 routine positioning.
+
+## Office RF-operation hardening
+
+The pending `feature/mw-rf-operation` software changes are described in
+[MICROWAVE_RF_OPERATION.md](MICROWAVE_RF_OPERATION.md). They separate RF
+request from vendor readback, add verified OFF/ABORT and safe reconnect, and
+require an exclusive remote lease with a watchdog. Calibration is diagnostic.
+The earlier commissioning observations above remain historical evidence, not
+physical acceptance of this new implementation. Integrate `fix/mw-clean-shutdown`
+and update its readback checks before operational deployment.

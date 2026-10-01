@@ -8,8 +8,9 @@ import time
 import aioca
 from softioc import alarm, builder
 
+from microwave_ioc.rf_safety import read_snapshot, validate_on, flag, fresh, finite
+
 from .conversions import FrequencyConversion
-from .interlocks import rf_on_permissive
 from .magic import configured_magic
 from .sweep import sweep_points, validate_dwell
 
@@ -22,11 +23,19 @@ class Device:
         self.pvs = {}
         self.simulation = bool(settings.get("simulation", True))
         self.source = settings["source_pvs"]
+        self.settings["rf_safety"] = dict(settings["rf_safety"], **settings["interlock"])
         limits = settings["frequency"]
         self.conversion = FrequencyConversion(
             limits["multiplier"], limits["output_min_ghz"],
             limits["output_max_ghz"])
         self.dopants = settings.get("dopants", [])
+        self._rf_lock = asyncio.Lock()
+        self._rf_generation = 0
+        self._rf_request = False
+        self._rf_valid = False
+        self._snapshot = {}
+        self._source_session = None
+        self._startup_off = True
         self._rf_actual = False
         self._uca_connected = self._vaunix_connected = self.simulation
         self._uca_voltage = float(settings["interlock"]["required_voltage"])
@@ -58,7 +67,12 @@ class Device:
         p["MagicPlus"] = builder.Action(prefix + "MagicPlus", on_update=self._magic_plus)
         p["MagicMinus"] = builder.Action(prefix + "MagicMinus", on_update=self._magic_minus)
         p["RFEnable"] = builder.boolOut(
-            prefix + "RFEnable", ZNAM="OFF", ONAM="ON", on_update=self._set_rf)
+            prefix + "RFEnable", ZNAM="OFF", ONAM="ON", on_update=self._set_rf, always_update=True)
+        p["RFAbort"] = builder.Action(prefix + "RFAbort", on_update=self._abort_rf)
+        p["RFActual"] = builder.boolIn(prefix + "RFActual", ZNAM="OFF", ONAM="ON")
+        p["RFValid"] = builder.boolIn(prefix + "RFValid")
+        p["RFState"] = builder.mbbIn(prefix + "RFState", "UNKNOWN", "OFF", "ON")
+        p["ControlOwned"] = builder.boolIn(prefix + "ControlOwned")
         for name, initial in (("SweepStart", low), ("SweepStop", high),
                               ("SweepStep", 0.001), ("SweepDwell", 1.0)):
             kwargs = {"EGU": "s" if name == "SweepDwell" else "GHz", "PREC": 6}
@@ -95,10 +109,15 @@ class Device:
         self._set_string("LastError", message)
 
     def _permissive(self):
-        cfg = self.settings["interlock"]
-        return rf_on_permissive(
-            self._uca_connected, self._vaunix_connected, self._uca_voltage,
-            cfg["required_voltage"], cfg["tolerance"])
+        try:
+            if self._startup_off:
+                raise ValueError("startup OFF not confirmed")
+            if not self._rf_valid:
+                raise ValueError("vendor RF state UNKNOWN")
+            validate_on(self._snapshot, self.settings["rf_safety"], self.simulation)
+            return True, "RF ON permitted"
+        except Exception as exc:
+            return False, str(exc)
 
     def _publish(self):
         permitted, message = self._permissive()
@@ -108,13 +127,19 @@ class Device:
         self.pvs["UCAVoltage"].set(self._uca_voltage)
         self.pvs["RFPermissive"].set(permitted)
         self._set_string("InterlockMessage", message)
-        self.pvs["RFEnable"].set(self._rf_actual, process=False)
+        self.pvs["RFEnable"].set(self._rf_request, process=False)
+        self.pvs["RFActual"].set(self._rf_actual)
+        self.pvs["RFValid"].set(self._rf_valid)
+        self.pvs["RFState"].set((2 if self._rf_actual else 1) if self._rf_valid else 0)
+        self.pvs["ControlOwned"].set(bool(self._snapshot.get("control_owned", False)))
         self.pvs["OutputFrequencyRBV"].set(self._output_frequency)
         self.pvs["SweepState"].set(self._sweep_state)
 
     async def _put(self, key, value):
         if self.simulation:
-            if key == "vaunix_rf": self._rf_actual = bool(value)
+            if key == "vaunix_rf":
+                self._rf_actual = bool(value)
+                self._rf_valid = True
             if key == "vaunix_frequency": self._output_frequency = self.conversion.from_vaunix(value)
             return
         pv_key = "vaunix_frequency_command" if key == "vaunix_frequency" else key
@@ -135,20 +160,96 @@ class Device:
             self._error(exc)
             self.pvs["OutputFrequency"].set(self._output_frequency, process=False)
 
+    def _clear_request(self):
+        self._rf_request = False
+        self.pvs["RFEnable"].set(False, process=False)
+
+    async def _confirm_rf(self, enabled, after):
+        if self.simulation:
+            return
+        timeout = float(self.settings.get("ca_timeout", 2.0))
+        deadline = time.monotonic() + float(self.settings.get("rf_confirmation_timeout", 4.0))
+        mapping = self.settings["rf_safety_pvs"]
+        while time.monotonic() < deadline:
+            values = await read_snapshot({k: mapping[k] for k in ("rf_actual", "rf_valid", "rf_time", "rf_done_time", "rf_error", "rf_ready", "vaunix_connected", "control_owned")}, timeout)
+            if float(values["rf_done_time"]) < after:
+                await asyncio.sleep(0.05)
+                continue
+            if (flag(values["rf_valid"], "RF valid") and flag(values["vaunix_connected"], "Vaunix connected")
+                    and float(values["rf_time"]) >= after):
+                fresh(values["rf_time"], self.settings["rf_safety"].get("maximum_readback_age", 4.0), "RF")
+                self._snapshot.update(values)
+                self._rf_actual = flag(values["rf_actual"], "RF actual")
+                self._rf_valid = True
+                if str(values["rf_error"]):
+                    raise ValueError(str(values["rf_error"]))
+                if self._rf_actual == bool(enabled):
+                    return
+            if str(values["rf_error"]):
+                raise ValueError(str(values["rf_error"]))
+            await asyncio.sleep(0.05)
+        self._rf_valid = False
+        raise ValueError("RF confirmation failed/UNKNOWN")
+
+    async def _off_locked(self):
+        self._clear_request()
+        self._cancel_sweep()
+        self._rf_valid = False
+        after = time.time()
+        await self._put("vaunix_rf", 0)  # IOC independently stops hardware sweep.
+        await self._confirm_rf(False, after)
+        self._startup_off = False
+
+    async def _abort_rf(self, _value):
+        await self._set_rf(False)
+
     async def _set_rf(self, enabled):
-        try:
-            if not enabled:                 # OFF is never interlocked.
-                self._cancel_sweep()
-                await self._put("vaunix_rf", 0)
-            elif not self._rf_actual:       # Check only the OFF -> ON edge.
-                permitted, message = self._permissive()
-                if not permitted: raise ValueError(message)
-                await self._put("vaunix_rf", 1)
-            self._error("")
-        except Exception as exc:
-            self._error(exc)
-        finally:
-            self.pvs["RFEnable"].set(self._rf_actual, process=False)
+        # Run before the first await: any OFF invalidates pending ON work.
+        if not enabled:
+            self._rf_generation += 1
+            self._clear_request()
+            self._cancel_sweep()
+            if self._rf_lock.locked():
+                # Deliver cancellation to a pending source callback immediately;
+                # the serialized OFF below is still required after any in-flight ON.
+                try:
+                    await self._put("vaunix_rf", 0)
+                except Exception:
+                    pass  # Final OFF/confirmation reports transport failure.
+        generation = self._rf_generation
+        async with self._rf_lock:
+            try:
+                if not enabled:
+                    await self._off_locked()
+                elif not self._rf_request:
+                    changed = await self._read_sources()
+                    if changed:
+                        await self._off_locked()
+                        raise ValueError("source reconnected; request ON again")
+                    permitted, message = self._permissive()
+                    if not permitted:
+                        raise ValueError(message)
+                    if generation != self._rf_generation:
+                        raise ValueError("ON cancelled by OFF/ABORT")
+                    self._rf_request = True
+                    self.pvs["RFEnable"].set(True, process=False)
+                    self._rf_valid = False
+                    after = time.time()
+                    await self._put("vaunix_rf", 1)
+                    await self._confirm_rf(True, after)
+                    if generation != self._rf_generation:
+                        await self._off_locked()
+                self._error("")
+            except Exception as exc:
+                self._clear_request()
+                if enabled:
+                    try:
+                        await self._off_locked()
+                    except Exception:
+                        self._rf_valid = False
+                self._error(exc)
+            finally:
+                self._publish()
 
     async def _magic(self, sign):
         try:
@@ -225,33 +326,68 @@ class Device:
         self._next_point_at = time.monotonic() + self._sweep_dwell
 
     async def _read_sources(self):
-        if self.simulation: return
-        timeout = float(self.settings.get("ca_timeout", 2))
-        keys = ("uca_connected", "uca_voltage", "vaunix_connected",
-                "vaunix_rf", "vaunix_frequency_readback")
-        values = await asyncio.gather(*(
-            aioca.caget(self.source[key], timeout=timeout) for key in keys))
-        self._uca_connected, self._uca_voltage, self._vaunix_connected = (
-            bool(values[0]), float(values[1]), bool(values[2]))
-        self._rf_actual = bool(values[3])
-        self._output_frequency = self.conversion.from_vaunix(float(values[4]))
+        if self.simulation:
+            now = time.time()
+            self._rf_valid = True
+            self._snapshot = dict(uca_connected=self._uca_connected,
+                vaunix_connected=self._vaunix_connected, uca_output=True,
+                uca_voltage=self._uca_voltage, uca_time=now, vaunix_time=now,
+                rf_time=now, rf_valid=True, rf_ready=True, control_owned=True,
+                simulation=True, test_mode=True, pll=True,
+                frequency=self._output_frequency / self.conversion.multiplier, power=10.0)
+            return False
+        values = await read_snapshot(self.settings["rf_safety_pvs"], float(self.settings.get("ca_timeout", 2)))
+        age = self.settings["rf_safety"].get("maximum_readback_age", 4.0)
+        for key in ("uca_time", "vaunix_time", "rf_time"):
+            fresh(values[key], age, key)
+        self._snapshot = values
+        self._uca_connected = flag(values["uca_connected"], "UCA")
+        self._vaunix_connected = flag(values["vaunix_connected"], "Vaunix")
+        self._uca_voltage = finite(values["uca_voltage"], "UCA voltage")
+        self._rf_actual = flag(values["rf_actual"], "RF actual")
+        self._rf_valid = flag(values["rf_valid"], "RF valid") and self._vaunix_connected
+        self._output_frequency = self.conversion.from_vaunix(finite(values["frequency"], "carrier"))
+        finite(values["power"], "power")
+        session = values["session"]
+        changed = self._source_session is not None and session != self._source_session
+        self._source_session = session
+        return changed
 
     async def do_reads(self):
+        if self._rf_lock.locked():
+            return True  # RF transition owns confirmation; do not overwrite it.
+        rf_observed = False
         try:
-            await self._read_sources()
+            changed = await self._read_sources()
+            rf_observed = self._rf_valid and self._vaunix_connected
+            communications = self._uca_connected and self._vaunix_connected and self._rf_valid and bool(self._snapshot.get("control_owned"))
+            if self._startup_off or changed or (self._rf_actual and not self._rf_request) or (not communications and self._rf_request):
+                await self._set_rf(False)
+                rf_observed = self._rf_valid
+                if not self._rf_valid:
+                    raise ValueError("RF OFF unconfirmed")
+            if not communications:
+                raise ValueError("required communication/control lost")
+            if self._rf_request and not self._rf_actual:
+                self._clear_request()
             await self._advance_sweep()
             self._publish()
             for name in ("SystemConnected", "UCAVoltage", "OutputFrequencyRBV"):
                 self.pvs[name].set_alarm(severity=alarm.NO_ALARM, alarm=alarm.NO_ALARM)
             return True
         except Exception as exc:
+            requested = self._rf_request
+            self._rf_generation += 1
+            self._clear_request()
             self._uca_connected = self._vaunix_connected = False
-            if self._sweep_state == 1:
-                self._sweep_state = 4
-                self._set_string("SweepError", exc)
-                self._error(f"Sweep stopped: device read failed: {exc}")
-            else:
-                self._error(f"Device read failed: {exc}")
+            self._snapshot = {}
+            # Loss of UCA communication must not erase an independently fresh
+            # vendor OFF confirmation. Missing source evidence remains UNKNOWN.
+            self._rf_valid = rf_observed
+            self._cancel_sweep()
+            if requested:
+                await self._set_rf(False)
+            self._error(f"Device read failed: {exc}")
             self._publish()
             for name in ("SystemConnected", "UCAVoltage", "OutputFrequencyRBV"):
                 self.pvs[name].set_alarm(severity=alarm.MAJOR_ALARM, alarm=alarm.COMM_ALARM)
