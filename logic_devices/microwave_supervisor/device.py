@@ -361,11 +361,17 @@ class Device:
             changed = await self._read_sources()
             rf_observed = self._rf_valid and self._vaunix_connected
             communications = self._uca_connected and self._vaunix_connected and self._rf_valid and bool(self._snapshot.get("control_owned"))
-            if self._startup_off or changed or (self._rf_actual and not self._rf_request) or (not communications and self._rf_request):
+            # Output enable is a continuous hard interlock. Voltage remains an
+            # ON-edge check so operators can adjust attenuation while RF is ON.
+            uca_output_lost = (not self.simulation and rf_observed and self._rf_actual
+                               and not flag(self._snapshot["uca_output"], "UCA output"))
+            if self._startup_off or changed or (self._rf_actual and not self._rf_request) or (not communications and self._rf_request) or uca_output_lost:
                 await self._set_rf(False)
                 rf_observed = self._rf_valid
                 if not self._rf_valid:
                     raise ValueError("RF OFF unconfirmed")
+                if uca_output_lost:
+                    self._error("UCA output OFF; RF OFF confirmed")
             if not communications:
                 raise ValueError("required communication/control lost")
             if self._rf_request and not self._rf_actual:

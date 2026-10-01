@@ -148,6 +148,68 @@ class RFIntegration(unittest.IsolatedAsyncioTestCase):
             self.scfg['calibration_valid']=self.ucfg['calibration_valid']=value
             await self.on(); self.assertEqual(self.brick.r,1); await self.off()
 
+    async def test_supervisor_rejects_on_when_uca_output_is_off(self):
+        self.overrides[self.ucfg['rf_safety_pvs']['uca_output']] = 0
+        with patch.object(self.sup, '_put', wraps=self.sup._put) as put:
+            await self.on()
+        self.assertNotIn(('vaunix_rf', 1), [call.args for call in put.call_args_list])
+        self.assertNotIn(('rf', True), self.brick.calls)
+        self.assertFalse(self.sup._rf_request)
+        self.assertFalse(self.sup.pvs['RFPermissive'].get())
+        self.assertEqual(self.sup.pvs['RFState'].get(), 1)
+        self.assertIn('uca_output', self.sup.pvs['LastError'].get())
+
+    async def test_uca_voltage_adjustment_from_five_to_four_keeps_rf_on(self):
+        await self.on()
+        self.brick.calls.clear()
+        for voltage in (4.8, 4.5, 4.0):
+            with self.subTest(voltage=voltage):
+                self.overrides[self.ucfg['rf_safety_pvs']['uca_voltage']] = voltage
+                self.overrides[self.ucfg['rf_safety_pvs']['uca_output']] = 1
+                self.assertTrue(await self.sup.do_reads())
+                self.assertEqual(self.brick.r, 1)
+                self.assertTrue(self.sup._rf_request)
+                self.assertTrue(self.sup.pvs['RFValid'].get())
+                self.assertEqual(self.sup.pvs['RFState'].get(), 2)
+        self.assertNotIn(('rf', False), self.brick.calls)
+
+    async def test_uca_output_loss_forces_verified_off_and_cancels_sweep(self):
+        await self.on()
+        self.sup._start_sweep(1)
+        self.assertEqual(self.sup._sweep_state, 1)
+        self.brick.sweep[-1] = 1
+        self.brick.calls.clear()
+        self.overrides[self.ucfg['rf_safety_pvs']['uca_output']] = 0
+        self.assertTrue(await self.sup.do_reads())
+        self.assertEqual(self.brick.r, 0)
+        self.assertFalse(self.sup._rf_request)
+        self.assertFalse(self.sup.pvs['RFActual'].get())
+        self.assertTrue(self.sup.pvs['RFValid'].get())
+        self.assertEqual(self.sup.pvs['RFState'].get(), 1)
+        self.assertEqual(self.sup._points, [])
+        self.assertIsNone(self.sup._next_point_at)
+        self.assertEqual(self.sup.pvs['SweepState'].get(), 3)
+        self.assertEqual(self.brick.sweep[-1], 0)
+        self.assertIn(('sweep', False), self.brick.calls)
+        self.assertIn(('rf', False), self.brick.calls)
+        self.assertIn('RF OFF confirmed', self.sup.pvs['LastError'].get())
+        self.overrides.clear()
+        await self.sup.do_reads()
+        self.assertEqual(self.brick.r, 0)
+        self.assertFalse(self.sup._rf_request)
+
+    async def test_uca_output_loss_with_failed_off_reports_unknown(self):
+        await self.on()
+        self.brick.fail_off = True
+        self.overrides[self.ucfg['rf_safety_pvs']['uca_output']] = 0
+        self.assertFalse(await self.sup.do_reads())
+        self.assertEqual(self.brick.r, 1)
+        self.assertIn(('rf', False), self.brick.calls)
+        self.assertFalse(self.sup._rf_request)
+        self.assertFalse(self.sup.pvs['RFValid'].get())
+        self.assertEqual(self.sup.pvs['RFState'].get(), 0)
+        self.assertNotIn('RF OFF confirmed', self.sup.pvs['LastError'].get())
+
     async def test_prerequisites_block_on(self):
         failures={'uca_connected':0,'vaunix_connected':0,'uca_output':0,'uca_voltage':4.8,
                   'simulation':1,'test_mode':1,'pll':0,'control_owned':0,'rf_valid':0,
@@ -476,6 +538,31 @@ class VendorSafety(unittest.TestCase):
 
 
 class GUIBoundary(unittest.TestCase):
+    def test_uca_output_toggle_requires_supervisor_rf_actual_off(self):
+        root = ET.parse(ROOT/'gui/genesis_mw_spd1305x.bob').getroot()
+        toggle = next(w for w in root.iter('widget') if w.findtext('name') == 'Output_CMD')
+        self.assertEqual(toggle.findtext('enabled'), 'false')
+        rules = toggle.findall('rules/rule')
+        self.assertEqual(len(rules), 1)
+        rule = rules[0]
+        self.assertEqual(rule.attrib['prop_id'], 'enabled')
+        self.assertEqual([pv.text for pv in rule.findall('pv_name')],
+                         ['pva://$(P):COMM', 'pva://UNH:GEN:MW:SUP:RFActual'])
+        for comm, rf_actual, severity, expected in ((1, 0, 0, True), (1, 1, 0, False),
+                                                    (0, 0, 0, False), (1, 0, 3, False)):
+            with self.subTest(comm=comm, rf_actual=rf_actual, severity=severity):
+                values = dict(pv0=comm, pvSev0=0, pv1=rf_actual, pvSev1=severity)
+                matches = []
+                for exp in rule.findall('exp'):
+                    expression = exp.attrib['bool_exp'].replace('&&', ' and ').replace('!', 'not ')
+                    if eval(expression, {'__builtins__': {}}, values):
+                        matches.append(exp.findtext('value') == 'true')
+                self.assertEqual(matches, [expected])
+        # Attenuation remains adjustable while RF is ON.
+        voltage = next(w for w in root.iter('widget') if w.findtext('name') == 'VSET_CMD_V')
+        self.assertEqual([pv.text for pv in voltage.findall('rules/rule/pv_name')],
+                         ['pva://$(P):COMM'])
+
     def test_supervised_on_and_abort_and_diagnostics(self):
         for filename in ('genesis_microwave.bob','genesis_mw_supervisor.bob'):
             root=ET.parse(ROOT/'gui'/filename).getroot()

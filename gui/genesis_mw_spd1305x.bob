@@ -530,14 +530,15 @@
     <label />
     <enabled>false</enabled>
     <rules>
-      <rule name="Connected supply required" prop_id="enabled" out_exp="false">
-        <exp bool_exp="pv0 == 1 &amp;&amp; pvSev0 == 0">
+      <rule name="Connected supply and RF OFF required" prop_id="enabled" out_exp="false">
+        <exp bool_exp="pv0 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pv1 == 0 &amp;&amp; pvSev1 == 0">
           <value>true</value>
         </exp>
-        <exp bool_exp="!(pv0 == 1 &amp;&amp; pvSev0 == 0)">
+        <exp bool_exp="!(pv0 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pv1 == 0 &amp;&amp; pvSev1 == 0)">
           <value>false</value>
         </exp>
         <pv_name>pva://$(P):COMM</pv_name>
+        <pv_name>pva://UNH:GEN:MW:SUP:RFActual</pv_name>
       </rule>
     </rules>
   </widget>
