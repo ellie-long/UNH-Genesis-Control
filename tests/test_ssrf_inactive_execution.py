@@ -71,7 +71,7 @@ class TestInactiveExecution(unittest.TestCase):
 
     def test_epics_io_remains_execution_boundary(self):
         self.assertIn(
-            "self._execution_io.read(",
+            "self._execution_io.read_safety(",
             self.source,
         )
         self.assertIn(

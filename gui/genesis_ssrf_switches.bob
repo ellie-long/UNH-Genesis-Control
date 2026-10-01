@@ -321,19 +321,7 @@
     <height>30</height>
     <pv_name>ca://UNH:GEN:SSRF:NMR_SW:PORT_CMD</pv_name>
     <enabled>false</enabled>
-    <rules>
-      <rule name="Connected and hardware writes enabled" prop_id="enabled" out_exp="false">
-        <exp bool_exp="pv0 == 1 &amp;&amp; pv1 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pvSev1 == 0">
-          <value>true</value>
-        </exp>
-        <exp bool_exp="!(pv0 == 1 &amp;&amp; pv1 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pvSev1 == 0)">
-          <value>false</value>
-        </exp>
-        <pv_name>ca://UNH:GEN:SSRF:NMR_SW:COMM</pv_name>
-        <pv_name>ca://UNH:GEN:SSRF:NMR_SW:WRITE_ENABLED</pv_name>
-      </rule>
-    </rules>
-    <tooltip>0 = PORT1, 1 = PORT2. Command executes only when COMM=Connected and writes are enabled.</tooltip>
+    <tooltip>Use guarded controls on the main ssRF display.</tooltip>
   </widget>
   <widget type="label" version="2.0.0">
     <name>NMR_Switch_CMD_Note</name>
@@ -702,19 +690,7 @@
     <height>30</height>
     <pv_name>ca://UNH:GEN:SSRF:RF_SW:PORT_CMD</pv_name>
     <enabled>false</enabled>
-    <rules>
-      <rule name="Connected and hardware writes enabled" prop_id="enabled" out_exp="false">
-        <exp bool_exp="pv0 == 1 &amp;&amp; pv1 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pvSev1 == 0">
-          <value>true</value>
-        </exp>
-        <exp bool_exp="!(pv0 == 1 &amp;&amp; pv1 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pvSev1 == 0)">
-          <value>false</value>
-        </exp>
-        <pv_name>ca://UNH:GEN:SSRF:RF_SW:COMM</pv_name>
-        <pv_name>ca://UNH:GEN:SSRF:RF_SW:WRITE_ENABLED</pv_name>
-      </rule>
-    </rules>
-    <tooltip>0 = PORT1, 1 = PORT2. Command executes only when COMM=Connected and writes are enabled.</tooltip>
+    <tooltip>Use guarded controls on the main ssRF display.</tooltip>
   </widget>
   <widget type="label" version="2.0.0">
     <name>RF_Switch_CMD_Note</name>

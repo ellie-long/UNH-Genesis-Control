@@ -3,6 +3,10 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 
+if ! python -m logic_devices.ssrf_lifecycle --held; then
+    exec python -m logic_devices.ssrf_lifecycle "$ROOT/scripts/start_ssrf_physical.sh" "$@"
+fi
+
 REMOTE="${GENESIS_KEYSIGHT_HOST:-genesis-keysight}"
 REMOTE_ROOT="${GENESIS_KEYSIGHT_ROOT:-/home/unhpoltarg/genesis_keysight/runtime}"
 REMOTE_VENV="${GENESIS_KEYSIGHT_VENV:-/home/unhpoltarg/genesis_keysight/.venv}"
@@ -158,6 +162,7 @@ echo "===== VERIFY FINAL EPICS SURFACE ====="
 env EPICS_CA_AUTO_ADDR_LIST=NO EPICS_CA_ADDR_LIST="127.0.0.1:5068 192.168.1.24:5064 127.0.0.1:5071 127.0.0.1:5072 127.0.0.1:5073 127.0.0.1:5074 127.0.0.1:5100 127.0.0.1:5090 127.0.0.1:5092" EPICS_CA_MAX_ARRAY_BYTES=262144 python - <<'PY'
 import asyncio
 from aioca import caget
+from logic_devices.ssrf_epics_io import EpicsIO
 
 PVS = [
     "UNH:GEN:SSRF:GEN:COMM",
@@ -174,17 +179,22 @@ PVS = [
     "UNH:GEN:SSRF:ARCH:Archive_PV_Count",
 ]
 async def main():
+    io = EpicsIO(timeout_s=3)
     for pv in PVS:
         value = await caget(pv, timeout=5.0)
         print(f"{pv:<48} = {value}")
-    if int(await caget("UNH:GEN:SSRF:GEN:RF_RBV", timeout=3)) != 0:
+    if int(await io.read_safety("UNH:GEN:SSRF:GEN:RF_RBV")) != 0:
         raise SystemExit("SMC RF is not OFF")
-    if int(await caget("UNH:GEN:SSRF:GEN:FM_RBV", timeout=3)) != 0:
+    if int(await io.read_safety("UNH:GEN:SSRF:GEN:FM_RBV")) != 0:
         raise SystemExit("SMC FM is not OFF")
-    if int(await caget("UNH:GEN:SSRF:WGEN:OUTPUT_RBV", timeout=3)) != 0:
+    if int(await io.read_safety("UNH:GEN:SSRF:WGEN:OUTPUT_RBV")) != 0:
         raise SystemExit("WaveGen output is not OFF")
-    if int(await caget("UNH:GEN:SSRF:SEQ:EXECUTION_ARMED", timeout=3)) != 0:
+    if int(await io.read_safety("UNH:GEN:SSRF:SEQ:EXECUTION_ARMED")) != 0:
         raise SystemExit("sequencer unexpectedly armed at startup")
+    if int(await io.read_safety("UNH:GEN:SSRF:SEQ:MANUAL_ARMED")) != 0:
+        raise SystemExit("manual operation unexpectedly armed at startup")
+    if int(await io.read_safety("UNH:GEN:SSRF:GEN:SWEEP_ARM_RBV")) != 0:
+        raise SystemExit("SMC sweep is not disarmed")
 asyncio.run(main())
 PY
 
@@ -199,5 +209,6 @@ echo "============================================================"
 echo " FINAL SSRF STACK READY"
 echo " JSON/session logging and per-PV CSV archiving are active."
 echo " No burn is armed. No RF/FM/WaveGen output was enabled by startup."
-echo " Workflow: NMR/calibrate -> Burn Setup -> GENERATE / LOAD -> ARM -> BURN ONCE"
+echo " Adaptive burn: NMR/calibrate -> GENERATE / LOAD -> ARM -> BURN ONCE"
+echo " Manual RF: select carrier/level -> MANUAL ARM -> RF ON; RF OFF / ABORT for safe cleanup."
 echo "============================================================"

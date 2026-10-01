@@ -10,6 +10,8 @@ phase before one-shot ARM + BURN.
 from __future__ import annotations
 
 import asyncio
+from logic_devices.ssrf_manual_rf import ManualRF
+from logic_devices.ssrf_lifecycle import OwnershipLock, startup_lifecycle_held
 
 import aioca
 from softioc import builder
@@ -91,10 +93,30 @@ class Device:
             )
         )
 
+        # The normal physical sequencer holds command ownership for its lifetime.
+        # Simulator profiles never take physical locks.
+        self._control_lock = None
+        if self._execution_mode == "physical":
+            directory = self.settings.get("ownership_lock_dir")
+            if startup_lifecycle_held(directory):
+                # Started by the lifecycle wrapper, whose parent holds the lock
+                # until startup checks finish. Only control ownership is needed.
+                self._control_lock = OwnershipLock("control", directory)
+            else:
+                # Independently launched sequencers must exclude an entire STOP,
+                # including the interval between verification and owner teardown.
+                with OwnershipLock("lifecycle", directory):
+                    self._control_lock = OwnershipLock("control", directory)
+
         self._execution_io = EpicsIO(
             execution_enabled=execution_enabled,
         )
 
+        self._manual = ManualRF(self._execution_io, self._executor_abort_requested)
+        self._manual_request = None
+        self._manual_task = None
+        self._safe_off_requested = False
+        self._safe_off_id = 0
         self._start_requested = False
         self._abort_requested = False
         self._execution_task = None
@@ -131,7 +153,7 @@ class Device:
         self._execution_armed = False
 
         self._executor = SequenceExecutor(
-            read=self._execution_io.read,
+            read=self._execution_io.read_safety,
             write=self._execution_io.write,
             sleep=self._execution_io.sleep,
             readiness_check=self._executor_readiness,
@@ -432,6 +454,19 @@ class Device:
                 process=False,
             )
 
+        for name in ("MANUAL_STATE", "MANUAL_REASON", "MANUAL_FAULT"):
+            self.pvs[name] = builder.stringIn(name)
+        self.pvs["MANUAL_ARMED"] = builder.boolIn("MANUAL_ARMED")
+        self.pvs["SAFE_OFF_ID"] = builder.longIn("SAFE_OFF_ID")
+        self.pvs["SAFE_OFF_ID"].set(0)
+        if execution_enabled:
+            for name in ("MANUAL_ARM_CMD", "MANUAL_DISARM_CMD", "RF_ON_CMD",
+                         "RF_OFF_CMD", "FM_ON_CMD", "FM_OFF_CMD"):
+                self.pvs[name] = builder.boolOut(
+                    name, always_update=True, on_update_name=self._manual_command)
+                self.pvs[name].set(0, process=False)
+        self._publish_manual()
+
         self.pvs["EXECUTION_ENABLED"].set(
             int(execution_enabled)
         )
@@ -565,6 +600,108 @@ class Device:
                 process=False,
             )
 
+    def _manual_busy(self):
+        return (self._manual_request is not None or self._safe_off_requested
+                or (self._manual_task is not None and not self._manual_task.done())
+                or self._manual.armed
+                or self._manual.state in ("RF_ON", "RF_FM_ACTIVE", "STOPPING", "CLEANUP_FAILED"))
+
+    def _other_busy(self):
+        return (self._start_requested or self._prepare_requested
+                or self._waveform_stage_requested or self._execution_armed
+                or any(t is not None and not t.done() for t in
+                       (self._execution_task, self._prepare_task, self._waveform_stage_task)))
+
+    def _publish_manual(self):
+        self.pvs["MANUAL_FAULT"].set(self._manual.fault[:39])
+        self.pvs["MANUAL_STATE"].set(self._manual.state[:39])
+        self.pvs["MANUAL_REASON"].set(self._manual.reason[:39])
+        self.pvs["MANUAL_ARMED"].set(int(self._manual.armed))
+
+    def _request_safe_off(self):
+        self._abort_requested = True
+        self._safe_off_requested = True
+        self._manual.armed = False
+        self._set_execution_armed(False)
+        self._publish_manual()
+
+    def _manual_command(self, value, pv):
+        name = pv.removeprefix(self.device_name + ":")
+        self._reset_momentary_command(name)
+        if not value or not self._execution_io.execution_enabled:
+            return
+        if name in ("RF_OFF_CMD", "MANUAL_DISARM_CMD"):
+            self._request_safe_off()
+            return
+        if self._other_busy() or self._safe_off_requested or self._manual_request or (
+                self._manual_task is not None and not self._manual_task.done()):
+            self._manual.reason = "Conflicting operation active"
+        elif name == "MANUAL_ARM_CMD" and self._manual.state not in ("DISARMED", "BLOCKED"):
+            self._manual.reason = "RF OFF required before ARM"
+        elif name == "RF_ON_CMD" and not self._manual.armed:
+            self._manual.reason = "Manual RF not armed"
+        else:
+            self._manual_request = name
+        self._publish_manual()
+
+    async def _run_manual_request(self, name):
+        try:
+            if self._abort_requested:
+                return
+            if name == "MANUAL_ARM_CMD":
+                await self._manual.arm()
+            elif name == "RF_ON_CMD":
+                p = self._parameters()
+                await self._manual.rf_on(p.carrier_mhz, p.target_level_dbm)
+            elif name == "FM_ON_CMD":
+                if not self._prepared or self._prepared_signature != self._parameter_signature():
+                    raise RuntimeError("Prepare selected waveform before manual ARM")
+                await self._manual.fm_on(self._parameters(), self._prepared_waveform_id)
+            elif name == "FM_OFF_CMD":
+                await self._manual.fm_off()
+        except Exception as exc:
+            self._manual.fault = str(exc)
+            self._manual.reason = str(exc)
+            self._manual.armed = False
+            self._request_safe_off()
+        finally:
+            self._publish_manual()
+            self._manual_task = None
+
+    async def _service_manual(self):
+        # A single owner executes transitions/cleanup; ABORT never cancels OFF writes.
+        tasks = (self._execution_task, self._prepare_task, self._waveform_stage_task,
+                 self._manual_task)
+        if any(t is not None and not t.done() for t in tasks):
+            return
+        if self._safe_off_requested:
+            self._manual_request = None
+            self._start_requested = self._prepare_requested = False
+            self._waveform_stage_requested = False
+            ok = await self._manual.safe_off()
+            self._safe_off_id += 1
+            self.pvs["SAFE_OFF_ID"].set(self._safe_off_id)
+            self._safe_off_requested = False
+            self._abort_requested = False
+            self._set_prepared(False)
+            self._set_execution_status("ABORTED" if ok else "CLEANUP_FAILED", self._manual.reason)
+        elif self._manual_request:
+            name, self._manual_request = self._manual_request, None
+            self._abort_requested = False
+            self._manual_task = asyncio.create_task(self._run_manual_request(name))
+        elif self._manual.state in ("RF_ON", "RF_FM_ACTIVE") or self._manual.armed:
+            try:
+                if self._manual.armed:
+                    await self._manual.idle_safety()
+                else:
+                    await self._manual.monitor()
+            except Exception as exc:
+                self._manual.fault = str(exc)
+                self._manual.reason = str(exc)
+                self._request_safe_off()
+                await self._service_manual()
+        self._publish_manual()
+
     def _prepare_command(self, new_value, pv):
         """Latch one pre-burn source configuration/load request."""
         self._reset_momentary_command("PREPARE_CMD")
@@ -586,7 +723,7 @@ class Device:
             or (self._waveform_stage_task is not None and not self._waveform_stage_task.done())
         )
 
-        if running:
+        if running or self._manual_busy():
             self._set_prepare_status("BLOCKED", "Sequence already active")
             return
         if staging:
@@ -640,6 +777,12 @@ class Device:
             or (self._prepare_task is not None and not self._prepare_task.done())
         )
 
+        if pv_name == "ABORT_CMD":
+            self._request_safe_off()
+        elif pv_name in ("ARM_CMD", "START_CMD") and self._manual_busy():
+            self._set_execution_status(EXEC_STATE_IDLE, "Manual operation or cleanup active")
+            return
+
         if pv_name == "ARM_CMD":
             if self._require_prepared and not self._prepared:
                 self._set_execution_status(
@@ -665,6 +808,7 @@ class Device:
             return
 
         if pv_name == "DISARM_CMD":
+            self._request_safe_off()
             self._set_execution_armed(
                 False
             )
@@ -817,6 +961,9 @@ class Device:
 
         if (
             burn_running
+            or self._manual_busy()
+            or self._prepare_requested
+            or (self._prepare_task is not None and not self._prepare_task.done())
             or self._start_requested
         ):
             self._set_waveform_stage_status(
@@ -904,7 +1051,7 @@ class Device:
                 )
 
             baseline_stage_id = int(
-                await self._execution_io.read(
+                await self._execution_io.read_safety(
                     WAVEGEN_WAVEFORM_STAGE_ID_PV
                 )
             )
@@ -926,13 +1073,13 @@ class Device:
             for _attempt in range(80):
 
                 last_stage_id = int(
-                    await self._execution_io.read(
+                    await self._execution_io.read_safety(
                         WAVEGEN_WAVEFORM_STAGE_ID_PV
                     )
                 )
 
                 last_points = int(
-                    await self._execution_io.read(
+                    await self._execution_io.read_safety(
                         WAVEGEN_WAVEFORM_POINTS_PV
                     )
                 )
@@ -1004,10 +1151,10 @@ class Device:
                 return
 
             parameters = self._parameters()
-            waveform_points = int(await self._execution_io.read(
+            waveform_points = int(await self._execution_io.read_safety(
                 "UNH:GEN:SSRF:WGEN:WAVEFORM_POINTS"
             ))
-            waveform_id_before = int(await self._execution_io.read(
+            waveform_id_before = int(await self._execution_io.read_safety(
                 "UNH:GEN:SSRF:WGEN:WAVEFORM_ID"
             ))
 
@@ -1020,13 +1167,13 @@ class Device:
                 self._set_prepare_status(result.state, result.reason)
                 return
 
-            waveform_ready = int(await self._execution_io.read(
+            waveform_ready = int(await self._execution_io.read_safety(
                 "UNH:GEN:SSRF:WGEN:WAVEFORM_READY"
             ))
-            arb_points = int(await self._execution_io.read(
+            arb_points = int(await self._execution_io.read_safety(
                 "UNH:GEN:SSRF:WGEN:ARB_POINTS_RBV"
             ))
-            waveform_id = int(await self._execution_io.read(
+            waveform_id = int(await self._execution_io.read_safety(
                 "UNH:GEN:SSRF:WGEN:WAVEFORM_ID"
             ))
 
@@ -1090,14 +1237,14 @@ class Device:
             parameters = self._parameters()
 
             waveform_points = int(
-                await self._execution_io.read(
+                await self._execution_io.read_safety(
                     "UNH:GEN:SSRF:WGEN:"
                     "WAVEFORM_POINTS"
                 )
             )
 
             waveform_id_before = int(
-                await self._execution_io.read(
+                await self._execution_io.read_safety(
                     "UNH:GEN:SSRF:WGEN:"
                     "WAVEFORM_ID"
                 )
@@ -1254,10 +1401,7 @@ class Device:
         self,
         pv,
     ):
-        value = await aioca.caget(
-            pv,
-            timeout=2.0,
-        )
+        value = await self._execution_io.read_safety(pv)
 
         return int(value)
 
@@ -1330,6 +1474,12 @@ class Device:
     async def do_reads(self):
         # Command callbacks only latch validated requests. Actual EPICS
         # forwarding/execution begins here on the IOC dispatcher loop.
+        await self._service_manual()
+        if self._safe_off_requested or self._manual_busy():
+            self.pvs["READY"].set(0)
+            self.pvs["STATE"].set("MANUAL_OPERATION")
+            self.pvs["REASON"].set("Manual operation or safe-off active")
+            return True
         self._service_waveform_stage_request()
         self._service_prepare_request()
         self._service_execution_request()

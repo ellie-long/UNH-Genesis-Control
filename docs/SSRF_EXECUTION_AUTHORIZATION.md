@@ -1,107 +1,68 @@
 # ssRF execution authorization
 
-Genesis Phase-I separates three independent execution gates.
+## Static authorization and device permissions
 
-## Static device write gate
+Ordinary `configs/ssrf` profiles remain inactive/read-only. The checked-in
+`configs/ssrf_physical` hardware profiles permit writes but never initialize
+outputs ON. Its sequencer has `execution_enabled: true`, `execution_mode:
+physical`, `required_os_user: shrestha` and `require_prepared: true` for adaptive
+burns. Effective POSIX UID must resolve to the configured user; an environment
+username does not satisfy this check. Static permission never arms or starts RF.
+Simulator authorization remains explicit and never acquires physical locks.
 
-Each hardware IOC has `write_enabled`.
+## Explicit runtime arms
 
-Normal Genesis configuration keeps this `false`.
+Both arms start false and reset on restart/fault:
 
-The localhost simulator execution profile intentionally sets it `true`
-only for simulated devices.
+- `MANUAL_ARM_CMD` authorizes deliberate `RF_ON_CMD`; accepted RF ON consumes it.
+- `ARM_CMD` authorizes one prepared adaptive `START_CMD`; accepted START consumes it.
 
-## EPICS command access
+Plain manual RF requires SMC/switch communications and write permissions, valid
+carrier/level, safe initial source readbacks, routing and interlock permits.
+WaveGen must confirm output OFF; no fitter/calibration/recipe/waveform is required.
+Optional manual FM requires selected staged/prepared waveform and verified FM
+configuration. Adaptive generation still requires valid calibrated fitter data.
+These permissions never substitute for hardware/safety readback checks.
 
-Physical-device command records use the
-`GENESIS_SSRF_CMD` Access Security group.
+## Universal safe OFF
 
-The protected command inventory includes:
+RF OFF, either DISARM and ABORT revoke both arms and request safe cleanup even
+while idle. Cleanup independently attempts sweep disarm, RF OFF, FM OFF and
+WaveGen OFF. Metadata-aware EPICS reads require valid status/severity and source
+OFF before any safe routing change. It then disconnects ssRF, requires
+NMR_CONNECT_PERMIT and restores NMR (RF mask 3 / NMR mask 0).
+Failure is reported truthfully and cannot automatically resume RF.
 
-- all SMC100A RF/FM/sweep command records;
-- Keysight output, period, voltage, waveform staging and load commands;
-- NMR switch `PORT_CMD`;
-- ssRF switch `PORT_CMD`.
+## Local lifecycle and command ownership
 
-`WAVEFORM_CMD` is protected because changing staged waveform data can
-change the subsequent burn even though staging itself does not yet send
-the waveform to the instrument.
+Repository-defined Unix file locks are `/tmp/genesis-ssrf-physical/lifecycle.lock`
+and `/tmp/genesis-ssrf-physical/control.lock`. START/STOP hold lifecycle across
+the whole operation, including owner teardown. The authorized physical
+sequencer holds control for its process lifetime. Independently launched
+sequencers acquire lifecycle before acquiring control; the validated startup
+wrapper already holds lifecycle for its child startup.
+The child exemption requires the parent's matching PID/token lease. The lease
+is cleared before unlock; a stale inherited environment cannot bypass later STOP.
 
-Physical execution requires the sequencer process to run under the
-dedicated POSIX service account:
+STOP prefers a healthy sequencer's safe-off path. Only an unavailable sequencer
+with exclusively acquired control permits fallback device-IOC cleanup. A live
+but unreachable control owner blocks fallback. Concurrent lifecycle requests
+fail nonzero before fallback writes; kernel locks release on close/process death.
+Lock files are never unlinked. Tests inject isolated directories. These locks
+coordinate repository-supported local owners, not arbitrary remote CA clients.
 
-`genesis_ssrf_sequencer`
+## EPICS access security limitation
 
-The operating-system identity is used. Genesis does not synthesize or
-override the Channel Access username in Python.
+Hardware command PVs use GENESIS_SSRF_CMD. The unchanged ACF allows CA identities
+`shrestha` and `genesis_ssrf_sequencer`. The latter is a future dedicated service
+identity, not this profile's mandatory OS user. Startup supplies a dedicated CA
+username for sequencer launch; its actual use by CA clients still requires
+physical acceptance. Do not blindly remove either allowed identity.
 
-## Execution mode
+Direct CA clients with an allowed identity can bypass sequencer ordering. Expert
+output/routing widgets are disabled; this does not enforce CA ownership.
+Physical acceptance must verify identity/access policy without compromising
+emergency safe-off. Service account/path permissions and EPICS endpoints require
+explicit review when deploying the exact baseline to Linux/WSL.
 
-The sequencer supports:
-
-- inactive: no active execution;
-- simulator: localhost-only simulator execution;
-- physical: requires the configured dedicated OS service account.
-
-Physical mode fails closed when the effective OS user does not match
-`required_os_user`.
-
-## Runtime one-shot arm
-
-Active execution begins disarmed.
-
-`ARM_CMD` authorizes one START only.
-
-An accepted `START_CMD` immediately consumes the arm.
-
-A second START requires another explicit ARM.
-
-`DISARM_CMD` clears authorization.
-
-`ABORT_CMD` always clears authorization and retains the existing
-graceful-stop-at-next-checkpoint behavior.
-
-IOC restart always returns to disarmed state.
-
-`EXECUTION_ARMED` is read-only status.
-
-## Safety relationship
-
-Execution authorization does not replace burn readiness or the ssRF
-interlock.
-
-A burn still requires:
-
-1. valid burn parameters;
-2. valid staged waveform;
-3. all required device communications;
-4. device write gates;
-5. safe initial RF/WaveGen state;
-6. confirmed switch state;
-7. live interlock permits;
-8. one-shot execution arm.
-
-The sequence continues to verify permits at hazardous transitions and
-runs the existing fail-closed cleanup sequence after execution,
-abort, or post-write failure.
-
-## Physical commissioning requirement
-
-Before physical ssRF execution is enabled:
-
-- create and use the dedicated sequencer OS/service account;
-- run the sequencer as that account;
-- confirm ordinary operator CA and PVA clients cannot write protected
-  device commands;
-- confirm the dedicated sequencer account can write only through the
-  controlled sequencer path;
-- keep `initialize_on_connect: false`;
-- perform controlled hardware commissioning before enabling a burn.
-
-## Final physical source-control authorization
-
-The adaptive waveform passes through the authorized analysis → sequencer → WaveGen staging boundary.
-
-The sequencer owns one-shot ARM and coordinated physical execution.
-
-See `SSRF_FINAL_PHYSICAL_OPERATION.md`.
+See `SSRF_OPERATOR_QUICK_START.md` and `SSRF_FINAL_PHYSICAL_OPERATION.md`.

@@ -23,7 +23,7 @@ It does not yet constitute powered amplified-RF or target-connected commissionin
 
 The earlier physical-no-RF demo path is retained only as commissioning history.
 
-## Final operator GUI workflow
+## Validated adaptive-burn GUI workflow
 
 ```text
 NMR / CALIBRATE
@@ -196,3 +196,89 @@ ssrf-phase1-source-control-2026-09-28
 ## Next hardware milestone
 
 The next ssRF hardware stage is powered downstream RF-chain commissioning: amplifier power supply, LZY amplifier, tuner/SWR path, calibrated RF power measurements, and target-connected validation.
+
+## Guarded manual RF operation (software validation pending physical acceptance)
+
+The sequencer also exposes MANUAL_ARM_CMD, MANUAL_DISARM_CMD, RF_ON_CMD,
+RF_OFF_CMD, FM_ON_CMD and FM_OFF_CMD under UNH:GEN:SSRF:SEQ.
+MANUAL_ARMED, MANUAL_STATE, MANUAL_REASON and MANUAL_FAULT describe this mode.
+This arm is separate from the existing adaptive-burn ARM_CMD. Both arms start
+false; accepted manual RF ON consumes its arm. No operation resumes on recovery.
+
+Set SEQ:CARRIER_MHZ and SEQ:TARGET_LEVEL_DBM deliberately before manual ARM.
+Manual RF follows DISARMED → ARMED → RF_ON → optional RF_FM_ACTIVE.
+RF ON validates required SMC/switch communications, write permission, interlock
+inputs/topology and source-OFF readbacks. It configures/validates carrier and
+level with outputs OFF, disconnects NMR, checks SSRF_CONNECT_PERMIT, connects
+ssRF, rechecks safety and RF_ENABLE_PERMIT, and enables/verifies RF.
+WaveGen must be communicative with output confirmed OFF for source safety;
+its write permission, adaptive waveform, fitter and calibration are not RF
+prerequisites. FM and sweep remain OFF/disarmed in plain RF.
+
+For operator-selected FM, explicitly stage a normalized 8192-point waveform
+through SEQ:WAVEFORM_STAGE_REQ while idle, select the sequencer FM parameters,
+and invoke PREPARE_CMD before manual ARM. This existing preparation path loads
+and verifies the waveform with all source outputs OFF. It does not require a
+fitter result. FM ON verifies the prepared signature, waveform identity/points,
+external FM source/deviation, voltage/period readbacks, communications/write
+permission and permits before WaveGen ON then FM ON. It never triggers a sweep.
+FM OFF turns FM and WaveGen OFF while retaining RF. Failed transitions request
+universal cleanup. Adaptive GENERATE / LOAD still requires calibrated fitter
+data; that analysis requirement does not authorize or block manual RF.
+
+Sustained manual operation checks communications, permissions, topology,
+RF_ENABLE_PERMIT, RF/FM/WaveGen/sweep readbacks and source configuration.
+FM additionally monitors the loaded waveform identity and FM configuration.
+Loss of required safety invokes cleanup and requires explicit re-arm.
+These checks use the IOC polling loop, not an independent hardware safety loop;
+EPICS/hardware timeouts bound response latency and require physical acceptance.
+
+RF OFF, either DISARM, and ABORT request common safe-off even while idle.
+Cleanup independently attempts sweep disarm, RF OFF, FM OFF and WaveGen OFF,
+then verifies their readbacks before switch motion. It disconnects ssRF,
+requires NMR_CONNECT_PERMIT and restores NMR (RF mask 3, NMR mask 0).
+Unverified OFF state blocks routing changes and reports CLEANUP_FAILED.
+SAFE_OFF_ID counts completed cleanup attempts, including failed attempts.
+MANUAL_FAULT preserves the last manual failure across cleanup; explicit
+successful manual ARM clears it.
+
+STOP requires fresh sequencer safe-off acknowledgment and independently checks
+the baseline before terminating owners. If the sequencer is genuinely unavailable
+and exclusive control ownership is acquired, it uses the same protected
+OFF/verification/routing plan through device IOCs. A reachable sequencer with
+execution disabled blocks fallback and retains owners.
+A detected sequencer owner with unreachable execution PV blocks the fallback
+to avoid concurrent writers.
+If acknowledgment, device access or baseline verification fails, STOP exits
+nonzero before any owner termination. It does not guess missing device state.
+
+Expert output/routing controls are disabled in the GUI. The command ACF remains
+unchanged: direct CA clients with an allowed identity can still bypass ordering.
+CA identity and exclusive command ownership remain physical acceptance items;
+GUI disabling is not an access-security boundary. The reusable subsystem-scoped
+Phoebus shutdown helper from the Microwave branch is absent here. STOP does not
+add Phoebus termination; integration of that validated helper is a dependency.
+
+## Metadata verification and exclusive lifecycle ownership
+
+Production safety reads use aioca 1.8.1 `FORMAT_TIME`, requiring actual status,
+severity and successful scalar value. Missing metadata, any alarm, failed reads
+and nonfinite/unusable values fail closed. Ordinary raw reads remain available
+for non-safety callers. Cleanup/shutdown cannot treat an alarmed cached OFF as
+confirmation. Source verification still precedes all cleanup routing.
+
+`/tmp/genesis-ssrf-physical/lifecycle.lock` excludes concurrent physical START
+and STOP through owner termination. The physical sequencer holds `control.lock`
+for its lifetime. Fallback cleanup must acquire that same control lock; process
+snapshots alone never authorize fallback. Independently launched sequencers
+participate in lifecycle acquisition before control ownership. Locks are Unix
+`fcntl.flock` locks, released on close/process death; files are not deleted.
+Startup children validate a matching live parent PID/token lease; stale inherited
+environment markers do not bypass lifecycle acquisition after startup.
+Simulator/unit tests use isolated injected paths and never take production locks.
+
+The complete-system launcher now observes local process/session liveness when
+reusing a running stack. It does not invoke safe-OFF preflight, directly probe
+instruments, change operation, or require outputs OFF. Remote Keysight health
+is not established by this local reuse check. Explicit physical diagnostics
+remain separate. See the current `SSRF_OPERATOR_QUICK_START.md`.

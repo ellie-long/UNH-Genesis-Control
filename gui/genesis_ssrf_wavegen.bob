@@ -310,19 +310,7 @@
     <height>30</height>
     <pv_name>ca://UNH:GEN:SSRF:WGEN:OUTPUT_CMD</pv_name>
     <enabled>false</enabled>
-    <rules>
-      <rule name="Connected and hardware writes enabled" prop_id="enabled" out_exp="false">
-        <exp bool_exp="pv0 == 1 &amp;&amp; pv1 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pvSev1 == 0">
-          <value>true</value>
-        </exp>
-        <exp bool_exp="!(pv0 == 1 &amp;&amp; pv1 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pvSev1 == 0)">
-          <value>false</value>
-        </exp>
-        <pv_name>ca://UNH:GEN:SSRF:WGEN:COMM</pv_name>
-        <pv_name>ca://UNH:GEN:SSRF:WGEN:WRITE_ENABLED</pv_name>
-      </rule>
-    </rules>
-    <tooltip>IOC write gate must be explicitly enabled.</tooltip>
+    <tooltip>Use guarded controls on the main ssRF display.</tooltip>
   </widget>
   <widget type="label" version="2.0.0">
     <name>OUTPUT_RBV_Label</name>
@@ -696,19 +684,7 @@
     <height>30</height>
     <pv_name>ca://UNH:GEN:SSRF:WGEN:LOAD_CMD</pv_name>
     <enabled>false</enabled>
-    <rules>
-      <rule name="Connected and hardware writes enabled" prop_id="enabled" out_exp="false">
-        <exp bool_exp="pv0 == 1 &amp;&amp; pv1 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pvSev1 == 0">
-          <value>true</value>
-        </exp>
-        <exp bool_exp="!(pv0 == 1 &amp;&amp; pv1 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pvSev1 == 0)">
-          <value>false</value>
-        </exp>
-        <pv_name>ca://UNH:GEN:SSRF:WGEN:COMM</pv_name>
-        <pv_name>ca://UNH:GEN:SSRF:WGEN:WRITE_ENABLED</pv_name>
-      </rule>
-    </rules>
-    <tooltip>Loads the waveform already staged in IOC memory. This does not generate waveform samples.</tooltip>
+    <tooltip>Use guarded controls on the main ssRF display.</tooltip>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Waveform_Note</name>
