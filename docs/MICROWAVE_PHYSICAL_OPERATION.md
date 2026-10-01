@@ -116,6 +116,32 @@ Use the dedicated Microwave physical stop script first. It should:
 - stop archiving;
 - stop the managed Microwave IOCs.
 
+Software shutdown first closes the independent Microwave Phoebus Java process,
+identified by its exact settings profile and `genesis_microwave.bob` resource.
+This closes that instance's main and expert windows; ssRF and unrelated Java
+instances are preserved. Process identity is rechecked before signaling, and
+exit is verified within a bounded wait. A GUI-close failure is reported but
+still permits the physical safe-state attempt. Even if safety succeeds, that
+failure returns nonzero and retains local owners for recovery because the GUI
+could issue new commands. No persistent PID file is used.
+
+Shutdown then establishes the safe baseline using fresh successful
+IOC readbacks: source RF OFF in hardware mode, Supervisor RF OFF with its sweep
+stopped, UCA output ON at 5 V, and robot Disabled/stationary. Motor holding
+current is preserved. Failed verification retains the physical owners for
+recovery and returns failure; shutdown never forces cleanup past this gate.
+
+Local cleanup targets only sessions whose process ancestry, repository path,
+and dedicated physical profile establish Microwave ownership. It stops the
+Supervisor, robot IOC, source IOC, and UCA IOC in that order, then disables
+archiving and verifies monitoring/file closure before stopping the archiver.
+The dedicated manager stops last. Shared/generic managers and archivers,
+ssRF sessions, and remote Vaunix/PCL602 services are preserved. Shared ownership
+requires the exact same-repository generic profile and process ancestry; unknown
+or ambiguous manager, archiver, or device ownership blocks shutdown. A surviving
+session/process produces an explicit failure; a repeated stop with no dedicated owners performs no hardware writes.
+Keep operator RF/motion controls idle throughout shutdown.
+
 Then complete the physical hardware shutdown:
 1. Confirm UCA is 5 V.
 2. Confirm LabBrick RF input is OFF.
