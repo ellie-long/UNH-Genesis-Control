@@ -17,7 +17,12 @@ for pattern in \
     '^Source connected[[:space:]]*=[[:space:]]*1$' \
     '^Robot COMM[[:space:]]*=[[:space:]]*1$' \
     '^System connected[[:space:]]*=[[:space:]]*1$' \
-    '^Archive status[[:space:]]*=[[:space:]]*1$'
+    '^Archive status[[:space:]]*=[[:space:]]*1$' \
+    '^RF[[:space:]]*=[[:space:]]*0$' \
+    '^RF valid[[:space:]]*=[[:space:]]*1$' \
+    '^RF ready[[:space:]]*=[[:space:]]*1$' \
+    '^Control owned[[:space:]]*=[[:space:]]*1$' \
+    '^Supervisor RF[[:space:]]*=[[:space:]]*0$'
 do
     if ! printf '%s\n' "$STATUS" | grep -Eq "$pattern"; then
         healthy=0

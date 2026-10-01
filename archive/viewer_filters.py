@@ -35,7 +35,7 @@ MICROWAVE_PRESETS = {
         "UNH_GEN_MW_SUP_RFEnable",
         "UNH_GEN_MW_SUP_RFPermissive",
         "UNH_GEN_MW_SUP_SystemConnected",
-        "UNH_GEN_MW_SRC_MW_RF",
+        "UNH_GEN_MW_SRC_MW_RF_STATE",
     ),
 
     "Microwave - Source frequency / power": (
@@ -152,6 +152,11 @@ def resolve_microwave_preset(
 
     for key in requested:
         pv = by_key.get(key)
+        if key == "UNH_GEN_MW_SRC_MW_RF_STATE" and pv is None:
+            # Historical archives used MW_RF as sampled state. Current files
+            # archive the explicit UNKNOWN/OFF/ON state; never prefer the new
+            # OFF-only command alias when authoritative state exists.
+            pv = by_key.get("UNH_GEN_MW_SRC_MW_RF_RBV", by_key.get("UNH_GEN_MW_SRC_MW_RF"))
 
         if pv is not None:
             resolved.append(pv)

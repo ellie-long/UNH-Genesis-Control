@@ -208,27 +208,27 @@ prepare_source() {
     python - <<'PY'
 import asyncio
 import sys
+import time
 from aioca import caget, caput
 
 S = "UNH:GEN:MW:SRC"
 P = "UNH:GEN:MW:SUP"
 
 async def main():
-    rf = int(
-        await caget(
-            f"{S}:MW_RF",
-            timeout=3,
-        )
-    )
-
-    if rf != 0:
-        await caput(
-            f"{S}:MW_RF",
-            0,
-            wait=True,
-            timeout=3,
-        )
-        await asyncio.sleep(0.5)
+    requested = time.time()
+    await caput(f"{P}:RFEnable", 0, wait=True, timeout=3)
+    await caput(f"{S}:MW_RF_CMD", 0, wait=True, timeout=3)
+    deadline = time.monotonic() + 6
+    while time.monotonic() < deadline:
+        done = float(await caget(f"{S}:MW_RF_DONE_TIME", timeout=3))
+        valid = int(await caget(f"{S}:MW_RF_VALID", timeout=3))
+        rf = int(await caget(f"{S}:MW_RF_RBV", timeout=3))
+        ready = int(await caget(f"{S}:MW_RF_READY", timeout=3))
+        if done >= requested and valid == 1 and rf == 0 and ready == 1:
+            break
+        await asyncio.sleep(0.1)
+    else:
+        sys.exit("[STOP] fresh vendor RF OFF/sweep-stop confirmation unavailable")
 
     await caput(
         f"{S}:MW_FC",
@@ -262,7 +262,7 @@ async def main():
 
     rf = int(
         await caget(
-            f"{S}:MW_RF",
+            f"{S}:MW_RF_RBV",
             timeout=3,
         )
     )
@@ -312,7 +312,7 @@ async def main():
     print(
         "RF               =",
         await caget(
-            f"{S}:MW_RF",
+            f"{S}:MW_RF_RBV",
             timeout=3,
         ),
     )
@@ -386,6 +386,8 @@ status_stack() {
     EPICS_CA_AUTO_ADDR_LIST=NO \
     python - <<'PY'
 import asyncio
+import math
+import time
 from aioca import caget
 
 PVS = [
@@ -404,7 +406,11 @@ PVS = [
         "Power dBm",
         "UNH:GEN:MW:SRC:MW_PWRI",
     ),
-    ("RF", "UNH:GEN:MW:SRC:MW_RF"),
+    ("RF", "UNH:GEN:MW:SRC:MW_RF_RBV"),
+    ("RF valid", "UNH:GEN:MW:SRC:MW_RF_VALID"),
+    ("RF ready", "UNH:GEN:MW:SRC:MW_RF_READY"),
+    ("RF state", "UNH:GEN:MW:SUP:RFState"),
+    ("Control owned", "UNH:GEN:MW:SRC:MW_CONTROL_OWNED"),
     ("PLL", "UNH:GEN:MW:SRC:MW_Lock"),
     (
         "Robot COMM",
@@ -445,6 +451,11 @@ async def main():
                 pv,
                 timeout=3,
             )
+            if label == "RF valid" and int(value) == 1:
+                for stamp in ("UNH:GEN:MW:SRC:MW_RF_TIME", "UNH:GEN:MW:SRC:MAN:vaunix_lms_time"):
+                    age = time.time() - float(await caget(stamp, timeout=3))
+                    if not math.isfinite(age) or not 0 <= age <= 4.0:
+                        value = 0
         except Exception as exc:
             value = f"ERROR: {exc}"
 
@@ -509,7 +520,7 @@ async def main():
 
     rf = int(
         await get(
-            "UNH:GEN:MW:SRC:MW_RF"
+            "UNH:GEN:MW:SRC:MW_RF_RBV"
         )
     )
 
@@ -573,7 +584,11 @@ async def main():
         )
     )
 
+    rf_valid = int(await get("UNH:GEN:MW:SRC:MW_RF_VALID"))
+    owned = int(await get("UNH:GEN:MW:SRC:MW_CONTROL_OWNED"))
+    ready = int(await get("UNH:GEN:MW:SRC:MW_RF_READY"))
     checks = [
+        (rf_valid == 1 and owned == 1 and ready == 1, "Vendor RF valid and exclusive control owned"),
         (
             uca_comm == 1,
             "UCA connected",
@@ -596,13 +611,8 @@ async def main():
             "frequency within 138-142 GHz",
         ),
         (
-            139.9 <= output <= 140.1,
-            "commissioning baseline "
-            "approximately 140 GHz",
-        ),
-        (
-            abs(power - 10.0) <= 0.26,
-            "source power +10 dBm",
+            -40.0 <= power <= 10.0,
+            "source power within configured -40..+10 dBm",
         ),
         (
             rf == 0

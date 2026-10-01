@@ -187,8 +187,13 @@ class VaunixLocalSimulation(unittest.TestCase):
                 "MW_TestMode": OutputPV(),
             },
             t=None,
+            _session=0,
         )
 
+        dummy.pvs.update({name: InputPV() for name in ("MW_RF_VALID", "MW_RF_READY", "MW_RF_RBV", "MW_RF_STATE", "MW_RF_TIME", "MW_RF_ERROR", "MW_CONTROL_OWNED", "MW_CONTROL_SESSION")})
+        dummy._clear_commands = lambda: None
+        dummy._unknown = lambda message: None
+        dummy._off = lambda: None
         dummy._start_remote_service = lambda: None
         dummy._create_connection = lambda: LocalSimulationConnection(settings)
         dummy.read_outs = lambda: None
@@ -228,6 +233,7 @@ class VaunixLocalSimulation(unittest.TestCase):
 
         dummy = SimpleNamespace(
             t=sim,
+            simulation=True,
             channel="MW",
             pvs={
                 "MW_SweepRun": OutputPV(),

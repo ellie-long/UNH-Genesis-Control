@@ -2,7 +2,7 @@
 <display version="2.0.0">
   <name>Genesis Microwave - Supervisor</name>
   <width>1040</width>
-  <height>900</height>
+  <height>1010</height>
   <macros>
     <P>UNH:GEN:MW:SUP</P>
   </macros>
@@ -419,7 +419,7 @@
     <y>442</y>
     <width>145</width>
     <height>24</height>
-    <text>RF enable</text>
+    <text>RF request</text>
     <font>
       <font family="Liberation Sans" style="REGULAR" size="13.0" />
     </font>
@@ -440,7 +440,7 @@
     <y>440</y>
     <width>26</width>
     <height>26</height>
-    <pv_name>pva://$(P):RFEnable</pv_name>
+    <pv_name>pva://$(P):RFActual</pv_name>
     <bit>0</bit>
     <off_color>
       <color red="150" green="155" blue="160" />
@@ -448,6 +448,14 @@
     <on_color>
       <color red="30" green="160" blue="70" />
     </on_color>
+    <visible>false</visible>
+    <rules>
+      <rule name="Fresh RF readback only" prop_id="visible" out_exp="false">
+        <exp bool_exp="pv0 == 1 &amp;&amp; pvSev0 == 0"><value>true</value></exp>
+        <exp bool_exp="!(pv0 == 1 &amp;&amp; pvSev0 == 0)"><value>false</value></exp>
+        <pv_name>pva://$(P):RFValid</pv_name>
+      </rule>
+    </rules>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Central_L</name>
@@ -875,7 +883,70 @@
     <y>440</y>
     <width>80</width>
     <height>25</height>
-    <pv_name>pva://$(P):RFEnable</pv_name>
+    <pv_name>pva://$(P):RFState</pv_name>
     <format>6</format>
+  </widget>
+<widget type="label" version="2.0.0">
+    <name>RF_RFState_Label</name>
+    <x>45</x>
+    <y>900</y>
+    <width>440</width>
+    <height>25</height>
+    <text>Vendor RF state (UNKNOWN / OFF / ON)</text>
+  </widget>
+<widget type="textupdate" version="2.0.0">
+    <name>RF_RFState_Value</name>
+    <x>490</x>
+    <y>900</y>
+    <width>160</width>
+    <height>25</height>
+    <pv_name>pva://$(P):RFState</pv_name>
+    <format>6</format>
+  </widget>
+<widget type="label" version="2.0.0">
+    <name>RF_RFValid_Label</name>
+    <x>45</x>
+    <y>930</y>
+    <width>440</width>
+    <height>25</height>
+    <text>Vendor RF readback valid</text>
+  </widget>
+<widget type="textupdate" version="2.0.0">
+    <name>RF_RFValid_Value</name>
+    <x>490</x>
+    <y>930</y>
+    <width>160</width>
+    <height>25</height>
+    <pv_name>pva://$(P):RFValid</pv_name>
+  </widget>
+<widget type="label" version="2.0.0">
+    <name>RF_ControlOwned_Label</name>
+    <x>45</x>
+    <y>960</y>
+    <width>440</width>
+    <height>25</height>
+    <text>Exclusive source control owned</text>
+  </widget>
+<widget type="textupdate" version="2.0.0">
+    <name>RF_ControlOwned_Value</name>
+    <x>490</x>
+    <y>960</y>
+    <width>160</width>
+    <height>25</height>
+    <pv_name>pva://$(P):ControlOwned</pv_name>
+  </widget>
+<widget type="action_button" version="3.0.0">
+    <name>RF_OFF_ABORT</name>
+    <x>700</x>
+    <y>900</y>
+    <width>270</width>
+    <height>50</height>
+    <text>RF OFF / ABORT</text>
+    <actions>
+      <action type="write_pv">
+        <pv_name>pva://$(P):RFAbort</pv_name>
+        <value>1</value>
+      </action>
+    </actions>
   </widget>
 </display>

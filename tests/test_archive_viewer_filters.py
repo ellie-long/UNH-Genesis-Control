@@ -44,6 +44,16 @@ class GenesisArchiveViewerFilters(unittest.TestCase):
             "TGT:MEOP:Voltage1_VC",
         ]
 
+    def test_rf_preset_prefers_authoritative_state_over_legacy_command(self):
+        state = "UNH:GEN_MW_SRC_MW_RF_STATE"
+        result = resolve_microwave_preset(self.pvs + [state], "Microwave - RF / permissive state")
+        self.assertIn(state, result)
+        self.assertNotIn("UNH:GEN_MW_SRC_MW_RF", result)
+
+    def test_rf_preset_preserves_historical_readback(self):
+        result = resolve_microwave_preset(self.pvs, "Microwave - RF / permissive state")
+        self.assertIn("UNH:GEN_MW_SRC_MW_RF", result)
+
     def test_normalization_matches_archive_filename_style(self):
         self.assertEqual(
             normalized_archive_key(

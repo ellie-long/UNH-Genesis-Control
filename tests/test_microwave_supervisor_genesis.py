@@ -75,7 +75,7 @@ class GenesisSupervisorConfig(unittest.TestCase):
         )
         self.assertEqual(
             src["vaunix_rf"],
-            "UNH:GEN:MW:SRC:MW_RF",
+            "UNH:GEN:MW:SRC:MW_RF_CMD",
         )
         self.assertEqual(
             src["vaunix_frequency_command"],
