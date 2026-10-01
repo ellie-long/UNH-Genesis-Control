@@ -59,7 +59,7 @@ class Device:
         low, high = self.conversion.minimum, self.conversion.maximum
         p["OutputFrequency"] = builder.aOut(
             prefix + "OutputFrequency", EGU="GHz", PREC=6, DRVL=low, DRVH=high,
-            on_update_name=self._set_frequency)
+            on_update_name=self._set_frequency, always_update=True)
         p["OutputFrequencyRBV"] = builder.aIn(prefix + "OutputFrequencyRBV", EGU="GHz", PREC=6)
         p["CentralFrequency"] = builder.aOut(prefix + "CentralFrequency", EGU="GHz", PREC=6)
         names = [item["name"] for item in self.dopants] or ["UNCONFIGURED"]

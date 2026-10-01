@@ -1,5 +1,6 @@
 """Office-only RF integration. EPICS, network and vendor calls are fakes."""
 import asyncio
+import inspect
 from pathlib import Path
 import time
 import unittest
@@ -27,9 +28,19 @@ class PV:
     def get(self): return self.value
 
     def set(self, value, **kwargs):
-        if self.output and kwargs.get('process', True) and value != self.value and self.callback:
+        if (self.output and kwargs.get('process', True) and self.callback
+                and (value != self.value or self.kwargs.get('always_update', False))):
             self.dispatched += 1
         self.value = value
+
+    async def write(self, value):
+        """Dispatch an operator write using the captured builder configuration."""
+        previous = self.dispatched
+        self.set(value)
+        if self.dispatched != previous:
+            result = self.callback(value)
+            if inspect.isawaitable(result):
+                await result
 
     def set_alarm(self, **kwargs): pass
 
@@ -134,6 +145,56 @@ class RFIntegration(unittest.IsolatedAsyncioTestCase):
 
     async def on(self): await self.sup._set_rf(1)
     async def off(self): await self.sup._set_rf(0)
+
+    async def test_source_identical_frequency_request_after_readback_diverges(self):
+        command = self.source.pvs['MW_FC']
+        requested = 140.0 / 12.0
+        self.assertTrue(command.kwargs.get('always_update'))
+        self.assertEqual(command.dispatched, 0)
+        with patch.object(self.source.t, 'set_frequency', create=True,
+                          return_value=requested) as frequency:
+            await command.write(requested)
+            self.source._apply((12.0, -12.0, 0, 1, 1))
+            self.assertEqual(command.get(), requested)
+            self.assertEqual(self.source.pvs['MW_FI'].get(), 12.0)
+            self.assertEqual(self.source.pvs['MW_OutFI'].get(), 144.0)
+            await command.write(requested)
+            self.assertEqual(frequency.call_count, 2)
+            self.assertEqual(frequency.call_args_list[0].args, (requested,))
+            self.assertEqual(frequency.call_args_list[1].args, (requested,))
+            self.assertEqual(self.source.pvs['MW_FI'].get(), requested)
+            self.assertEqual(self.source.pvs['MW_OutFI'].get(), 140.0)
+            self.source.read_outs()
+            self.assertEqual(frequency.call_count, 2)
+        self.assertEqual(command.dispatched, 2)
+
+    async def test_supervisor_identical_frequency_request_after_readback_diverges(self):
+        self.sup.simulation = True
+        command = self.sup.pvs['OutputFrequency']
+        self.assertTrue(command.kwargs.get('always_update'))
+        self.assertEqual(command.dispatched, 0)
+        with patch.object(self.sup, '_put', wraps=self.sup._put) as put:
+            await command.write(140.0)
+            self.sup._output_frequency = 144.0
+            self.sup._publish()
+            self.assertEqual(command.get(), 140.0)
+            self.assertEqual(self.sup.pvs['OutputFrequencyRBV'].get(), 144.0)
+            await command.write(140.0)
+            self.sup._publish()
+            self.assertEqual(put.call_count, 2)
+            self.assertEqual(put.call_args_list[0].args, ('vaunix_frequency', 140.0 / 12.0))
+            self.assertEqual(put.call_args_list[1].args, ('vaunix_frequency', 140.0 / 12.0))
+            self.assertEqual(self.sup.pvs['OutputFrequencyRBV'].get(), 140.0)
+        self.assertEqual(command.dispatched, 2)
+
+    async def test_supervisor_frequency_error_sync_does_not_process(self):
+        self.sup.simulation = True
+        command = self.sup.pvs['OutputFrequency']
+        with patch.object(self.sup, '_put', side_effect=OSError('fake command failure')) as put:
+            await command.write(140.0)
+            put.assert_called_once_with('vaunix_frequency', 140.0 / 12.0)
+        self.assertEqual(command.get(), self.sup._output_frequency)
+        self.assertEqual(command.dispatched, 1)
 
     async def test_valid_on_and_off_confirmed(self):
         await self.on()
