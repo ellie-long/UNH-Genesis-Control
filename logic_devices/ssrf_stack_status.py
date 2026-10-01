@@ -53,11 +53,14 @@ if __name__ == '__main__':
     import sys
     try:
         screens = subprocess.run(['screen', '-ls'], capture_output=True, text=True)
-        if screens.returncode and 'No Sockets found' not in screens.stdout + screens.stderr:
+        listing = screens.stdout + '\n' + screens.stderr
+        # GNU Screen can return 1 even when it lists valid detached sessions.
+        has_sessions = re.search(r'^\s*\d+\.\S+\s', listing, re.M)
+        if screens.returncode and not has_sessions and 'No Sockets found' not in listing:
             raise RuntimeError('Cannot determine Screen ownership')
         processes = subprocess.run(['ps', 'axww', '-o', 'command='], capture_output=True,
                                    text=True, check=True)
-        state, reason = classify_stack(screens.stdout, processes.stdout.splitlines(), pid_alive)
+        state, reason = classify_stack(listing, processes.stdout.splitlines(), pid_alive)
         print(state)
         print(reason, file=sys.stderr)
         if state == 'PARTIAL':

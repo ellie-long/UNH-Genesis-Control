@@ -1,9 +1,13 @@
 """Pure launcher decisions; physical lifecycle scripts are never executed."""
 from pathlib import Path
+from contextlib import redirect_stderr, redirect_stdout
+import io
 import os
+import runpy
 import subprocess
 import tempfile
 import unittest
+from unittest.mock import patch
 from logic_devices.ssrf_stack_status import EXPECTED, classify_stack
 
 
@@ -14,6 +18,76 @@ class StackTests(unittest.TestCase):
                     if signature.startswith('configs/') else f'python -m {signature}'
                     for signature in EXPECTED.values()]
         return screens, commands
+
+    def run_status(self, stdout, stderr, commands, returncode=1, alive=True):
+        output, errors = io.StringIO(), io.StringIO()
+        results = [subprocess.CompletedProcess(['screen', '-ls'], returncode, stdout, stderr),
+                   subprocess.CompletedProcess(['ps'], 0, '\n'.join(commands), '')]
+        with patch('subprocess.run', side_effect=results) as run, \
+                patch('os.kill', side_effect=None if alive else ProcessLookupError()), \
+                redirect_stdout(output), redirect_stderr(errors):
+            try:
+                runpy.run_path('logic_devices/ssrf_stack_status.py', run_name='__main__')
+                code = 0
+            except SystemExit as exc:
+                code = exc.code
+        return code, output.getvalue(), errors.getvalue(), run.call_count
+
+    def test_entry_point_complete_listing_with_nonzero_screen_status(self):
+        screens, commands = self.snapshots()
+        for returncode in (0, 1):
+            for stdout, stderr in ((screens, ''), ('', screens),
+                                   ('\n'.join(screens.splitlines()[:4]),
+                                    '\n'.join(screens.splitlines()[4:]))):
+                with self.subTest(returncode=returncode, stdout=stdout):
+                    code, output, errors, calls = self.run_status(
+                        stdout, stderr, commands, returncode)
+                    self.assertEqual(code, 0)
+                    self.assertEqual(output, 'COMPLETE\n')
+                    self.assertIn('preserving RF/FM/routing/arm', errors)
+                    self.assertEqual(calls, 2)
+
+    def test_entry_point_no_sockets_with_nonzero_screen_status(self):
+        for stdout, stderr in (('No Sockets found in /tmp/screens.\n', ''),
+                               ('', 'No Sockets found in /tmp/screens.\n')):
+            with self.subTest(stdout=stdout):
+                code, output, errors, calls = self.run_status(stdout, stderr, [])
+                self.assertEqual(code, 0)
+                self.assertEqual(output, 'ZERO\n')
+                self.assertIn('No local ssRF physical/control owners', errors)
+                self.assertEqual(calls, 2)
+
+    def test_entry_point_screen_failure_refuses_ownership(self):
+        for returncode in (1, 2):
+            with self.subTest(returncode=returncode):
+                code, output, errors, calls = self.run_status(
+                    '', 'Cannot open socket directory', [], returncode)
+                self.assertEqual(code, 1)
+                self.assertEqual(output, '')
+                self.assertIn('Cannot determine Screen ownership', errors)
+                self.assertEqual(calls, 1)
+        with patch('subprocess.run', side_effect=FileNotFoundError('screen')), \
+                redirect_stderr(io.StringIO()), self.assertRaises(SystemExit) as exc:
+            runpy.run_path('logic_devices/ssrf_stack_status.py', run_name='__main__')
+        self.assertEqual(exc.exception.code, 1)
+
+    def test_entry_point_nonzero_screen_status_preserves_partial_protections(self):
+        screens, commands = self.snapshots()
+        for listing, processes, alive in (
+                (screens.splitlines()[0], commands, True),
+                (screens, commands, False),
+                (screens + '\n' + screens, commands, True),
+                (screens, commands[:-1], True),
+                (screens, commands + commands, True),
+                ('No Sockets found', commands, True),
+                (screens + '\n999.genesis-ssrf-unexpected\t(Detached)', commands, True)):
+            with self.subTest(listing=listing, processes=processes, alive=alive):
+                code, output, errors, calls = self.run_status(
+                    listing, '', processes, alive=alive)
+                self.assertEqual(code, 1)
+                self.assertEqual(output, 'PARTIAL\n')
+                self.assertNotIn('Cannot determine Screen ownership', errors)
+                self.assertEqual(calls, 2)
 
     def test_zero_uses_existing_startup(self):
         self.assertEqual(classify_stack('', [], lambda _: False)[0], 'ZERO')
