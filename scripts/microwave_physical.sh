@@ -18,7 +18,9 @@ require_env() {
 }
 
 screen_exists() {
-    screen -ls 2>/dev/null | grep -Eq "[.]${1}[[:space:]]"
+    local listing
+    listing="$(screen -ls 2>&1 || true)"
+    grep -Eq "[.]${1}[[:space:]]" <<< "$listing"
 }
 
 manager_put() {
@@ -761,72 +763,7 @@ stop_stack() {
 
     EPICS_CA_ADDR_LIST="${ALL_CA}" \
     EPICS_CA_AUTO_ADDR_LIST=NO \
-    python - <<'PY'
-import asyncio
-from aioca import caput
-
-async def safe_put(pv, value):
-    try:
-        await caput(
-            pv,
-            value,
-            wait=True,
-            timeout=3,
-        )
-        print(
-            "[SAFE]",
-            pv,
-            "<-",
-            value,
-        )
-    except Exception as exc:
-        print(
-            "[WARN]",
-            pv,
-            exc,
-        )
-
-async def main():
-    await safe_put(
-        "UNH:GEN:MW:SUP:RFEnable",
-        0,
-    )
-
-    await safe_put(
-        "UNH:GEN:MW:SRC:MW_RF",
-        0,
-    )
-
-    await safe_put(
-        "UNH:GEN:MW:PS:VSET_CMD",
-        5.0,
-    )
-
-    await safe_put(
-        "UNH:GEN:MW:ROBOT:CONTROL_MODE",
-        0,
-    )
-
-    await safe_put(
-        "UNH:GEN:Archive_Enable",
-        0,
-    )
-
-asyncio.run(main())
-PY
-
-    if screen_exists "ioc-manager"; then
-        manager_put mw_pcl602 0 || true
-        manager_put mw_supervisor 0 || true
-        manager_put mw_vaunix_lms 0 || true
-        manager_put archiver 0 || true
-        manager_put mw_spd1305x 0 || true
-
-        screen \
-            -S ioc-manager \
-            -X quit \
-            || true
-    fi
+    python "$ROOT/tools/microwave_shutdown.py"
 
     echo
     echo "Software stack stopped."

@@ -32,9 +32,9 @@ if (( healthy == 1 )); then
 
 else
 
-    if screen -ls 2>/dev/null | \
-        grep -Eq \
-        '[.](mw_spd1305x|mw_vaunix_lms|mw_pcl602|mw_supervisor|archiver|ioc-manager)[[:space:]]'
+    SCREEN_LIST="$(screen -ls 2>&1 || true)"
+    if grep -Eq \
+        '[.](mw_spd1305x|mw_vaunix_lms|mw_pcl602|mw_supervisor|archiver|ioc-manager)[[:space:]]' <<< "$SCREEN_LIST"
     then
         echo "[STOP] Microwave processes exist but the stack is not healthy."
         echo "       Refusing to create duplicate hardware owners."
