@@ -1866,7 +1866,7 @@
 <widget type="label" version="2.0.0"><name>ManualParamLabel0</name><x>30</x><y>1250</y><width>250</width><height>25</height><text>Manual carrier MHz</text></widget>
 <widget type="textentry" version="3.0.0"><name>ManualParam0</name><x>280</x><y>1250</y><width>130</width><height>25</height><pv_name>ca://UNH:GEN:SSRF:SEQ:CARRIER_MHZ</pv_name></widget>
 <widget type="label" version="2.0.0"><name>ManualParamLabel1</name><x>480</x><y>1250</y><width>250</width><height>25</height><text>Manual RF level dBm</text></widget>
-<widget type="textentry" version="3.0.0"><name>ManualParam1</name><x>730</x><y>1250</y><width>130</width><height>25</height><pv_name>ca://UNH:GEN:SSRF:SEQ:TARGET_LEVEL_DBM</pv_name></widget>
+<widget type="textentry" version="3.0.0"><name>ManualParam1</name><x>730</x><y>1250</y><width>130</width><height>25</height><pv_name>ca://UNH:GEN:SSRF:SEQ:MANUAL_LEVEL_DBM</pv_name></widget>
 <widget type="action_button" version="3.0.0"><name>ManualPrepareFM</name><x>940</x><y>1250</y><width>300</width><height>35</height><text>PREPARE SELECTED FM WAVEFORM</text><actions><action type="write_pv"><pv_name>ca://UNH:GEN:SSRF:SEQ:PREPARE_CMD</pv_name><value>1</value><description>Prepare before manual ARM</description></action></actions></widget>
 <widget type="textupdate" version="2.0.0"><name>ManualFault</name><x>1270</x><y>1250</y><width>500</width><height>35</height><pv_name>ca://UNH:GEN:SSRF:SEQ:MANUAL_FAULT</pv_name></widget>
 

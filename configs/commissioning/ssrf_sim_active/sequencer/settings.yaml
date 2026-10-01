@@ -21,6 +21,7 @@ ssrf_sequencer:
   # Initial commissioning parameters only.
   # These do not cause hardware writes in 5B.4.
   carrier_mhz: 33.0
+  manual_level_dbm: -120.0
   start_level_dbm: -120.0
   target_level_dbm: -22.0
   fm_deviation_khz: 10.0
@@ -35,6 +36,7 @@ ssrf_sequencer:
 
   archive_records:
   - CARRIER_MHZ
+  - MANUAL_LEVEL_DBM
   - START_LEVEL_DBM
   - TARGET_LEVEL_DBM
   - FM_DEV_KHZ
@@ -57,6 +59,8 @@ ssrf_sequencer:
   records:
     CARRIER_MHZ:
       DESC: SMC carrier frequency
+    MANUAL_LEVEL_DBM:
+      DESC: SMC plain manual RF level
     START_LEVEL_DBM:
       DESC: SMC sweep start level
     TARGET_LEVEL_DBM:
