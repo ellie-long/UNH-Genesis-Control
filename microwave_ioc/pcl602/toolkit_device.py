@@ -212,7 +212,6 @@ class LocalSimulationConnection:
 
             for data in self.axes.values():
                 data["busy"] = False
-                data["motor_enabled"] = False
 
             return True
 
@@ -229,6 +228,9 @@ class LocalSimulationConnection:
                     "joystick is unavailable in local simulation"
                 )
 
+            if value != self.mode:
+                for data in self.axes.values():
+                    data["busy"] = False
             self.mode = value
             return value
 
@@ -464,6 +466,9 @@ class Device(BaseDevice):
             "JOYSTICK_CONNECTED", ZNAM="Disconnected", ONAM="Connected")
         self.pvs["JOYSTICK_ACTIVE"] = builder.boolIn(
             "JOYSTICK_ACTIVE", ZNAM="Inactive", ONAM="Active")
+        self.pvs['MOTION_INHIBITED'] = builder.boolIn(
+            'MOTION_INHIBITED', ZNAM='Control enabled', ONAM='Motion disabled',
+            initial_value=True)
 
     def _create_connection(self):
         if self.simulation:
@@ -479,6 +484,16 @@ class Device(BaseDevice):
         if not connected:
             self.limits_configurable = False
             self.pvs['LIMITS_CONFIGURABLE'].set(False)
+            # Invalidate ownership/joystick readbacks; never display stale permission.
+            self.pvs['CONTROL_MODE'].set(0, process=False)
+            self.pvs['JOYSTICK_CONNECTED'].set(False)
+            self.pvs['JOYSTICK_ACTIVE'].set(False)
+            self.pvs['MOTION_INHIBITED'].set(True)
+        for name in ('MOTION_INHIBITED', 'CONTROL_MODE',
+                     'JOYSTICK_CONNECTED', 'JOYSTICK_ACTIVE'):
+            self.pvs[name].set_alarm(
+                severity=alarm.NO_ALARM if connected else alarm.MAJOR_ALARM,
+                alarm=alarm.NO_ALARM if connected else alarm.COMM_ALARM)
         if message is not None:
             self.last_error = str(message)
         self.pvs['LAST_ERROR'].set(self.last_error[:39])
@@ -538,6 +553,7 @@ class Device(BaseDevice):
                 self.pvs[pv].set(value, process=False)
             else:
                 self.pvs[pv].set(value[:39] if isinstance(value, str) else value)
+        self.pvs['MOTION_INHIBITED'].set(state['mode'] == 0 or not state['healthy'])
         self._set_comm(state['healthy'], state['error'] or None)
 
     def _load_limit_draft(self, channel, low, high, enabled):

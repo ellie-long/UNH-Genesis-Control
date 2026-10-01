@@ -148,6 +148,23 @@ Shared records: `CONTROL_MODE` (0 Disabled / 1 EPICS / 2 Joystick), `ESTOP`,
 controller health. `LAST_ERROR` is limited to 39 characters by the EPICS string
 record; full server-side errors are available in responses/service logging.
 
+Genesis exposes ownership selection in `gui/genesis_mw_robot.bob`. The main
+Microwave display and robot details show joystick connection, X/Y busy state,
+raw hardware limit bits, and `MOTION_INHIBITED`. This read-only IOC record means
+Disabled mode or unhealthy control; it is not proof of physical standstill or a
+hardware e-stop readback. Check both busy readbacks and communication health.
+The existing `ESTOP` is a momentary software STOP ALL command, not a physical
+e-stop. STOP ALL disables ownership; axis STOP disarms joystick input while
+retaining the selected mode. Neither removes holding current. After joystick
+loss, reselect Joystick and release the deadman with both axes neutral before
+moving again. No command is replayed after reconnect.
+
+For strictly in-process ownership tests without network or hardware:
+
+```sh
+python3 -m unittest discover -s tools/pcl602_shim -p test_joystick_ownership.py -v
+```
+
 ## Test without hardware
 
 The simulator never opens USB and does not start a physical joystick worker:

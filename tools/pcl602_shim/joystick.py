@@ -84,6 +84,8 @@ class PygameJoystickWorker:
                     self._poll_device(pygame, joystick)
                 except Exception:
                     LOG.exception("Joystick polling failed")
+                    # Stop immediately, before waiting to reconnect.
+                    self.coordinator.joystick_disconnected()
                     time.sleep(self.config.reconnect_seconds)
                 finally:
                     self.coordinator.joystick_disconnected()

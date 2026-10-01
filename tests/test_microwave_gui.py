@@ -320,6 +320,20 @@ class MicrowaveGUI(unittest.TestCase):
                     pv,
                 )
 
+    def test_robot_ownership_actions_and_status(self):
+        root = parse(ROBOT)
+        modes = [action.findtext('value') for action in root.iter('action')
+                 if action.attrib.get('type') == 'write_pv'
+                 and action.findtext('pv_name') == 'pva://$(P):CONTROL_MODE']
+        self.assertEqual(modes, ['0', '1', '2'])
+        for path, prefix in ((ROBOT, 'pva://$(P):'),
+                             (MAIN, 'pva://UNH:GEN:MW:ROBOT:')):
+            pvs = widget_pvs(path, {'textupdate', 'led'})
+            for name in ('CONTROL_MODE', 'JOYSTICK_CONNECTED', 'MOTION_INHIBITED',
+                         'X_BUSY', 'Y_BUSY', 'X_LIMITS', 'Y_LIMITS'):
+                self.assertIn(prefix + name, pvs)
+        self.assertIn('pva://$(P):JOYSTICK_ACTIVE', pv_names(ROBOT))
+
     def test_supervisor_detail_contains_safety_interface(self):
         pvs = pv_names(SUP)
 

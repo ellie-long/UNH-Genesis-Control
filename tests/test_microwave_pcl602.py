@@ -246,7 +246,7 @@ class PCL602LocalSimulation(unittest.TestCase):
         )
 
         for axis in ("X", "Y"):
-            self.assertFalse(
+            self.assertTrue(
                 state["axes"][axis]["motor_enabled"]
             )
 
