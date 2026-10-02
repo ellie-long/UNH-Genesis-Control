@@ -16,11 +16,9 @@
 # Recommended install:
 #   cp genesisctl.sh scripts/genesisctl.sh
 #   chmod +x scripts/genesisctl.sh
-#   alias genesis='/absolute/path/to/genesis-phase1/scripts/genesisctl.sh'
+#   alias genesis='/absolute/path/to/genesis/scripts/genesisctl.sh'
 #
 set -u
-
-DEFAULT_ROOT="/Users/shrestha/project/unh/genesis/Development/genesis-phase1"
 
 die() {
     echo "ERROR: $*" >&2
@@ -58,21 +56,16 @@ find_root() {
         return 0
     fi
 
-    # User's established Mac repository path.
-    if [ -f "${DEFAULT_ROOT}/master_ioc.py" ]; then
-        printf '%s\n' "${DEFAULT_ROOT}"
-        return 0
-    fi
-
     return 1
 }
 
-ROOT="$(find_root)" || die "Could not locate genesis-phase1 repository."
+ROOT="$(find_root)" || die "Could not locate Genesis repository."
 cd "${ROOT}" || die "Could not cd to ${ROOT}"
 
 START_SCRIPT="${ROOT}/scripts/start_genesis_mac.sh"
 STOP_SCRIPT="${ROOT}/scripts/stop_genesis_mac.sh"
 SIM_SCRIPT="${ROOT}/scripts/start_ssrf_sim_active.sh"
+MICROWAVE_PHYSICAL_SCRIPT="${ROOT}/scripts/microwave_physical.sh"
 SSRF_PHYSICAL_STATUS_SCRIPT="${ROOT}/scripts/check_ssrf_physical_readonly.sh"
 SSRF_FINAL_START_SCRIPT="${ROOT}/scripts/start_ssrf_physical.sh"
 SSRF_FINAL_STOP_SCRIPT="${ROOT}/scripts/stop_ssrf_physical.sh"
@@ -121,6 +114,12 @@ EVERYDAY
   git                  Show branch, HEAD, worktree, submodule and stash.
                        READ-ONLY; stash is never modified.
   endpoints            Show configured device endpoint/write safety settings.
+
+MICROWAVE PHYSICAL OPERATION
+  mw-start              Start the validated Microwave physical/control stack.
+  mw-status             Read-only status of the Microwave physical stack.
+  mw-rf-ready           Verify the Microwave RF-control readiness conditions.
+  mw-stop               Run the verified Microwave safe shutdown workflow.
 
 SSRF PHYSICAL OPERATION
   ssrf-physical-status Read-only physical ssRF/Keysight status and safe baseline.
@@ -180,6 +179,11 @@ Examples:
   genesis start
   genesis status
   genesis physical-status
+  genesis mw-start
+  genesis mw-status
+  genesis mw-rf-ready
+  genesis mw-stop
+
   genesis ssrf-physical-status
   genesis ssrf-deploy-keysight
   genesis ssrf-start
@@ -220,7 +224,7 @@ doctor() {
 
     echo
     echo "===== REQUIRED REPOSITORY SCRIPTS ====="
-    for f in "${START_SCRIPT}" "${STOP_SCRIPT}" "${SIM_SCRIPT}" "${SSRF_PHYSICAL_STATUS_SCRIPT}" "${SSRF_FINAL_START_SCRIPT}" "${SSRF_FINAL_STOP_SCRIPT}" "${SSRF_KEYSIGHT_DEPLOY_SCRIPT}"; do
+    for f in "${START_SCRIPT}" "${STOP_SCRIPT}" "${SIM_SCRIPT}" "${MICROWAVE_PHYSICAL_SCRIPT}" "${SSRF_PHYSICAL_STATUS_SCRIPT}" "${SSRF_FINAL_START_SCRIPT}" "${SSRF_FINAL_STOP_SCRIPT}" "${SSRF_KEYSIGHT_DEPLOY_SCRIPT}"; do
         if [ -f "${f}" ]; then
             pass "${f#${ROOT}/}"
         else
@@ -790,6 +794,51 @@ check_all() {
     git_state
 }
 
+mw_physical_start() {
+    require_env
+    require_file "${MICROWAVE_PHYSICAL_SCRIPT}"
+
+    echo
+    echo "===== START MICROWAVE PHYSICAL STACK ====="
+    echo "+ ./scripts/microwave_physical.sh start"
+
+    "${MICROWAVE_PHYSICAL_SCRIPT}" start
+}
+
+mw_physical_status() {
+    require_env
+    require_file "${MICROWAVE_PHYSICAL_SCRIPT}"
+
+    echo
+    echo "===== MICROWAVE PHYSICAL STATUS ====="
+    echo "+ ./scripts/microwave_physical.sh status"
+
+    "${MICROWAVE_PHYSICAL_SCRIPT}" status
+}
+
+mw_rf_ready() {
+    require_env
+    require_file "${MICROWAVE_PHYSICAL_SCRIPT}"
+
+    echo
+    echo "===== MICROWAVE RF READINESS ====="
+    echo "+ ./scripts/microwave_physical.sh rf-ready"
+
+    "${MICROWAVE_PHYSICAL_SCRIPT}" rf-ready
+}
+
+mw_physical_stop() {
+    require_env
+    require_file "${MICROWAVE_PHYSICAL_SCRIPT}"
+
+    echo
+    echo "===== STOP MICROWAVE PHYSICAL STACK ====="
+    echo "+ ./scripts/microwave_physical.sh stop"
+
+    "${MICROWAVE_PHYSICAL_SCRIPT}" stop
+}
+
+
 ssrf_physical_status() {
     require_env
     echo
@@ -907,6 +956,19 @@ case "${cmd}" in
     endpoints)
         show_endpoints
         ;;
+    mw-start)
+        mw_physical_start
+        ;;
+    mw-status)
+        mw_physical_status
+        ;;
+    mw-rf-ready)
+        mw_rf_ready
+        ;;
+    mw-stop)
+        mw_physical_stop
+        ;;
+
     ssrf-physical-status)
         ssrf_physical_status
         ;;
