@@ -41,7 +41,7 @@
     <y>18</y>
     <width>330</width>
     <height>24</height>
-    <text>PCL602 status / commissioning</text>
+    <text>PCL602 operator motion</text>
     <font>
       <font family="Liberation Sans" style="REGULAR" size="12.0" />
     </font>
@@ -224,25 +224,24 @@
     <format>6</format>
   </widget>
   <widget type="label" version="2.0.0">
-    <name>Firmware_L</name>
+    <name>ControllerError_L</name>
     <x>340</x>
     <y>190</y>
-    <width>80</width>
+    <width>130</width>
     <height>24</height>
-    <text>Firmware:</text>
+    <text>Controller error:</text>
     <font>
       <font family="Liberation Sans" style="REGULAR" size="13.0" />
     </font>
     <transparent>true</transparent>
   </widget>
   <widget type="textupdate" version="2.0.0">
-    <name>Firmware_V</name>
-    <x>420</x>
+    <name>ControllerError_V</name>
+    <x>470</x>
     <y>188</y>
-    <width>250</width>
+    <width>200</width>
     <height>25</height>
-    <pv_name>pva://$(P):FIRMWARE</pv_name>
-    <format>6</format>
+    <pv_name>pva://$(P):CONTROLLER_ERROR</pv_name>
   </widget>
   <widget type="label" version="2.0.0">
     <name>RobotError_L</name>
@@ -324,9 +323,9 @@
     <name>User_H</name>
     <x>145</x>
     <y>375</y>
-    <width>120</width>
+    <width>160</width>
     <height>24</height>
-    <text>User position</text>
+    <text>User position (cm)</text>
     <font>
       <font family="Liberation Sans" style="BOLD" size="13.0" />
     </font>
@@ -338,7 +337,7 @@
     <y>375</y>
     <width>140</width>
     <height>24</height>
-    <text>Machine position</text>
+    <text>Machine pos. (cm)</text>
     <font>
       <font family="Liberation Sans" style="BOLD" size="13.0" />
     </font>
@@ -372,9 +371,9 @@
     <name>Motor_H</name>
     <x>775</x>
     <y>375</y>
-    <width>80</width>
+    <width>100</width>
     <height>24</height>
-    <text>Motor</text>
+    <text>Motor enabled</text>
     <font>
       <font family="Liberation Sans" style="BOLD" size="13.0" />
     </font>
@@ -585,13 +584,17 @@
     </font>
     <transparent>true</transparent>
   </widget>
-  <widget type="bool_button" version="2.0.0">
+  <widget type="action_button" version="3.0.0">
     <name>ESTOP</name>
-    <x>200</x>
-    <y>640</y>
-    <width>150</width>
-    <height>32</height>
-    <pv_name>pva://$(P):ESTOP</pv_name>
+    <x>200</x><y>637</y><width>150</width><height>42</height>
+    <text>STOP ALL</text>
+    <background_color><color red="200" green="50" blue="50" /></background_color>
+    <foreground_color><color red="255" green="255" blue="255" /></foreground_color>
+    <actions><action type="write_pv">
+      <pv_name>pva://$(P):ESTOP</pv_name><value>1</value>
+      <description>Software STOP ALL; disable ownership and preserve holding current</description>
+    </action></actions>
+    <tooltip>Software stop, not a hardware E-stop. Stops both axes and selects Disabled.</tooltip>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Limits_Config_L</name>
@@ -680,7 +683,7 @@
     <y>700</y>
     <width>920</width>
     <height>70</height>
-    <text>Select Disabled, EPICS or Joystick ownership explicitly. STOP ALL disables both modes and preserves holding current. Joystick motion requires neutral with deadman released after mode changes or reconnects. Limits remain enforced by the shim. Confirm reference, limits and button mapping before physical commissioning.</text>
+    <text>Select Disabled, EPICS or Joystick ownership explicitly. STOP ALL disables both modes and preserves holding current. Joystick motion requires neutral with deadman released after mode changes or reconnects. Limits remain enforced by the shim. EPICS jog requires both axes idle, fresh and motor-enabled. Check Fault for rejected commands.</text>
     <font>
       <font family="Liberation Sans" style="REGULAR" size="12.0" />
     </font>
@@ -693,7 +696,7 @@
     <y>825</y>
     <width>980</width>
     <height>50</height>
-    <text>Physical operation must begin from the verified home reference. Use the hardware enable/stop procedure during commissioning.</text>
+    <text>Each jog click requests one bounded move in cm. The IOC and shim enforce motion safety and travel limits. Motor enable and calibration remain commissioning procedures; this screen does not enable motors.</text>
     <font>
       <font family="Liberation Sans" style="REGULAR" size="12.0" />
     </font>
@@ -757,5 +760,101 @@
   <widget type="textupdate" version="2.0.0">
     <name>YHardwareLimits_V</name><x>565</x><y>780</y><width>145</width><height>24</height>
     <pv_name>pva://$(P):Y_LIMITS</pv_name><format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Jog_H</name><x>885</x><y>375</y><width>110</width><height>24</height>
+    <text>Jog direction</text><transparent>true</transparent>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>X_Jog_Minus</name><x>875</x><y>413</y><width>60</width><height>36</height>
+    <text>X−</text>
+    <actions><action type="write_pv"><pv_name>pva://$(P):X_JOG</pv_name><value>-1</value><description>Jog X− by selected distance in cm</description></action></actions>
+    <tooltip>One bounded jog per click. Requires healthy EPICS ownership and both axes idle, fresh and motor-enabled. IOC checks remain authoritative.</tooltip>
+    <enabled>false</enabled>
+    <rules><rule name="Healthy EPICS ownership and both axes ready" prop_id="enabled" out_exp="false">
+      <exp bool_exp="pv0 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pv1 == 1 &amp;&amp; pvSev1 == 0 &amp;&amp; pv2 == 0 &amp;&amp; pvSev2 == 0 &amp;&amp; pv3 == 0 &amp;&amp; pvSev3 == 0 &amp;&amp; pv4 == 1 &amp;&amp; pvSev4 == 0 &amp;&amp; pv5 == 1 &amp;&amp; pvSev5 == 0 &amp;&amp; pv6 == 1 &amp;&amp; pvSev6 == 0 &amp;&amp; pv7 == 1 &amp;&amp; pvSev7 == 0"><value>true</value></exp>
+      <exp bool_exp="!(pv0 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pv1 == 1 &amp;&amp; pvSev1 == 0 &amp;&amp; pv2 == 0 &amp;&amp; pvSev2 == 0 &amp;&amp; pv3 == 0 &amp;&amp; pvSev3 == 0 &amp;&amp; pv4 == 1 &amp;&amp; pvSev4 == 0 &amp;&amp; pv5 == 1 &amp;&amp; pvSev5 == 0 &amp;&amp; pv6 == 1 &amp;&amp; pvSev6 == 0 &amp;&amp; pv7 == 1 &amp;&amp; pvSev7 == 0)"><value>false</value></exp>
+      <pv_name>pva://$(P):COMM_STATUS</pv_name>
+      <pv_name>pva://$(P):CONTROL_MODE</pv_name>
+      <pv_name>pva://$(P):X_BUSY</pv_name>
+      <pv_name>pva://$(P):Y_BUSY</pv_name>
+      <pv_name>pva://$(P):X_POSITION_FRESH</pv_name>
+      <pv_name>pva://$(P):Y_POSITION_FRESH</pv_name>
+      <pv_name>pva://$(P):X_MOTOR_ENABLE</pv_name>
+      <pv_name>pva://$(P):Y_MOTOR_ENABLE</pv_name>
+    </rule></rules>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>X_Jog_Plus</name><x>940</x><y>413</y><width>60</width><height>36</height>
+    <text>X+</text>
+    <actions><action type="write_pv"><pv_name>pva://$(P):X_JOG</pv_name><value>1</value><description>Jog X+ by selected distance in cm</description></action></actions>
+    <tooltip>One bounded jog per click. Requires healthy EPICS ownership and both axes idle, fresh and motor-enabled. IOC checks remain authoritative.</tooltip>
+    <enabled>false</enabled>
+    <rules><rule name="Healthy EPICS ownership and both axes ready" prop_id="enabled" out_exp="false">
+      <exp bool_exp="pv0 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pv1 == 1 &amp;&amp; pvSev1 == 0 &amp;&amp; pv2 == 0 &amp;&amp; pvSev2 == 0 &amp;&amp; pv3 == 0 &amp;&amp; pvSev3 == 0 &amp;&amp; pv4 == 1 &amp;&amp; pvSev4 == 0 &amp;&amp; pv5 == 1 &amp;&amp; pvSev5 == 0 &amp;&amp; pv6 == 1 &amp;&amp; pvSev6 == 0 &amp;&amp; pv7 == 1 &amp;&amp; pvSev7 == 0"><value>true</value></exp>
+      <exp bool_exp="!(pv0 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pv1 == 1 &amp;&amp; pvSev1 == 0 &amp;&amp; pv2 == 0 &amp;&amp; pvSev2 == 0 &amp;&amp; pv3 == 0 &amp;&amp; pvSev3 == 0 &amp;&amp; pv4 == 1 &amp;&amp; pvSev4 == 0 &amp;&amp; pv5 == 1 &amp;&amp; pvSev5 == 0 &amp;&amp; pv6 == 1 &amp;&amp; pvSev6 == 0 &amp;&amp; pv7 == 1 &amp;&amp; pvSev7 == 0)"><value>false</value></exp>
+      <pv_name>pva://$(P):COMM_STATUS</pv_name>
+      <pv_name>pva://$(P):CONTROL_MODE</pv_name>
+      <pv_name>pva://$(P):X_BUSY</pv_name>
+      <pv_name>pva://$(P):Y_BUSY</pv_name>
+      <pv_name>pva://$(P):X_POSITION_FRESH</pv_name>
+      <pv_name>pva://$(P):Y_POSITION_FRESH</pv_name>
+      <pv_name>pva://$(P):X_MOTOR_ENABLE</pv_name>
+      <pv_name>pva://$(P):Y_MOTOR_ENABLE</pv_name>
+    </rule></rules>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Y_Jog_Minus</name><x>875</x><y>473</y><width>60</width><height>36</height>
+    <text>Y−</text>
+    <actions><action type="write_pv"><pv_name>pva://$(P):Y_JOG</pv_name><value>-1</value><description>Jog Y− by selected distance in cm</description></action></actions>
+    <tooltip>One bounded jog per click. Requires healthy EPICS ownership and both axes idle, fresh and motor-enabled. IOC checks remain authoritative.</tooltip>
+    <enabled>false</enabled>
+    <rules><rule name="Healthy EPICS ownership and both axes ready" prop_id="enabled" out_exp="false">
+      <exp bool_exp="pv0 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pv1 == 1 &amp;&amp; pvSev1 == 0 &amp;&amp; pv2 == 0 &amp;&amp; pvSev2 == 0 &amp;&amp; pv3 == 0 &amp;&amp; pvSev3 == 0 &amp;&amp; pv4 == 1 &amp;&amp; pvSev4 == 0 &amp;&amp; pv5 == 1 &amp;&amp; pvSev5 == 0 &amp;&amp; pv6 == 1 &amp;&amp; pvSev6 == 0 &amp;&amp; pv7 == 1 &amp;&amp; pvSev7 == 0"><value>true</value></exp>
+      <exp bool_exp="!(pv0 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pv1 == 1 &amp;&amp; pvSev1 == 0 &amp;&amp; pv2 == 0 &amp;&amp; pvSev2 == 0 &amp;&amp; pv3 == 0 &amp;&amp; pvSev3 == 0 &amp;&amp; pv4 == 1 &amp;&amp; pvSev4 == 0 &amp;&amp; pv5 == 1 &amp;&amp; pvSev5 == 0 &amp;&amp; pv6 == 1 &amp;&amp; pvSev6 == 0 &amp;&amp; pv7 == 1 &amp;&amp; pvSev7 == 0)"><value>false</value></exp>
+      <pv_name>pva://$(P):COMM_STATUS</pv_name>
+      <pv_name>pva://$(P):CONTROL_MODE</pv_name>
+      <pv_name>pva://$(P):X_BUSY</pv_name>
+      <pv_name>pva://$(P):Y_BUSY</pv_name>
+      <pv_name>pva://$(P):X_POSITION_FRESH</pv_name>
+      <pv_name>pva://$(P):Y_POSITION_FRESH</pv_name>
+      <pv_name>pva://$(P):X_MOTOR_ENABLE</pv_name>
+      <pv_name>pva://$(P):Y_MOTOR_ENABLE</pv_name>
+    </rule></rules>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Y_Jog_Plus</name><x>940</x><y>473</y><width>60</width><height>36</height>
+    <text>Y+</text>
+    <actions><action type="write_pv"><pv_name>pva://$(P):Y_JOG</pv_name><value>1</value><description>Jog Y+ by selected distance in cm</description></action></actions>
+    <tooltip>One bounded jog per click. Requires healthy EPICS ownership and both axes idle, fresh and motor-enabled. IOC checks remain authoritative.</tooltip>
+    <enabled>false</enabled>
+    <rules><rule name="Healthy EPICS ownership and both axes ready" prop_id="enabled" out_exp="false">
+      <exp bool_exp="pv0 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pv1 == 1 &amp;&amp; pvSev1 == 0 &amp;&amp; pv2 == 0 &amp;&amp; pvSev2 == 0 &amp;&amp; pv3 == 0 &amp;&amp; pvSev3 == 0 &amp;&amp; pv4 == 1 &amp;&amp; pvSev4 == 0 &amp;&amp; pv5 == 1 &amp;&amp; pvSev5 == 0 &amp;&amp; pv6 == 1 &amp;&amp; pvSev6 == 0 &amp;&amp; pv7 == 1 &amp;&amp; pvSev7 == 0"><value>true</value></exp>
+      <exp bool_exp="!(pv0 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pv1 == 1 &amp;&amp; pvSev1 == 0 &amp;&amp; pv2 == 0 &amp;&amp; pvSev2 == 0 &amp;&amp; pv3 == 0 &amp;&amp; pvSev3 == 0 &amp;&amp; pv4 == 1 &amp;&amp; pvSev4 == 0 &amp;&amp; pv5 == 1 &amp;&amp; pvSev5 == 0 &amp;&amp; pv6 == 1 &amp;&amp; pvSev6 == 0 &amp;&amp; pv7 == 1 &amp;&amp; pvSev7 == 0)"><value>false</value></exp>
+      <pv_name>pva://$(P):COMM_STATUS</pv_name>
+      <pv_name>pva://$(P):CONTROL_MODE</pv_name>
+      <pv_name>pva://$(P):X_BUSY</pv_name>
+      <pv_name>pva://$(P):Y_BUSY</pv_name>
+      <pv_name>pva://$(P):X_POSITION_FRESH</pv_name>
+      <pv_name>pva://$(P):Y_POSITION_FRESH</pv_name>
+      <pv_name>pva://$(P):X_MOTOR_ENABLE</pv_name>
+      <pv_name>pva://$(P):Y_MOTOR_ENABLE</pv_name>
+    </rule></rules>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Speed_L</name><x>45</x><y>533</y><width>100</width><height>24</height>
+    <text>Speed profile:</text><transparent>true</transparent>
+  </widget>
+  <widget type="combo" version="2.0.0">
+    <name>Speed_Mode</name><x>145</x><y>530</y><width>150</width><height>28</height>
+    <pv_name>pva://$(P):SPEED_MODE</pv_name><items_from_pv>true</items_from_pv><tooltip>Select Slow, Medium or Fast using the existing shim profiles.</tooltip>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>JogDistance_L</name><x>340</x><y>533</y><width>135</width><height>24</height>
+    <text>Jog distance (cm):</text><transparent>true</transparent>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>Jog_Distance_CM</name><x>480</x><y>530</y><width>150</width><height>28</height>
+    <pv_name>pva://$(P):JOG_DISTANCE_CM</pv_name><precision>4</precision><tooltip>Positive distance in cm. Editing never starts motion; IOC validates range and resolution.</tooltip>
   </widget>
 </display>
