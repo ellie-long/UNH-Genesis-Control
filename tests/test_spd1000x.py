@@ -14,9 +14,6 @@ softioc.builder = types.SimpleNamespace(**{name: Mock(side_effect=lambda *a, **k
     for name in ('aOut', 'aIn', 'boolOut', 'boolIn', 'stringIn')})
 sys.modules['softioc'] = softioc
 sys.path.append(str(Path(__file__).resolve().parents[1]))
-# Local staging fallback for the shared BaseDevice reference.
-if not (Path(__file__).resolve().parents[1] / 'devices').exists():
-    sys.path.append('/Users/blimric06/softioc_toolkit')
 from microwave_ioc.spd1305x.toolkit_device import Device
 
 class Supply:

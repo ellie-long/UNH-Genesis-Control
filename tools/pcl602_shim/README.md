@@ -6,9 +6,10 @@ EPICS clients → IOC computer → TCP port 1702 → Raspberry Pi → USB → PC
                                               USB joystick
 ```
 
-The IOC is one file: `devices/instruments/pcl602.py`. It depends on the toolkit's
-`BaseDevice` and pythonSoftIOC. It needs neither pyserial nor pygame. The complete
-Pi runtime is this folder; it does not import the old `pcl602_ioc` package or EPICS.
+The Genesis IOC lives in `microwave_ioc/pcl602/toolkit_device.py` and uses the
+vendored Genesis `BaseDevice` foundation plus pythonSoftIOC. It needs neither
+pyserial nor pygame. The complete Pi runtime is this folder; it does not import
+the old `pcl602_ioc` package or EPICS.
 Python 3.10 or newer is required on the Pi.
 
 ## Raspberry Pi setup
@@ -68,20 +69,20 @@ The repository's `robot` entry uses this driver. Set its `ip` to the Pi's real
 hostname/IP (`raspberrypi.local` is an editable placeholder):
 
 ```yaml
-robot:
-  module: devices.instruments.pcl602
-  ip: raspberrypi.local
+pcl602:
+  module: microwave_ioc.pcl602.toolkit_device
+  ip: mmWaveRobot.local
   port: 1702
   timeout: 3.0
-  delay: 0.20
+  delay: 0.2
   channels: [X, Y]
-  axis_map: {X: X, Y: Y}
+  require_speed_profiles: true
 ```
 
-Run from the toolkit root with the normal toolkit environment:
+Run from the Genesis repository root with the Genesis environment:
 
 ```sh
-python master_ioc.py -i robot
+python master_ioc.py -s configs/microwave/pcl602 -i pcl602
 ```
 
 The regular IOC read loop is the heartbeat. There is deliberately no separate

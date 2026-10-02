@@ -1,8 +1,8 @@
 """
 Common Genesis extension of James Maxwell's BaseDevice.
 
-James Maxwell's epics-device-lib remains an upstream dependency and is not
-modified here.
+James Maxwell's upstream BaseDevice foundation is vendored in
+genesis_common.upstream_base_device; provenance is documented in NOTICE.md.
 
 Genesis additions:
 - reliable connection cleanup

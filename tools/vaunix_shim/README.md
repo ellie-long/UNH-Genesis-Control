@@ -28,11 +28,11 @@ laptop: run_from_laptop.py -> SSH deploy/start -> Pi: vaunix_shim.py + liblmshid
 
 ## Run it
 
-From `/Users/blimric06/softioc_toolkit` on the laptop:
+From the Genesis repository root:
 
 ```bash
 source venv/bin/activate
-python tools/vaunix_shim/run_from_laptop.py
+python tools/vaunix_shim/run_from_laptop.py --settings configs/microwave/vaunix_lms/settings.yaml
 ```
 
 This reads `settings.yaml`, copies the shim and ARM object to the Pi, links
@@ -42,7 +42,7 @@ if the Pi account uses a password. The first run needs the Pi packages `gcc`,
 `python3`, and libusb. Later runs can skip deployment:
 
 ```bash
-python tools/vaunix_shim/run_from_laptop.py --no-deploy
+python tools/vaunix_shim/run_from_laptop.py --settings configs/microwave/vaunix_lms/settings.yaml --no-deploy
 ```
 
 Use `--shim-only` to start and check the shim without starting EPICS.
@@ -79,7 +79,7 @@ There is no fake Python library or Python simulation path.
 - `run_from_laptop.py`: deployment, ARM linking, service installation, local IOC.
 - `vaunix_shim.py`: ctypes signatures, device selection, API errors, 10 Hz /
   0.25 dBm conversion, and serialized access.
-- `devices/instruments/vaunix_lms.py`: TCP and EPICS records; no ARM library.
+- `microwave_ioc/vaunix_lms/toolkit_device.py`: Genesis TCP/EPICS IOC; no ARM vendor library.
 
 ## Wire protocol
 
