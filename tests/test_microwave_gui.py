@@ -1,4 +1,5 @@
 from pathlib import Path
+import itertools
 import unittest
 import xml.etree.ElementTree as ET
 
@@ -43,6 +44,19 @@ def widget_pvs(path, kinds):
     return result
 
 
+
+def write_pvs(path):
+    """Include action writes as well as direct PV input widgets."""
+    root = parse(path)
+    writes = widget_pvs(path, {
+        "textentry", "combo", "spinner", "slider", "slide_button",
+        "bool_button", "choice_button", "radio", "checkbox",
+    })
+    writes.update(action.findtext("pv_name") for action in root.iter("action")
+                  if action.attrib.get("type") == "write_pv")
+    return writes
+
+
 def open_files(path):
     root = parse(path)
 
@@ -56,14 +70,9 @@ def open_files(path):
 class MicrowaveGUI(unittest.TestCase):
 
     def test_all_gui_files_are_valid_xml(self):
-        for path in (
-            MAIN,
-            SUP,
-            UCA,
-            VAUNIX,
-            ROBOT,
-        ):
-            parse(path)
+        for path in GUI.rglob("*.bob"):
+            with self.subTest(path=path):
+                parse(path)
 
     def test_main_uses_genesis_1180_layout(self):
         root = parse(MAIN)
@@ -290,35 +299,97 @@ class MicrowaveGUI(unittest.TestCase):
             forbidden.isdisjoint(writes)
         )
 
-    def test_robot_detail_exposes_stop_but_not_motion(self):
-        writes = widget_pvs(
-            ROBOT,
-            {
-                "textentry",
-                "slide_button",
-                "bool_button",
-            },
-        )
+    def test_robot_operator_commands_are_bounded_and_explicit(self):
+        self.assertEqual(write_pvs(ROBOT), {
+            "pva://$(P):" + name for name in (
+                "CONTROL_MODE", "SPEED_MODE", "JOG_DISTANCE_CM",
+                "X_JOG", "Y_JOG", "ESTOP",
+            )
+        })
+        root = parse(ROBOT)
+        jogs = [action for action in root.iter("action")
+                if action.findtext("pv_name") in
+                {"pva://$(P):X_JOG", "pva://$(P):Y_JOG"}]
+        self.assertEqual(len(jogs), 4)
+        for axis in ("X", "Y"):
+            self.assertEqual(sorted(action.findtext("value") for action in jogs
+                                    if action.findtext("pv_name") ==
+                                    f"pva://$(P):{axis}_JOG"), ["-1", "1"])
+            for action in jogs:
+                self.assertEqual(action.attrib["type"], "write_pv")
+        inputs = {widget.findtext("name"): widget for widget in root.iter("widget")}
+        self.assertEqual(inputs["Speed_Mode"].attrib["type"], "combo")
+        self.assertEqual(inputs["Speed_Mode"].findtext("items_from_pv"), "true")
+        self.assertEqual(inputs["Jog_Distance_CM"].attrib["type"], "textentry")
 
-        self.assertIn(
-            "pva://$(P):ESTOP",
-            writes,
-        )
+    def test_robot_operator_status_is_read_only(self):
+        readbacks = widget_pvs(ROBOT, {"textupdate", "led"})
+        for name in ("COMM_STATUS", "CONTROL_MODE", "LAST_ERROR", "CONTROLLER_ERROR",
+                     "X_CM", "Y_CM", "X_BUSY", "Y_BUSY", "X_POSITION_FRESH",
+                     "Y_POSITION_FRESH", "X_MOTOR_ENABLE", "Y_MOTOR_ENABLE"):
+            self.assertIn("pva://$(P):" + name, readbacks)
+        for pv in write_pvs(ROBOT):
+            for forbidden in ("MOVE_REL", "HOME", "ZERO", "MACHINE_", "LIMIT_",
+                              "SOFT_LIMIT", "MAX_SPEED", "ACCEL", "MOTOR_ENABLE",
+                              "READ_ERROR"):
+                self.assertNotIn(forbidden, pv)
+        for pv in pv_names(ROBOT):
+            for forbidden in ("MOVE_REL", "_HOME", "_ZERO", "MACHINE_SET",
+                              "MACHINE_APPLY", "LIMIT_LOW_SET", "LIMIT_HIGH_SET",
+                              "LIMIT_ENABLE_SET", "LIMIT_APPLY", "MAX_SPEED", "ACCEL"):
+                self.assertNotIn(forbidden, pv)
 
-        forbidden_fragments = (
-            "MOVE_REL",
-            "_JOG",
-            "MOTOR_ENABLE",
-            "_HOME",
-            "_ZERO",
-        )
+    def test_robot_jog_rules_require_healthy_epics_and_both_axes_ready(self):
+        expected = ["COMM_STATUS", "CONTROL_MODE", "X_BUSY", "Y_BUSY",
+                    "X_POSITION_FRESH", "Y_POSITION_FRESH",
+                    "X_MOTOR_ENABLE", "Y_MOTOR_ENABLE"]
+        jog_widgets = [widget for widget in parse(ROBOT).iter("widget")
+                       if widget.findtext("name", "").startswith(("X_Jog_", "Y_Jog_"))]
+        self.assertEqual(len(jog_widgets), 4)
+        for widget in jog_widgets:
+            self.assertEqual(widget.findtext("enabled"), "false")
+            rule = widget.find("rules/rule")
+            self.assertEqual(rule.attrib["prop_id"], "enabled")
+            self.assertEqual(rule.attrib["out_exp"], "false")
+            self.assertEqual([pv.text for pv in rule.findall("pv_name")],
+                             ["pva://$(P):" + name for name in expected])
+            expressions = rule.findall("exp")
+            self.assertEqual([exp.findtext("value") for exp in expressions],
+                             ["true", "false"])
+            # Exercise the serialized Boolean rules across every binary readiness
+            # combination, all ownership modes and individual alarm/disconnect states.
+            def evaluate(values, severities):
+                variables = {f"pv{i}": value for i, value in enumerate(values)}
+                variables.update({f"pvSev{i}": value for i, value in enumerate(severities)})
+                results = [eval(exp.attrib["bool_exp"].replace("&&", " and ")
+                                .replace("!", "not "), {"__builtins__": {}}, variables)
+                           for exp in expressions]
+                return results
 
-        for pv in writes:
-            for fragment in forbidden_fragments:
-                self.assertNotIn(
-                    fragment,
-                    pv,
-                )
+            ready = [1, 1, 0, 0, 1, 1, 1, 1]
+            for values in itertools.product((0, 1), repeat=7):
+                for mode in (0, 1, 2):
+                    state = [values[0], mode, *values[1:]]
+                    allowed = state == ready
+                    self.assertEqual(evaluate(state, [0] * 8), [allowed, not allowed])
+            for index in range(8):
+                for severity in (1, 2, 3):
+                    alarms = [0] * 8
+                    alarms[index] = severity
+                    self.assertEqual(evaluate(ready, alarms), [False, True])
+
+    def test_robot_stop_all_is_explicit_and_ungated(self):
+        stop = next(widget for widget in parse(ROBOT).iter("widget")
+                    if widget.findtext("name") == "ESTOP")
+        self.assertEqual(stop.attrib["type"], "action_button")
+        self.assertEqual(stop.findtext("text"), "STOP ALL")
+        self.assertEqual(stop.findtext("enabled", "true"), "true")
+        self.assertIsNone(stop.find("rules"))
+        actions = stop.findall("actions/action")
+        self.assertEqual(len(actions), 1)
+        self.assertEqual(actions[0].attrib["type"], "write_pv")
+        self.assertEqual(actions[0].findtext("pv_name"), "pva://$(P):ESTOP")
+        self.assertEqual(actions[0].findtext("value"), "1")
 
     def test_robot_ownership_actions_and_status(self):
         root = parse(ROBOT)
