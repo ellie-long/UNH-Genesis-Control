@@ -21,7 +21,7 @@ It does not yet constitute powered amplified-RF or target-connected commissionin
 
 `ssrf-start` is the single final physical operator startup path.
 
-The earlier physical-no-RF demo path is retained only as commissioning history.
+The earlier physical-no-RF demo is retained only as commissioning documentation; its dedicated runtime path has been removed.
 
 ## Validated adaptive-burn GUI workflow
 

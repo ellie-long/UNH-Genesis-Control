@@ -146,8 +146,8 @@ The validated source-control workflow is described in:
     docs/SSRF_FINAL_PHYSICAL_OPERATION.md
     docs/SSRF_PHYSICAL_COMMISSIONING.md
 
-The historical physical-no-RF demonstration path is retained only for
-commissioning history and is not the final physical operator workflow.
+The historical physical-no-RF commissioning record is retained in documentation
+only; its dedicated runtime scripts, IOC, and Phoebus profile have been removed.
 
 ## Simulation
 
@@ -329,7 +329,7 @@ In particular:
   combined macOS launcher;
 - `start_genesis_mac.sh` and `stop_genesis_mac.sh` are not the canonical dedicated
   physical Microwave or final ssRF operator paths;
-- the physical-no-RF ssRF demo is historical commissioning material;
+- the physical-no-RF ssRF demo survives only as historical commissioning documentation;
 - older configuration directories may remain while migration to the final
   independent Genesis layout is completed.
 

@@ -33,9 +33,6 @@ class GenesisPhoebusLauncher(unittest.TestCase):
     def test_normal_startup_uses_shared_launcher(self):
         self.assertIn("scripts/start_genesis_phoebus.sh", (ROOT / "scripts/start_genesis_mac.sh").read_text())
 
-    def test_physical_demo_uses_shared_launcher(self):
-        self.assertIn("scripts/start_genesis_phoebus.sh", (ROOT / "scripts/start_ssrf_physical_no_rf_demo.sh").read_text())
-
     def test_ssrf_detail_navigation_uses_tabs(self):
         text = (ROOT / "gui/genesis_ssrf.bob").read_text()
         self.assertNotIn("<target>window</target>", text)

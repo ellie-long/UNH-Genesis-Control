@@ -2,7 +2,9 @@
 
 This document records the earlier physical no-RF commissioning workflow.
 
-It is retained for historical traceability only and is not the final operator path.
+The dedicated demo runtime has been removed from the active Genesis tree.
+This document is retained only as a historical commissioning record. Commands
+shown below are archival examples and are not current runnable operator paths.
 
 Use `SSRF_FINAL_PHYSICAL_OPERATION.md` and the `ssrf-start` / `ssrf-stop` workflow for current operation.
 
@@ -38,7 +40,7 @@ Hard safety boundary:
 - Demo ARM authorizes switch motion only; it cannot enable SMC RF/FM or Keysight output.
 - The normal production sequencer/ARM logic is unchanged.
 
-Start:
+Historical startup command (dedicated script removed):
 
 ```bash
 ./scripts/start_ssrf_physical_no_rf_demo.sh
@@ -55,7 +57,7 @@ Then use `gui/genesis_ssrf.bob` only, in order:
 `ssRF MODE` is optional because BLAST/BURN selects the ssRF fitter mode and
 performs the fresh fit → WaveformPlan → physical load transaction automatically.
 
-Stop/restore:
+Historical stop/restore command (dedicated script removed):
 
 ```bash
 ./scripts/stop_ssrf_physical_no_rf_demo.sh
@@ -135,8 +137,9 @@ Fit mode             = ssRF
 Both physical Mini-Circuits switch boxes visibly actuated and returned.
 
 `gui/genesis_ssrf_demo.bob` was a temporary commissioning harness and
-has been removed. The physical no-RF commissioning backend and profile
-remain available for future controlled hardware checks.
+has been removed. The dedicated physical no-RF commissioning backend,
+launcher scripts, and Phoebus profile were subsequently removed after
+the final physical ssRF workflow superseded them.
 
 
 ## Operator entry point

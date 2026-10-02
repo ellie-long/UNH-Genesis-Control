@@ -30,8 +30,9 @@ Lower-level commands:
 
 `ssrf-physical-status` remains an explicit direct diagnostic/safe-OFF preflight,
 not a runtime-health check during RF operation. `ssrf-deploy-keysight` deploys
-runtime files only. Historical no-RF demonstration procedures are in
-`SSRF_PHYSICAL_NO_RF_DEMO.md`; they are not the current operator workflow.
+runtime files only. A historical no-RF commissioning record is preserved in
+`SSRF_PHYSICAL_NO_RF_DEMO.md`; its dedicated runtime has been removed and it is
+not a current operator workflow.
 
 ## 1. Plain manual RF
 

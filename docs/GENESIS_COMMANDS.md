@@ -318,4 +318,4 @@ STOP verifies the safe baseline before owner termination; lock/verification
 failure retains owners and returns nonzero. ACF/direct-CA ownership remains a
 physical acceptance item. The current canonical procedure is
 `SSRF_OPERATOR_QUICK_START.md`; details are in `SSRF_FINAL_PHYSICAL_OPERATION.md`.
-Historical no-RF commissioning records retain their historical commands.
+Historical no-RF commissioning records may show their original commands; the dedicated demo runtime has been removed.
