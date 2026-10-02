@@ -21,7 +21,7 @@ import time
 
 from softioc import alarm, builder
 
-from devices.base_device import BaseDevice
+from genesis_common.upstream_base_device import BaseDevice
 
 
 log = logging.getLogger(__name__)

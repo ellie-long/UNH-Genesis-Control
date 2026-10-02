@@ -29,18 +29,19 @@ builder = types.SimpleNamespace(**{name: lambda name, *args, **kw: Record(name, 
     for name in ('aIn', 'aOut', 'longIn', 'longOut', 'boolIn', 'boolOut', 'mbbOut', 'stringIn')})
 alarm = types.SimpleNamespace(NO_ALARM=0, MAJOR_ALARM=2, COMM_ALARM=9)
 root = HERE.parents[1]
-# Load driver under isolated package names without affecting real devices imports.
+# Load the actual Genesis PCL602 IOC driver under an isolated package name.
+# Its BaseDevice dependency resolves through genesis_common while softioc is mocked.
 package = types.ModuleType('_pcl_test_devices'); package.__path__ = []
 instruments = types.ModuleType('_pcl_test_devices.instruments'); instruments.__path__ = []
 with patch.dict(sys.modules, {'softioc': types.SimpleNamespace(builder=builder, alarm=alarm),
                              '_pcl_test_devices': package,
                              '_pcl_test_devices.instruments': instruments}):
-    for name, path in [('_pcl_test_devices.base_device', root/'devices/base_device.py'),
-                        ('_pcl_test_devices.instruments.pcl602', root/'microwave_ioc/pcl602/toolkit_device.py')]:
-        spec = importlib.util.spec_from_file_location(name, path)
-        module = importlib.util.module_from_spec(spec)
-        sys.modules[name] = module
-        spec.loader.exec_module(module)
+    name = '_pcl_test_devices.instruments.pcl602'
+    driver_path = root/'microwave_ioc/pcl602/toolkit_device.py'
+    spec = importlib.util.spec_from_file_location(name, driver_path)
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[name] = module
+    spec.loader.exec_module(module)
     Device, Client, DeviceRefused = module.Device, module.DeviceConnection, module.DeviceRefused
 
 CONFIG = json.loads((HERE/'config.json').read_text())

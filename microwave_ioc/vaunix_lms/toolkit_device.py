@@ -9,7 +9,7 @@ import threading
 import time
 
 from softioc import builder
-from devices.base_device import BaseDevice
+from genesis_common.upstream_base_device import BaseDevice
 
 LOG = logging.getLogger(__name__)
 

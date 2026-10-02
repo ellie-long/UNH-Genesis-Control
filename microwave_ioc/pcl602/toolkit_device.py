@@ -14,7 +14,7 @@ import threading
 from types import SimpleNamespace
 from decimal import Decimal, ROUND_HALF_UP
 from softioc import alarm, builder
-from devices.base_device import BaseDevice
+from genesis_common.upstream_base_device import BaseDevice
 
 
 class DeviceRefused(ValueError):

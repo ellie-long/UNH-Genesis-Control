@@ -6,7 +6,7 @@ import threading
 
 from softioc import alarm, builder
 
-from devices.base_device import BaseDevice
+from genesis_common.upstream_base_device import BaseDevice
 
 from .controller import SPD1000XController, SocketSCPITransport
 

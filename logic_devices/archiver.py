@@ -7,7 +7,7 @@ import csv
 import os
 from pathlib import Path
 from softioc import builder
-from devices.base_device import BaseDevice
+from genesis_common.upstream_base_device import BaseDevice
 import yaml
 
 
