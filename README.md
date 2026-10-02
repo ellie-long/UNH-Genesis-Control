@@ -1,249 +1,377 @@
-# EPICS IOC Framework in Python
+# UNH Genesis Phase-I Control System
 
-A Python-based EPICS IOC (Input/Output Controller) framework for scientific instrumentation control and data acquisition using [pythonSoftIOC](https://diamondlightsource.github.io/pythonSoftIOC/master/index.html). Designed for physics experiments requiring integration of multiple devices including temperature controllers, pressure gauges, power supplies, and motor controllers.
+Genesis is the EPICS-based control, acquisition, and integration framework being
+developed for the University of New Hampshire polarized-target laboratory.
 
-## Features
+The objective is not simply to replace individual LabVIEW programs with Python.
+Genesis provides a common device and subsystem architecture so independently
+controlled laboratory hardware can be integrated into coordinated target-system
+operation, monitored through common EPICS interfaces, archived with common
+timestamps, and later supervised by higher-level automation and machine-learning
+systems.
 
-- **Modular Device Support**: Extensible driver architecture supporting Modbus, Telnet, and custom protocols
-- **YAML Configuration**: Simple configuration management via `settings.yaml`
-- **Data Archiving**: Built-in data logging with deadband logic and web-based viewer
-- **Status Management**: Automated state machine for experimental procedures
-- **GUI Integration**: CS-Studio/Phoebus display files included
-- **IOC Management**: Centralized control of multiple IOC instances
+## Current scope
 
-## Example Devices
+The Phase-I architecture is organized around four target subsystems:
 
-- **Datexel**: Modbus I/O modules (8017 ADC, 8018 Thermocouple, 8024 DAC, 8130 Relay)
-- **Lakeshore**: Temperature controllers (218, 336)
-- **Scientific Instruments**: SI9700 temperature controller
-- **Cryomagnetics**: CS-4 and CM4G magnet power supplies, LM-500 level probe
-- **Rigol**: DP832 power supply
-- **Pfeiffer**: TPG 26x vacuum gauges
-- **MKS**: 937B pressure controllers
-- **Zaber**: Motor controllers
-- **American Magnetics**: AMI 136 level monitor
+- Microwave
+- Magnet
+- NMR
+- ssRF
 
-## Quick Start
+The current repository contains the operational Microwave and ssRF integration
+work, together with common EPICS infrastructure, Phoebus interfaces, archiving,
+simulation profiles, fitter/Burn Setup software, safety/interlock logic, and
+hardware communication shims.
 
-1. **Clone with submodules**:
-   ```bash
-   git clone --recurse-submodules https://github.com/jdmax/softioc_toolkit.git
-   cd softioc_toolkit
-   # If you cloned without --recurse-submodules, run:
-   # git submodule update --init
-   ```
+NMR/PyNMR and Magnet integration are subsequent Genesis integration milestones.
+Cryogenic and higher-level supervisory systems are later extensions.
 
-2. **Install dependencies**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate
-   pip install -r requirements.txt
-   ```
-   The IOC manager script requires GNU Screen to be installed to manage IOC instances (`sudo apt install screen`).
-
-3. **Configure devices** in `settings.yaml`:
-   ```yaml
-   general:
-     prefix: MYLAB
-
-   my_device:
-     module: 'devices.instruments.ls218'
-     ip: '192.168.1.100'
-     port: '1001'
-     channels: ['Temp1', 'Temp2']
-   ```
-
-4. **Start an IOC**:
-   ```bash
-   python master_ioc.py -i my_device
-   ```
-
-5. **View archive data**:
-   ```bash
-   cd archive
-   ./start_archive_viewer.sh
-   ```
-
-## Repository Structure
-
-```
-softioc_toolkit/
-├── devices/              ← git submodule: epics-device-lib (shared instrument drivers)
-│   ├── base_device.py    ← BaseDevice ABC
-│   ├── modbus_base.py    ← ModbusDevice + ModbusConnection
-│   ├── telnet_base.py    ← TelnetDevice + TelnetConnection
-│   └── instruments/      ← concrete drivers (ls218, dat8024, zaber_motor, …)
-├── logic_devices/        ← deployment-specific drivers (not in the shared library)
-│   ├── archiver.py       ← EPICS PV archiver
-│   ├── status_ioc.py     ← experimental state machine
-│   └── states.yaml       ← alarm/setpoint table for target states
-├── master_ioc.py         ← IOC entry point
-└── settings.yaml         ← device configuration
-```
-
-Module paths in `settings.yaml` follow the package structure:
-
-| Driver type | Module path |
-|---|---|
-| Shared instrument driver | `devices.instruments.<name>` |
-| Deployment-specific driver | `logic_devices.<name>` |
-| Transport base (if referenced directly) | `devices.<base>` |
+Physical launchers existing in this repository must not be interpreted as blanket
+hardware acceptance. RF-enabled operation remains subject to the current
+commissioning status, subsystem safety procedures, and operator verification.
 
 ## Architecture
 
-- **Base Classes**: `BaseDevice`, `ModbusDevice`, `TelnetDevice` — defined in `devices/` (the `epics-device-lib` submodule)
-- **Instrument Drivers**: `devices/instruments/` — one module per hardware model, shared across deployments via the submodule
-- **Deployment Drivers**: `logic_devices/` — site-specific drivers (archiver, status IOC) that live only in this repo
-- **Master IOC**: `master_ioc.py` handles IOC lifecycle; loads driver modules dynamically via `importlib` using `module:` from `settings.yaml`
-- **Archiver**: Automatic data logging with configurable deadband and time intervals
-- **Status IOC**: State machine management for complex experimental procedures
+Genesis follows a layered control model:
 
-## Creating a New Deployment
+    Physical hardware
+        |
+        v
+    Device-specific Python driver/controller
+        |
+        v
+    Device EPICS soft IOC
+        |
+        v
+    Subsystem control and safety logic
+        |
+        v
+    Genesis integrated EPICS system
+        |
+        +--> IOC/process management
+        +--> Phoebus operator interfaces
+        +--> archiving and logging
+        +--> interlocks and supervisory logic
+        |
+        v
+    Future ML/AI supervisory and feedback control
 
-This repository is both a working IOC deployment and the starting point for new ones. A
-deployment is this framework plus the configuration for one lab or experiment: the PV prefix,
-the device list in `settings.yaml`, any site-specific drivers in `logic_devices/`, and the
-CS-Studio/Phoebus screens in `gui/`. None of the framework code needs to be renamed — the
-prefix is read from `settings.yaml` at runtime — so a new deployment is a clone with its own
-configuration and its own GitHub repository.
+The design keeps physical device ownership at the device IOC layer while
+coordinated operations are implemented above it through subsystem logic,
+sequencers, supervisors, and EPICS PV contracts.
 
-### 1. Clone and rename
+See `docs/GENESIS_PHASE1_INTEGRATION_ARCHITECTURE.md` for the detailed Phase-I
+architecture.
 
-```bash
-git clone --recurse-submodules https://github.com/jdmax/softioc_toolkit.git mylab_ioc
-cd mylab_ioc
-```
+## Safety principles
 
-### 2. Decide what to do with the history
+Genesis physical operation is designed around several invariants:
 
-Start a fresh history if the new deployment should not carry this repository's commits:
+- Physical startup defaults to a safe state.
+- Microwave RF, ssRF RF, ssRF FM, WaveGen output, and robot motion are never
+  automatically enabled merely by starting the software stack.
+- RF ON requires an explicit operator action.
+- Status and read-only commands must not change physical hardware state.
+- Physical and simulation profiles remain explicitly separated.
+- Only one software owner may control a physical instrument at a time.
+- Simultaneously running EPICS services must use non-conflicting CA/PVA ports.
+- Hard communication, interlock, configuration, emergency-stop, and ownership
+  failures may inhibit physical operation.
+- Shutdown establishes and verifies the subsystem safe state before terminating
+  physical hardware owners whenever verification is available.
 
-```bash
-rm -rf .git
-git init
-git submodule add https://github.com/jdmax/epics-device-lib.git devices
-git add .
-git commit -m "Initial commit: new deployment from softioc_toolkit"
-```
+Do not bypass hard safety interlocks to force hardware operation.
 
-Alternatively, keep the history and simply repoint the remote (see step 3). Keeping it makes it
-easy to merge later framework updates; discarding it gives a clean log for the new lab.
+## Canonical physical operator paths
 
-### 3. Create the GitHub repository
+Activate the Genesis environment first:
 
-```bash
-gh repo create <org>/mylab_ioc --private --source=. --remote=origin --push
-```
+    conda activate genesis-p1
 
-Or create the repository through the GitHub web interface and point this clone at it:
+### Microwave
 
-```bash
-git remote set-url origin https://github.com/<org>/mylab_ioc.git   # or: git remote add origin ...
-git push -u origin main
-```
+The dedicated Microwave physical profile is:
 
-If you kept the original history, also keep a link to the framework so improvements can be
-pulled in later:
+    configs/commissioning/microwave_physical/
 
-```bash
-git remote add upstream https://github.com/jdmax/softioc_toolkit.git
-git fetch upstream
-git merge upstream/main        # when you want framework updates
-```
+Canonical commands:
 
-### 4. Configure the deployment
+    ./scripts/microwave_physical.sh start
+    ./scripts/microwave_physical.sh status
+    ./scripts/microwave_physical.sh stop
 
-| What to change | Where | Notes |
-|---|---|---|
-| PV prefix | `settings.yaml` → `general.prefix` | Prefixes every PV; used by `master_ioc.py`, `ioc_manager.py`, and `tools/ioc_cli.py` |
-| Device list | `settings.yaml` | Delete the example devices, then add one top-level key per IOC with its `module`, `ip`, `port`, `channels`, and `records` |
-| Archiver | `settings.yaml` → `archiver` | Set `archive_path`, `deadband`, `time_increment` |
-| Status IOC | `settings.yaml` → `status` and `logic_devices/states.yaml` | Update `full_status` PVs and the state/alarm table, or remove the `status` block entirely if the deployment has no state machine |
-| Site-specific drivers | `logic_devices/` | Keep `archiver.py` and `status_ioc.py`; add or remove others as needed |
-| Operator screens | `gui/` | `liquifier.bob` is specific to this deployment — replace it with your own screens; `archive.bob` is generic |
-| Logging | `settings.yaml` → `general.log_dir`, `epics_addr_list` | `logs/` and `archive/data/` are gitignored and created at runtime |
-| Project identity | `README.md`, `LICENSE` | Describe the new deployment and set the correct copyright holder |
+The physical stack integrates the Siglent SPD1305X UCA supply, Vaunix/LabBrick
+source, PCL602 robot, Microwave Supervisor, IOC Manager, Phoebus GUI, and Genesis
+archiver.
 
-### 5. Keep the shared driver library shared
+Detailed procedures and RF constraints are documented in:
 
-The `devices/` submodule stays pointed at
-[epics-device-lib](https://github.com/jdmax/epics-device-lib) — do not fork it per deployment.
-New generic instrument drivers belong upstream in that library so every deployment benefits;
-each deployment pins the submodule to whichever tag it has been tested against:
+    docs/MICROWAVE_PHYSICAL_OPERATION.md
+    docs/MICROWAVE_RF_OPERATION.md
 
-```bash
-cd devices && git fetch --tags && git checkout <tag> && cd ..
-git add devices && git commit -m "Pin epics-device-lib to <tag>"
-```
+Physical hardware procedure and current commissioning constraints take precedence
+over general software documentation.
 
-Only drivers that make no sense outside this one deployment go in `logic_devices/`.
+### ssRF
 
-### 6. Verify
+The final physical ssRF profile is:
 
-```bash
-python -m venv venv && source venv/bin/activate
-pip install -r requirements.txt
-python master_ioc.py -i <device_name>      # start one IOC in the foreground
-caget <PREFIX>:<DEVICE>:<CHANNEL>          # confirm the PVs appear
-./start_ioc_manager.sh                     # start all autostart IOCs under screen
-./commander.sh                             # curses monitor for the running IOCs
-```
+    configs/ssrf_physical/
 
-## Adding a New Instrument Driver
+Canonical operator commands:
 
-New generic drivers belong in the `epics-device-lib` library, not this repo:
+    ./scripts/genesisctl.sh ssrf-physical-status
+    ./scripts/genesisctl.sh ssrf-deploy-keysight
+    ./scripts/genesisctl.sh ssrf-start
+    ./scripts/genesisctl.sh ssrf-stop
 
-1. Add the driver to `devices/instruments/` in the [epics-device-lib](https://github.com/jdmax/epics-device-lib) repo, commit, and tag a new version.
-2. Update the submodule pin here: `cd devices && git checkout <new-tag> && cd .. && git add devices && git commit`
-3. Add the corresponding `module: 'devices.instruments.<name>'` entry to `settings.yaml`.
+`ssrf-start` is the final operator-facing physical ssRF startup path.
 
-For drivers that are specific to this deployment, add them to `logic_devices/` instead.
+The stack owns or coordinates:
 
-## Configuration
+- R&S SMC100A
+- Keysight WaveGen
+- NMR protection switch
+- ssRF routing switch
+- ssRF interlock
+- ssRF sequencer
+- online fitter
+- Burn Setup / waveform preparation
+- Genesis archiver
+- Phoebus ssRF interface
 
-Each device is configured in `settings.yaml` with:
-- Network connection parameters (IP, port, timeout)
-- Channel mappings and names
-- EPICS record properties (limits, units, descriptions)
-- Device-specific settings
+The validated source-control workflow is described in:
 
-## Data Archiving
+    docs/SSRF_FINAL_PHYSICAL_OPERATION.md
+    docs/SSRF_PHYSICAL_COMMISSIONING.md
 
-The built-in archiver automatically logs PV values to CSV files when:
-- Value changes exceed configurable deadband threshold
-- Maximum time interval expires
-- Includes web-based viewer for historical data analysis
+The historical physical-no-RF demonstration path is retained only for
+commissioning history and is not the final physical operator workflow.
 
+## Simulation
 
-## Author
-Written in 2023-2025 by J. Maxwell (https://orcid.org/0000-0003-2710-4646).
+Physical and simulation configurations are intentionally separate.
 
-## Citation
+Current commissioning simulation profiles include:
 
-Further details are available in our paper:
+    configs/commissioning/microwave_sim/
+    configs/commissioning/ssrf_sim_active/
 
-J. Maxwell, "EPICS for small-scale laboratories with Python soft IOCs," *J. Instrum.* **21** P03030 (2026). [https://doi.org/10.1088/1748-0221/21/03/P03030](https://doi.org/10.1088/1748-0221/21/03/P03030)
+The active ssRF simulation can be controlled through:
+
+    ./scripts/genesisctl.sh sim-start
+    ./scripts/genesisctl.sh sim-status
+    ./scripts/genesisctl.sh sim-stop
+
+Simulation must not be silently substituted for a physical profile.
+
+## Repository structure
+
+    genesis_common/
+        Common Genesis device infrastructure, access control, SCPI/VISA helpers,
+        and the vendored upstream BaseDevice foundation.
+
+    microwave_ioc/
+        Microwave device IOCs and controllers for the SPD1305X, Vaunix/LabBrick,
+        and PCL602 robot.
+
+    ssrf_ioc/
+        ssRF hardware IOCs including SMC100A, Keysight WaveGen, Mini-Circuits
+        switching, and supporting device interfaces.
+
+    logic_devices/
+        Subsystem-level safety, sequencing, lifecycle, supervisor, and archiver
+        logic.
+
+    online_fitter/
+        EPICS-connected NMR fitter and adaptive waveform/Burn Setup interface.
+
+    ssrf_analysis/
+        ssRF analysis and waveform-generation support.
+
+    configs/
+        Device, subsystem, commissioning, access-security, Phoebus, and archiver
+        configuration profiles.
+
+    gui/
+        Genesis Phoebus `.bob` operator screens.
+
+    archive/
+        Genesis archive viewer and archive-analysis support.
+
+    scripts/
+        Operator startup, shutdown, deployment, validation, and subsystem helper
+        scripts.
+
+    tools/
+        Hardware shims, simulation tools, validation utilities, and CLI support.
+
+    tests/
+        Repository regression and safety tests.
+
+    docs/
+        Architecture, commissioning, operator, and subsystem documentation.
+
+    master_ioc.py
+        Generic Genesis soft-IOC runtime.
+
+    ioc_manager.py
+        EPICS IOC process manager.
+
+## EPICS conventions
+
+Genesis uses a common UNH namespace rooted at:
+
+    UNH:GEN
+
+Subsystems use dedicated namespaces such as:
+
+    UNH:GEN:MW
+    UNH:GEN:SSRF
+
+The architecture separates commands from readbacks where required and exposes
+communication state, error information, safety state, and process health through
+EPICS.
+
+Device IOCs should own hardware communication. Higher-level subsystem code should
+coordinate devices through defined EPICS interfaces rather than bypassing device
+ownership.
+
+## Phoebus
+
+Current Genesis operator displays are stored in `gui/`.
+
+Primary subsystem displays include:
+
+    gui/genesis_microwave.bob
+    gui/genesis_ssrf.bob
+
+Device/detail displays are maintained alongside the subsystem screens.
+
+Subsystem-specific Phoebus launchers are preferred over broad process matching so
+Microwave, ssRF, and unrelated Java applications remain independently owned.
+
+## Archiving
+
+Genesis provides a common EPICS archiver and a local historical archive viewer.
+
+Start the viewer with:
+
+    ./scripts/genesisctl.sh archive-viewer
+
+The viewer runs locally through Streamlit and uses the Genesis archive data
+without taking ownership of physical hardware.
+
+## Python environment
+
+Current Python runtime dependencies are listed in:
+
+    requirements.txt
+
+The validated development/commissioning environment is named:
+
+    genesis-p1
+
+The physical launch scripts currently require that environment to be active.
+
+## Testing
+
+The canonical repository-wide regression command is:
+
+    python -m pytest -q
+
+At cleanup checkpoint `113bd27`, the full repository suite completed with:
+
+    741 passed, 140 subtests passed
+
+Focused regression entry points are also available:
+
+    ./scripts/genesisctl.sh test-mw
+    ./scripts/genesisctl.sh test-ssrf
+    ./scripts/genesisctl.sh test-fitter
+    ./scripts/genesisctl.sh test-auth
+
+Before committing code changes, also run:
+
+    git diff --check
+
+and the relevant focused regression tests.
+
+## Development workflow
+
+Do not develop physical-control changes directly on the main branch.
+
+Use focused feature or fix branches, keep unrelated changes in separate commits,
+and preserve validated physical milestones and tags.
+
+For physical-control changes:
+
+1. Inspect the existing hardware-control path.
+2. Identify command and readback PVs.
+3. Separate hard safety interlocks from commissioning restrictions.
+4. Add or update regression tests.
+5. Validate behavior without physical hardware first.
+6. Perform physical validation as a distinct final step.
+
+Repository cleanup, Ubuntu deployment, NMR/PyNMR integration, Magnet integration,
+and later unified supervisory/ML control should preserve the same ownership and
+safety architecture.
+
+## Transitional and historical paths
+
+Some scripts and documents remain because they record earlier Phase-I integration
+or support transitional development workflows.
+
+In particular:
+
+- generic `genesisctl start` / `genesisctl stop` currently route through the older
+  combined macOS launcher;
+- `start_genesis_mac.sh` and `stop_genesis_mac.sh` are not the canonical dedicated
+  physical Microwave or final ssRF operator paths;
+- the physical-no-RF ssRF demo is historical commissioning material;
+- older configuration directories may remain while migration to the final
+  independent Genesis layout is completed.
+
+For physical operation, use the subsystem-specific canonical commands documented
+above.
+
+## Documentation
+
+Important references include:
+
+    docs/GENESIS_PHASE1_INTEGRATION_ARCHITECTURE.md
+    docs/MICROWAVE_PHYSICAL_OPERATION.md
+    docs/MICROWAVE_RF_OPERATION.md
+    docs/SSRF_FINAL_PHYSICAL_OPERATION.md
+    docs/SSRF_PHYSICAL_COMMISSIONING.md
+    docs/GENESIS_COMMANDS.md
+
+Some older documents preserve commissioning history and may describe superseded
+entry points. The canonical physical commands are identified in this README and
+the current subsystem physical-operation documents.
+
+## Provenance
+
+Genesis incorporates and extends earlier EPICS software developed for the UNH
+polarized-target program.
+
+The common BaseDevice foundation derived from James Maxwell's earlier EPICS work
+is vendored into this repository so Genesis no longer requires the former
+`devices` Git submodule at runtime.
+
+Additional subsystem implementations include work adapted from earlier UNH DAQ
+and ssRF development.
+
+Detailed source provenance is maintained in:
+
+    NOTICE.md
 
 ## License
 
-MIT License - see [LICENSE](LICENSE) file for details.
+This repository retains its existing MIT license.
 
-## Genesis Phase-I operator documentation
+See:
 
-Primary operator and commissioning references:
-
-```text
-docs/GENESIS_COMMANDS.md
-docs/MACOS_GENESIS_QUICK_START.md
-docs/SSRF_PHYSICAL_COMMISSIONING.md
-docs/SSRF_FITTER_INTERFACE_PLAN.md
-docs/SSRF_DATA_LOGGING.md
-```
-
-For the proven physical ssRF read-only status check:
-
-```bash
-./scripts/genesisctl.sh physical-status
-```
-
-Physical hardware write commissioning is intentionally separate from the normal read-only startup and status workflow.
+    LICENSE
+    NOTICE.md
