@@ -494,8 +494,10 @@ Phase-I control path:
         -> ssRF chain
         -> safe restoration to NMR
 
-The Agilent trigger/burst system is considered legacy / out of scope for
-Phase I unless the project scope changes later.
+The Agilent trigger/burst system is legacy / out of scope for Phase I.
+Its dedicated Genesis driver, simulator, configuration, and tests have been
+removed from the active repository tree. The implementation remains available
+through Git history if the project scope changes later.
 
 ### Commissioning status as of 2026-09-27
 
