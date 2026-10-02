@@ -1,6 +1,6 @@
 """PCL602 robot IOC over TCP. All USB, motion limits and joystick logic live on the Pi.
 
-Settings: module: devices.instruments.pcl602; ip; port (1702); timeout (3);
+Settings: module: microwave_ioc.pcl602.toolkit_device; ip; port (1702); timeout (3);
 channels: [X, Y]; optional axis_map. No pyserial or pygame required on IOC host.
 """
 from __future__ import annotations

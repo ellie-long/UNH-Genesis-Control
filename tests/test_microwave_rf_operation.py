@@ -899,11 +899,11 @@ import asyncio
 from pathlib import Path
 from unittest.mock import patch
 import yaml
-import devices
 from softioc import builder
+from genesis_common.upstream_base_device import BaseDevice
 from microwave_ioc.vaunix_lms.toolkit_device import Device
 from logic_devices.microwave_supervisor.device import Device as Supervisor
-assert Path(devices.__file__).resolve().parent == Path.cwd() / 'devices'
+assert issubclass(Device, BaseDevice)
 builder.SetDeviceName('OFFICE:SOURCE')
 cfg = yaml.safe_load(Path('configs/commissioning/microwave_sim/vaunix_lms/settings.yaml').read_text())['vaunix_lms']
 with patch('socket.create_connection', side_effect=AssertionError('no sockets')), patch('subprocess.run', side_effect=AssertionError('no SSH')):

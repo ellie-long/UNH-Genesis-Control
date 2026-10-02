@@ -4,7 +4,6 @@ No robot hardware is contacted.
 """
 import asyncio
 from collections import Counter
-import importlib.util
 import json
 from pathlib import Path
 import sys
@@ -17,8 +16,7 @@ def main():
     sys.path.insert(0,str(repo/'tools/pcl602_shim'))
     from pcl602_shim import Robot, Simulator, Server
     from softioc import builder, softioc, asyncio_dispatcher
-    spec=importlib.util.spec_from_file_location('devices.instruments.pcl602',repo/'devices/instruments/pcl602.py')
-    module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+    from microwave_ioc.pcl602 import toolkit_device as module
     cfg=json.loads((repo/'tools/pcl602_shim/config.json').read_text())
     robot=Robot(Simulator(),cfg)
     calls=Counter()
