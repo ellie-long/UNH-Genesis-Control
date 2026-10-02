@@ -16,7 +16,7 @@ class Ownership(unittest.IsolatedAsyncioTestCase):
     async def test_ssrf_only_and_repeated_missing_gui(self):
         runtime = FakeProcesses([java(1, SETTINGS, RESOURCE), java(2),
                                  Process(3, 'today', '/jdk/bin/java -jar unrelated.jar'),
-                                 java(4, SETTINGS, ROOT / 'gui/archive.bob'),
+                                 java(4, SETTINGS, ROOT / 'gui/genesis_ssrf_wavegen.bob'),
                                  java(5, ROOT / 'configs/phoebus/genesis_mac_settings.ini', RESOURCE)])
         await close_instance(SETTINGS, RESOURCE, runtime)
         await close_instance(SETTINGS, RESOURCE, runtime)

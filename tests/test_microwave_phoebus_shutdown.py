@@ -35,7 +35,7 @@ class PhoebusShutdown(unittest.IsolatedAsyncioTestCase):
     async def test_only_microwave_java_instances_close(self):
         ssrf = java(2, ROOT / 'configs/phoebus/ssrf_physical.ini', ROOT / 'gui/genesis_ssrf.bob')
         unrelated = Process(3, 'today', '/jdk/bin/java -jar unrelated.jar')
-        other_phoebus = java(4, SETTINGS, ROOT / 'gui/archive.bob')
+        other_phoebus = java(4, SETTINGS, ROOT / 'gui/genesis_mw_robot.bob')
         other_profile = java(5, ROOT / 'configs/phoebus/ssrf_physical.ini', RESOURCE)
         launcher = Process(6, 'today', f'/bin/sh main.command -settings {SETTINGS} -resource {RESOURCE}')
         runtime = FakeProcesses([java(1), ssrf, unrelated, other_phoebus, other_profile, launcher, java(7)])
