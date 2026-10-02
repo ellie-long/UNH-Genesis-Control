@@ -248,7 +248,7 @@ class LabBrick:
 
     def _stop_and_mute(self):
         errors = []
-        for operation in (lambda: self._check(self.api.start_sweep(self.device_id, False), "stop sweep"),
+        for operation in (lambda: self.set_sweep_flag("RUN", False),
                           lambda: self._check(self.api.set_rf(self.device_id, False), "disable RF")):
             try:
                 operation()
@@ -259,11 +259,16 @@ class LabBrick:
                 errors.append("RF OFF not confirmed")
         except Exception as exc:
             errors.append(str(exc))
+        try:
+            if self.sweep_active() != 0:
+                errors.append("sweep stop not confirmed")
+        except Exception as exc:
+            errors.append(str(exc))
         if errors:
             raise VaunixError("; ".join(errors))
 
     def _enforce_safe_state(self):
-        """Always stop sweeps and disable RF whenever a device is opened."""
+        """Confirm sweeps stopped and RF disabled whenever a device is opened."""
         self._stop_and_mute()
 
     def frequency(self):
@@ -348,9 +353,17 @@ class LabBrick:
             raise VaunixError(f"{label} read failed or is out of range (0x{raw:08X})")
         return value
 
-    def sweep_state(self):
+    def _sweep_status(self):
         status = int(self.api.get_status(self.device_id)) & 0xFFFFFFFF
         if status & ERROR_BIT: raise VaunixError(f"device status read failed (0x{status:08X})")
+        return status
+
+    def sweep_active(self):
+        # Status alone works even before frequency limits/endpoints are read.
+        return int(bool(self._sweep_status() & SWEEP_ACTIVE_BIT))
+
+    def sweep_state(self):
+        status = self._sweep_status()
         step_raw = int(self.api.get_sweep_step(self.device_id))
         # LMS-123 test mode returns BAD_PARAMETER because that simulated model
         # does not implement stepped sweep. Report 0 (unavailable) without
@@ -394,6 +407,20 @@ class LabBrick:
         return int(self.api.get_sweep_time(self.device_id))
 
     def set_sweep_flag(self, name, enabled):
+        if name == "RUN" and not enabled:
+            # Do not issue StartSweep(False) for an already stopped CW source:
+            # this vendor sweep operation may also select a sweep frequency.
+            # Unknown status still requires a stop attempt, never a skipped stop.
+            try:
+                inactive = self.sweep_active() == 0
+            except Exception:
+                inactive = False
+            if inactive:
+                return 0
+            self._check(self.api.start_sweep(self.device_id, False), "stop sweep")
+            if self.sweep_active() != 0:
+                raise VaunixError("sweep stop not confirmed")
+            return 0
         setters = {"DIRECTION": self.api.set_sweep_direction,
                    "REPEAT": self.api.set_sweep_repeat,
                    "BIDIRECTIONAL": self.api.set_sweep_bidirectional,

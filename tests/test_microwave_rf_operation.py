@@ -11,7 +11,7 @@ import yaml
 
 from logic_devices.microwave_supervisor.device import Device as Supervisor
 from microwave_ioc.vaunix_lms.toolkit_device import Device as Source, ShimRejected
-from tools.vaunix_shim.vaunix_shim import Protocol, ControlLease, LabBrick, VaunixError, Server
+from tools.vaunix_shim.vaunix_shim import Protocol, ControlLease, LabBrick, VaunixError, Server, SWEEP_ACTIVE_BIT
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -105,6 +105,60 @@ class Transport:
     def close(self): self.lease.disconnect(self.client)
 
 
+class ResetOnStopAPI:
+    """Model the suspected vendor side effect; no library/hardware is loaded."""
+
+    def __init__(self):
+        self.frequency = 1_166_666_667  # Vendor units: 10 Hz.
+        self.active, self.r = 0, 1
+        self.calls = []
+        self.fail_stop = self.stuck_sweep = self.fail_status = False
+        self.fail_off = self.stuck_rf = False
+
+    def get_status(self, device):
+        self.calls.append('status')
+        return 0x80000000 if self.fail_status else self.active * SWEEP_ACTIVE_BIT
+
+    def start_sweep(self, device, enabled):
+        self.calls.append('stop')
+        self.frequency = 1_200_000_000
+        if self.fail_stop: return 0x80000000
+        if not self.stuck_sweep: self.active = int(enabled)
+        return 0
+
+    def set_rf(self, device, enabled):
+        self.calls.append(('rf', bool(enabled)))
+        if self.fail_off and not enabled: return 0x80000000
+        if not self.stuck_rf: self.r = int(enabled)
+        return 0
+
+    def get_rf(self, device):
+        self.calls.append('read_rf')
+        return self.r
+
+
+def vendor_brick():
+    api = ResetOnStopAPI()
+    # Complete the read-only API used by the real shim protocol.
+    getters = dict(get_frequency=lambda d: api.frequency, get_power=lambda d: 40,
+                   get_reference=lambda d: 1, get_pll_lock=lambda d: 1,
+                   get_sweep_start=lambda d: 1_150_000_000,
+                   get_sweep_end=lambda d: 1_200_000_000,
+                   get_sweep_step=lambda d: 100_000, get_sweep_time=lambda d: 1000,
+                   get_sweep_repeat=lambda d: 0, get_sweep_bidirectional=lambda d: 0,
+                   get_external_trigger=lambda d: 0,
+                   set_sweep_direction=lambda d, v: 0, set_sweep_repeat=lambda d, v: 0,
+                   set_sweep_bidirectional=lambda d, v: 0,
+                   set_external_trigger=lambda d, v: 0)
+    for name, getter in getters.items(): setattr(api, name, getter)
+    brick = LabBrick(api)
+    brick.device_id = 1
+    brick.minimum_frequency_hz, brick.maximum_frequency_hz = 8e9, 12e9
+    brick.allowed_min_hz, brick.allowed_max_hz = 11.5e9, 142e9 / 12
+    brick.minimum_power_dbm, brick.maximum_power_dbm = -40, 10
+    return brick, api
+
+
 class RFIntegration(unittest.IsolatedAsyncioTestCase):
     async def asyncSetUp(self):
         self.patches=[]
@@ -145,6 +199,29 @@ class RFIntegration(unittest.IsolatedAsyncioTestCase):
 
     async def on(self): await self.sup._set_rf(1)
     async def off(self): await self.sup._set_rf(0)
+
+    async def test_cw_off_preserves_carrier_through_real_vendor_boundary(self):
+        brick, api = vendor_brick()
+        self.lease.protocol.brick = brick
+        self.source._off()
+        self.source.read_outs()
+        await self.sup.do_reads()
+        await self.on()
+        self.assertEqual(api.r, 1)
+        api.calls.clear()
+        for _ in range(2):
+            await self.off()
+            self.source.read_outs()
+            await self.sup.do_reads()
+            self.assertEqual(api.r, 0)
+            self.assertEqual(api.frequency, 1_166_666_667)
+            self.assertEqual(self.source.pvs['MW_FI'].get(), 11.66666667)
+            self.assertAlmostEqual(self.source.pvs['MW_OutFI'].get(), 140.00000004)
+            self.assertTrue(self.sup.pvs['RFPermissive'].get())
+            self.assertTrue(self.source._off_confirmed)
+        self.assertNotIn('stop', api.calls)
+        self.assertEqual(api.calls.count(('rf', False)), 2)
+        self.assertGreaterEqual(api.calls.count('read_rf'), 2)
 
     async def test_source_identical_frequency_request_after_readback_diverges(self):
         command = self.source.pvs['MW_FC']
@@ -546,9 +623,121 @@ class LeaseTests(unittest.TestCase):
 
 
 class VendorSafety(unittest.TestCase):
+    def test_cw_safe_off_skips_frequency_resetting_vendor_stop(self):
+        brick, api = vendor_brick()
+        lease = ControlLease(Protocol(brick))
+        for _ in range(2):
+            self.assertTrue(lease.safe_off())
+            self.assertEqual(api.r, 0)
+            self.assertEqual(brick.frequency(), 11_666_666_670)
+        self.assertNotIn('stop', api.calls)
+        self.assertEqual(api.calls.count(('rf', False)), 2)
+        self.assertIn('read_rf', api.calls)
+
+    def test_active_sweep_stop_and_mute_are_verified(self):
+        brick, api = vendor_brick()
+        api.active = 1
+        lease = ControlLease(Protocol(brick))
+        self.assertTrue(lease.safe_off())
+        self.assertEqual(api.active, 0)
+        self.assertEqual(api.r, 0)
+        self.assertIn('stop', api.calls)
+        self.assertIn('status', api.calls[api.calls.index('stop') + 1:])
+        self.assertIn('read_rf', api.calls[api.calls.index(('rf', False)) + 1:])
+
+    def test_stop_failure_or_unconfirmed_stop_still_mutes(self):
+        for fault in ('fail_stop', 'stuck_sweep'):
+            with self.subTest(fault=fault):
+                brick, api = vendor_brick()
+                api.active = 1
+                setattr(api, fault, True)
+                lease = ControlLease(Protocol(brick))
+                self.assertFalse(lease.safe_off())
+                self.assertEqual(api.r, 0)
+                self.assertEqual(api.active, 1)
+                self.assertIn('stop', api.calls)
+                self.assertIn('read_rf', api.calls)
+                self.assertIn('sweep stop not confirmed', lease.last_error)
+
+    def test_unknown_sweep_status_attempts_stop_and_mute(self):
+        brick, api = vendor_brick()
+        api.fail_status = True
+        lease = ControlLease(Protocol(brick))
+        self.assertFalse(lease.safe_off())
+        self.assertIn('stop', api.calls)
+        self.assertEqual(api.r, 0)
+        self.assertIn('read_rf', api.calls)
+        self.assertIn('status read failed', lease.last_error)
+
+    def test_transient_status_failure_stops_then_confirms_safe_state(self):
+        brick, api = vendor_brick()
+        api.active = 1
+        original = api.get_status
+        reads = 0
+        def get_status(device):
+            nonlocal reads
+            reads += 1
+            return 0x80000000 if reads == 1 else original(device)
+        api.get_status = get_status
+        lease = ControlLease(Protocol(brick))
+        self.assertTrue(lease.safe_off())
+        self.assertIn('stop', api.calls)
+        self.assertEqual(api.active, 0)
+        self.assertEqual(api.r, 0)
+        self.assertGreaterEqual(reads, 3)
+        self.assertIn('read_rf', api.calls)
+
+    def test_vendor_mute_failure_and_false_success_are_not_safe(self):
+        for fault in ('fail_off', 'stuck_rf'):
+            with self.subTest(fault=fault):
+                brick, api = vendor_brick()
+                setattr(api, fault, True)
+                lease = ControlLease(Protocol(brick))
+                self.assertFalse(lease.safe_off())
+                self.assertIn(('rf', False), api.calls)
+                self.assertIn('read_rf', api.calls)
+                self.assertIn('RF OFF not confirmed', lease.last_error)
+
+    def test_acquisition_expiry_disconnect_and_watchdog_retry(self):
+        for active in (0, 1):
+            for action in ('acquire', 'expire', 'disconnect', 'retry'):
+                with self.subTest(active=active, action=action):
+                    brick, api = vendor_brick()
+                    lease = ControlLease(Protocol(brick), timeout=2, now=lambda: 3)
+                    client = object()
+                    api.active = active
+                    if action == 'acquire':
+                        self.assertEqual(lease.dispatch('CONTROL ACQUIRE', client), 'OK 2')
+                    elif action == 'retry':
+                        lease.last_error = 'previous cleanup failed'
+                        lease.expire()
+                    else:
+                        lease.owner, lease.deadline = client, 2
+                        if action == 'expire': lease.expire()
+                        else: lease.disconnect(client)
+                        self.assertIsNone(lease.owner)
+                    self.assertFalse(lease.last_error)
+                    self.assertEqual(api.r, 0)
+                    self.assertEqual(api.active, 0)
+                    self.assertIn('read_rf', api.calls)
+                    self.assertEqual('stop' in api.calls, bool(active))
+                    if not active: self.assertEqual(api.frequency, 1_166_666_667)
+
+    def test_open_mode_cleanup_uses_guarded_stop(self):
+        for active in (0, 1):
+            with self.subTest(active=active):
+                brick, api = vendor_brick()
+                api.active = active
+                brick._enforce_safe_state()
+                self.assertEqual(api.r, 0)
+                self.assertEqual(api.active, 0)
+                self.assertEqual('stop' in api.calls, bool(active))
+                self.assertIn('read_rf', api.calls)
+
     def test_stop_failure_does_not_skip_vendor_off(self):
         brick=LabBrick.__new__(LabBrick);brick.device_id=1;calls=[]
         class API:
+            def get_status(self,*a): return SWEEP_ACTIVE_BIT
             def start_sweep(self,*a): calls.append('stop');return 0x80000000
             def set_rf(self,*a): calls.append('off');return 0
             def get_rf(self,*a): return 0
@@ -567,6 +756,7 @@ class VendorSafety(unittest.TestCase):
             def get_serial(self, device): return 15033
             def open_device(self, device): return 0
             def close_device(self, device): self.calls.append('close')
+            def get_status(self, device): return 0
             def start_sweep(self, device, enabled): self.calls.append('stop'); return 0
             def set_rf(self, device, enabled): self.r = int(enabled); self.calls.append('off'); return 0
             def get_rf(self, device): return self.r
