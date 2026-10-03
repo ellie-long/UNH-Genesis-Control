@@ -2,7 +2,7 @@
 
 ## Scope
 
-This document records the software/off-lab completion state of the UNH Genesis Phase-I Microwave subsystem before final physical commissioning.
+This document records the current UNH Genesis Phase-I Microwave software and physical-integration state. The canonical physical stack has been commissioned through real UCA, Vaunix/LabBrick, Supervisor, bounded robot motion, Phoebus, and archiving. Final physical closeout remains open for the carrier-persistence and shutdown-cleanup defects documented below, together with the explicitly deferred robot and Magic-frequency work.
 
 The implemented subsystem contains:
 
@@ -41,22 +41,25 @@ Higher-level GUI, archiver, and future ML/AI logic communicate through EPICS. Th
 
 ## Current startup policy
 
-Normal Genesis startup automatically starts only the physically validated Microwave SPD1305X IOC.
+Physical Microwave operation uses the dedicated canonical profile at
+`configs/commissioning/microwave_physical` through `genesis mw-start` or
+`scripts/microwave_physical.sh start`.
 
-It does **not** automatically start:
+The IOC Manager entries remain `autostart: false` so that the launcher controls
+the hardware order explicitly. The physical workflow:
 
-- Vaunix / Bridge12 physical control;
-- Microwave Supervisor physical operation;
-- PCL602 physical robot control.
+1. starts the SPD1305X/UCA IOC first;
+2. establishes and verifies approximately 5 V with the UCA output ON;
+3. verifies the hardware-mode Vaunix Raspberry-Pi service;
+4. starts the Vaunix, PCL602, Supervisor, and archiver IOCs;
+5. prepares the source at approximately 140 GHz and +10 dBm with RF OFF;
+6. leaves the robot Disabled;
+7. enables archiving and exposes the dedicated Microwave GUI workflow.
 
-Those remain explicit commissioning activities until their physical integration is completed.
+The physical SPD1305X profile is write-enabled because the dedicated launcher
+must establish the verified 5 V safe state. `initialize_on_connect` remains
+false, and the driver retains the independent 5 V / 0.1 A software ceiling.
 
-The SPD1305X normal configuration remains read-only:
-
-```yaml
-write_enabled: false
-initialize_on_connect: false
-```
 
 ## Frequency convention
 
@@ -72,23 +75,22 @@ Older imported prototype documentation used 134 to 142 GHz. That older range is 
 
 ## Supervisor status
 
-The Supervisor has been validated in local simulation with:
+The canonical physical Supervisor profile runs with `simulation: false` and
+has been exercised against the physical UCA and Vaunix source. The integrated
+workflow has validated physical connectivity, the 138-142 GHz configured
+output-frequency window, approximately 140 GHz baseline operation, RF
+permissive behavior near the 5 V UCA safe state, deliberate RF ON/OFF control,
+and Supervisor-driven frequency control.
 
-- EPICS-only device interaction;
-- RF permissive logic;
-- output-frequency command/readback;
-- software sweep;
-- sweep progress/state;
-- safe RF-OFF behavior;
-- rejection of unavailable Magic-frequency operations.
+Software validation also covers request/readback separation, repeated
+OFF/ABORT, UCA-output-loss handling, safe reconnect behavior, remote control
+lease ownership, and deterministic shutdown verification.
 
-The checked-in Supervisor remains:
+Physical closeout is not complete because the commanded 140 GHz carrier has
+intermittently shifted to approximately 144 GHz after RF OFF or shutdown.
+The exact physical response to PLL loss and the final UCA transition tolerance
+also remain experiment-owner acceptance items.
 
-```yaml
-simulation: true
-```
-
-The current 5.0 V +/- 0.10 V UCA permissive window is a software-validation value only.
 
 ## Magic-frequency status
 
@@ -120,9 +122,7 @@ The current software does not yet ingest this SIG signal into the Supervisor, so
 
 The SPD1305X software implementation contains a source-level 5 V / 0.1 A ceiling independent of configuration values.
 
-Normal deployment remains read-only.
-
-Physical write commissioning must be deliberate and must return to read-only mode afterward.
+The canonical physical profile is write-enabled under the dedicated Microwave launcher. Startup deliberately establishes approximately 5 V, 0.05 A, output ON before the Vaunix/source-control path is used. `initialize_on_connect` remains false, and the independent 5 V / 0.1 A driver ceiling remains the hard software limit. Return the UCA to 5 V before robot motion and before physical shutdown.
 
 ### Robot
 
@@ -132,7 +132,7 @@ Physical operation must begin from the verified home reference.
 
 Software travel limits are not yet trusted and therefore are not a physical safety boundary.
 
-Software HOME, ZERO, motor-enable, and motion controls are intentionally not exposed as normal operator controls before robot commissioning.
+Bounded relative X/Y jog motion has been physically validated through the Genesis operator path. Routine startup still leaves the robot Disabled. Absolute HOME/reference behavior, trusted software travel limits, and joystick operation remain deferred and must not be treated as accepted physical safety boundaries.
 
 Shutdown requires the robot to be stationary with both software motor-enable states OFF when the Robot IOC is running.
 
@@ -201,34 +201,59 @@ and provides:
 
 ## Shutdown policy
 
-The Genesis shutdown script keeps the archiver alive while device IOCs are stopped.
+Routine physical shutdown uses `genesis mw-stop`, which invokes the dedicated
+Microwave physical shutdown workflow.
 
-For manually started Microwave commissioning IOCs it should verify:
+Before local owners are terminated, the shutdown implementation verifies the
+physical safe baseline using fresh readbacks:
 
-- Supervisor RF request OFF;
-- Vaunix raw RF OFF with healthy communication;
-- robot communication healthy;
-- X/Y not moving;
-- X/Y motor enables OFF;
-- SPD1305X physical output OFF.
+- Supervisor RF request and actual RF state OFF;
+- Vaunix vendor-derived RF OFF and valid/fresh;
+- safe-source readiness established and hardware sweep inactive;
+- UCA output ON at approximately 5 V;
+- robot Disabled and stationary;
+- local process/session ownership unambiguous.
 
-`GENESIS_FORCE_STOP=1` remains a recovery/development bypass and must not be used as routine operating practice.
+The archiver is closed only after the physical device owners have been made
+safe. Unknown or ambiguous owners cause the workflow to retain processes rather
+than forcing cleanup.
+
+During physical validation, the safe hardware state was successfully
+established, but one stop attempt subsequently aborted during local cleanup
+when process inspection returned a normal nonzero result for an already-absent
+process. That cleanup defect remains open. The final workflow must treat an
+already-stopped process as stopped, continue cleanup of the remaining owners,
+and still report genuine survivors.
+
+The physical hardware shutdown order remains RF OFF -> verified safe state ->
+UCA 5 V/output ON -> disconnect Vaunix USB -> VDI OFF -> UCA OFF.
+
 
 ## Remaining physical work
 
 Before declaring the Microwave subsystem physically complete:
 
-1. Validate the Vaunix/Raspberry-Pi/USB chain on the real system.
-2. Confirm the approved physical output-frequency range.
-3. Confirm the UCA voltage/permissive tolerance with experiment owners.
-4. Apply the VDI-green-before-USB procedure.
-5. Verify reflected-power SIG behavior.
-6. Validate Supervisor RF ON/OFF with the physical source.
-7. Validate physical sweeps conservatively.
-8. Commission robot home, directions, scale, and usable travel.
-9. Decide and validate physical software travel limits.
-10. Add the read-only robot-position visualization.
-11. Certify Magic-frequency constants before enabling Magic actions.
-12. Repeat common archive/GUI/shutdown regression with physical devices.
+1. Correct the RF-OFF carrier-persistence defect and demonstrate repeated
+   140 GHz OFF -> ON -> OFF operation without an unintended shift to
+   approximately 144 GHz.
+2. Correct the local shutdown-cleanup defect so safe shutdown proceeds through
+   complete owner cleanup even when an expected process is already absent.
+3. Repeat the physical RF/SIG reflected-power acceptance procedure after the
+   carrier correction.
+4. Verify reconnect, disconnect, and lease-expiry behavior on the deployed
+   Vaunix hardware/service baseline.
+5. Confirm the final PLL-loss response policy and exact UCA permissive
+   tolerance with the experiment owners.
+6. Commission robot absolute reference/home, axis directions, scale, usable
+   travel, and trusted software travel limits.
+7. Validate joystick operation separately before relying on it for routine
+   positioning.
+8. Add the read-only robot-position visualization after the physical coordinate
+   system is accepted.
+9. Certify Magic-frequency constants before enabling Magic actions.
+10. Repeat the complete physical archive, GUI, RF, robot, and shutdown
+    regression on the final candidate commit.
 
-Until these are complete, the checked-in physical Vaunix and robot profiles remain non-autostart, and normal Genesis startup remains conservative.
+Until these items are closed, the canonical physical Microwave profile remains
+the controlled commissioning/operation path but is not yet the final
+cooldown-ready accepted baseline.

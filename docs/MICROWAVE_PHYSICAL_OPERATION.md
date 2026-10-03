@@ -20,7 +20,7 @@ Validated physical state on 2026-09-29:
 - Phoebus Microwave overview/detail displays validated.
 - Common Genesis archiver validated on the physical stack; 66 monitored PVs were discovered during commissioning.
 
-The remaining acceptance test before declaring the hardware cooldown-ready is the RF/SIG reflected-power test described below. No additional software commissioning sequence should be required before that test.
+Subsequent physical RF validation exercised supervised RF ON/OFF and bounded robot motion on the integrated stack. The Microwave baseline is not yet cooldown-ready: carrier/output frequency has intermittently shifted from the 140 GHz operating point to approximately 144 GHz after RF OFF, and the dedicated stop workflow has encountered a local-cleanup failure after the physical safe state was already established. The RF/SIG acceptance procedure below must be repeated after those issues are corrected.
 
 ## Important operating constraints
 
@@ -153,7 +153,7 @@ Then complete the physical hardware shutdown:
 
 ## Baseline and future use
 
-The physical-control software/configuration should be frozen after the final regression and Raspberry-Pi service deployment. The later RF/SIG acceptance test should not require code changes. If that test passes on the frozen commit, add the final cooldown-ready tag to that same commit.
+Freeze and tag the physical-control baseline only after the remaining carrier-persistence and shutdown-cleanup defects are corrected and the same commit passes the full regression plus repeated physical RF/SIG validation. Do not treat the current software-only regression result as a cooldown-ready hardware acceptance.
 
 ## Deferred joystick validation
 
@@ -164,12 +164,19 @@ commissioning or cooldown operation. Normal startup therefore leaves the robot
 in Disabled mode. Test joystick control separately before relying on it for
 routine positioning.
 
-## Office RF-operation hardening
+## Integrated RF-operation status
 
-The pending `feature/mw-rf-operation` software changes are described in
-[MICROWAVE_RF_OPERATION.md](MICROWAVE_RF_OPERATION.md). They separate RF
-request from vendor readback, add verified OFF/ABORT and safe reconnect, and
-require an exclusive remote lease with a watchdog. Calibration is diagnostic.
-The earlier commissioning observations above remain historical evidence, not
-physical acceptance of this new implementation. Integrate `fix/mw-clean-shutdown`
-and update its readback checks before operational deployment.
+The supervised RF-control hardening and deterministic shutdown work are now
+integrated into the canonical Microwave physical stack. The implementation
+separates operator request from vendor readback, performs verified repeated
+OFF/ABORT actions, establishes safe OFF on connection/reconnection, uses an
+exclusive remote Vaunix control lease with a watchdog, and verifies fresh
+physical readbacks during shutdown.
+
+The physical validation performed after that integration confirmed that the
+complete control path can operate the real subsystem, but it also exposed two
+remaining defects: carrier/output frequency can move away from the commanded
+140 GHz point after RF OFF, and local process cleanup can abort after the
+hardware safe state has already been established. Those defects must be closed
+and the physical RF/SIG acceptance repeated before this document represents a
+final cooldown-ready baseline.

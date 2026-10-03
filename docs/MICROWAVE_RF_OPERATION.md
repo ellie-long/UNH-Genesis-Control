@@ -1,6 +1,6 @@
 # Deliberate Microwave RF operation
 
-This describes the software changes on `feature/mw-rf-operation`. Verification is office-only; this is not a new physical acceptance record. The pinned `devices` submodule is unchanged.
+This document describes the integrated supervised Microwave RF-control path in the current Genesis repository. The former RF-operation and deterministic-shutdown development branches are now part of the canonical physical workflow. Physical validation has exercised the real UCA, Vaunix/LabBrick, Supervisor, robot, GUI, and archiver stack. The RF path is not yet considered fully accepted because the remaining physical issues documented below still require correction and retest.
 
 ## Operator path and state
 
@@ -85,18 +85,45 @@ Required communication loss clears supervisor authorization and requests OFF whe
 
 The apparatus procedure in `MICROWAVE_PHYSICAL_OPERATION.md` remains authoritative: VDI green light before USB/source control, UCA at 5 V before RF enable or robot/stand motion, SIG visible and negative, reflected power below 10%, and the initial reflected-signal acceptance procedure's attenuation limits. VDI and SIG are not instrumented here. An approximately-5-V physical permissive was validated, but the older documentation's certification caveat for the precise ±0.1 V tolerance still needs experiment-owner resolution.
 
-## Integration and acceptance still required
+## Current integration status and remaining physical work
 
-Do not deploy this as a replacement shutdown baseline until `fix/mw-clean-shutdown` is integrated separately. This branch does not merge/copy its helpers or change `microwave_physical.sh` shutdown orchestration. Legacy `MW_RF=0` still invokes safe OFF, but its zero value is no longer a shutdown readback.
+The supervised RF path and deterministic Microwave shutdown are integrated into
+the canonical physical workflow. `tools/microwave_shutdown.py` now verifies
+fresh vendor RF OFF state, RF validity, safe-source readiness, inactive hardware
+sweep state, Supervisor OFF state, UCA safe state, robot state, and local process
+ownership before terminating dedicated physical owners.
 
-After integration, update `tools/microwave_shutdown.py:establish_safe` and `tests/test_microwave_physical_shutdown.py`:
+The canonical operator path is:
 
-- keep `SUP:RFEnable=0`/source OFF commands (or use `SUP:RFAbort`/`SRC:MW_RF_CMD=0`);
-- replace the `SRC:MW_RF==0` check with `MW_RF_RBV==0`, `MW_RF_VALID==1`, fresh `MW_RF_TIME` and `MW_RF_DONE_TIME` newer than a timestamp captured before issuing OFF commands;
-- require `MW_RF_READY==1`, `MW_SweepActive==0` and healthy physical source communication/mode;
-- check `SUP:RFEnable==0`, `SUP:RFActual==0`, `SUP:RFValid==1`, `SUP:RFState==OFF`, and inactive software sweep;
-- retain its ownership checks, successful-poll timestamps newer than its existing post-command `after` timestamp, and its refusal to terminate owners when verification fails.
+- `genesis mw-start`
+- `genesis mw-status`
+- `genesis mw-rf-ready`
+- `genesis mw-stop`
 
-The generic `scripts/stop_genesis_mac.sh` shutdown reader has been retired. Canonical Microwave shutdown now uses `scripts/microwave_physical.sh` and `tools/microwave_shutdown.py`, where physical RF readbacks are used rather than treating the OFF command alias as RF proof.
+Physical validation has exercised supervised RF ON/OFF, frequency control,
+UCA attenuation, bounded robot motion, archiving, GUI operation, and the
+required physical shutdown order. Two physical defects remain open:
 
-Physical acceptance must separately verify the deployed shim/library version, authoritative vendor RF/sweep readbacks, PLL-before-ON semantics and loss policy, power/frequency envelope, exact UCA transition tolerance, VDI/SIG procedure, actual reconnect/disconnect/lease-expiry behavior, and verified shutdown after branch integration. No physical acceptance or deployment was performed for this work.
+1. **Carrier persistence after RF OFF.** A 140 GHz operating point has
+   intermittently changed to approximately 144 GHz after RF OFF or during the
+   shutdown sequence. Software tests protect the intended carrier-preservation
+   behavior, but the physical trigger and final correction are not yet closed.
+   Final RF acceptance requires repeated 140 GHz OFF -> ON -> OFF cycles to
+   remain at the commanded carrier.
+
+2. **Local cleanup completion after safe shutdown.** The dedicated stop
+   workflow has successfully established the physical safe state and then
+   aborted during local process cleanup when a process-inspection command
+   returned a normal nonzero result for an already-absent process. Shutdown
+   cleanup must treat already-stopped owners as stopped, continue cleanup of
+   remaining owners, and still report any genuine survivor.
+
+The generic combined Mac shutdown path has been retired. The canonical
+Microwave shutdown path is `scripts/microwave_physical.sh` together with
+`tools/microwave_shutdown.py`.
+
+Before the Microwave subsystem is treated as a fully accepted physical
+baseline, repeat the physical RF/SIG procedure after the carrier issue is
+corrected, verify complete shutdown cleanup, confirm the final PLL-loss policy
+and exact UCA transition tolerance with the experiment owners, and retain the
+manual VDI/SIG protections until equivalent hardware readbacks are instrumented.
