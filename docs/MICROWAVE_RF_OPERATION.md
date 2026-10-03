@@ -97,6 +97,6 @@ After integration, update `tools/microwave_shutdown.py:establish_safe` and `test
 - check `SUP:RFEnable==0`, `SUP:RFActual==0`, `SUP:RFValid==1`, `SUP:RFState==OFF`, and inactive software sweep;
 - retain its ownership checks, successful-poll timestamps newer than its existing post-command `after` timestamp, and its refusal to terminate owners when verification fails.
 
-Other legacy shutdown readers, including generic `scripts/stop_genesis_mac.sh`, must be audited during that integration; they must not interpret the OFF-only command alias as RF proof.
+The generic `scripts/stop_genesis_mac.sh` shutdown reader has been retired. Canonical Microwave shutdown now uses `scripts/microwave_physical.sh` and `tools/microwave_shutdown.py`, where physical RF readbacks are used rather than treating the OFF command alias as RF proof.
 
 Physical acceptance must separately verify the deployed shim/library version, authoritative vendor RF/sweep readbacks, PLL-before-ON semantics and loss policy, power/frequency envelope, exact UCA transition tolerance, VDI/SIG procedure, actual reconnect/disconnect/lease-expiry behavior, and verified shutdown after branch integration. No physical acceptance or deployment was performed for this work.

@@ -327,11 +327,11 @@ In particular:
 
 - generic `genesisctl start`, `genesisctl stop`, and `genesisctl force-stop`
   are intentionally disabled; physical operation requires explicit subsystem commands;
-- `start_genesis_mac.sh` and `stop_genesis_mac.sh` remain temporarily as historical
-  integration artifacts and are not invoked by the canonical CLI;
+- the retired combined macOS startup/shutdown launchers have been removed from
+  the current runtime; their earlier implementation remains available in Git history;
 - the physical-no-RF ssRF demo survives only as historical commissioning documentation;
-- older configuration directories may remain while migration to the final
-  independent Genesis layout is completed.
+- retired generic IOC-manager, Microwave, ssRF, and archiver configuration roots
+  have been removed in favor of explicit canonical subsystem profiles.
 
 For physical operation, use the subsystem-specific canonical commands documented
 above.
