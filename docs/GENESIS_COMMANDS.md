@@ -274,7 +274,6 @@ Before freezing:
 git diff --check
 python -m unittest discover -s tests -p 'test_*.py' -q
 git status --short
-git -C devices status --short
 git stash list
 ```
 

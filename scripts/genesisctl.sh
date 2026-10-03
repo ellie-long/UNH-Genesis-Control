@@ -106,7 +106,7 @@ EVERYDAY
   screens              Show detached/running screen sessions.
   processes            Show Genesis-related processes.
   logs [pattern]       Show newest log files, or tail logs matching pattern.
-  git                  Show branch, HEAD, worktree, submodule and stash.
+  git                  Show branch, HEAD, worktree and stash.
                        READ-ONLY; stash is never modified.
   endpoints            Show canonical physical/simulator endpoint and safety settings.
 
@@ -257,19 +257,6 @@ git_state() {
         pass "worktree clean"
     else
         git status --short
-    fi
-    echo
-
-    echo "===== DEVICES SUBMODULE ====="
-    if [ -d devices ]; then
-        echo "devices HEAD = $(git -C devices rev-parse --short HEAD 2>/dev/null || echo '?')"
-        if [ -z "$(git -C devices status --porcelain 2>/dev/null)" ]; then
-            pass "devices submodule clean"
-        else
-            git -C devices status --short
-        fi
-    else
-        warn "devices submodule directory not found"
     fi
     echo
 
