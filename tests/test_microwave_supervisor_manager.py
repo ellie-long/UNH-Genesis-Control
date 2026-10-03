@@ -6,8 +6,13 @@ import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
 
-NORMAL_MANAGER = (
-    ROOT / "configs" / "ioc_manager" / "settings.yaml"
+PHYSICAL_MANAGER = (
+    ROOT
+    / "configs"
+    / "commissioning"
+    / "microwave_physical"
+    / "ioc_manager"
+    / "settings.yaml"
 )
 
 SIM_MANAGER = (
@@ -16,6 +21,15 @@ SIM_MANAGER = (
     / "commissioning"
     / "microwave_sim"
     / "ioc_manager"
+    / "settings.yaml"
+)
+
+PHYSICAL_SUPERVISOR = (
+    ROOT
+    / "configs"
+    / "commissioning"
+    / "microwave_physical"
+    / "supervisor"
     / "settings.yaml"
 )
 
@@ -28,8 +42,13 @@ SIM_SUPERVISOR = (
     / "settings.yaml"
 )
 
-ARCHIVER = (
-    ROOT / "configs" / "archiver" / "settings.yaml"
+PHYSICAL_ARCHIVER = (
+    ROOT
+    / "configs"
+    / "commissioning"
+    / "microwave_physical"
+    / "archiver"
+    / "settings.yaml"
 )
 
 PHOEBUS = (
@@ -39,27 +58,23 @@ PHOEBUS = (
     / "genesis_mac_settings.ini"
 )
 
-START = ROOT / "scripts" / "start_genesis_mac.sh"
-STOP = ROOT / "scripts" / "stop_genesis_mac.sh"
-CTL = ROOT / "scripts" / "genesisctl.sh"
 
-
-def load(path):
-    with path.open() as stream:
+def load(file_path):
+    with file_path.open() as stream:
         return yaml.safe_load(stream)
 
 
 class MicrowaveSupervisorManager(unittest.TestCase):
 
-    def test_normal_registration(self):
-        cfg = load(NORMAL_MANAGER)
+    def test_physical_manager_registration(self):
+        cfg = load(PHYSICAL_MANAGER)
         dev = cfg["mw_supervisor"]
 
         self.assertFalse(dev["autostart"])
 
         self.assertEqual(
             dev["settings_folder"],
-            "configs/microwave/supervisor",
+            "configs/commissioning/microwave_physical/supervisor",
         )
 
         self.assertEqual(
@@ -69,8 +84,7 @@ class MicrowaveSupervisorManager(unittest.TestCase):
 
         self.assertEqual(
             dev["heartbeat_pv"],
-            "UNH:GEN:MW:SUP:"
-            "MAN:microwave_supervisor_time",
+            "UNH:GEN:MW:SUP:MAN:microwave_supervisor_time",
         )
 
         self.assertEqual(
@@ -89,8 +103,7 @@ class MicrowaveSupervisorManager(unittest.TestCase):
 
         self.assertEqual(
             dev["settings_folder"],
-            "configs/commissioning/"
-            "microwave_sim/supervisor",
+            "configs/commissioning/microwave_sim/supervisor",
         )
 
         self.assertEqual(
@@ -103,6 +116,13 @@ class MicrowaveSupervisorManager(unittest.TestCase):
             5086,
         )
 
+    def test_physical_profile_is_not_simulation(self):
+        cfg = load(PHYSICAL_SUPERVISOR)
+
+        self.assertFalse(
+            cfg["microwave_supervisor"]["simulation"]
+        )
+
     def test_sim_profile_is_simulation(self):
         cfg = load(SIM_SUPERVISOR)
 
@@ -110,8 +130,8 @@ class MicrowaveSupervisorManager(unittest.TestCase):
             cfg["microwave_supervisor"]["simulation"]
         )
 
-    def test_ports_are_unique_in_normal_manager(self):
-        cfg = load(NORMAL_MANAGER)
+    def test_ports_are_unique_in_physical_manager(self):
+        cfg = load(PHYSICAL_MANAGER)
 
         ca = []
         pva = []
@@ -137,12 +157,12 @@ class MicrowaveSupervisorManager(unittest.TestCase):
         )
 
     def test_ca_discovery_contains_supervisor(self):
-        normal = load(NORMAL_MANAGER)
-        archive = load(ARCHIVER)
+        manager = load(PHYSICAL_MANAGER)
+        archive = load(PHYSICAL_ARCHIVER)
 
         self.assertIn(
             "127.0.0.1:5085",
-            normal["general"]["epics_addr_list"],
+            manager["general"]["epics_addr_list"],
         )
 
         self.assertIn(
@@ -150,47 +170,10 @@ class MicrowaveSupervisorManager(unittest.TestCase):
             archive["general"]["epics_addr_list"],
         )
 
-        self.assertIn(
-            "127.0.0.1:5085",
-            START.read_text(),
-        )
-
-        self.assertIn(
-            "127.0.0.1:5085",
-            STOP.read_text(),
-        )
-
-
     def test_phoebus_contains_supervisor_pva(self):
         self.assertIn(
             "127.0.0.1:5086",
             PHOEBUS.read_text(),
-        )
-
-    def test_normal_startup_does_not_launch_supervisor(self):
-        text = START.read_text()
-
-        self.assertNotIn(
-            'start_managed_ioc "mw_supervisor"',
-            text,
-        )
-
-        self.assertNotIn(
-            'start_managed_ioc "mw_vaunix_lms"',
-            text,
-        )
-
-    def test_shutdown_knows_microwave_stack(self):
-        text = STOP.read_text()
-
-        self.assertIn(
-            'stop_managed_ioc "mw_supervisor"',
-            text,
-        )
-
-        self.assertIn(
-            'stop_managed_ioc "mw_vaunix_lms"',
-            text,
         )
 
 

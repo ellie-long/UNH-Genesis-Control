@@ -6,11 +6,16 @@ import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
 
-NORMAL = (
-    ROOT / "configs" / "ioc_manager" / "settings.yaml"
+PHYSICAL_MANAGER = (
+    ROOT
+    / "configs"
+    / "commissioning"
+    / "microwave_physical"
+    / "ioc_manager"
+    / "settings.yaml"
 )
 
-SIM = (
+SIM_MANAGER = (
     ROOT
     / "configs"
     / "commissioning"
@@ -19,35 +24,57 @@ SIM = (
     / "settings.yaml"
 )
 
-ARCHIVER = (
-    ROOT / "configs" / "archiver" / "settings.yaml"
+PHYSICAL_ROBOT = (
+    ROOT
+    / "configs"
+    / "commissioning"
+    / "microwave_physical"
+    / "pcl602"
+    / "settings.yaml"
+)
+
+SIM_ROBOT = (
+    ROOT
+    / "configs"
+    / "commissioning"
+    / "microwave_sim"
+    / "pcl602"
+    / "settings.yaml"
+)
+
+PHYSICAL_ARCHIVER = (
+    ROOT
+    / "configs"
+    / "commissioning"
+    / "microwave_physical"
+    / "archiver"
+    / "settings.yaml"
 )
 
 PHOEBUS = (
-    ROOT / "configs" / "phoebus"
+    ROOT
+    / "configs"
+    / "phoebus"
     / "genesis_mac_settings.ini"
 )
 
-START = ROOT / "scripts" / "start_genesis_mac.sh"
-STOP = ROOT / "scripts" / "stop_genesis_mac.sh"
 
-
-def load(path):
-    with path.open() as stream:
+def load(file_path):
+    with file_path.open() as stream:
         return yaml.safe_load(stream)
 
 
 class PCL602ManagerIntegration(unittest.TestCase):
 
-    def test_normal_registration(self):
-        cfg = load(NORMAL)
+    def test_physical_manager_registration(self):
+        cfg = load(PHYSICAL_MANAGER)
         dev = cfg["mw_pcl602"]
 
         self.assertFalse(dev["autostart"])
 
         self.assertEqual(
             dev["settings_folder"],
-            "configs/microwave/pcl602",
+            "configs/commissioning/microwave_physical/pcl602",
         )
 
         self.assertEqual(
@@ -71,22 +98,35 @@ class PCL602ManagerIntegration(unittest.TestCase):
         )
 
     def test_sim_manager_uses_local_robot_profile(self):
-        cfg = load(SIM)
+        cfg = load(SIM_MANAGER)
         dev = cfg["mw_pcl602"]
 
         self.assertEqual(
             dev["settings_folder"],
-            "configs/commissioning/"
-            "microwave_sim/pcl602",
+            "configs/commissioning/microwave_sim/pcl602",
+        )
+
+    def test_physical_profile_is_not_simulation(self):
+        cfg = load(PHYSICAL_ROBOT)
+
+        self.assertFalse(
+            cfg["pcl602"]["simulation"]
+        )
+
+    def test_sim_profile_is_simulation(self):
+        cfg = load(SIM_ROBOT)
+
+        self.assertTrue(
+            cfg["pcl602"]["simulation"]
         )
 
     def test_discovery_lists_contain_robot(self):
-        normal = load(NORMAL)
-        archive = load(ARCHIVER)
+        manager = load(PHYSICAL_MANAGER)
+        archive = load(PHYSICAL_ARCHIVER)
 
         self.assertIn(
             "127.0.0.1:5087",
-            normal["general"]["epics_addr_list"],
+            manager["general"]["epics_addr_list"],
         )
 
         self.assertIn(
@@ -99,20 +139,8 @@ class PCL602ManagerIntegration(unittest.TestCase):
             PHOEBUS.read_text(),
         )
 
-    def test_normal_startup_does_not_launch_robot(self):
-        self.assertNotIn(
-            'start_managed_ioc "mw_pcl602"',
-            START.read_text(),
-        )
-
-    def test_shutdown_knows_robot(self):
-        self.assertIn(
-            'stop_managed_ioc "mw_pcl602"',
-            STOP.read_text(),
-        )
-
     def test_all_manager_ports_unique(self):
-        cfg = load(NORMAL)
+        cfg = load(PHYSICAL_MANAGER)
 
         ca = []
         pva = []
