@@ -64,10 +64,10 @@ class Device(BaseDevice):
 
             if not self.full_settings:
                 print("Warning: Could not load full settings.yaml for archiver")
-                self.full_settings = {'general': {'prefix': 'TGT:MEOP'}}
+                self.full_settings = None
         except Exception as e:
             print(f"Error loading full settings: {e}")
-            self.full_settings = {'general': {'prefix': 'TGT:MEOP'}}
+            self.full_settings = None
 
     def _create_pvs(self):
         """Create archiver control PVs"""

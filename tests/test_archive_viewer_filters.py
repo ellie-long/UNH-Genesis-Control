@@ -41,7 +41,7 @@ class GenesisArchiveViewerFilters(unittest.TestCase):
             "UNH:GEN_SSRF_GEN_FM_RBV",
             "UNH:GEN_SSRF_WGEN_LAST_OK",
 
-            "TGT:MEOP:Voltage1_VC",
+            "EXTERNAL:OTHER:Voltage1_VC",
         ]
 
     def test_rf_preset_prefers_authoritative_state_over_legacy_command(self):
@@ -79,7 +79,7 @@ class GenesisArchiveViewerFilters(unittest.TestCase):
 
         self.assertEqual(
             subsystem_for_pv(
-                "TGT:MEOP:Voltage1_VC"
+                "EXTERNAL:OTHER:Voltage1_VC"
             ),
             "Other",
         )
