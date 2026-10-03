@@ -14,8 +14,8 @@ simulator
     separately by the simulator-profile validator.
 
 physical
-    Execution additionally requires the sequencer process to run as
-    the configured POSIX service account.
+    Execution additionally requires the sequencer process effective
+    POSIX account to appear in an explicit configured allow-list.
 
 The physical account check uses the effective OS uid, not environment
 variables such as USER or LOGNAME.
@@ -55,7 +55,7 @@ def validate_execution_authorization(
     *,
     execution_enabled,
     execution_mode=None,
-    required_os_user=None,
+    required_os_users=None,
     os_user=None,
 ):
     """
@@ -90,14 +90,44 @@ def validate_execution_authorization(
     if mode == MODE_SIMULATOR:
         return MODE_SIMULATOR
 
-    required = str(
-        required_os_user or ""
-    ).strip()
-
-    if not required:
+    if required_os_users is None:
         raise ExecutionAuthorizationError(
             "physical execution requires "
-            "required_os_user"
+            "non-empty required_os_users"
+        )
+
+    if isinstance(required_os_users, str) or not isinstance(
+        required_os_users,
+        (list, tuple, set, frozenset),
+    ):
+        raise TypeError(
+            "required_os_users must be a sequence "
+            "of POSIX usernames"
+        )
+
+    allowed = []
+
+    for value in required_os_users:
+        if not isinstance(value, str):
+            raise TypeError(
+                "required_os_users entries must be strings"
+            )
+
+        user = value.strip()
+
+        if not user:
+            raise ExecutionAuthorizationError(
+                "required_os_users may not contain "
+                "an empty username"
+            )
+
+        if user not in allowed:
+            allowed.append(user)
+
+    if not allowed:
+        raise ExecutionAuthorizationError(
+            "physical execution requires "
+            "non-empty required_os_users"
         )
 
     actual = (
@@ -106,11 +136,12 @@ def validate_execution_authorization(
         else str(os_user).strip()
     )
 
-    if actual != required:
+    if actual not in allowed:
         raise ExecutionAuthorizationError(
             "physical execution requires OS user "
-            f"{required!r}; current effective user "
-            f"is {actual!r}"
+            "to be one of "
+            + ", ".join(repr(user) for user in allowed)
+            + f"; current effective user is {actual!r}"
         )
 
     return MODE_PHYSICAL

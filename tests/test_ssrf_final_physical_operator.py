@@ -34,7 +34,14 @@ class FinalPhysicalOperatorContract(unittest.TestCase):
         seq = self._yaml("sequencer")["ssrf_sequencer"]
         self.assertTrue(seq["execution_enabled"])
         self.assertEqual(seq["execution_mode"], "physical")
-        self.assertEqual(seq["required_os_user"], "shrestha")
+        self.assertEqual(
+            seq["required_os_users"],
+            [
+                "shrestha",
+                "utsav",
+                "sliferlab",
+            ],
+        )
         self.assertTrue(seq["require_prepared"])
         self.assertEqual(seq["vhigh_v"], 0.7)
         self.assertEqual(seq["vlow_v"], -0.7)

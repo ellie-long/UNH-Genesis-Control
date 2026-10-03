@@ -47,7 +47,7 @@ sys.stdin.readline()
              patch.dict(os.environ, {}, clear=True):
             return Device('UNH:GEN:SSRF:SEQ', {
                 'execution_enabled': True, 'execution_mode': 'physical',
-                'required_os_user': effective_os_user(), 'ownership_lock_dir': self.directory,
+                'required_os_users': [effective_os_user()], 'ownership_lock_dir': self.directory,
             })
 
     async def test_cross_process_lifecycle_conflict_no_fallback_commands(self):
@@ -131,7 +131,7 @@ sys.stdin.readline()
                 with patch('logic_devices.ssrf_sequencer.builder', Builder()):
                     device = Device('UNH:GEN:SSRF:SEQ', {
                         'execution_enabled': True, 'execution_mode': 'physical',
-                        'required_os_user': effective_os_user(), 'ownership_lock_dir': self.directory,
+                        'required_os_users': [effective_os_user()], 'ownership_lock_dir': self.directory,
                     })
                 device._control_lock.close()
         with patch.dict(os.environ, {'GENESIS_SSRF_LIFECYCLE_TOKEN': token}):
@@ -142,5 +142,5 @@ sys.stdin.readline()
                     with self.assertRaises(OwnershipConflict):
                         Device('UNH:GEN:SSRF:SEQ', {
                             'execution_enabled': True, 'execution_mode': 'physical',
-                            'required_os_user': effective_os_user(), 'ownership_lock_dir': self.directory,
+                            'required_os_users': [effective_os_user()], 'ownership_lock_dir': self.directory,
                         })

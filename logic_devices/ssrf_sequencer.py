@@ -87,8 +87,8 @@ class Device:
                 execution_mode=self.settings.get(
                     "execution_mode"
                 ),
-                required_os_user=self.settings.get(
-                    "required_os_user"
+                required_os_users=self.settings.get(
+                    "required_os_users"
                 ),
             )
         )

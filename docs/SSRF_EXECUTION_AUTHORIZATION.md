@@ -2,13 +2,15 @@
 
 ## Static authorization and device permissions
 
-Ordinary `configs/ssrf` profiles remain inactive/read-only. The checked-in
-`configs/ssrf_physical` hardware profiles permit writes but never initialize
-outputs ON. Its sequencer has `execution_enabled: true`, `execution_mode:
-physical`, `required_os_user: shrestha` and `require_prepared: true` for adaptive
-burns. Effective POSIX UID must resolve to the configured user; an environment
-username does not satisfy this check. Static permission never arms or starts RF.
-Simulator authorization remains explicit and never acquires physical locks.
+The canonical `configs/ssrf_physical` hardware profiles permit writes but never
+initialize outputs ON. Its sequencer has `execution_enabled: true`,
+`execution_mode: physical`, an explicit `required_os_users` allow-list, and
+`require_prepared: true` for adaptive burns. The checked-in deployment accounts
+cover the validated Mac commissioning account plus the intended Ubuntu
+development and production accounts. Effective POSIX UID must resolve to one of
+those explicitly authorized accounts; `USER` and `LOGNAME` environment values
+do not satisfy this check. Static permission never arms or starts RF. Simulator
+authorization remains explicit and never acquires physical locks.
 
 ## Explicit runtime arms
 

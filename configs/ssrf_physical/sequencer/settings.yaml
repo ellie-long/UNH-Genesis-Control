@@ -10,7 +10,10 @@ ssrf_sequencer:
   delay: 0.2
   execution_enabled: true
   execution_mode: physical
-  required_os_user: shrestha
+  required_os_users:
+    - shrestha   # mac-dev / physical commissioning
+    - utsav      # ubuntu-dev / physical development
+    - sliferlab  # ubuntu-prod / accepted releases
   require_prepared: true
 
   carrier_mhz: 33.0
