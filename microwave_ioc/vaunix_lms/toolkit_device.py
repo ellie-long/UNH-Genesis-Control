@@ -1,4 +1,4 @@
-"""Laptop-side EPICS driver for the Vaunix TCP shim."""
+"""Genesis control-computer EPICS driver for the Vaunix TCP shim."""
 import logging
 import asyncio
 

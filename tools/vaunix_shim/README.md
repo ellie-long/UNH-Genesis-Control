@@ -14,9 +14,9 @@ a guarantee against vendor/USB/hardware failure.
 The current IOC lives in `microwave_ioc/vaunix_lms/toolkit_device.py`. Genesis
 has an explicit in-process local simulation profile requiring no vendor library
 or network; it is distinct from the ARM library vendor test mode described
-below. Dedicated physical profiles set `shim.start_with_ioc: false`, so the IOC
-does not SSH/start the service implicitly. The legacy deployment examples
-below are not the current physical-startup procedure.
+below. The canonical physical profile sets `shim.start_with_ioc: false`, so the
+IOC does not SSH/start the service implicitly. The retained IOC-side
+service-start hook is therefore not part of normal physical startup.
 
 The ARM-only Vaunix library runs on the Raspberry Pi and the EPICS IOC runs on
 the Genesis control computer. The Raspberry Pi hosts `vaunix_shim.py` and
@@ -87,14 +87,15 @@ Start/end/time and the sweep mode/run commands still use the real C library.
 ## Fixed frequency safety range
 
 The Pi shim—not the GUI—is authoritative. Microwave output is restricted to
-138–142 GHz. With the configured ×12 multiplier, the launcher converts that to
-the LMS synthesizer range 11.5–11.833333333 GHz. Carrier and sweep endpoint
+138–142 GHz. With the configured ×12 multiplier, this corresponds to the LMS
+synthesizer range 11.5–11.833333333 GHz. Carrier and sweep endpoint
 writes outside that range are rejected. RF and sweep start commands are also
 rejected unless their frequency values are in range. There is no override.
 
 ## Troubleshooting
 
-The Pi service is `vaunix-shim.service`. Inspect its log from the laptop with:
+The Pi service is `vaunix-shim.service`. Inspect its log from the Genesis control
+computer with:
 
 ```bash
 ssh unhpoltarg@mmWaveRobot.local \
@@ -103,11 +104,21 @@ ssh unhpoltarg@mmWaveRobot.local \
 
 If linking fails, install libusb development files on the Pi. If hardware mode
 finds no devices, check USB permissions and ensure no other process owns the
-Lab Brick. If several units are found, set `shim.serial` in the YAML. Vendor
-test mode reports LMS-103 as `100103` and LMS-123 as `200123`; the included
-settings select LMS-123. Hardware mode must use the real unit's serial number.
-If SSH says `Permission denied`, confirm `shim.ssh_user` and the Pi password.
-For password-free future runs, install this laptop's SSH public key with
+Lab Brick. The deployed `vaunix-shim.service` selects physical serial `15033`
+with `--serial 15033`; physical device selection is not configured by a
+`shim.serial` key in the Genesis YAML. If the physical Lab Brick is replaced,
+update the Pi service unit to the new serial, reload/restart the user service,
+and revalidate `HARDWARE` identity plus RF OFF before operation.
+
+Vendor test mode is separate from the canonical physical service. Launch
+`vaunix_shim.py` with `--test-mode` and, when needed, `--test-serial` to select
+a vendor test device.
+
+Normal physical startup restarts the Pi service directly as
+`unhpoltarg@mmWaveRobot.local`. The `shim.ssh_user` and `shim.ssh_host` fields
+belong to the optional IOC-side auto-start path, which is disabled by
+`shim.start_with_ioc: false` in the canonical physical profile. For
+password-free startup, install the Genesis control computer SSH public key with
 `ssh-copy-id unhpoltarg@mmWaveRobot.local`.
 
 This code uses names exported by the supplied Linux ARM object:
