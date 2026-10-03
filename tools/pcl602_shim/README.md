@@ -79,10 +79,10 @@ pcl602:
   require_speed_profiles: true
 ```
 
-Run from the Genesis repository root with the Genesis environment:
+Normal physical operation should use `genesis mw-start`. For direct IOC development or diagnostics only, run from the Genesis repository root with the Genesis environment:
 
 ```sh
-python master_ioc.py -s configs/microwave/pcl602 -i pcl602
+python master_ioc.py -s configs/commissioning/microwave_physical/pcl602 -i pcl602
 ```
 
 The regular IOC read loop is the heartbeat. There is deliberately no separate

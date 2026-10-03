@@ -18,60 +18,38 @@ below. Dedicated physical profiles set `shim.start_with_ioc: false`, so the IOC
 does not SSH/start the service implicitly. The legacy deployment examples
 below are not the current physical-startup procedure.
 
-The ARM-only Vaunix library runs on the Raspberry Pi. The EPICS IOC runs on the
-laptop. `run_from_laptop.py` makes that split one command:
+The ARM-only Vaunix library runs on the Raspberry Pi and the EPICS IOC runs on
+the control computer. The historical `run_from_laptop.py` helper automated that
+split in the earlier deployment workflow:
 
 ```
 laptop: run_from_laptop.py -> SSH deploy/start -> Pi: vaunix_shim.py + liblmshid.so
                          \-> local master_ioc.py -> EPICS PVs
 ```
 
-## Run it
+## Current deployment and startup policy
 
-From the Genesis repository root:
+The checked-in `run_from_laptop.py` helper belongs to the earlier Vaunix
+deployment workflow. It is not the current Genesis physical startup path and
+must not be used against the canonical physical profile without a separate
+software migration and physical validation.
 
-```bash
-source venv/bin/activate
-python tools/vaunix_shim/run_from_laptop.py --settings configs/microwave/vaunix_lms/settings.yaml
-```
+The current physical configuration is
+`configs/commissioning/microwave_physical/vaunix_lms/settings.yaml`.
 
-This reads `settings.yaml`, copies the shim and ARM object to the Pi, links
-`liblmshid.so` on the ARM machine, installs/enables the Pi user service, starts
-the selected mode, verifies TCP, then starts the local EPICS IOC. SSH securely prompts in the terminal
-if the Pi account uses a password. The first run needs the Pi packages `gcc`,
-`python3`, and libusb. Later runs can skip deployment:
+Normal physical operation uses the explicit Genesis Microwave workflow:
+`genesis mw-start`, `genesis mw-status`, `genesis mw-rf-ready`, and
+`genesis mw-stop`.
 
-```bash
-python tools/vaunix_shim/run_from_laptop.py --settings configs/microwave/vaunix_lms/settings.yaml --no-deploy
-```
+The physical launcher expects the Raspberry Pi service to be installed and
+available, then establishes the EPICS ownership and safety path through the
+canonical Microwave profile.
 
-Use `--shim-only` to start and check the shim without starting EPICS.
-
-After the first deployment, normal IOC startup also starts the service before
-connecting (using the installed SSH key):
-
-```bash
-python master_ioc.py -i bridge12_mw
-```
-
-## Select test or hardware mode
-
-The only switch is in `settings.yaml`:
-
-```yaml
-bridge12_mw:
-  shim:
-    test_mode: true
-```
-
-Restart the command after changing it.
-
-- `true`: the Pi loads the real ARM `liblmshid.so` and calls
-  `fnLMS_SetTestMode(True)`. This uses the vendor library's test device.
-- `false`: the same code and library call `fnLMS_SetTestMode(False)` and use
-  the physical USB device.
-
-There is no fake Python library or Python simulation path.
+The earlier `run_from_laptop.py` workflow used a different IOC/configuration
+schema. Those operator examples are preserved in Git history rather than
+presented here as current commands. Migrating that helper, if it is still
+needed, should be a separate task with simulator tests followed by physical
+validation.
 
 ## Ownership
 
