@@ -7,7 +7,7 @@ from unittest.mock import patch
 from tools.phoebus_shutdown import Process, ProcessRuntime, belongs_to, close_instance
 
 ROOT = Path(__file__).resolve().parents[1]
-SETTINGS = ROOT / 'configs/phoebus/genesis_mac_settings.ini'
+SETTINGS = ROOT / 'configs/phoebus/microwave_physical.ini'
 RESOURCE = ROOT / 'gui/genesis_microwave.bob'
 
 
@@ -96,7 +96,7 @@ class PhoebusShutdown(unittest.IsolatedAsyncioTestCase):
 
     def test_validated_independent_launcher_arguments(self):
         for script, settings, resource in [
-                ('start_microwave_phoebus.sh', 'genesis_mac_settings.ini', 'genesis_microwave.bob'),
+                ('start_microwave_phoebus.sh', 'microwave_physical.ini', 'genesis_microwave.bob'),
                 ('start_ssrf_phoebus.sh', 'ssrf_physical.ini', 'genesis_ssrf.bob')]:
             text = (ROOT / 'scripts' / script).read_text()
             self.assertIn(settings, text)

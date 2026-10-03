@@ -55,7 +55,7 @@ PHOEBUS = (
     ROOT
     / "configs"
     / "phoebus"
-    / "genesis_mac_settings.ini"
+    / "microwave_physical.ini"
 )
 
 

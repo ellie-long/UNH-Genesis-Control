@@ -41,7 +41,7 @@ class LocalRuntime:
             from .phoebus_shutdown import close_instance
         else:
             from phoebus_shutdown import close_instance
-        await close_instance(self.root / 'configs/phoebus/genesis_mac_settings.ini',
+        await close_instance(self.root / 'configs/phoebus/microwave_physical.ini',
                              self.root / 'gui/genesis_microwave.bob')
 
     def snapshot(self):
