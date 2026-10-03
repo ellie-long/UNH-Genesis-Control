@@ -1,59 +1,17 @@
-import os
-import sys
-import tempfile
-import types
+"""
+Self-contained scientific regression tests for the Genesis ssRF waveform planner.
+
+The numerical golden vectors under tests/fixtures were generated from the
+verified legacy ssRF controller snapshot documented in the accompanying JSON
+manifest. No external repository or hardware module is required to run these
+tests.
+"""
+
+import json
 import unittest
 from pathlib import Path
 
 import numpy as np
-
-
-REFERENCE_ROOT = Path(
-    "/Users/shrestha/project/unh/genesis/"
-    "Development/genesis_reference/"
-    "Genesis-Mission-ssRF-Controller-main_Utsav/"
-    "Genesis-Mission-ssRF-Controller-main"
-)
-
-KEYSIGHT_REFERENCE = (
-    REFERENCE_ROOT
-    / "Keysight"
-)
-
-
-# The legacy module imports pyvisa at module load,
-# even though these regression tests perform no hardware I/O.
-try:
-    import pyvisa  # noqa: F401
-except ImportError:
-    fake_pyvisa = types.ModuleType(
-        "pyvisa"
-    )
-    fake_pyvisa.ResourceManager = (
-        lambda *args, **kwargs: None
-    )
-    sys.modules[
-        "pyvisa"
-    ] = fake_pyvisa
-
-
-if str(
-    KEYSIGHT_REFERENCE
-) not in sys.path:
-    sys.path.insert(
-        0,
-        str(
-            KEYSIGHT_REFERENCE
-        ),
-    )
-
-
-import ssRF_sweep_height as legacy
-
-
-from online_fitter.vendored import (
-    deuteron_model as fitter_model,
-)
 
 from ssrf_analysis.waveform_planner import (
     FitSnapshot,
@@ -63,186 +21,77 @@ from ssrf_analysis.waveform_planner import (
 )
 
 
-def constants_for(
-    material,
-):
+FIXTURE_DIR = (
+    Path(__file__).resolve().parent
+    / "fixtures"
+)
 
-    if material == "ND3":
+MANIFEST_PATH = (
+    FIXTURE_DIR
+    / "ssrf_waveform_legacy_reference.json"
+)
 
-        preset = (
-            fitter_model.MATERIALS[
-                "deuterated ammonia "
-                "(Dec 2024)"
-            ]
-        )
+GOLDEN_PATH = (
+    FIXTURE_DIR
+    / "ssrf_waveform_legacy_reference.npz"
+)
 
-        return {
-            "omegD":
-                legacy.REFERENCE_F0[
-                    "ND3"
-                ],
-            "omegQ1":
-                preset["omegQ1"],
-            "A1":
-                preset["A1"],
-            "eta1":
-                preset["eta1"],
-            "scale":
-                preset["scale"],
-            "phase":
-                np.deg2rad(
-                    preset[
-                        "phase_deg"
-                    ]
-                ),
-            "r": 1.5,
-        }
 
-    preset = (
-        fitter_model.MATERIALS[
-            "irradiated d-butanol "
-            "(Dec 2025, 13th/15th)"
-        ]
+MANIFEST = json.loads(
+    MANIFEST_PATH.read_text(
+        encoding="utf-8"
     )
+)
 
-    return {
-        "omegD":
-            legacy.REFERENCE_F0[
-                "Butanol"
-            ],
-        "omegQ1":
-            preset["omegQ1"],
-        "omegQ2":
-            preset["omegQ2"],
-        "A1":
-            preset["A1"],
-        "eta1":
-            preset["eta1"],
-        "eta2":
-            preset["eta2"],
-        "K":
-            preset["K"],
-        "scale":
-            preset["scale"],
-        "phase":
-            np.deg2rad(
-                preset[
-                    "phase_deg"
-                ]
-            ),
-        "r": 1.5,
+with np.load(
+    GOLDEN_PATH,
+    allow_pickle=False,
+) as fixture:
+    GOLDEN = {
+        key: fixture[key].copy()
+        for key in fixture.files
     }
 
 
-def model_for(
-    material,
-):
-    return (
-        "single"
-        if material == "ND3"
-        else "double"
-    )
+def constants_for(material):
+    return {
+        key: float(value)
+        for key, value in (
+            MANIFEST[
+                "materials"
+            ][material][
+                "constants"
+            ].items()
+        )
+    }
 
 
-def wire_material(
-    material,
-):
-    return (
-        "ND3"
-        if material == "ND3"
-        else "d-butanol"
-    )
+def model_for(material):
+    return MANIFEST[
+        "materials"
+    ][material][
+        "model"
+    ]
 
 
-def legacy_waveform(
+def wire_material(material):
+    return MANIFEST[
+        "materials"
+    ][material][
+        "wire_material"
+    ]
+
+
+def fixture_prefix(
     material,
     case,
-    constants,
-    measured=None,
 ):
-
-    controller = (
-        legacy.SSRFController(
-            material,
-            case,
-            P=0.30,
-            P_high=0.30,
-        )
-    )
-
-    controller.compute_reference_pattern()
-
-    if measured is None:
-
-        controller.live_freqs_meas = (
-            None
-        )
-
-        controller.live_data_meas = (
-            None
-        )
-
-    else:
-
-        (
-            controller.live_freqs_meas,
-            controller.live_data_meas,
-        ) = measured
-
-    controller.omegD_fit = (
-        constants["omegD"]
-    )
-
-    controller.frequency_shift = (
-        controller.omegD_fit
-        -
-        legacy.REFERENCE_F0[
-            controller.material
-        ]
-    )
-
-    controller._load_material_constants(
-        constants
-    )
-
-    controller.f_peak_reference = (
-        controller.f_peak.copy()
-    )
-
-    controller.f_shoulder_reference = (
-        controller.f_shoulder.copy()
-    )
-
-    controller.f_peak = (
-        controller.f_peak
-        + controller.frequency_shift
-    )
-
-    controller.f_shoulder = (
-        controller.f_shoulder
-        + controller.frequency_shift
-    )
-
-    with tempfile.TemporaryDirectory() as td:
-
-        cwd = os.getcwd()
-
-        os.chdir(td)
-
-        try:
-
-            waveform = (
-                controller
-                ._recompute_waveform_from_current_pattern()
-            )
-
-        finally:
-
-            os.chdir(cwd)
-
     return (
-        controller,
-        waveform,
+        material.lower()
+        .replace("-", "_")
+        .replace(" ", "_")
+        + "__"
+        + case.lower()
     )
 
 
@@ -250,14 +99,22 @@ def _build_plan_explicit(
     *args,
     **kwargs,
 ):
-    """Legacy planner test fixture with explicit polarization inputs."""
     kwargs.setdefault(
         "polarization",
-        0.30,
+        float(
+            MANIFEST[
+                "polarization"
+            ]
+        ),
     )
+
     kwargs.setdefault(
         "high_polarization",
-        0.30,
+        float(
+            MANIFEST[
+                "high_polarization"
+            ]
+        ),
     )
 
     return build_waveform_plan(
@@ -270,39 +127,74 @@ class TestWaveformPlanner(
     unittest.TestCase
 ):
 
-    def test_all_material_case_combinations_match_source(
+    def test_all_material_case_combinations_match_frozen_reference(
         self
     ):
+        self.assertEqual(
+            MANIFEST[
+                "schema_version"
+            ],
+            1,
+        )
+
+        self.assertFalse(
+            MANIFEST[
+                "source"
+            ][
+                "git_identity_available"
+            ]
+        )
+
+        self.assertEqual(
+            int(
+                MANIFEST[
+                    "max_arb_points"
+                ]
+            ),
+            MAX_ARB_POINTS,
+        )
+
+        waveform_atol = float(
+            MANIFEST[
+                "comparison_tolerances"
+            ][
+                "waveform_atol"
+            ]
+        )
+
+        frequency_atol = float(
+            MANIFEST[
+                "comparison_tolerances"
+            ][
+                "frequency_atol_mhz"
+            ]
+        )
+
+        fraction_places = int(
+            MANIFEST[
+                "comparison_tolerances"
+            ][
+                "peak_time_fraction_places"
+            ]
+        )
 
         for material in (
             "ND3",
             "Butanol",
         ):
-
             for case in (
                 "Enhancement",
                 "Suppression",
                 "Zero",
             ):
-
                 with self.subTest(
                     material=material,
                     case=case,
                 ):
-
                     constants = (
                         constants_for(
                             material
                         )
-                    )
-
-                    (
-                        old,
-                        old_waveform,
-                    ) = legacy_waveform(
-                        material,
-                        case,
-                        constants,
                     )
 
                     snapshot = (
@@ -331,6 +223,13 @@ class TestWaveformPlanner(
                         )
                     )
 
+                    prefix = (
+                        fixture_prefix(
+                            material,
+                            case,
+                        )
+                    )
+
                     self.assertEqual(
                         plan.waveform_points,
                         MAX_ARB_POINTS,
@@ -339,111 +238,86 @@ class TestWaveformPlanner(
                     self.assertTrue(
                         np.allclose(
                             plan.normalized_samples,
-                            old_waveform,
+                            GOLDEN[
+                                prefix
+                                + "__waveform"
+                            ],
                             rtol=0.0,
-                            atol=5e-8,
+                            atol=waveform_atol,
                         )
                     )
 
                     self.assertTrue(
                         np.allclose(
                             plan.f_peak_mhz,
-                            old.f_peak,
+                            GOLDEN[
+                                prefix
+                                + "__f_peak_mhz"
+                            ],
                             rtol=0.0,
-                            atol=1e-12,
+                            atol=frequency_atol,
                         )
                     )
 
                     self.assertTrue(
                         np.allclose(
                             plan.f_shoulder_mhz,
-                            old.f_shoulder,
+                            GOLDEN[
+                                prefix
+                                + "__f_shoulder_mhz"
+                            ],
                             rtol=0.0,
-                            atol=1e-12,
+                            atol=frequency_atol,
                         )
                     )
 
                     self.assertAlmostEqual(
                         plan.peak_time_fraction,
-                        old.PEAK_TIME_FRACTION,
-                        places=14,
+                        float(
+                            GOLDEN[
+                                prefix
+                                + "__peak_time_fraction"
+                            ][0]
+                        ),
+                        places=fraction_places,
+                    )
+
+                    self.assertFalse(
+                        plan.used_measured_heights
                     )
 
                     self.assertFalse(
                         plan.scaling_verified_for_hardware
                     )
 
-    def test_live_measured_height_path_matches_source(
+    def test_live_measured_height_path_matches_frozen_reference(
         self
     ):
-
         constants = (
             constants_for(
                 "ND3"
             )
         )
 
-        center = (
-            constants["omegD"]
-        )
+        freqs = GOLDEN[
+            "measured_nd3_enhancement__freqs_mhz"
+        ].copy()
 
-        freqs = np.linspace(
-            center - 0.4,
-            center + 0.4,
-            512,
-        )
-
-        data = (
-            0.03
-            +
-            np.exp(
-                -(
-                    (
-                        freqs
-                        - (
-                            center
-                            - 0.08
-                        )
-                    )
-                    / 0.05
-                ) ** 2
-            )
-            +
-            0.4
-            * np.exp(
-                -(
-                    (
-                        freqs
-                        - (
-                            center
-                            + 0.12
-                        )
-                    )
-                    / 0.08
-                ) ** 2
-            )
-        )
-
-        (
-            _old,
-            old_waveform,
-        ) = legacy_waveform(
-            "ND3",
-            "Enhancement",
-            constants,
-            measured=(
-                freqs,
-                data,
-            ),
-        )
+        data = GOLDEN[
+            "measured_nd3_enhancement__data"
+        ].copy()
 
         snapshot = (
             FitSnapshot.from_message(
                 {
                     "material":
-                        "ND3",
+                        wire_material(
+                            "ND3"
+                        ),
                     "model":
-                        "single",
+                        model_for(
+                            "ND3"
+                        ),
                     "constants_good":
                         True,
                     "constants":
@@ -470,20 +344,26 @@ class TestWaveformPlanner(
         self.assertTrue(
             np.allclose(
                 plan.normalized_samples,
-                old_waveform,
+                GOLDEN[
+                    "measured_nd3_enhancement__waveform"
+                ],
                 rtol=0.0,
-                atol=5e-8,
+                atol=float(
+                    MANIFEST[
+                        "comparison_tolerances"
+                    ][
+                        "waveform_atol"
+                    ]
+                ),
             )
         )
 
     def test_uncalibrated_fit_is_rejected(
         self
     ):
-
         with self.assertRaises(
             WaveformPlanError
         ):
-
             FitSnapshot.from_message(
                 {
                     "material":

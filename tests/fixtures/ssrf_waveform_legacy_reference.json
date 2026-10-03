@@ -1,0 +1,67 @@
+{
+  "cases": [
+    "Enhancement",
+    "Suppression",
+    "Zero"
+  ],
+  "comparison_tolerances": {
+    "frequency_atol_mhz": 1e-12,
+    "peak_time_fraction_places": 14,
+    "waveform_atol": 5e-08
+  },
+  "high_polarization": 0.3,
+  "materials": {
+    "Butanol": {
+      "constants": {
+        "A1": 0.025472,
+        "K": 0.058355,
+        "eta1": 0.036356,
+        "eta2": 0.170048,
+        "omegD": 31.694211,
+        "omegQ1": 0.021701,
+        "omegQ2": 0.026227,
+        "phase": 0.10088003076527226,
+        "r": 1.5,
+        "scale": 0.004423
+      },
+      "model": "double",
+      "wire_material": "d-butanol"
+    },
+    "ND3": {
+      "constants": {
+        "A1": 0.038029,
+        "eta1": 0.116228,
+        "omegD": 32.677988031,
+        "omegQ1": 0.027335,
+        "phase": 0.012566370614359171,
+        "r": 1.5,
+        "scale": 0.001189
+      },
+      "model": "single",
+      "wire_material": "ND3"
+    }
+  },
+  "max_arb_points": 8192,
+  "measured_height_case": {
+    "case": "Enhancement",
+    "frequency_half_span_mhz": 0.4,
+    "material": "ND3",
+    "points": 512
+  },
+  "polarization": 0.3,
+  "purpose": "Frozen numerical reference outputs for the Genesis ssRF waveform planner regression test.",
+  "reference_f0_mhz": {
+    "Butanol": 31.694211,
+    "ND3": 32.677988031
+  },
+  "schema_version": 1,
+  "source": {
+    "description": "Legacy Genesis-Mission-ssRF-Controller Keysight ssRF_sweep_height implementation",
+    "deuts_sha256": "42c2fddc11335d1244db85174d54bbeeff0d3144c9a77b79c70fe523d71a813c",
+    "genesis_deuteron_model_sha256_at_generation": "7ffe0238f244ca4accd8717c5abff96242cd60780b2c06efc10903cdc7687350",
+    "genesis_waveform_planner_sha256_at_generation": "08a0c82f884fc739f66bf15e4358a01c0f83788da73b6176cbe23a42fcd1fa6d",
+    "git_identity_available": false,
+    "ssRF_sweep_height_sha256": "beddb68a7061282c325f972b1cdec08567ec91c3222135feeb701f816a37c527"
+  },
+  "total_burn_time_s": 0.01
+}
