@@ -65,7 +65,8 @@ class KeysightHealthHarness(Device):
         config_path = (
             repo_root
             / "configs"
-            / "ssrf"
+            / "commissioning"
+            / "ssrf_sim_readonly"
             / "keysight_wavegen"
             / "settings.yaml"
         )

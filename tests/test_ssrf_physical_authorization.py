@@ -56,7 +56,8 @@ class TestPhysicalAuthorization(unittest.TestCase):
             (
                 ROOT
                 / "configs"
-                / "ssrf"
+                / "commissioning"
+                / "ssrf_sim_readonly"
                 / name
                 / "settings.yaml"
             ).read_text()

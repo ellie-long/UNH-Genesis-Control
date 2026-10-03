@@ -23,7 +23,8 @@ ROOT = Path(__file__).resolve().parents[1]
 CONFIG = (
     ROOT
     / "configs"
-    / "microwave"
+    / "commissioning"
+    / "microwave_sim"
     / "supervisor"
     / "settings.yaml"
 )

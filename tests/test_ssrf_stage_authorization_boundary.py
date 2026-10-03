@@ -42,7 +42,8 @@ STAGER = (
 WGEN_CONFIG = (
     ROOT
     / "configs"
-    / "ssrf"
+    / "commissioning"
+    / "ssrf_sim_readonly"
     / "keysight_wavegen"
     / "settings.yaml"
 )
@@ -50,7 +51,8 @@ WGEN_CONFIG = (
 NORMAL_SEQ = (
     ROOT
     / "configs"
-    / "ssrf"
+    / "commissioning"
+    / "ssrf_sim_readonly"
     / "sequencer"
     / "settings.yaml"
 )

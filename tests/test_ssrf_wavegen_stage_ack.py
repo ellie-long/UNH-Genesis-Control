@@ -28,7 +28,8 @@ CONTRACT = (
 CONFIGS = (
     ROOT
     / "configs"
-    / "ssrf"
+    / "commissioning"
+    / "ssrf_sim_readonly"
     / "keysight_wavegen"
     / "settings.yaml",
 

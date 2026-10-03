@@ -550,7 +550,7 @@ class GuiAndShutdownStatic(unittest.TestCase):
                          'ca://UNH:GEN:SSRF:SEQ:MANUAL_LEVEL_DBM')
 
     def test_manual_level_profiles_and_archive(self):
-        for profile in ('ssrf', 'ssrf_physical', 'commissioning/ssrf_sim_active'):
+        for profile in ('commissioning/ssrf_sim_readonly', 'ssrf_physical', 'commissioning/ssrf_sim_active'):
             with self.subTest(profile=profile):
                 config = yaml.safe_load((Path('configs') / profile /
                                          'sequencer/settings.yaml').read_text())['ssrf_sequencer']

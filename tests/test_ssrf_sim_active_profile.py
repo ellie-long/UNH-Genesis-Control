@@ -6,7 +6,7 @@ import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
 
-SAFE = ROOT / "configs" / "ssrf"
+SAFE = ROOT / "configs" / "commissioning" / "ssrf_sim_readonly"
 
 ACTIVE = (
     ROOT

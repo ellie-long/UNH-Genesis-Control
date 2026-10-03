@@ -1,0 +1,40 @@
+general:
+  prefix: UNH:GEN:SSRF:ILK
+  log_dir: logs
+  epics_addr_list: 127.0.0.1:5068 127.0.0.1:5071 127.0.0.1:5072
+  delay: 0.2
+ssrf_interlock:
+  module: logic_devices.ssrf_interlock
+  autostart: false
+  delay: 0.2
+  nmr_comm_pv: UNH:GEN:SSRF:NMR_SW:COMM
+  nmr_mask_pv: UNH:GEN:SSRF:NMR_SW:MASK_RBV
+  ssrf_comm_pv: UNH:GEN:SSRF:RF_SW:COMM
+  ssrf_mask_pv: UNH:GEN:SSRF:RF_SW:MASK_RBV
+  smc_comm_pv: UNH:GEN:SSRF:GEN:COMM
+  smc_rf_pv: UNH:GEN:SSRF:GEN:RF_RBV
+  channels:
+  - None
+  records:
+    INPUTS_OK:
+      DESC: Required interlock inputs valid
+    INTERLOCK_OK:
+      DESC: ssRF interlock safe state
+    NMR_PATH_OFF:
+      DESC: NMR path confirmed disconnected
+    SSRF_PATH_OFF:
+      DESC: ssRF path confirmed disconnected
+    SSRF_PATH_ON:
+      DESC: ssRF path confirmed connected
+    RF_OFF:
+      DESC: SMC RF output confirmed off
+    NMR_CONNECT_PERMIT:
+      DESC: Permit to connect NMR path
+    SSRF_CONNECT_PERMIT:
+      DESC: Permit to connect ssRF path
+    RF_ENABLE_PERMIT:
+      DESC: Permit to enable SMC RF
+    STATE:
+      DESC: Current ssRF interlock state
+    REASON:
+      DESC: Current interlock decision reason

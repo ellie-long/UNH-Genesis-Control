@@ -6,7 +6,7 @@ import yaml
 
 
 ROOT = Path(__file__).resolve().parents[1]
-CONFIG = ROOT / "configs" / "microwave" / "vaunix_lms" / "settings.yaml"
+CONFIG = ROOT / "configs" / "commissioning" / "microwave_physical" / "vaunix_lms" / "settings.yaml"
 
 
 class VaunixGenesisConfiguration(unittest.TestCase):

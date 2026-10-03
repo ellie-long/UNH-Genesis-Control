@@ -1,0 +1,115 @@
+general:
+  prefix: UNH:GEN:SSRF:SEQ
+  log_dir: logs
+
+  # Read-only EPICS inputs used by the sequencer burn readiness.
+  epics_addr_list: 127.0.0.1:5068 127.0.0.1:5070 127.0.0.1:5071 127.0.0.1:5072 127.0.0.1:5073
+
+  delay: 0.2
+
+ssrf_sequencer:
+  module: logic_devices.ssrf_sequencer
+  autostart: false
+  delay: 0.2
+
+  # Initial commissioning parameters only.
+  # These do not cause hardware writes in 5B.4.
+  carrier_mhz: 33.0
+  manual_level_dbm: -120.0
+  start_level_dbm: -120.0
+  target_level_dbm: -22.0
+  fm_deviation_khz: 10.0
+
+  fm_period_s: 0.010
+  vhigh_v: 1.0
+  vlow_v: -1.0
+  fm_repeats: 10
+
+  channels:
+  - None
+
+  archive_records:
+  - CARRIER_MHZ
+  - MANUAL_LEVEL_DBM
+  - START_LEVEL_DBM
+  - TARGET_LEVEL_DBM
+  - FM_DEV_KHZ
+  - FM_PERIOD_S
+  - VHIGH_V
+  - VLOW_V
+  - FM_REPEATS
+  - SWEEP_STEP_DB
+  - SWEEP_DWELL_MS
+  - PARAMETERS_OK
+  - READY
+  - STATE
+  - REASON
+  - WAVEFORM_STAGE_ENABLED
+  - WAVEFORM_STAGE_POINTS
+  - WAVEFORM_STAGE_ID
+  - WAVEFORM_STAGE_STATE
+  - WAVEFORM_STAGE_REASON
+  - PREPARED
+  - PREPARED_WAVEFORM_ID
+  - PREPARE_STATE
+  - PREPARE_REASON
+
+  records:
+    CARRIER_MHZ:
+      DESC: SMC carrier frequency
+    MANUAL_LEVEL_DBM:
+      DESC: SMC plain manual RF level
+    START_LEVEL_DBM:
+      DESC: SMC sweep start level
+    TARGET_LEVEL_DBM:
+      DESC: SMC target RF level
+    FM_DEV_KHZ:
+      DESC: SMC external FM deviation
+    FM_PERIOD_S:
+      DESC: Keysight waveform period
+    VHIGH_V:
+      DESC: Keysight waveform high voltage
+    VLOW_V:
+      DESC: Keysight waveform low voltage
+    FM_REPEATS:
+      DESC: FM waveform repeats per burn
+    SWEEP_STEP_DB:
+      DESC: Derived SMC sweep step
+    SWEEP_DWELL_MS:
+      DESC: Derived SMC sweep dwell
+    PARAMETERS_OK:
+      DESC: Burn parameters valid
+    READY:
+      DESC: Burn readiness status
+    STATE:
+      DESC: Sequencer burn readiness state
+    REASON:
+      DESC: Sequencer burn readiness reason
+    WAVEFORM_STAGE_ENABLED:
+      DESC: Sequencer waveform staging permission
+    WAVEFORM_STAGE_REQ:
+      DESC: Adaptive waveform staging request
+    WAVEFORM_STAGE_POINTS:
+      DESC: Points in most recent staging request
+    WAVEFORM_STAGE_ID:
+      DESC: Verified sequencer staging counter
+    WAVEFORM_STAGE_STATE:
+      DESC: Sequencer staging state
+    WAVEFORM_STAGE_REASON:
+      DESC: Sequencer staging status reason
+    PREPARED:
+      DESC: Source prepared and waveform loaded
+    PREPARED_WAVEFORM_ID:
+      DESC: Loaded waveform identity
+    PREPARE_STATE:
+      DESC: Source preparation state
+    PREPARE_REASON:
+      DESC: Source preparation status reason
+    EXECUTION_ENABLED:
+      DESC: ssRF execution layer enabled state
+    EXECUTION_ARMED:
+      DESC: One-shot runtime execution arm
+    EXECUTION_STATE:
+      DESC: ssRF execution layer state
+    EXECUTION_REASON:
+      DESC: ssRF execution layer status reason

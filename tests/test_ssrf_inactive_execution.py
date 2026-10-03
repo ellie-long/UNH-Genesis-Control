@@ -13,7 +13,8 @@ SEQUENCER = (
 SAFE_CONFIG = (
     ROOT
     / "configs"
-    / "ssrf"
+    / "commissioning"
+    / "ssrf_sim_readonly"
     / "sequencer"
     / "settings.yaml"
 )

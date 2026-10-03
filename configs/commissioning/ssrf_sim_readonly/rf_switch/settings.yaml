@@ -1,0 +1,64 @@
+general:
+  prefix: UNH:GEN:SSRF:RF_SW
+  access_security_file: configs/access_security/ssrf_commands.acf
+  log_dir: logs
+  epics_addr_list: None
+  delay: 0.5
+
+minicircuits_switch:
+  module: ssrf_ioc.minicircuits_switch
+  autostart: false
+
+  # Simulator commissioning configuration.
+  # Physical ssRF/HB switch later: 192.168.1.11:80
+  ip: 127.0.0.1
+  port: 8082
+  timeout: 2.0
+
+  delay: 1.0
+
+  verify_timeout_s: 5.0
+  verify_interval_s: 0.01
+
+  # Safe commissioning defaults.
+  write_enabled: false
+  initialize_on_connect: false
+
+  channels:
+    - SWITCH
+
+  archive_records:
+    - MASK_RBV
+    - STATE_RBV
+    - COMM
+    - ERROR
+    - LAST_EVENT
+    - LAST_OK
+    - WRITE_ENABLED
+
+  records:
+    MODEL:
+      DESC: Mini-Circuits switch model
+    SERIAL:
+      DESC: Mini-Circuits switch serial number
+
+    PORT_CMD:
+      DESC: ssRF route command
+      ASG: GENESIS_SSRF_CMD
+
+    MASK_RBV:
+      DESC: ssRF switch SWPORT mask
+
+    STATE_RBV:
+      DESC: ssRF switch confirmed route
+
+    COMM:
+      DESC: ssRF switch communication state
+    ERROR:
+      DESC: Current ssRF switch fault
+    LAST_EVENT:
+      DESC: Last ssRF switch operational event
+    LAST_OK:
+      DESC: Last successful ssRF switch read
+    WRITE_ENABLED:
+      DESC: ssRF switch write permission

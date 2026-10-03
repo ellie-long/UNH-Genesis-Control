@@ -17,7 +17,8 @@ ROOT = Path(__file__).resolve().parents[1]
 PHYSICAL = (
     ROOT
     / "configs"
-    / "microwave"
+    / "commissioning"
+    / "microwave_physical"
     / "pcl602"
     / "settings.yaml"
 )
