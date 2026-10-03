@@ -12,11 +12,16 @@ The codebase integrates physical EPICS-controlled subsystems including:
 - Magnet
 - later Cryogenic and supervisory systems
 
-The current validated physical baseline is:
+Genesis preserves validated physical milestones as immutable historical
+references. In particular, the following validated simultaneous Microwave
+and ssRF integration tag must never be moved or rewritten:
 
     mw-ssrf-phase1-physical-integration-2026-09-30
 
-Do not modify or rewrite that Git tag.
+Later development, cleanup, or deployment commits do not retroactively change
+what a validated tag represents. Do not describe an unvalidated development
+commit as a physical baseline. Safety-critical changes require explicit
+physical revalidation before promotion to a new accepted physical release.
 
 ## Safety invariants
 
@@ -76,13 +81,8 @@ For physical changes:
 
 Do not develop directly on main.
 
-Use focused branches such as:
-
-- fix/mw-clean-shutdown
-- feature/ssrf-rf-operation
-- feature/mw-rf-operation
-- feature/mw-robot-joystick
-- feature/ubuntu-deployment
+Use a focused branch for one bounded task. Appropriate branch namespaces
+include `fix/`, `feature/`, `integration/`, and `cleanup/`.
 
 Keep unrelated changes out of the same commit.
 
@@ -92,34 +92,23 @@ Before proposing a commit, run the relevant regression tests and:
 
     git diff --check
 
-## Existing validated commands
+## Canonical operator commands
 
-Microwave complete subsystem:
+Prefer the explicit `genesisctl` subsystem interface for safety-sensitive
+physical operation.
 
-    ./scripts/start_microwave_system.sh
+Microwave:
 
-Microwave hardware only:
+    ./scripts/genesisctl.sh mw-start
+    ./scripts/genesisctl.sh mw-status
+    ./scripts/genesisctl.sh mw-rf-ready
+    ./scripts/genesisctl.sh mw-stop
 
-    ./scripts/microwave_physical.sh start
+ssRF:
 
-Microwave GUI only:
-
-    ./scripts/start_microwave_phoebus.sh
-
-ssRF complete subsystem:
-
-    ./scripts/start_ssrf_system.sh
-
-ssRF hardware only:
-
+    ./scripts/genesisctl.sh ssrf-physical-status
+    ./scripts/genesisctl.sh ssrf-deploy-keysight
     ./scripts/genesisctl.sh ssrf-start
-
-ssRF GUI only:
-
-    ./scripts/start_ssrf_phoebus.sh
-
-Safe ssRF shutdown:
-
     ./scripts/genesisctl.sh ssrf-stop
 
 Relevant regression commands include:
@@ -127,20 +116,26 @@ Relevant regression commands include:
     ./scripts/genesisctl.sh test-mw
     ./scripts/genesisctl.sh test-ssrf
     ./scripts/genesisctl.sh test-fitter
+    ./scripts/genesisctl.sh test-auth
 
-## Engineering priorities
+Subsystem system and GUI launchers may remain available for supported
+workflows, but they do not replace the canonical explicit physical command
+boundaries documented by `genesisctl`.
 
-The current development sequence is:
+## Integration roadmap
 
-1. deterministic Microwave shutdown;
-2. normal operator ssRF RF-ON capability;
-3. normal operator Microwave/Vaunix RF-ON capability;
-4. Microwave robot joystick;
-5. combined Mac physical validation;
-6. freeze operational-RF baseline;
-7. deploy that exact baseline to Ubuntu/WSL;
-8. integrate PyNMR/NMR;
-9. build unified Genesis supervisor;
-10. later integrate ML control.
+Keep the following ordering principles:
 
-Preserve this sequencing unless explicitly instructed otherwise.
+1. keep the repository self-contained and portable across supported hosts;
+2. validate development deployments before promoting them to production;
+3. physically revalidate safety-critical changes before creating an accepted
+   physical release tag;
+4. integrate NMR/PyNMR through defined Genesis EPICS ownership boundaries;
+5. integrate the Magnet subsystem using the same ownership and safety model;
+6. build the unified Genesis supervisor only after subsystem contracts are
+   stable;
+7. add ML supervisory or feedback control only after deterministic control,
+   safety, ownership, and fail-safe behavior are established.
+
+Development HEAD is not automatically a production baseline. Production
+deployment should use an explicitly accepted and validated commit or tag.
