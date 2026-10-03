@@ -5,7 +5,6 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PROFILE="${ROOT}/configs/commissioning/microwave_physical"
 MANAGER_CA="127.0.0.1:5064"
 ALL_CA="127.0.0.1:5064 127.0.0.1:5066 127.0.0.1:5067 127.0.0.1:5069 127.0.0.1:5085 127.0.0.1:5087"
-PHOEBUS="/Applications/CSS_Phoebus.app/Contents/MacOS/main.command"
 
 die() {
     echo "[STOP] $*" >&2
@@ -758,11 +757,9 @@ start_stack() {
     echo
     rf_ready
 
-    if [[ -x "$PHOEBUS" ]]; then
-        echo "[INFO] Microwave hardware/control stack is ready."
-        echo "[INFO] GUI is independent; launch when wanted with:"
-        echo "       ./scripts/start_microwave_phoebus.sh"
-    fi
+    echo "[INFO] Microwave hardware/control stack is ready."
+    echo "[INFO] GUI is independent; launch when wanted with:"
+    echo "       ./scripts/start_microwave_phoebus.sh"
 }
 
 stop_stack() {

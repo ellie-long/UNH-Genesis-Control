@@ -12,13 +12,50 @@ SETTINGS="$2"
 RESOURCE="$3"
 LOGFILE="$4"
 
-PHOEBUS="${PHOEBUS_BIN:-/Applications/CSS_Phoebus.app/Contents/MacOS/main.command}"
+resolve_executable()
+{
+    local candidate="$1"
 
-[[ -x "$PHOEBUS" ]] || {
-    echo "ERROR: Phoebus launcher not found:"
-    echo "  $PHOEBUS"
-    exit 1
+    if [[ "$candidate" == */* ]]; then
+        [[ -x "$candidate" ]] || return 1
+        printf "%s\\n" "$candidate"
+        return 0
+    fi
+
+    command -v "$candidate" 2>/dev/null
 }
+
+resolve_phoebus()
+{
+    local candidate
+
+    if [[ -n "${PHOEBUS_BIN:-}" ]]; then
+        resolve_executable "$PHOEBUS_BIN"
+        return
+    fi
+
+    if [[ "$(uname -s)" == "Darwin" ]]; then
+        candidate="/Applications/CSS_Phoebus.app/Contents/MacOS/main.command"
+        if [[ -x "$candidate" ]]; then
+            printf "%s\\n" "$candidate"
+            return 0
+        fi
+    fi
+
+    for candidate in phoebus phoebus.sh; do
+        if resolve_executable "$candidate"; then
+            return 0
+        fi
+    done
+
+    return 1
+}
+
+if ! PHOEBUS="$(resolve_phoebus)"; then
+    echo "ERROR: Phoebus launcher not found."
+    echo "Set PHOEBUS_BIN to the Phoebus launcher path or add phoebus/phoebus.sh to PATH."
+    exit 1
+fi
 
 [[ -f "$SETTINGS" ]] || {
     echo "ERROR: Phoebus settings file not found:"
