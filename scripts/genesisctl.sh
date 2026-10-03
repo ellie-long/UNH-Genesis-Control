@@ -101,14 +101,14 @@ EVERYDAY
   help                 Show this help.
   where                Show repository path, branch and HEAD.
   doctor               Check environment, required scripts and tools.
-  status               Read-only summary of Git, screens, processes and PVs.
+  status               Read-only summary of Git, screens and Genesis processes.
   physical-status      Read-only status of physical ssRF hardware and Keysight Pi.
   screens              Show detached/running screen sessions.
   processes            Show Genesis-related processes.
   logs [pattern]       Show newest log files, or tail logs matching pattern.
   git                  Show branch, HEAD, worktree, submodule and stash.
                        READ-ONLY; stash is never modified.
-  endpoints            Show configured device endpoint/write safety settings.
+  endpoints            Show canonical physical/simulator endpoint and safety settings.
 
 MICROWAVE PHYSICAL OPERATION
   mw-start              Start the validated Microwave physical/control stack.
@@ -351,28 +351,21 @@ if value and str(value).lower() != "none":
 PY
 }
 
-pv_status() {
-    local addr_list=""
-    local cfg_normal="${ROOT}/configs/ioc_manager/settings.yaml"
-    local cfg_sim="${ROOT}/configs/commissioning/ssrf_sim_active/ioc_manager/settings.yaml"
+ssrf_sim_pv_status() {
+    require_env
 
-    # Prefer simulator manager config only when execution looks simulator-active.
-    # Otherwise use normal ioc-manager config.
-    if [ -f "${cfg_sim}" ]; then
-        addr_list="$(extract_addr_list "${cfg_normal}" 2>/dev/null || true)"
-    else
-        addr_list="$(extract_addr_list "${cfg_normal}" 2>/dev/null || true)"
-    fi
+    local cfg="${ROOT}/configs/commissioning/ssrf_sim_active/ioc_manager/settings.yaml"
+    local addr_list=""
+
+    require_file "${cfg}"
+
+    addr_list="$(extract_addr_list "${cfg}" 2>/dev/null || true)"
 
     if [ -z "${addr_list}" ]; then
-        # Current local macOS development ports. This is a fallback only.
-        addr_list="127.0.0.1:5064 127.0.0.1:5066 127.0.0.1:5067 127.0.0.1:5068 127.0.0.1:5069 127.0.0.1:5070 127.0.0.1:5071 127.0.0.1:5072 127.0.0.1:5073 127.0.0.1:5074 127.0.0.1:5085 127.0.0.1:5087"
+        die "ssRF simulator manager has no usable epics_addr_list: ${cfg#${ROOT}/}"
     fi
 
-    EPICS_CA_AUTO_ADDR_LIST=NO \
-    EPICS_CA_ADDR_LIST="${addr_list}" \
-    PYTHONPATH="${ROOT}" \
-    python - <<'PY'
+    EPICS_CA_AUTO_ADDR_LIST=NO     EPICS_CA_ADDR_LIST="${addr_list}"     PYTHONPATH="${ROOT}"     python - <<'PY'
 import asyncio
 
 try:
@@ -412,10 +405,8 @@ PVS = [
     ("Exec enabled",    "UNH:GEN:SSRF:SEQ:EXECUTION_ENABLED"),
     ("Exec armed",      "UNH:GEN:SSRF:SEQ:EXECUTION_ARMED"),
     ("Exec state",      "UNH:GEN:SSRF:SEQ:EXECUTION_STATE"),
-
-    ("Archive",         "UNH:GEN:Archive_Status"),
-    ("Archive PVs",     "UNH:GEN:Archive_PV_Count"),
 ]
+
 
 async def get(label, pv):
     try:
@@ -424,15 +415,18 @@ async def get(label, pv):
     except Exception:
         return label, "<unavailable>"
 
+
 async def main():
-    print("===== EPICS / SSRF STATUS (READ-ONLY) =====")
+    print("===== EPICS / SSRF SIMULATOR STATUS (READ-ONLY) =====")
     values = await asyncio.gather(*(get(*item) for item in PVS))
     for label, value in values:
         print(f"{label:18s} = {value}")
 
+
 asyncio.run(main())
 PY
 }
+
 
 show_status() {
     banner
@@ -442,8 +436,12 @@ show_status() {
     echo
     show_processes
     echo
-    pv_status
+    note "PV status is profile-specific."
+    note "Use: genesis mw-status"
+    note "Use: genesis ssrf-physical-status"
+    note "Use: genesis sim-status"
 }
+
 
 show_logs() {
     local pattern="${1:-}"
@@ -486,55 +484,111 @@ EOF
 
 show_endpoints() {
     require_env
+
+    cd "${ROOT}"
+
     PYTHONPATH="${ROOT}" python - <<'PY'
 from pathlib import Path
+
 try:
     import yaml
 except Exception as exc:
     print(f"ERROR: PyYAML is required: {exc}")
     raise SystemExit(1)
 
-files = [
-    ("SMC100A", Path("configs/ssrf/smc100a/settings.yaml")),
-    ("WaveGen", Path("configs/ssrf/keysight_wavegen/settings.yaml")),
-    ("NMR switch", Path("configs/ssrf/nmr_switch/settings.yaml")),
-    ("ssRF switch", Path("configs/ssrf/rf_switch/settings.yaml")),
-    ("Sequencer", Path("configs/ssrf/sequencer/settings.yaml")),
+
+PROFILES = [
+    (
+        "MICROWAVE PHYSICAL",
+        Path("configs/commissioning/microwave_physical"),
+    ),
+    (
+        "MICROWAVE SIMULATOR",
+        Path("configs/commissioning/microwave_sim"),
+    ),
+    (
+        "SSRF PHYSICAL",
+        Path("configs/ssrf_physical"),
+    ),
+    (
+        "SSRF SIMULATOR",
+        Path("configs/commissioning/ssrf_sim_active"),
+    ),
 ]
 
-print("===== NORMAL CONFIG ENDPOINTS / SAFETY =====")
 
-for label, path in files:
-    if not path.exists():
-        print(f"{label:12s}: <missing {path}>")
-        continue
+def meaningful(value):
+    return value is not None and str(value).lower() != "none"
 
-    data = yaml.safe_load(path.read_text()) or {}
-    general = data.get("general") or {}
 
-    device_sections = [
-        (k, v) for k, v in data.items()
-        if k != "general" and isinstance(v, dict)
-    ]
-
+for profile_label, root in PROFILES:
     print()
-    print(f"{label}")
-    print(f"  prefix = {general.get('prefix', '<none>')}")
+    print("=" * 68)
+    print(profile_label)
+    print(f"profile = {root}")
+    print("=" * 68)
 
-    if not device_sections:
+    if not root.is_dir():
+        print(f"<missing profile directory: {root}>")
         continue
 
-    for section, cfg in device_sections:
-        if "ip" in cfg or "port" in cfg:
-            print(f"  endpoint = {cfg.get('ip', '?')}:{cfg.get('port', '?')}")
-        if "write_enabled" in cfg:
-            print(f"  write_enabled = {cfg.get('write_enabled')}")
-        if "initialize_on_connect" in cfg:
-            print(f"  initialize_on_connect = {cfg.get('initialize_on_connect')}")
-        if "execution_enabled" in cfg:
-            print(f"  execution_enabled = {cfg.get('execution_enabled')}")
+    settings_files = sorted(root.glob("*/settings.yaml"))
+
+    if not settings_files:
+        print("<no settings.yaml files>")
+        continue
+
+    for settings_file in settings_files:
+        data = yaml.safe_load(settings_file.read_text()) or {}
+        general = data.get("general") or {}
+
+        print()
+        print(f"[{settings_file.parent.name}]")
+        print(f"  config = {settings_file}")
+
+        prefix = general.get("prefix")
+        if meaningful(prefix):
+            print(f"  prefix = {prefix}")
+
+        addr_list = general.get("epics_addr_list")
+        if meaningful(addr_list):
+            print(f"  epics_addr_list = {addr_list}")
+
+        sections = [
+            (name, cfg)
+            for name, cfg in data.items()
+            if name != "general" and isinstance(cfg, dict)
+        ]
+
+        for section, cfg in sections:
+            print(f"  section = {section}")
+
+            if "ip" in cfg or "port" in cfg:
+                ip = cfg.get("ip", "?")
+                port = cfg.get("port", "?")
+                print(f"    endpoint = {ip}:{port}")
+
+            if meaningful(cfg.get("resource")):
+                print(f"    resource = {cfg.get('resource')}")
+
+            if meaningful(cfg.get("settings_folder")):
+                print(f"    settings_folder = {cfg.get('settings_folder')}")
+
+            for key in (
+                "simulation",
+                "write_enabled",
+                "initialize_on_connect",
+                "execution_enabled",
+                "execution_mode",
+                "autostart",
+                "ca_server_port",
+                "pva_server_port",
+            ):
+                if key in cfg:
+                    print(f"    {key} = {cfg.get(key)}")
 PY
 }
+
 
 physical_status() {
     echo
@@ -968,8 +1022,7 @@ case "${cmd}" in
         sim_start
         ;;
     sim-status)
-        require_env
-        pv_status
+        ssrf_sim_pv_status
         ;;
     sim-stop)
         sim_stop
