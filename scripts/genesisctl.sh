@@ -1,16 +1,16 @@
 #!/usr/bin/env bash
 #
-# UNH Genesis Phase-I operator helper
+# UNH Genesis operator helper
 #
 # Purpose:
 #   One stable command surface for everyday Genesis development/operations.
 #
 # Safety policy:
-#   - Normal startup uses the repository's read-only macOS startup script.
+#   - Physical operation uses explicit subsystem-specific startup/shutdown paths.
 #   - Simulator activation is explicit and requires all localhost backends.
-#   - The validated PHYSICAL_NO_RF workflow is exposed only through explicit ssRF commands.
-#   - Amplified-RF / target-burn commissioning is NOT automated here.
-#   - Forced shutdown requires an explicit acknowledgement token.
+#   - Physical startup preserves safe/disarmed output states.
+#   - Hardware RF operation requires deliberate operator authorization.
+#   - Generic hardware-verification bypasses are not exposed.
 #   - This script never touches git stash.
 #
 # Recommended install:

@@ -11,3 +11,9 @@ archive/pages/*
 !archive/pages/*.py
 logs/
 last.yaml
+
+# Local test, coverage, and OS artifacts
+.pytest_cache/
+.DS_Store
+.coverage
+htmlcov/

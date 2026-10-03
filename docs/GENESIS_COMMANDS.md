@@ -277,26 +277,6 @@ git status --short
 git stash list
 ```
 
-Protected stash:
-
-```text
-stash@{0}: On feature/microwave-genesis-integration: WIP stop_genesis_mac.sh before ssRF integration
-```
-
-# Current checkpoint
-
-```text
-5C.3B-E1      fitter EPICS interface
-5C.3B-E2      fitter Phoebus/operator interface
-5C.3B-CAL-2   calibration through EPICS/Phoebus
-5C.3B-2       calibrated fit -> 8192-point WaveformPlan
-5C.3B-3A      authorized analysis -> sequencer staging boundary
-5C.3B-3B-SIM  end-to-end simulator IOC-memory staging + fresh ACK
-```
-
-Next laboratory work is physical calibration, physical IOC-memory staging, controlled LOAD, external-FM scaling verification, and physical interlock/logging validation.
-
-
 ## Current physical ssRF operation
 
 Complete system / non-invasive GUI reuse:

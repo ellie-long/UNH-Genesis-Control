@@ -281,9 +281,8 @@ The canonical repository-wide regression command is:
 
     python -m pytest -q
 
-At cleanup checkpoint `113bd27`, the full repository suite completed with:
-
-    741 passed, 140 subtests passed
+Test counts evolve with the repository; successful execution of the current
+regression suite is the authoritative validation result.
 
 Focused regression entry points are also available:
 
