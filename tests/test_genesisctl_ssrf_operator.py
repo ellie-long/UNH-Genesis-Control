@@ -32,9 +32,15 @@ class GenesisCtlSsrfOperator(unittest.TestCase):
         self.assertIn("    ssrf-start)", self.text)
         self.assertIn("    ssrf-stop)", self.text)
 
-    def test_normal_start_and_stop_are_not_redefined(self):
-        self.assertIn("    start)\n        normal_start", self.text)
-        self.assertIn("    stop)\n        normal_stop", self.text)
+    def test_generic_start_stop_and_force_stop_are_retired(self):
+        self.assertIn(
+            "    start|stop|force-stop)\n"
+            '        refuse_legacy_generic "${cmd}"',
+            self.text,
+        )
+        self.assertNotIn("normal_start() {", self.text)
+        self.assertNotIn("normal_stop() {", self.text)
+        self.assertNotIn("force_stop() {", self.text)
 
 
 if __name__ == "__main__":

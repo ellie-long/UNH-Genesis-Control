@@ -51,6 +51,21 @@ class GenesisCtlMicrowaveOperator(unittest.TestCase):
                 self.text,
             )
 
+    def test_generic_phase1_launcher_is_not_reachable_from_cli(self):
+        self.assertNotIn(
+            'START_SCRIPT="${ROOT}/scripts/start_genesis_mac.sh"',
+            self.text,
+        )
+        self.assertNotIn(
+            'STOP_SCRIPT="${ROOT}/scripts/stop_genesis_mac.sh"',
+            self.text,
+        )
+        self.assertNotIn("normal_start() {", self.text)
+        self.assertNotIn("normal_stop() {", self.text)
+        self.assertNotIn("force_stop() {", self.text)
+        self.assertIn("start|stop|force-stop)", self.text)
+        self.assertIn("refuse_legacy_generic", self.text)
+
     def test_old_phase1_repository_fallback_is_absent(self):
         self.assertNotIn(
             "/Users/shrestha/project/unh/genesis/Development/genesis-phase1",

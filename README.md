@@ -325,10 +325,10 @@ or support transitional development workflows.
 
 In particular:
 
-- generic `genesisctl start` / `genesisctl stop` currently route through the older
-  combined macOS launcher;
-- `start_genesis_mac.sh` and `stop_genesis_mac.sh` are not the canonical dedicated
-  physical Microwave or final ssRF operator paths;
+- generic `genesisctl start`, `genesisctl stop`, and `genesisctl force-stop`
+  are intentionally disabled; physical operation requires explicit subsystem commands;
+- `start_genesis_mac.sh` and `stop_genesis_mac.sh` remain temporarily as historical
+  integration artifacts and are not invoked by the canonical CLI;
 - the physical-no-RF ssRF demo survives only as historical commissioning documentation;
 - older configuration directories may remain while migration to the final
   independent Genesis layout is completed.

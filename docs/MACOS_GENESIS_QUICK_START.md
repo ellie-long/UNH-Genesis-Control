@@ -1,8 +1,9 @@
-# UNH Genesis Phase-I — macOS Quick Start
+# UNH Genesis Phase-I — Historical macOS Prototype Record
 
-This document describes the validated macOS startup procedure for the UNH Genesis Phase-I EPICS prototype.
+Historical status: this document records the earlier combined macOS Phase-I prototype workflow. It is not the current operator startup procedure.
+Do not use `start_genesis_mac.sh` or `stop_genesis_mac.sh` for current physical operation. Use the explicit Microwave and ssRF workflows instead.
 
-## Current Integrated Subsystem
+## Historical Integrated Subsystem
 
 The currently validated live subsystem is:
 
@@ -18,9 +19,9 @@ The currently validated live subsystem is:
 
 The Mac must be connected to the same lab network as the SPD1305X.
 
-## Normal Startup
+## Historical Prototype Startup
 
-From the repository root:
+The command below is retained only as a record of the previous prototype workflow and is not a current operator command:
 
 ```bash
 ./scripts/start_genesis_mac.sh

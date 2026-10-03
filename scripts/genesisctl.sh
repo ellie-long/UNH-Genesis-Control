@@ -62,8 +62,6 @@ find_root() {
 ROOT="$(find_root)" || die "Could not locate Genesis repository."
 cd "${ROOT}" || die "Could not cd to ${ROOT}"
 
-START_SCRIPT="${ROOT}/scripts/start_genesis_mac.sh"
-STOP_SCRIPT="${ROOT}/scripts/stop_genesis_mac.sh"
 SIM_SCRIPT="${ROOT}/scripts/start_ssrf_sim_active.sh"
 MICROWAVE_PHYSICAL_SCRIPT="${ROOT}/scripts/microwave_physical.sh"
 SSRF_PHYSICAL_STATUS_SCRIPT="${ROOT}/scripts/check_ssrf_physical_readonly.sh"
@@ -103,9 +101,6 @@ EVERYDAY
   help                 Show this help.
   where                Show repository path, branch and HEAD.
   doctor               Check environment, required scripts and tools.
-  start                Start NORMAL Genesis on the Mac.
-                       Uses normal configs; writes remain disabled.
-  stop                 Safely stop NORMAL Genesis.
   status               Read-only summary of Git, screens, processes and PVs.
   physical-status      Read-only status of physical ssRF hardware and Keysight Pi.
   screens              Show detached/running screen sessions.
@@ -155,18 +150,18 @@ TESTS
   compile              Compile-check Genesis Python source.
   check                git diff --check + unit compile + Git state.
 
-SAFETY / RECOVERY
-  force-stop I_UNDERSTAND
-                       Emergency/development shutdown that sets
-                       GENESIS_FORCE_STOP=1 and BYPASSES hardware-state
-                       verification. Never use casually.
+LEGACY GENERIC COMMANDS
+  start                Disabled; use an explicit subsystem workflow.
+  stop                 Disabled; use the matching subsystem safe-stop command.
+  force-stop           Disabled; no generic hardware-verification bypass is exposed.
 
 BASELINE
   baseline             Check whether frozen ssRF 5B.6F commit 3ef33de
                        is contained in the current branch.
 
 Important:
-  * Normal Genesis startup is READ-ONLY by design.
+  * Generic start/stop commands are intentionally disabled.
+  * Physical operation must use explicit subsystem commands.
   * initialize_on_connect=false must remain a safety invariant.
   * "sim-start" is for localhost simulator commissioning, not lab hardware.
   * "physical-status" remains a backwards-compatible read-only status alias.
@@ -176,7 +171,6 @@ Important:
   * This helper never runs git stash/pop/drop/clear.
 
 Examples:
-  genesis start
   genesis status
   genesis physical-status
   genesis mw-start
@@ -189,7 +183,6 @@ Examples:
   genesis ssrf-start
   genesis ssrf-stop
   genesis endpoints
-  genesis stop
 
   genesis sim-check
   genesis sim-start
@@ -224,7 +217,7 @@ doctor() {
 
     echo
     echo "===== REQUIRED REPOSITORY SCRIPTS ====="
-    for f in "${START_SCRIPT}" "${STOP_SCRIPT}" "${SIM_SCRIPT}" "${MICROWAVE_PHYSICAL_SCRIPT}" "${SSRF_PHYSICAL_STATUS_SCRIPT}" "${SSRF_FINAL_START_SCRIPT}" "${SSRF_FINAL_STOP_SCRIPT}" "${SSRF_KEYSIGHT_DEPLOY_SCRIPT}"; do
+    for f in "${SIM_SCRIPT}" "${MICROWAVE_PHYSICAL_SCRIPT}" "${SSRF_PHYSICAL_STATUS_SCRIPT}" "${SSRF_FINAL_START_SCRIPT}" "${SSRF_FINAL_STOP_SCRIPT}" "${SSRF_KEYSIGHT_DEPLOY_SCRIPT}"; do
         if [ -f "${f}" ]; then
             pass "${f#${ROOT}/}"
         else
@@ -553,47 +546,35 @@ physical_status() {
     "${ROOT}/scripts/check_ssrf_physical_readonly.sh"
 }
 
-normal_start() {
-    require_env
-    require_file "${START_SCRIPT}"
-    echo "===== NORMAL READ-ONLY START ====="
-    echo "+ ./scripts/start_genesis_mac.sh"
-    exec "${START_SCRIPT}"
+refuse_legacy_generic() {
+    local command="$1"
+
+    echo "REFUSED: 'genesis ${command}' is a retired generic Phase-I command." >&2
+    echo >&2
+    echo "Use an explicit workflow:" >&2
+    echo >&2
+    echo "  Microwave physical:" >&2
+    echo "    genesis mw-start" >&2
+    echo "    genesis mw-status" >&2
+    echo "    genesis mw-rf-ready" >&2
+    echo "    genesis mw-stop" >&2
+    echo >&2
+    echo "  ssRF physical:" >&2
+    echo "    genesis ssrf-physical-status" >&2
+    echo "    genesis ssrf-start" >&2
+    echo "    genesis ssrf-stop" >&2
+    echo >&2
+    echo "  ssRF simulator:" >&2
+    echo "    genesis sim-check" >&2
+    echo "    genesis sim-start" >&2
+    echo "    genesis sim-status" >&2
+    echo "    genesis sim-stop" >&2
+    echo >&2
+    echo "The older combined macOS launcher is not invoked by genesisctl." >&2
+
+    return 2
 }
 
-normal_stop() {
-    require_env
-    require_file "${STOP_SCRIPT}"
-    echo "===== SAFE NORMAL STOP ====="
-    echo "+ ./scripts/stop_genesis_mac.sh"
-    exec "${STOP_SCRIPT}"
-}
-
-force_stop() {
-    require_env
-    require_file "${STOP_SCRIPT}"
-
-    if [ "${1:-}" != "I_UNDERSTAND" ]; then
-        cat >&2 <<'EOF'
-REFUSED.
-
-force-stop bypasses hardware-state verification.
-
-If this is genuinely required, run:
-  genesis force-stop I_UNDERSTAND
-EOF
-        exit 2
-    fi
-
-    echo "============================================================"
-    echo " WARNING: FORCED GENESIS SHUTDOWN"
-    echo " Hardware-state verification WILL BE BYPASSED."
-    echo "============================================================"
-    echo
-    echo "+ GENESIS_FORCE_STOP=1 ./scripts/stop_genesis_mac.sh"
-
-    GENESIS_FORCE_STOP=1 exec "${STOP_SCRIPT}"
-}
 
 sim_start() {
     require_env
@@ -928,14 +909,8 @@ case "${cmd}" in
     doctor)
         doctor
         ;;
-    start)
-        normal_start
-        ;;
-    stop)
-        normal_stop
-        ;;
-    force-stop)
-        force_stop "${1:-}"
+    start|stop|force-stop)
+        refuse_legacy_generic "${cmd}"
         ;;
     status)
         require_env

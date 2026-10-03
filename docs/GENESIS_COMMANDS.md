@@ -3,7 +3,6 @@
 Repository:
 
 ```bash
-cd /Users/shrestha/project/unh/genesis/Development/genesis-phase1
 conda activate genesis-p1
 ```
 
@@ -13,17 +12,26 @@ Use:
 genesis help
 ```
 
-# Normal operation
+# Operator command model
+
+Generic `genesis start`, `genesis stop`, and `genesis force-stop` are retired and intentionally refuse execution.
+Physical operation must use explicit subsystem commands.
 
 ```bash
-genesis start
+genesis mw-start
+genesis mw-status
+genesis mw-rf-ready
+genesis mw-stop
+genesis ssrf-physical-status
+genesis ssrf-deploy-keysight
+genesis ssrf-start
+genesis ssrf-stop
 genesis status
 genesis physical-status
 genesis endpoints
-genesis stop
 ```
 
-Normal Genesis remains read-only by default:
+The retired combined prototype used read-only defaults:
 
 ```text
 device write_enabled = false
