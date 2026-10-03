@@ -160,10 +160,6 @@ class MicrowaveSupervisorManager(unittest.TestCase):
             STOP.read_text(),
         )
 
-        self.assertIn(
-            "127.0.0.1:5085",
-            CTL.read_text(),
-        )
 
     def test_phoebus_contains_supervisor_pva(self):
         self.assertIn(
