@@ -19,20 +19,19 @@ does not SSH/start the service implicitly. The legacy deployment examples
 below are not the current physical-startup procedure.
 
 The ARM-only Vaunix library runs on the Raspberry Pi and the EPICS IOC runs on
-the control computer. The historical `run_from_laptop.py` helper automated that
-split in the earlier deployment workflow:
-
-```
-laptop: run_from_laptop.py -> SSH deploy/start -> Pi: vaunix_shim.py + liblmshid.so
-                         \-> local master_ioc.py -> EPICS PVs
-```
+the Genesis control computer. The Raspberry Pi hosts `vaunix_shim.py` and
+`liblmshid.so`; the local `microwave_ioc.vaunix_lms` IOC communicates with that
+service over TCP.
 
 ## Current deployment and startup policy
 
-The checked-in `run_from_laptop.py` helper belongs to the earlier Vaunix
-deployment workflow. It is not the current Genesis physical startup path and
-must not be used against the canonical physical profile without a separate
-software migration and physical validation.
+The earlier laptop-side deployment helper has been retired from the current
+repository because its configuration schema no longer matches the canonical
+Genesis Vaunix profile. Its implementation remains available in Git history.
+
+Installation or replacement of the Raspberry Pi shim/service is a separate
+commissioning/administrative operation. Normal Genesis physical startup does not
+rebuild or redeploy the vendor library.
 
 The current physical configuration is
 `configs/commissioning/microwave_physical/vaunix_lms/settings.yaml`.
@@ -41,20 +40,13 @@ Normal physical operation uses the explicit Genesis Microwave workflow:
 `genesis mw-start`, `genesis mw-status`, `genesis mw-rf-ready`, and
 `genesis mw-stop`.
 
-The physical launcher expects the Raspberry Pi service to be installed and
-available, then establishes the EPICS ownership and safety path through the
-canonical Microwave profile.
-
-The earlier `run_from_laptop.py` workflow used a different IOC/configuration
-schema. Those operator examples are preserved in Git history rather than
-presented here as current commands. Migrating that helper, if it is still
-needed, should be a separate task with simulator tests followed by physical
-validation.
+The physical launcher expects the deployed Raspberry Pi service to remain
+available at the configured endpoint and verifies its hardware mode and RF-OFF
+state before starting the local Vaunix IOC.
 
 ## Ownership
 
-- `settings.yaml`: mode, Pi login/path, TCP endpoint, IOC timing and PV fields.
-- `run_from_laptop.py`: deployment, ARM linking, service installation, local IOC.
+- canonical Vaunix profile: TCP endpoint, IOC timing, safety limits and shim metadata.
 - `vaunix_shim.py`: ctypes signatures, device selection, API errors, 10 Hz /
   0.25 dBm conversion, and serialized access.
 - `microwave_ioc/vaunix_lms/toolkit_device.py`: Genesis TCP/EPICS IOC; no ARM vendor library.
