@@ -7,12 +7,25 @@ with the total fit and per-nucleus I+/I− components, and a P & Q vs time strip
 
 ## Install
 
-Python **3.10–3.12** (the DAQ machine runs 3.10/3.12 from `cmd`). On the build
-machine, conda.
+The canonical Genesis physical ssRF workflow runs the fitter through
+`python -m online_fitter.epics_run`. This EPICS runtime is headless and uses
+the shared Genesis `genesis-p1` environment.
 
-```
-pip install -r requirements.txt      # numpy, scipy, pyqtgraph, PyQt5
-```
+From the repository root, activate the environment and install the canonical
+Genesis runtime requirements:
+
+    conda activate genesis-p1
+    python -m pip install -r requirements.txt
+
+The standalone `python -m online_fitter.run` graphical interface is optional
+and is not part of the validated Genesis control-computer runtime. That GUI
+additionally requires `pyqtgraph` and a compatible Qt Python binding.
+
+The `online_fitter.procctl` helper and `--replace` option are retained for the
+historical Windows/LabVIEW standalone workflow. The canonical Linux/WSL
+physical Genesis launcher does not force-kill an unidentified previous fitter.
+A conflicting port owner therefore causes startup to fail instead of being
+terminated without established ownership.
 
 ## Run (normal use)
 

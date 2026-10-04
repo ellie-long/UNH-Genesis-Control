@@ -1,0 +1,6 @@
+name: genesis-p1
+channels:
+  - conda-forge
+dependencies:
+  - python=3.13
+  - pip

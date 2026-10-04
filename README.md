@@ -374,3 +374,73 @@ See:
 
     LICENSE
     NOTICE.md
+
+## Independent repository deployment model
+
+Genesis uses one repository and one control architecture across development,
+integration, and production. Machine-specific behavior belongs in explicit
+configuration and commissioning profiles rather than divergent source trees.
+
+### Host roles
+
+- **utsav-mac** is the primary development workstation. Use it for source
+  control, feature development, simulation, regression testing, GUI work,
+  documentation, and explicitly authorized bench commissioning.
+
+- **utsav-ubuntu** is the Linux/WSL integration environment. Use it to validate
+  candidate revisions in the target Linux control environment, including EPICS
+  networking, startup scripts, subsystem integration, and lab-network or
+  hardware communication before production deployment.
+
+- **sliferlab-ubuntu** is the production/operator environment. It should run an
+  explicitly accepted commit or tag. Production source should be deployed from
+  the repository rather than edited independently on this host.
+
+The intended promotion path is:
+
+    utsav-mac development
+            |
+            v
+    utsav-ubuntu integration and acceptance
+            |
+            v
+    accepted commit or tag
+            |
+            v
+    sliferlab-ubuntu production
+
+A checkout must not depend on a developer-specific absolute path or another
+Genesis checkout. Hardware addresses and subsystem-specific settings belong in
+the tracked configuration and commissioning-profile layer.
+
+### Python environment
+
+`environment.yml` defines the minimal Conda bootstrap:
+
+    conda env create -f environment.yml
+    conda activate genesis-p1
+
+Install the runtime dependencies with:
+
+    python -m pip install -r requirements.txt
+
+For development and regression testing use:
+
+    python -m pip install -r requirements-dev.txt
+    python -m pytest -q
+
+GNU Screen and Phoebus are system or application prerequisites and are not
+Python packages managed by `requirements.txt`.
+
+The canonical control-computer Python runtime targets macOS and Linux/WSL.
+Native Windows Python is not the production Genesis control-computer target.
+
+### Deployment and safety boundary
+
+The same device-IOC, EPICS, supervisor, interlock, authorization, ownership,
+and verified-shutdown architecture must be preserved on every host.
+
+Physical operation must fail closed when process or hardware ownership is
+ambiguous. Development convenience must not bypass device write gates,
+interlocks, safe-startup checks, execution authorization, or verified
+safe-state shutdown.
