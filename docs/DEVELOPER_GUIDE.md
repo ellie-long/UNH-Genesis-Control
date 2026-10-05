@@ -1,4 +1,4 @@
-# Genesis Coding-Agent Instructions
+# Genesis Developer and Safety Guide
 
 ## Project
 
@@ -65,8 +65,9 @@ EPICS CA/PVA ports must remain unique across simultaneously running subsystems.
 
 ## Physical-control development
 
-Do not perform physical hardware writes while implementing or analyzing code
-unless the user explicitly requests a physical commissioning step.
+Do not perform physical hardware writes during routine development, analysis,
+or testing. Physical writes belong to an explicitly planned commissioning or
+validation step.
 
 For physical changes:
 
@@ -88,7 +89,7 @@ Keep unrelated changes out of the same commit.
 
 Do not amend or rewrite validated physical-baseline commits.
 
-Before proposing a commit, run the relevant regression tests and:
+Before committing a change, run the relevant regression tests and:
 
     git diff --check
 
