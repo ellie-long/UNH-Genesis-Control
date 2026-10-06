@@ -6,12 +6,14 @@
 # GENESIS_SSRF_CMD protects direct hardware command records.  Reads remain
 # available to all clients, but writes require the dedicated sequencer CA
 # identity.  The current macOS Phase-I physical sequencer runs under
-# the shrestha OS account; retain genesis_ssrf_sequencer for the
-# future dedicated service-account deployment.
+# approved operator accounts; retain genesis_ssrf_sequencer for the
+# dedicated sequencer CA identity.
 
 UAG(GENESIS_SSRF_SEQUENCER) {
     genesis_ssrf_sequencer,
-    shrestha
+    shrestha,
+    utsav,
+    sliferlab
 }
 
 ASG(DEFAULT) {

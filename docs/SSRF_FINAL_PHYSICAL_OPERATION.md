@@ -2,13 +2,29 @@
 
 ## Status
 
-Validated on September 28, 2026.
+Initial Phase-I source-control validation was completed on September 28, 2026.
 
-The Genesis ssRF Phase-I physical source-control path has been validated through a complete one-shot sequenced burn with the downstream/LZY amplifier unpowered.
+The current physical operating baseline was revalidated on October 6, 2026
+from the Ubuntu/WSL DAQ using the final GUI/operator workflow.
 
-This milestone validates the control, switching, interlock, waveform, sequencing, GUI, authorization, and logging architecture.
+The October 6 validation included:
 
-It does not yet constitute powered amplified-RF or target-connected commissioning.
+- physical authorization from the Ubuntu operator account;
+- guarded manual RF ON/OFF;
+- fitter calibration and calibrated ssRF/hole-burn fitting;
+- adaptive waveform generation and loading;
+- 8192-point WaveGen preparation;
+- physical WaveGen limits of -0.500 V to +0.500 V;
+- one-shot ARM and BURN ONCE;
+- automatic WaveGen/FM/RF sequencing;
+- switch routing and receiver protection;
+- automatic safe cleanup;
+- final verified `ssrf-stop` shutdown.
+
+The downstream/LZY amplifier remained unpowered.
+
+This validates the Genesis ssRF source-control architecture. It does not
+constitute powered amplified-RF or target-connected commissioning.
 
 ## Final operator commands
 
@@ -65,14 +81,25 @@ Burn Setup includes material, objective, current polarization from the latest va
 
 Derived/read-only values include FM period, sweep dwell, waveform points, VLOW, VHIGH, and preparation state.
 
-## Validated waveform contract
+## Current validated physical waveform contract
+
+The active physical operating baseline validated on October 6, 2026 is:
 
 ```text
 Waveform points = 8192
 T_FM            = 0.010 s
-VLOW            = -0.7 V
-VHIGH           = +0.7 V
+VLOW            = -0.500 V
+VHIGH           = +0.500 V
 ```
+
+The September 28 source-control milestone used ±0.7 V and remains part of the
+historical commissioning record.
+
+The adaptive waveform planner still retains its legacy internal ±0.7 numerical
+reference for waveform mathematics. The physical Burn Setup/sequencer boundary
+enforces the current ±0.5 V WaveGen operating limits.
+
+Do not change the planner reference solely to match the physical voltage limits.
 
 Sweep dwell is derived from:
 

@@ -34,6 +34,8 @@ FIT_PUBLISH_HOST = "127.0.0.1"
 FIT_PUBLISH_PORT = 8778
 SEQ = "UNH:GEN:SSRF:SEQ"
 WAVEFORM_POINTS = 8192
+PHYSICAL_VHIGH_V = 0.5
+PHYSICAL_VLOW_V = -0.5
 ALLOWED_OBJECTIVES = ("Enhancement", "Suppression", "Zero")
 
 
@@ -379,8 +381,8 @@ class Device:
             self.pvs["SWEEP_STEP_DB"].set(step_db)
             self.pvs["SWEEP_DWELL_MS"].set(dwell_ms)
             self.pvs["WAVEFORM_POINTS"].set(int(plan.waveform_points))
-            self.pvs["VLOW_V"].set(float(plan.vlow_v))
-            self.pvs["VHIGH_V"].set(float(plan.vhigh_v))
+            self.pvs["VLOW_V"].set(PHYSICAL_VLOW_V)
+            self.pvs["VHIGH_V"].set(PHYSICAL_VHIGH_V)
 
             fit_data_path = None
             waveform_data_path = None
@@ -420,8 +422,8 @@ class Device:
                 "TARGET_LEVEL_DBM": target_level,
                 "FM_DEV_KHZ": fm_dev,
                 "FM_PERIOD_S": float(plan.period_s),
-                "VHIGH_V": float(plan.vhigh_v),
-                "VLOW_V": float(plan.vlow_v),
+                "VHIGH_V": PHYSICAL_VHIGH_V,
+                "VLOW_V": PHYSICAL_VLOW_V,
                 "FM_REPEATS": repeats,
             }
             for name, value in scalar_values.items():
