@@ -43,8 +43,8 @@ class FinalPhysicalOperatorContract(unittest.TestCase):
             ],
         )
         self.assertTrue(seq["require_prepared"])
-        self.assertEqual(seq["vhigh_v"], 0.7)
-        self.assertEqual(seq["vlow_v"], -0.7)
+        self.assertEqual(seq["vhigh_v"], 0.5)
+        self.assertEqual(seq["vlow_v"], -0.5)
         self.assertEqual(seq["fm_repeats"], 10)
 
     def test_single_final_start_uses_same_production_pv_namespaces(self):

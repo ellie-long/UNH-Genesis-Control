@@ -22,8 +22,8 @@ ssrf_sequencer:
   target_level_dbm: -22.0
   fm_deviation_khz: 10.0
   fm_period_s: 0.010
-  vhigh_v: 0.7
-  vlow_v: -0.7
+  vhigh_v: 0.5
+  vlow_v: -0.5
   fm_repeats: 10
 
   channels:
