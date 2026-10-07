@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version="1.0" encoding="UTF-8"?>
 <display version="2.0.0">
   <name>Genesis Cryo Safety</name>
   <width>1280</width>
@@ -10,7 +10,7 @@
     <width>1280</width><height>940</height>
     <line_width>0</line_width>
 
-    <background_color><color red="255" green="255" blue="255" alpha="255" /></background_color>
+    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
   </widget>
   <widget type="rectangle" version="2.0.0">
     <name>Header</name>
@@ -18,7 +18,7 @@
     <width>1280</width><height>70</height>
     <line_width>0</line_width>
 
-    <background_color><color red="0" green="36" blue="92" alpha="255" /></background_color>
+    <background_color><color red="0" green="36" blue="92" alpha="255"/></background_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Title</name>
@@ -27,8 +27,8 @@
     <text>UNH Genesis - Target State / Safety / Alarms</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="BOLD" size="22.0" /></font>
-    <foreground_color><color red="255" green="255" blue="255" alpha="255" /></foreground_color>
+    <font><font family="Liberation Sans" style="BOLD" size="22.0"/></font>
+    <foreground_color><color red="255" green="255" blue="255" alpha="255"/></foreground_color>
   </widget>
   <widget type="rectangle" version="2.0.0">
     <name>Safety_Card</name>
@@ -36,7 +36,7 @@
     <width>600</width><height>420</height>
     <line_width>0</line_width>
     <corner_width>8</corner_width><corner_height>8</corner_height>
-    <background_color><color red="245" green="248" blue="252" alpha="255" /></background_color>
+    <background_color><color red="245" green="248" blue="252" alpha="255"/></background_color>
   </widget>
   <widget type="rectangle" version="2.0.0">
     <name>Safety_Header</name>
@@ -44,7 +44,7 @@
     <width>600</width><height>38</height>
     <line_width>0</line_width>
     <corner_width>8</corner_width><corner_height>8</corner_height>
-    <background_color><color red="220" green="231" blue="243" alpha="255" /></background_color>
+    <background_color><color red="220" green="231" blue="243" alpha="255"/></background_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Safety_Title</name>
@@ -53,8 +53,8 @@
     <text>SAFETY INTERLOCK</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="BOLD" size="15.0" /></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255" /></foreground_color>
+    <font><font family="Liberation Sans" style="BOLD" size="15.0"/></font>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Safe0L</name>
@@ -63,18 +63,19 @@
     <text>Cold-board permit:</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="BOLD" size="11.0" /></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255" /></foreground_color>
+    <font><font family="Liberation Sans" style="BOLD" size="11.0"/></font>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Safe0V</name>
     <x>202</x><y>148</y>
     <width>170</width><height>25</height>
     <pv_name>ca://UNH:GEN:CRYO:SAFE:CB_Permit</pv_name>
-    <format>6</format>
-    <font><font family="Liberation Sans" style="BOLD" size="11.0" /></font>
-    <background_color><color red="255" green="255" blue="255" alpha="255" /></background_color>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255" /></foreground_color>
+
+
+    <font><font family="Liberation Sans" style="BOLD" size="11.0"/></font>
+    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Safe1L</name>
@@ -83,18 +84,19 @@
     <text>Vacuum permit:</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="BOLD" size="11.0" /></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255" /></foreground_color>
+    <font><font family="Liberation Sans" style="BOLD" size="11.0"/></font>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Safe1V</name>
     <x>202</x><y>179</y>
     <width>170</width><height>25</height>
     <pv_name>ca://UNH:GEN:CRYO:SAFE:Vac_Permit</pv_name>
-    <format>6</format>
-    <font><font family="Liberation Sans" style="BOLD" size="11.0" /></font>
-    <background_color><color red="255" green="255" blue="255" alpha="255" /></background_color>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255" /></foreground_color>
+
+
+    <font><font family="Liberation Sans" style="BOLD" size="11.0"/></font>
+    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Safe2L</name>
@@ -103,18 +105,19 @@
     <text>Fresh-data permit:</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="BOLD" size="11.0" /></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255" /></foreground_color>
+    <font><font family="Liberation Sans" style="BOLD" size="11.0"/></font>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Safe2V</name>
     <x>202</x><y>210</y>
     <width>170</width><height>25</height>
     <pv_name>ca://UNH:GEN:CRYO:SAFE:Data_Permit</pv_name>
-    <format>6</format>
-    <font><font family="Liberation Sans" style="BOLD" size="11.0" /></font>
-    <background_color><color red="255" green="255" blue="255" alpha="255" /></background_color>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255" /></foreground_color>
+
+
+    <font><font family="Liberation Sans" style="BOLD" size="11.0"/></font>
+    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Safe3L</name>
@@ -123,18 +126,19 @@
     <text>Overall permit:</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="BOLD" size="11.0" /></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255" /></foreground_color>
+    <font><font family="Liberation Sans" style="BOLD" size="11.0"/></font>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Safe3V</name>
     <x>202</x><y>241</y>
     <width>170</width><height>25</height>
     <pv_name>ca://UNH:GEN:CRYO:SAFE:Safe_Permit</pv_name>
-    <format>6</format>
-    <font><font family="Liberation Sans" style="BOLD" size="11.0" /></font>
-    <background_color><color red="255" green="255" blue="255" alpha="255" /></background_color>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255" /></foreground_color>
+
+
+    <font><font family="Liberation Sans" style="BOLD" size="11.0"/></font>
+    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Safe4L</name>
@@ -143,18 +147,19 @@
     <text>Safety state:</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="REGULAR" size="11.0" /></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255" /></foreground_color>
+    <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Safe4V</name>
     <x>202</x><y>272</y>
     <width>170</width><height>25</height>
     <pv_name>ca://UNH:GEN:CRYO:SAFE:Safe_State</pv_name>
-    <format>6</format>
-    <font><font family="Liberation Sans" style="REGULAR" size="11.0" /></font>
-    <background_color><color red="255" green="255" blue="255" alpha="255" /></background_color>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255" /></foreground_color>
+
+
+    <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
+    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Safe5L</name>
@@ -163,18 +168,19 @@
     <text>Fault latch:</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="REGULAR" size="11.0" /></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255" /></foreground_color>
+    <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Safe5V</name>
     <x>202</x><y>303</y>
     <width>170</width><height>25</height>
     <pv_name>ca://UNH:GEN:CRYO:SAFE:Safe_Fault</pv_name>
-    <format>6</format>
-    <font><font family="Liberation Sans" style="REGULAR" size="11.0" /></font>
-    <background_color><color red="255" green="255" blue="255" alpha="255" /></background_color>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255" /></foreground_color>
+
+
+    <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
+    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Safe6L</name>
@@ -183,18 +189,19 @@
     <text>Trip count:</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="REGULAR" size="11.0" /></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255" /></foreground_color>
+    <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Safe6V</name>
     <x>202</x><y>334</y>
     <width>170</width><height>25</height>
     <pv_name>ca://UNH:GEN:CRYO:SAFE:Safe_Trips</pv_name>
-    <format>6</format>
-    <font><font family="Liberation Sans" style="REGULAR" size="11.0" /></font>
-    <background_color><color red="255" green="255" blue="255" alpha="255" /></background_color>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255" /></foreground_color>
+
+
+    <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
+    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Safe7L</name>
@@ -203,18 +210,19 @@
     <text>Stale inputs:</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="REGULAR" size="11.0" /></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255" /></foreground_color>
+    <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Safe7V</name>
     <x>202</x><y>365</y>
     <width>170</width><height>25</height>
     <pv_name>ca://UNH:GEN:CRYO:SAFE:Safe_Stale</pv_name>
-    <format>6</format>
-    <font><font family="Liberation Sans" style="REGULAR" size="11.0" /></font>
-    <background_color><color red="255" green="255" blue="255" alpha="255" /></background_color>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255" /></foreground_color>
+
+
+    <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
+    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Safe8L</name>
@@ -223,18 +231,19 @@
     <text>Enforcement:</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="REGULAR" size="11.0" /></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255" /></foreground_color>
+    <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Safe8V</name>
     <x>202</x><y>396</y>
     <width>170</width><height>25</height>
     <pv_name>ca://UNH:GEN:CRYO:SAFE:Safe_Enforce</pv_name>
-    <format>6</format>
-    <font><font family="Liberation Sans" style="REGULAR" size="11.0" /></font>
-    <background_color><color red="255" green="255" blue="255" alpha="255" /></background_color>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255" /></foreground_color>
+
+
+    <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
+    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Safe9L</name>
@@ -243,18 +252,19 @@
     <text>Limits:</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="REGULAR" size="11.0" /></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255" /></foreground_color>
+    <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Safe9V</name>
     <x>202</x><y>427</y>
     <width>170</width><height>25</height>
     <pv_name>ca://UNH:GEN:CRYO:SAFE:Safe_Limits</pv_name>
-    <format>6</format>
-    <font><font family="Liberation Sans" style="REGULAR" size="11.0" /></font>
-    <background_color><color red="255" green="255" blue="255" alpha="255" /></background_color>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255" /></foreground_color>
+
+
+    <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
+    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>ReasonL</name>
@@ -263,18 +273,19 @@
     <text>Reason:</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="BOLD" size="11.0" /></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255" /></foreground_color>
+    <font><font family="Liberation Sans" style="BOLD" size="11.0"/></font>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>ReasonV</name>
     <x>110</x><y>462</y>
     <width>475</width><height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:SAFE:Safe_Reason</pv_name>
-    <format>6</format>
-    <font><font family="Liberation Sans" style="BOLD" size="11.0" /></font>
-    <background_color><color red="255" green="255" blue="255" alpha="255" /></background_color>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255" /></foreground_color>
+
+
+    <font><font family="Liberation Sans" style="BOLD" size="11.0"/></font>
+    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
   </widget>
   <widget type="action_button" version="3.0.0">
     <name>ResetSafe</name>
@@ -295,7 +306,7 @@
     <width>620</width><height>420</height>
     <line_width>0</line_width>
     <corner_width>8</corner_width><corner_height>8</corner_height>
-    <background_color><color red="245" green="248" blue="252" alpha="255" /></background_color>
+    <background_color><color red="245" green="248" blue="252" alpha="255"/></background_color>
   </widget>
   <widget type="rectangle" version="2.0.0">
     <name>Alarm_Header</name>
@@ -303,7 +314,7 @@
     <width>620</width><height>38</height>
     <line_width>0</line_width>
     <corner_width>8</corner_width><corner_height>8</corner_height>
-    <background_color><color red="220" green="231" blue="243" alpha="255" /></background_color>
+    <background_color><color red="220" green="231" blue="243" alpha="255"/></background_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Alarm_Title</name>
@@ -312,8 +323,8 @@
     <text>ALARM SUMMARY</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="BOLD" size="15.0" /></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255" /></foreground_color>
+    <font><font family="Liberation Sans" style="BOLD" size="15.0"/></font>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Alarm0L</name>
@@ -322,18 +333,19 @@
     <text>Current alarms:</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="BOLD" size="11.0" /></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255" /></foreground_color>
+    <font><font family="Liberation Sans" style="BOLD" size="11.0"/></font>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Alarm0V</name>
     <x>812</x><y>148</y>
     <width>420</width><height>25</height>
     <pv_name>ca://UNH:GEN:CRYO:ALARM:Alarm_Count</pv_name>
-    <format>6</format>
-    <font><font family="Liberation Sans" style="BOLD" size="11.0" /></font>
-    <background_color><color red="255" green="255" blue="255" alpha="255" /></background_color>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255" /></foreground_color>
+
+
+    <font><font family="Liberation Sans" style="BOLD" size="11.0"/></font>
+    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Alarm1L</name>
@@ -342,18 +354,19 @@
     <text>Major / invalid:</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="BOLD" size="11.0" /></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255" /></foreground_color>
+    <font><font family="Liberation Sans" style="BOLD" size="11.0"/></font>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Alarm1V</name>
     <x>812</x><y>182</y>
     <width>420</width><height>25</height>
     <pv_name>ca://UNH:GEN:CRYO:ALARM:Alarm_Major</pv_name>
-    <format>6</format>
-    <font><font family="Liberation Sans" style="BOLD" size="11.0" /></font>
-    <background_color><color red="255" green="255" blue="255" alpha="255" /></background_color>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255" /></foreground_color>
+
+
+    <font><font family="Liberation Sans" style="BOLD" size="11.0"/></font>
+    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Alarm2L</name>
@@ -362,18 +375,19 @@
     <text>Worst severity:</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="BOLD" size="11.0" /></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255" /></foreground_color>
+    <font><font family="Liberation Sans" style="BOLD" size="11.0"/></font>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Alarm2V</name>
     <x>812</x><y>216</y>
     <width>420</width><height>25</height>
     <pv_name>ca://UNH:GEN:CRYO:ALARM:Alarm_Worst</pv_name>
-    <format>6</format>
-    <font><font family="Liberation Sans" style="BOLD" size="11.0" /></font>
-    <background_color><color red="255" green="255" blue="255" alpha="255" /></background_color>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255" /></foreground_color>
+
+
+    <font><font family="Liberation Sans" style="BOLD" size="11.0"/></font>
+    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Alarm3L</name>
@@ -382,18 +396,19 @@
     <text>First worst PV:</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="REGULAR" size="11.0" /></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255" /></foreground_color>
+    <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Alarm3V</name>
     <x>812</x><y>250</y>
     <width>420</width><height>25</height>
     <pv_name>ca://UNH:GEN:CRYO:ALARM:Alarm_First</pv_name>
-    <format>6</format>
-    <font><font family="Liberation Sans" style="REGULAR" size="11.0" /></font>
-    <background_color><color red="255" green="255" blue="255" alpha="255" /></background_color>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255" /></foreground_color>
+
+
+    <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
+    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Alarm4L</name>
@@ -402,18 +417,19 @@
     <text>Latched severity:</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="REGULAR" size="11.0" /></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255" /></foreground_color>
+    <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Alarm4V</name>
     <x>812</x><y>284</y>
     <width>420</width><height>25</height>
     <pv_name>ca://UNH:GEN:CRYO:ALARM:Alarm_Latch</pv_name>
-    <format>6</format>
-    <font><font family="Liberation Sans" style="REGULAR" size="11.0" /></font>
-    <background_color><color red="255" green="255" blue="255" alpha="255" /></background_color>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255" /></foreground_color>
+
+
+    <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
+    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Alarm5L</name>
@@ -422,18 +438,19 @@
     <text>Latched PV:</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="REGULAR" size="11.0" /></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255" /></foreground_color>
+    <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Alarm5V</name>
     <x>812</x><y>318</y>
     <width>420</width><height>25</height>
     <pv_name>ca://UNH:GEN:CRYO:ALARM:Alarm_LatchPV</pv_name>
-    <format>6</format>
-    <font><font family="Liberation Sans" style="REGULAR" size="11.0" /></font>
-    <background_color><color red="255" green="255" blue="255" alpha="255" /></background_color>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255" /></foreground_color>
+
+
+    <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
+    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Alarm6L</name>
@@ -442,18 +459,19 @@
     <text>Latched at:</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="REGULAR" size="11.0" /></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255" /></foreground_color>
+    <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Alarm6V</name>
     <x>812</x><y>352</y>
     <width>420</width><height>25</height>
     <pv_name>ca://UNH:GEN:CRYO:ALARM:Alarm_LatchAt</pv_name>
-    <format>6</format>
-    <font><font family="Liberation Sans" style="REGULAR" size="11.0" /></font>
-    <background_color><color red="255" green="255" blue="255" alpha="255" /></background_color>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255" /></foreground_color>
+
+
+    <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
+    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Alarm7L</name>
@@ -462,18 +480,19 @@
     <text>PVs scanned:</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="REGULAR" size="11.0" /></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255" /></foreground_color>
+    <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Alarm7V</name>
     <x>812</x><y>386</y>
     <width>420</width><height>25</height>
     <pv_name>ca://UNH:GEN:CRYO:ALARM:Alarm_Scanned</pv_name>
-    <format>6</format>
-    <font><font family="Liberation Sans" style="REGULAR" size="11.0" /></font>
-    <background_color><color red="255" green="255" blue="255" alpha="255" /></background_color>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255" /></foreground_color>
+
+
+    <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
+    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Alarm8L</name>
@@ -482,18 +501,19 @@
     <text>PVs missing:</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="REGULAR" size="11.0" /></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255" /></foreground_color>
+    <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Alarm8V</name>
     <x>812</x><y>420</y>
     <width>420</width><height>25</height>
     <pv_name>ca://UNH:GEN:CRYO:ALARM:Alarm_Missing</pv_name>
-    <format>6</format>
-    <font><font family="Liberation Sans" style="REGULAR" size="11.0" /></font>
-    <background_color><color red="255" green="255" blue="255" alpha="255" /></background_color>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255" /></foreground_color>
+
+
+    <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
+    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
   </widget>
   <widget type="action_button" version="3.0.0">
     <name>AckAlarm</name>
@@ -514,7 +534,7 @@
     <width>820</width><height>320</height>
     <line_width>0</line_width>
     <corner_width>8</corner_width><corner_height>8</corner_height>
-    <background_color><color red="245" green="248" blue="252" alpha="255" /></background_color>
+    <background_color><color red="245" green="248" blue="252" alpha="255"/></background_color>
   </widget>
   <widget type="rectangle" version="2.0.0">
     <name>State_Header</name>
@@ -522,7 +542,7 @@
     <width>820</width><height>38</height>
     <line_width>0</line_width>
     <corner_width>8</corner_width><corner_height>8</corner_height>
-    <background_color><color red="220" green="231" blue="243" alpha="255" /></background_color>
+    <background_color><color red="220" green="231" blue="243" alpha="255"/></background_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>State_Title</name>
@@ -531,8 +551,8 @@
     <text>TARGET OPERATING STATE</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="BOLD" size="15.0" /></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255" /></foreground_color>
+    <font><font family="Liberation Sans" style="BOLD" size="15.0"/></font>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>RequestedL</name>
@@ -541,15 +561,20 @@
     <text>Requested state:</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="BOLD" size="12.0" /></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255" /></foreground_color>
+    <font><font family="Liberation Sans" style="BOLD" size="12.0"/></font>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Requested</name>
     <x>180</x><y>596</y>
     <width>220</width><height>30</height>
     <pv_name>ca://UNH:GEN:CRYO:STATE:status</pv_name>
-  <format>6</format></widget>
+
+
+    <font><font family="Liberation Sans" style="BOLD" size="12.0"/></font>
+    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+  </widget>
   <widget type="label" version="2.0.0">
     <name>MaterialL</name>
     <x>430</x><y>600</y>
@@ -557,15 +582,20 @@
     <text>Material:</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="BOLD" size="12.0" /></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255" /></foreground_color>
+    <font><font family="Liberation Sans" style="BOLD" size="12.0"/></font>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Material</name>
     <x>525</x><y>596</y>
     <width>220</width><height>30</height>
     <pv_name>ca://UNH:GEN:CRYO:STATE:material</pv_name>
-  <format>6</format></widget>
+
+
+    <font><font family="Liberation Sans" style="BOLD" size="12.0"/></font>
+    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+  </widget>
   <widget type="label" version="2.0.0">
     <name>AutoL</name>
     <x>42</x><y>650</y>
@@ -573,15 +603,20 @@
     <text>Auto advance:</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="REGULAR" size="12.0" /></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255" /></foreground_color>
+    <font><font family="Liberation Sans" style="REGULAR" size="12.0"/></font>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Auto</name>
     <x>180</x><y>646</y>
     <width>120</width><height>32</height>
     <pv_name>ca://UNH:GEN:CRYO:STATE:auto</pv_name>
-    <format>6</format></widget>
+
+
+    <font><font family="Liberation Sans" style="BOLD" size="12.0"/></font>
+    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+  </widget>
   <widget type="label" version="2.0.0">
     <name>ProductionL</name>
     <x>42</x><y>705</y>
@@ -589,18 +624,19 @@
     <text>Satisfied state:</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="BOLD" size="12.0" /></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255" /></foreground_color>
+    <font><font family="Liberation Sans" style="BOLD" size="12.0"/></font>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Production</name>
     <x>180</x><y>703</y>
     <width>220</width><height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:STATE:production</pv_name>
-    <format>6</format>
-    <font><font family="Liberation Sans" style="BOLD" size="12.0" /></font>
-    <background_color><color red="255" green="255" blue="255" alpha="255" /></background_color>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255" /></foreground_color>
+
+
+    <font><font family="Liberation Sans" style="BOLD" size="12.0"/></font>
+    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>ConditionsL</name>
@@ -609,18 +645,19 @@
     <text>Conditions:</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="REGULAR" size="12.0" /></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255" /></foreground_color>
+    <font><font family="Liberation Sans" style="REGULAR" size="12.0"/></font>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Conditions</name>
     <x>545</x><y>703</y>
     <width>115</width><height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:STATE:conditions</pv_name>
-    <format>6</format>
-    <font><font family="Liberation Sans" style="REGULAR" size="12.0" /></font>
-    <background_color><color red="255" green="255" blue="255" alpha="255" /></background_color>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255" /></foreground_color>
+
+
+    <font><font family="Liberation Sans" style="REGULAR" size="12.0"/></font>
+    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>UnmetL</name>
@@ -629,18 +666,19 @@
     <text>First unmet:</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="REGULAR" size="12.0" /></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255" /></foreground_color>
+    <font><font family="Liberation Sans" style="REGULAR" size="12.0"/></font>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Unmet</name>
     <x>180</x><y>753</y>
     <width>565</width><height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:STATE:unmet</pv_name>
-    <format>6</format>
-    <font><font family="Liberation Sans" style="REGULAR" size="11.0" /></font>
-    <background_color><color red="255" green="255" blue="255" alpha="255" /></background_color>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255" /></foreground_color>
+
+
+    <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
+    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
   </widget>
   <widget type="rectangle" version="2.0.0">
     <name>Snapshot_Card</name>
@@ -648,7 +686,7 @@
     <width>400</width><height>320</height>
     <line_width>0</line_width>
     <corner_width>8</corner_width><corner_height>8</corner_height>
-    <background_color><color red="245" green="248" blue="252" alpha="255" /></background_color>
+    <background_color><color red="245" green="248" blue="252" alpha="255"/></background_color>
   </widget>
   <widget type="rectangle" version="2.0.0">
     <name>Snapshot_Header</name>
@@ -656,7 +694,7 @@
     <width>400</width><height>38</height>
     <line_width>0</line_width>
     <corner_width>8</corner_width><corner_height>8</corner_height>
-    <background_color><color red="220" green="231" blue="243" alpha="255" /></background_color>
+    <background_color><color red="220" green="231" blue="243" alpha="255"/></background_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Snapshot_Title</name>
@@ -665,8 +703,8 @@
     <text>SAVE / RESTORE STATUS</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="BOLD" size="15.0" /></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255" /></foreground_color>
+    <font><font family="Liberation Sans" style="BOLD" size="15.0"/></font>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>SRLastL</name>
@@ -675,18 +713,19 @@
     <text>Last save:</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="REGULAR" size="12.0" /></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255" /></foreground_color>
+    <font><font family="Liberation Sans" style="REGULAR" size="12.0"/></font>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>SRLast</name>
     <x>975</x><y>598</y>
     <width>250</width><height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:SAVE:SR_Last</pv_name>
-    <format>6</format>
-    <font><font family="Liberation Sans" style="REGULAR" size="11.0" /></font>
-    <background_color><color red="255" green="255" blue="255" alpha="255" /></background_color>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255" /></foreground_color>
+
+
+    <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
+    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>SRStatusL</name>
@@ -695,18 +734,19 @@
     <text>Status:</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="REGULAR" size="12.0" /></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255" /></foreground_color>
+    <font><font family="Liberation Sans" style="REGULAR" size="12.0"/></font>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>SRStatus</name>
     <x>975</x><y>643</y>
     <width>250</width><height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:SAVE:SR_Status</pv_name>
-    <format>6</format>
-    <font><font family="Liberation Sans" style="REGULAR" size="11.0" /></font>
-    <background_color><color red="255" green="255" blue="255" alpha="255" /></background_color>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255" /></foreground_color>
+
+
+    <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
+    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
   </widget>
   <widget type="action_button" version="3.0.0">
     <name>SRSave</name>

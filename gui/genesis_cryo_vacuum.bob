@@ -71,7 +71,8 @@
     <x>205</x><y>148</y>
     <width>180</width><height>28</height>
     <pv_name>ca://UNH:GEN:CRYO:CELL:Cell_PI</pv_name>
-    <format>6</format>
+
+
     <font><font family="Liberation Sans" style="BOLD" size="13.0"/></font>
     <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
     <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
@@ -97,7 +98,8 @@
     <x>510</x><y>148</y>
     <width>100</width><height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:CELL:COMM</pv_name>
-    <format>6</format>
+
+
     <font><font family="Liberation Sans" style="REGULAR" size="12.0"/></font>
     <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
     <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
@@ -117,7 +119,8 @@
     <x>205</x><y>193</y>
     <width>180</width><height>28</height>
     <pv_name>ca://UNH:GEN:CRYO:VAC:Pump_PI</pv_name>
-    <format>6</format>
+
+
     <font><font family="Liberation Sans" style="BOLD" size="13.0"/></font>
     <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
     <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
@@ -126,7 +129,7 @@
     <name>Vac1U</name>
     <x>395</x><y>195</y>
     <width>55</width><height>24</height>
-    <text>Torr</text>
+    <text>mbar</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
     <font><font family="Liberation Sans" style="REGULAR" size="12.0"/></font>
@@ -143,7 +146,8 @@
     <x>510</x><y>193</y>
     <width>100</width><height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:VAC:COMM</pv_name>
-    <format>6</format>
+
+
     <font><font family="Liberation Sans" style="REGULAR" size="12.0"/></font>
     <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
     <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
@@ -163,7 +167,8 @@
     <x>205</x><y>238</y>
     <width>180</width><height>28</height>
     <pv_name>ca://UNH:GEN:CRYO:VAC:OVC_PI</pv_name>
-    <format>6</format>
+
+
     <font><font family="Liberation Sans" style="BOLD" size="13.0"/></font>
     <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
     <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
@@ -172,7 +177,7 @@
     <name>Vac2U</name>
     <x>395</x><y>240</y>
     <width>55</width><height>24</height>
-    <text>Torr</text>
+    <text>mbar</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
     <font><font family="Liberation Sans" style="REGULAR" size="12.0"/></font>
@@ -189,7 +194,8 @@
     <x>510</x><y>238</y>
     <width>100</width><height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:VAC:COMM</pv_name>
-    <format>6</format>
+
+
     <font><font family="Liberation Sans" style="REGULAR" size="12.0"/></font>
     <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
     <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
@@ -209,7 +215,8 @@
     <x>205</x><y>283</y>
     <width>180</width><height>28</height>
     <pv_name>ca://UNH:GEN:CRYO:ION:Ion_PI</pv_name>
-    <format>6</format>
+
+
     <font><font family="Liberation Sans" style="BOLD" size="13.0"/></font>
     <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
     <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
@@ -235,7 +242,8 @@
     <x>510</x><y>283</y>
     <width>100</width><height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:ION:COMM</pv_name>
-    <format>6</format>
+
+
     <font><font family="Liberation Sans" style="REGULAR" size="12.0"/></font>
     <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
     <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
@@ -305,11 +313,12 @@
     <font><font family="Liberation Sans" style="BOLD" size="15.0"/></font>
     <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
   </widget>
-  <widget type="data_browser" version="2.0.0">
+  <widget type="databrowser" version="2.0.0">
     <name>VacuumTrend</name>
     <x>40</x><y>430</y>
     <width>1100</width><height>300</height>
     <file>genesis_cryo_vacuum.plt</file>
+    <show_toolbar>true</show_toolbar>
   </widget>
   <widget type="action_button" version="3.0.0">
     <name>Back</name>

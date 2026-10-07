@@ -128,11 +128,25 @@ def textupdate(
     size=13,
     bold=False,
     transparent=False,
+    fmt=None,
+    precision=None,
 ):
     transparent_xml = (
         "<transparent>true</transparent>"
         if transparent
         else f"<background_color>{col(WHITE)}</background_color>"
+    )
+
+    format_xml = (
+        f"<format>{fmt}</format>"
+        if fmt is not None
+        else ""
+    )
+
+    precision_xml = (
+        f"<precision>{precision}</precision>"
+        if precision is not None
+        else ""
     )
 
     return f"""
@@ -141,7 +155,8 @@ def textupdate(
     <x>{x}</x><y>{y}</y>
     <width>{w}</width><height>{h}</height>
     <pv_name>ca://{escape(pv)}</pv_name>
-    <format>6</format>
+    {format_xml}
+    {precision_xml}
     {font(size, bold)}
     {transparent_xml}
     <foreground_color>{col(TEXT)}</foreground_color>
@@ -215,11 +230,12 @@ def bool_button(name, x, y, w, text, pv):
 
 def data_browser(name, x, y, w, h, filename):
     return f"""
-  <widget type="data_browser" version="2.0.0">
+  <widget type="databrowser" version="2.0.0">
     <name>{escape(name)}</name>
     <x>{x}</x><y>{y}</y>
     <width>{w}</width><height>{h}</height>
     <file>{escape(filename)}</file>
+    <show_toolbar>true</show_toolbar>
   </widget>"""
 
 
@@ -840,26 +856,14 @@ w += [
         165, 640,
         "UNH:GEN:CRYO:FIELD:COMM",
     ),
-    open_button(
-        "OpenMagnet",
-        42, 750, 142,
-        "Magnet Detail",
-        "genesis_cryo_magnet.bob",
-    ),
-    open_button(
-        "OpenField",
-        194, 750, 142,
-        "Field Detail",
-        "genesis_cryo_field.bob",
-    ),
 ]
 
-# Cryostat / fridge "Panopticon" card.
+# Cryostat overview schematic.
 card(
     w,
     "Cryostat",
     395, 200, 690, 620,
-    "CRYOSTAT / FRIDGE PANOPTICON",
+    "CRYOSTAT OVERVIEW",
 )
 
 # Schematic central cryostat.
@@ -921,7 +925,7 @@ for i in range(1, 12):
         ),
     ]
 
-# Pressure summary at bottom of panopticon.
+# Pressure summary below the cryostat overview.
 pressures = [
     (
         "Cell",
@@ -967,22 +971,10 @@ w += [
     label(
         "PressureUnits",
         425, 776, 450, 20,
-        "Pressure readbacks (Torr)",
+        "Pressure readbacks",
         11,
         False,
         MUTED,
-    ),
-    open_button(
-        "OpenFridge",
-        735, 775, 150,
-        "Fridge Detail",
-        "genesis_cryo_fridge.bob",
-    ),
-    open_button(
-        "OpenVacuum",
-        895, 775, 160,
-        "Vacuum Detail",
-        "genesis_cryo_vacuum.bob",
     ),
 ]
 
@@ -1166,18 +1158,6 @@ for idx, (title, pv, unit) in enumerate(cb_rows):
     ]
 
 w += [
-    open_button(
-        "OpenSafety",
-        1128, 765, 180,
-        "Safety / State",
-        "genesis_cryo_safety.bob",
-    ),
-    open_button(
-        "OpenColdBoard",
-        1320, 765, 190,
-        "Cold Board Detail",
-        "genesis_cryo_coldboard.bob",
-    ),
 ]
 
 # Navigation bar.
@@ -1191,6 +1171,7 @@ card(
 nav = [
     ("Fridge", "genesis_cryo_fridge.bob"),
     ("Magnet", "genesis_cryo_magnet.bob"),
+    ("Field", "genesis_cryo_field.bob"),
     ("Vacuum", "genesis_cryo_vacuum.bob"),
     ("Cold Board", "genesis_cryo_coldboard.bob"),
     ("Safety / State", "genesis_cryo_safety.bob"),
@@ -1200,7 +1181,7 @@ nav = [
 
 x = 42
 for idx, (title, target) in enumerate(nav):
-    width = 185
+    width = 165
     w.append(
         open_button(
             f"Nav{idx}",
@@ -1209,7 +1190,7 @@ for idx, (title, target) in enumerate(nav):
             target,
         )
     )
-    x += width + 18
+    x += width + 12
 
 w += [
     label(
@@ -1217,8 +1198,9 @@ w += [
         42, 965, 1450, 42,
         (
             "Overview is intentionally read-only. "
-            "Hardware controls are available only on the appropriate "
-            "detail screen and remain subject to Genesis write gates "
+            "Open each detail page once, then use its existing Phoebus tab "
+            "to switch views and preserve the live trend buffer. "
+            "Hardware controls remain subject to Genesis write gates "
             "and target safety interlocks."
         ),
         11,
@@ -1277,25 +1259,29 @@ vac_rows = [
         "Target cell",
         "UNH:GEN:CRYO:CELL:Cell_PI",
         "UNH:GEN:CRYO:CELL:COMM",
+        "Torr",
     ),
     (
         "Roots / Pump",
         "UNH:GEN:CRYO:VAC:Pump_PI",
         "UNH:GEN:CRYO:VAC:COMM",
+        "mbar",
     ),
     (
         "OVC",
         "UNH:GEN:CRYO:VAC:OVC_PI",
         "UNH:GEN:CRYO:VAC:COMM",
+        "mbar",
     ),
     (
         "Ion gauge",
         "UNH:GEN:CRYO:ION:Ion_PI",
         "UNH:GEN:CRYO:ION:COMM",
+        "Torr",
     ),
 ]
 
-for idx, (title, pv, comm) in enumerate(vac_rows):
+for idx, (title, pv, comm, unit) in enumerate(vac_rows):
     y = 150 + idx * 45
 
     w += [
@@ -1316,7 +1302,7 @@ for idx, (title, pv, comm) in enumerate(vac_rows):
         label(
             f"Vac{idx}U",
             395, y, 55, 24,
-            "Torr",
+            unit,
             12,
         ),
         led(
@@ -2065,6 +2051,505 @@ print("[CREATED] genesis_cryo_diagnostics.bob")
 # ---------------------------------------------------------------------------
 # Validate generated BOB suite.
 # ---------------------------------------------------------------------------
+
+
+# Normalize connection indicators imported from legacy instrument pages.
+#
+# *_Conn records are boolIn PVs with No/Yes enum metadata.  The imported
+# pages force numeric format 1, which is unnecessary and rendered poorly
+# during physical commissioning.  Remove that explicit format and let
+# Phoebus use the PV's native Channel Access metadata.
+import re as _re
+
+_conn_pattern = _re.compile(
+    r'(<pv_name>ca://[^<]+_Conn</pv_name>)\s*<format>1</format>'
+)
+
+_conn_changes = 0
+
+for _bob in sorted(GUI.glob("genesis_cryo*.bob")):
+    _text = _bob.read_text(encoding="utf-8")
+
+    _updated, _count = _conn_pattern.subn(
+        r'\1',
+        _text,
+    )
+
+    if _count:
+        _bob.write_text(
+            _updated,
+            encoding="utf-8",
+        )
+        _conn_changes += _count
+
+print(
+    f"[NORMALIZED] {_conn_changes} per-channel connection widgets"
+)
+
+
+
+
+# GENESIS_FINAL_CRYO_GUI_POSTPROCESS_V1
+#
+# Final Genesis visual normalization for imported Cryo pages and
+# operator-level cryostat overview.
+import copy as _copy
+import xml.etree.ElementTree as _ET
+
+
+def _set_xml_text(node, tag, value):
+    child = node.find(tag)
+
+    if child is None:
+        child = _ET.SubElement(node, tag)
+
+    child.text = str(value)
+
+
+def _named_widget(root, name):
+    for widget in root.findall("widget"):
+        if (widget.findtext("name") or "") == name:
+            return widget
+
+    return None
+
+
+# ------------------------------------------------------------------
+# Consistent UNH Genesis headers on every imported subsystem screen.
+#
+# Genesis-native operator pages already contain their own headers.
+# Imported Farooq screens are recreated on every generation, so this
+# shift is deterministic and does not accumulate.
+# ------------------------------------------------------------------
+
+_IMPORTED_HEADERS = {
+    "genesis_cryo_fridge.bob":
+        "UNH Genesis - Fridge Thermometry",
+
+    "genesis_cryo_magnet.bob":
+        "UNH Genesis - Magnet Thermometry",
+
+    "genesis_cryo_cell_expert.bob":
+        "UNH Genesis - Target Cell Gauge",
+
+    "genesis_cryo_vacuum_expert.bob":
+        "UNH Genesis - Pump / OVC Expert",
+
+    "genesis_cryo_ion_expert.bob":
+        "UNH Genesis - Ion Gauge",
+
+    "genesis_cryo_field.bob":
+        "UNH Genesis - Fringe Field",
+
+    "genesis_cryo_coldboard.bob":
+        "UNH Genesis - Cold Board",
+}
+
+_HEADER_HEIGHT = 64
+
+for _filename, _title in _IMPORTED_HEADERS.items():
+    _path = GUI / _filename
+    _tree = _ET.parse(_path)
+    _root = _tree.getroot()
+
+    _already_has_header = any(
+        (
+            widget.findtext("text")
+            or ""
+        ).startswith("UNH Genesis -")
+        for widget in _root.findall("widget")
+    )
+
+    if _already_has_header:
+        continue
+
+    # Shift existing top-level content down.
+    for _widget in _root.findall("widget"):
+        _y = _widget.find("y")
+
+        if _y is None:
+            continue
+
+        try:
+            _y.text = str(
+                int(float(_y.text))
+                + _HEADER_HEIGHT
+            )
+        except (TypeError, ValueError):
+            pass
+
+    # Increase display height by the same amount.
+    _height = _root.find("height")
+
+    if _height is not None:
+        try:
+            _height.text = str(
+                int(float(_height.text))
+                + _HEADER_HEIGHT
+            )
+        except (TypeError, ValueError):
+            pass
+
+    _width = int(
+        float(
+            _root.findtext("width")
+            or 1180
+        )
+    )
+
+    _header_bg = _ET.fromstring(
+        rect(
+            "UNH_Header",
+            0,
+            0,
+            _width,
+            _HEADER_HEIGHT,
+            NAVY_DARK,
+        )
+    )
+
+    _header_title = _ET.fromstring(
+        label(
+            "UNH_Header_Title",
+            18,
+            15,
+            _width - 36,
+            32,
+            _title,
+            20,
+            True,
+            WHITE,
+        )
+    )
+
+    _root.append(_header_bg)
+    _root.append(_header_title)
+
+    _ET.indent(
+        _tree,
+        space="  ",
+    )
+
+    _tree.write(
+        _path,
+        encoding="utf-8",
+        xml_declaration=True,
+    )
+
+    print(
+        f"[HEADER] {_filename}: {_title}"
+    )
+
+
+# ------------------------------------------------------------------
+# Final main-page cryostat schematic.
+#
+# The old central rectangle is intentionally replaced by a compact
+# operator mimic of the physical stack:
+#
+#   magnet cryostat / LHe space
+#       -> 5 T coil region
+#       -> 1 K refrigerator insert
+#       -> target stick
+#       -> target cell in the magnetic sweet spot
+#
+# Existing thermometry and pressure readbacks surrounding this region
+# remain untouched.
+# ------------------------------------------------------------------
+
+_main_path = GUI / "genesis_cryo.bob"
+_main_tree = _ET.parse(_main_path)
+_main_root = _main_tree.getroot()
+
+_body_template = _named_widget(
+    _main_root,
+    "CryostatBody",
+)
+
+_cell_template = _named_widget(
+    _main_root,
+    "TargetCell",
+)
+
+_label_template = _named_widget(
+    _main_root,
+    "TargetCellLabel",
+)
+
+if (
+    _body_template is None
+    or _cell_template is None
+    or _label_template is None
+):
+    raise RuntimeError(
+        "Could not locate original CryostatBody / "
+        "TargetCell schematic templates"
+    )
+
+
+def _clone_widget(
+    template,
+    name,
+    x,
+    y,
+    width,
+    height,
+):
+    widget = _copy.deepcopy(template)
+
+    _set_xml_text(
+        widget,
+        "name",
+        name,
+    )
+
+    _set_xml_text(
+        widget,
+        "x",
+        x,
+    )
+
+    _set_xml_text(
+        widget,
+        "y",
+        y,
+    )
+
+    _set_xml_text(
+        widget,
+        "width",
+        width,
+    )
+
+    _set_xml_text(
+        widget,
+        "height",
+        height,
+    )
+
+    return widget
+
+
+def _clone_label(
+    name,
+    text,
+    x,
+    y,
+    width,
+    height=22,
+):
+    widget = _clone_widget(
+        _label_template,
+        name,
+        x,
+        y,
+        width,
+        height,
+    )
+
+    _set_xml_text(
+        widget,
+        "text",
+        text,
+    )
+
+    return widget
+
+
+# Remove both the previous simple mimic and any earlier iteration of
+# this final schematic so the operation remains idempotent.
+_schematic_names = {
+    "CryostatBody",
+    "TargetCell",
+    "TargetCellLabel",
+
+    "MagnetCryostat",
+    "MagnetCoilLeft",
+    "MagnetCoilRight",
+    "FridgeInsert",
+    "TargetStick",
+
+    "SchematicCryostatLabel",
+    "SchematicMagnetLabel",
+    "SchematicFridgeLabel",
+    "SchematicStickLabel",
+    "SchematicCellLabel",
+}
+
+for _widget in list(
+    _main_root.findall("widget")
+):
+    if (
+        _widget.findtext("name")
+        or ""
+    ) in _schematic_names:
+        _main_root.remove(
+            _widget
+        )
+
+
+# Outer magnet cryostat / LHe region.
+_outer = _clone_widget(
+    _body_template,
+    "MagnetCryostat",
+    650,
+    280,
+    185,
+    410,
+)
+
+# Two visual coil packs surrounding the central bore.
+_coil_left = _clone_widget(
+    _cell_template,
+    "MagnetCoilLeft",
+    662,
+    405,
+    24,
+    165,
+)
+
+_coil_right = _clone_widget(
+    _cell_template,
+    "MagnetCoilRight",
+    799,
+    405,
+    24,
+    165,
+)
+
+# Refrigerator insert: white internal vertical volume.
+_fridge = _ET.fromstring(
+    rect(
+        "FridgeInsert",
+        704,
+        325,
+        77,
+        278,
+        WHITE,
+    )
+)
+
+# Target stick: narrow central member entering from above.
+_stick = _ET.fromstring(
+    rect(
+        "TargetStick",
+        737,
+        300,
+        12,
+        325,
+        NAVY_DARK,
+    )
+)
+
+# Target cell: positioned in the lower magnet/fridge sweet spot.
+_target_cell = _clone_widget(
+    _cell_template,
+    "TargetCell",
+    701,
+    595,
+    84,
+    62,
+)
+
+_shapes = (
+    _outer,
+    _coil_left,
+    _coil_right,
+    _fridge,
+    _stick,
+    _target_cell,
+)
+
+for _widget in _shapes:
+    _main_root.append(
+        _widget
+    )
+
+
+_labels = (
+    _clone_label(
+        "SchematicCryostatLabel",
+        "MAGNET CRYOSTAT",
+        660,
+        288,
+        165,
+    ),
+
+    _clone_label(
+        "SchematicStickLabel",
+        "TARGET STICK",
+        688,
+        340,
+        145,
+    ),
+
+    _clone_label(
+        "SchematicFridgeLabel",
+        "1 K FRIDGE",
+        699,
+        455,
+        90,
+    ),
+
+    _clone_label(
+        "SchematicMagnetLabel",
+        "5 T MAGNET",
+        690,
+        535,
+        105,
+    ),
+
+    _clone_label(
+        "SchematicCellLabel",
+        "TARGET CELL",
+        696,
+        614,
+        95,
+    ),
+)
+
+for _widget in _labels:
+    _main_root.append(
+        _widget
+    )
+
+
+_ET.indent(
+    _main_tree,
+    space="  ",
+)
+
+_main_tree.write(
+    _main_path,
+    encoding="utf-8",
+    xml_declaration=True,
+)
+
+print(
+    "[SCHEMATIC] installed final cryostat / magnet / "
+    "fridge / target-stick overview"
+)
+
+
+# Generated XML must remain source-control clean.
+# Template interpolation intentionally leaves some whitespace-only lines;
+# normalize all generated BOB files once before final validation.
+for _bob in sorted(GUI.glob("genesis_cryo*.bob")):
+    _lines = _bob.read_text(
+        encoding="utf-8"
+    ).splitlines()
+
+    _bob.write_text(
+        "\n".join(
+            _line.rstrip()
+            for _line in _lines
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+print("[NORMALIZED] generated Cryo BOB whitespace")
+
 
 expected_bob = {
     "genesis_cryo.bob",

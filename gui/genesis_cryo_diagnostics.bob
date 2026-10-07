@@ -137,7 +137,8 @@
     <x>280</x><y>178</y>
     <width>80</width><height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:COLDBOARD:COMM</pv_name>
-    <format>6</format>
+
+
     <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
     <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
     <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
@@ -147,7 +148,8 @@
     <x>375</x><y>178</y>
     <width>105</width><height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:COLDBOARD:WRITE_ENABLED</pv_name>
-    <format>6</format>
+
+
     <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
     <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
     <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
@@ -157,7 +159,8 @@
     <x>505</x><y>178</y>
     <width>185</width><height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:COLDBOARD:LAST_OK</pv_name>
-    <format>6</format>
+
+
     <font><font family="Liberation Sans" style="REGULAR" size="10.0"/></font>
     <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
     <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
@@ -167,7 +170,8 @@
     <x>715</x><y>178</y>
     <width>185</width><height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:COLDBOARD:MAN:siglent_coldboard_time</pv_name>
-    <format>6</format>
+
+
     <font><font family="Liberation Sans" style="REGULAR" size="10.0"/></font>
     <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
     <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
@@ -177,7 +181,8 @@
     <x>920</x><y>178</y>
     <width>210</width><height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:COLDBOARD:ERROR</pv_name>
-    <format>6</format>
+
+
     <font><font family="Liberation Sans" style="REGULAR" size="10.0"/></font>
     <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
     <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
@@ -203,7 +208,8 @@
     <x>280</x><y>226</y>
     <width>80</width><height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:CELL:COMM</pv_name>
-    <format>6</format>
+
+
     <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
     <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
     <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
@@ -213,7 +219,8 @@
     <x>375</x><y>226</y>
     <width>105</width><height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:CELL:WRITE_ENABLED</pv_name>
-    <format>6</format>
+
+
     <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
     <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
     <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
@@ -223,7 +230,8 @@
     <x>505</x><y>226</y>
     <width>185</width><height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:CELL:LAST_OK</pv_name>
-    <format>6</format>
+
+
     <font><font family="Liberation Sans" style="REGULAR" size="10.0"/></font>
     <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
     <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
@@ -233,7 +241,8 @@
     <x>715</x><y>226</y>
     <width>185</width><height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:CELL:MAN:mks902b_time</pv_name>
-    <format>6</format>
+
+
     <font><font family="Liberation Sans" style="REGULAR" size="10.0"/></font>
     <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
     <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
@@ -243,7 +252,8 @@
     <x>920</x><y>226</y>
     <width>210</width><height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:CELL:ERROR</pv_name>
-    <format>6</format>
+
+
     <font><font family="Liberation Sans" style="REGULAR" size="10.0"/></font>
     <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
     <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
@@ -269,7 +279,8 @@
     <x>280</x><y>274</y>
     <width>80</width><height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:VAC:COMM</pv_name>
-    <format>6</format>
+
+
     <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
     <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
     <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
@@ -279,7 +290,8 @@
     <x>375</x><y>274</y>
     <width>105</width><height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:VAC:WRITE_ENABLED</pv_name>
-    <format>6</format>
+
+
     <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
     <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
     <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
@@ -289,7 +301,8 @@
     <x>505</x><y>274</y>
     <width>185</width><height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:VAC:LAST_OK</pv_name>
-    <format>6</format>
+
+
     <font><font family="Liberation Sans" style="REGULAR" size="10.0"/></font>
     <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
     <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
@@ -299,7 +312,8 @@
     <x>715</x><y>274</y>
     <width>185</width><height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:VAC:MAN:tpg262_time</pv_name>
-    <format>6</format>
+
+
     <font><font family="Liberation Sans" style="REGULAR" size="10.0"/></font>
     <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
     <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
@@ -309,7 +323,8 @@
     <x>920</x><y>274</y>
     <width>210</width><height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:VAC:ERROR</pv_name>
-    <format>6</format>
+
+
     <font><font family="Liberation Sans" style="REGULAR" size="10.0"/></font>
     <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
     <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
@@ -335,7 +350,8 @@
     <x>280</x><y>322</y>
     <width>80</width><height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:ION:COMM</pv_name>
-    <format>6</format>
+
+
     <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
     <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
     <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
@@ -345,7 +361,8 @@
     <x>375</x><y>322</y>
     <width>105</width><height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:ION:WRITE_ENABLED</pv_name>
-    <format>6</format>
+
+
     <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
     <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
     <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
@@ -355,7 +372,8 @@
     <x>505</x><y>322</y>
     <width>185</width><height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:ION:LAST_OK</pv_name>
-    <format>6</format>
+
+
     <font><font family="Liberation Sans" style="REGULAR" size="10.0"/></font>
     <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
     <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
@@ -365,7 +383,8 @@
     <x>715</x><y>322</y>
     <width>185</width><height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:ION:MAN:ionivac_time</pv_name>
-    <format>6</format>
+
+
     <font><font family="Liberation Sans" style="REGULAR" size="10.0"/></font>
     <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
     <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
@@ -375,7 +394,8 @@
     <x>920</x><y>322</y>
     <width>210</width><height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:ION:ERROR</pv_name>
-    <format>6</format>
+
+
     <font><font family="Liberation Sans" style="REGULAR" size="10.0"/></font>
     <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
     <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
@@ -401,7 +421,8 @@
     <x>280</x><y>370</y>
     <width>80</width><height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:FIELD:COMM</pv_name>
-    <format>6</format>
+
+
     <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
     <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
     <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
@@ -411,7 +432,8 @@
     <x>375</x><y>370</y>
     <width>105</width><height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:FIELD:WRITE_ENABLED</pv_name>
-    <format>6</format>
+
+
     <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
     <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
     <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
@@ -421,7 +443,8 @@
     <x>505</x><y>370</y>
     <width>185</width><height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:FIELD:LAST_OK</pv_name>
-    <format>6</format>
+
+
     <font><font family="Liberation Sans" style="REGULAR" size="10.0"/></font>
     <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
     <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
@@ -431,7 +454,8 @@
     <x>715</x><y>370</y>
     <width>185</width><height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:FIELD:MAN:ls455_time</pv_name>
-    <format>6</format>
+
+
     <font><font family="Liberation Sans" style="REGULAR" size="10.0"/></font>
     <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
     <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
@@ -441,7 +465,8 @@
     <x>920</x><y>370</y>
     <width>210</width><height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:FIELD:ERROR</pv_name>
-    <format>6</format>
+
+
     <font><font family="Liberation Sans" style="REGULAR" size="10.0"/></font>
     <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
     <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
@@ -467,7 +492,8 @@
     <x>280</x><y>418</y>
     <width>80</width><height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:COMM</pv_name>
-    <format>6</format>
+
+
     <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
     <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
     <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
@@ -477,7 +503,8 @@
     <x>375</x><y>418</y>
     <width>105</width><height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:WRITE_ENABLED</pv_name>
-    <format>6</format>
+
+
     <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
     <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
     <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
@@ -487,7 +514,8 @@
     <x>505</x><y>418</y>
     <width>185</width><height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:LAST_OK</pv_name>
-    <format>6</format>
+
+
     <font><font family="Liberation Sans" style="REGULAR" size="10.0"/></font>
     <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
     <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
@@ -497,7 +525,8 @@
     <x>715</x><y>418</y>
     <width>185</width><height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:MAN:ls224_fridge_time</pv_name>
-    <format>6</format>
+
+
     <font><font family="Liberation Sans" style="REGULAR" size="10.0"/></font>
     <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
     <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
@@ -507,7 +536,8 @@
     <x>920</x><y>418</y>
     <width>210</width><height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:ERROR</pv_name>
-    <format>6</format>
+
+
     <font><font family="Liberation Sans" style="REGULAR" size="10.0"/></font>
     <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
     <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
@@ -533,7 +563,8 @@
     <x>280</x><y>466</y>
     <width>80</width><height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:MAG:COMM</pv_name>
-    <format>6</format>
+
+
     <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
     <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
     <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
@@ -543,7 +574,8 @@
     <x>375</x><y>466</y>
     <width>105</width><height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:MAG:WRITE_ENABLED</pv_name>
-    <format>6</format>
+
+
     <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
     <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
     <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
@@ -553,7 +585,8 @@
     <x>505</x><y>466</y>
     <width>185</width><height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:MAG:LAST_OK</pv_name>
-    <format>6</format>
+
+
     <font><font family="Liberation Sans" style="REGULAR" size="10.0"/></font>
     <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
     <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
@@ -563,7 +596,8 @@
     <x>715</x><y>466</y>
     <width>185</width><height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:MAG:MAN:ls224_magnet_time</pv_name>
-    <format>6</format>
+
+
     <font><font family="Liberation Sans" style="REGULAR" size="10.0"/></font>
     <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
     <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
@@ -573,7 +607,8 @@
     <x>920</x><y>466</y>
     <width>210</width><height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:MAG:ERROR</pv_name>
-    <format>6</format>
+
+
     <font><font family="Liberation Sans" style="REGULAR" size="10.0"/></font>
     <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
     <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
@@ -629,7 +664,8 @@
     <x>257</x><y>633</y>
     <width>285</width><height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:ALARM:MAN:alarm_summary_time</pv_name>
-    <format>6</format>
+
+
     <font><font family="Liberation Sans" style="REGULAR" size="10.0"/></font>
     <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
     <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
@@ -659,7 +695,8 @@
     <x>807</x><y>633</y>
     <width>285</width><height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:SAFE:MAN:safety_interlock_time</pv_name>
-    <format>6</format>
+
+
     <font><font family="Liberation Sans" style="REGULAR" size="10.0"/></font>
     <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
     <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
@@ -689,7 +726,8 @@
     <x>257</x><y>688</y>
     <width>285</width><height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:STATE:MAN:target_status_time</pv_name>
-    <format>6</format>
+
+
     <font><font family="Liberation Sans" style="REGULAR" size="10.0"/></font>
     <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
     <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
@@ -719,7 +757,8 @@
     <x>807</x><y>688</y>
     <width>285</width><height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:SAVE:MAN:save_restore_time</pv_name>
-    <format>6</format>
+
+
     <font><font family="Liberation Sans" style="REGULAR" size="10.0"/></font>
     <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
     <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
@@ -749,7 +788,8 @@
     <x>257</x><y>743</y>
     <width>285</width><height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:ARCH:MAN:archiver_time</pv_name>
-    <format>6</format>
+
+
     <font><font family="Liberation Sans" style="REGULAR" size="10.0"/></font>
     <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
     <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>

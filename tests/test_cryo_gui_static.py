@@ -126,3 +126,251 @@ class CryoGuiContract(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+
+def test_cryo_gui_rendering_contract():
+    """Protect the Phoebus rendering fixes found during physical commissioning."""
+    from pathlib import Path
+    import xml.etree.ElementTree as ET
+
+    repo = Path(__file__).resolve().parents[1]
+    gui = repo / "gui"
+
+    bob_paths = sorted(
+        gui.glob("genesis_cryo*.bob")
+    )
+
+    assert bob_paths
+
+    # "data_browser" is not the Phoebus widget name.
+    # Valid embedded plots use "databrowser".
+    for path in bob_paths:
+        text = path.read_text(
+            encoding="utf-8"
+        )
+
+        assert 'type="data_browser"' not in text, path
+
+        ET.parse(path)
+
+    vacuum_root = ET.parse(
+        gui / "genesis_cryo_vacuum.bob"
+    ).getroot()
+
+    data_root = ET.parse(
+        gui / "genesis_cryo_data.bob"
+    ).getroot()
+
+    assert len(
+        vacuum_root.findall(
+            ".//widget[@type='databrowser']"
+        )
+    ) == 1
+
+    assert len(
+        data_root.findall(
+            ".//widget[@type='databrowser']"
+        )
+    ) == 2
+
+    # Operator-level pages should use the PV's native Channel
+    # Access metadata instead of forcing Phoebus string format 6
+    # onto numeric counters, temperatures, pressures and timestamps.
+    native_format_pages = (
+        "genesis_cryo.bob",
+        "genesis_cryo_vacuum.bob",
+        "genesis_cryo_safety.bob",
+        "genesis_cryo_data.bob",
+        "genesis_cryo_diagnostics.bob",
+    )
+
+    for name in native_format_pages:
+        root = ET.parse(
+            gui / name
+        ).getroot()
+
+        bad = []
+
+        for widget in root.findall(
+            ".//widget[@type='textupdate']"
+        ):
+            fmt = widget.findtext("format")
+
+            if fmt == "6":
+                bad.append(
+                    (
+                        widget.findtext("name"),
+                        widget.findtext("pv_name"),
+                    )
+                )
+
+        assert not bad, (
+            name,
+            bad,
+        )
+
+    # Imported instrument pages may retain explicit formats,
+    # but every per-channel connection PV must be displayed
+    # using its Boolean/enum string rather than numeric format.
+    conn_count = 0
+
+    for path in bob_paths:
+        root = ET.parse(path).getroot()
+
+        for widget in root.findall(
+            ".//widget[@type='textupdate']"
+        ):
+            pv = (
+                widget.findtext("pv_name")
+                or ""
+            )
+
+            if pv.endswith("_Conn"):
+                conn_count += 1
+
+                assert (
+                    widget.find("format")
+                    is None
+                ), (
+                    path.name,
+                    pv,
+                    widget.findtext("format"),
+                )
+
+    assert conn_count > 0
+
+    vacuum_text = (
+        gui / "genesis_cryo_vacuum.bob"
+    ).read_text(
+        encoding="utf-8"
+    )
+
+    assert "Torr" in vacuum_text
+    assert "mbar" in vacuum_text
+
+
+
+def test_cryo_main_navigation_is_unique():
+    """Main Cryo overview exposes one canonical route per top-level page."""
+    from pathlib import Path
+    import xml.etree.ElementTree as ET
+
+    repo = Path(__file__).resolve().parents[1]
+    root = ET.parse(
+        repo / "gui" / "genesis_cryo.bob"
+    ).getroot()
+
+    destinations = []
+
+    for action in root.findall(
+        ".//action[@type='open_display']"
+    ):
+        target = (
+            action.findtext("file")
+            or ""
+        ).strip()
+
+        if target:
+            destinations.append(target)
+
+    required = [
+        "genesis_cryo_fridge.bob",
+        "genesis_cryo_magnet.bob",
+        "genesis_cryo_field.bob",
+        "genesis_cryo_vacuum.bob",
+        "genesis_cryo_coldboard.bob",
+        "genesis_cryo_safety.bob",
+        "genesis_cryo_data.bob",
+        "genesis_cryo_diagnostics.bob",
+    ]
+
+    assert sorted(destinations) == sorted(required)
+    assert len(destinations) == len(set(destinations))
+
+
+
+def test_cryo_gui_headers_and_final_schematic():
+    """All Cryo pages belong visually to Genesis and the overview keeps its physical mimic."""
+    from pathlib import Path
+    import xml.etree.ElementTree as ET
+
+    repo = Path(__file__).resolve().parents[1]
+    gui = repo / "gui"
+
+    bobs = sorted(
+        gui.glob("genesis_cryo*.bob")
+    )
+
+    assert len(bobs) == 12
+
+    for path in bobs:
+        root = ET.parse(path).getroot()
+
+        header_labels = []
+
+        for widget in root.findall(
+            ".//widget[@type='label']"
+        ):
+            text = (
+                widget.findtext("text")
+                or ""
+            ).strip()
+
+            if text.startswith(
+                "UNH Genesis -"
+            ):
+                header_labels.append(text)
+
+        assert header_labels, (
+            path.name,
+            "missing UNH Genesis header",
+        )
+
+        assert (
+            "panopticon"
+            not in path.read_text(
+                encoding="utf-8"
+            ).lower()
+        )
+
+    main = ET.parse(
+        gui / "genesis_cryo.bob"
+    ).getroot()
+
+    names = {
+        (
+            widget.findtext("name")
+            or ""
+        )
+        for widget in main.findall("widget")
+    }
+
+    required = {
+        "MagnetCryostat",
+        "MagnetCoilLeft",
+        "MagnetCoilRight",
+        "FridgeInsert",
+        "TargetStick",
+        "TargetCell",
+        "SchematicCryostatLabel",
+        "SchematicMagnetLabel",
+        "SchematicFridgeLabel",
+        "SchematicStickLabel",
+        "SchematicCellLabel",
+    }
+
+    assert required <= names
+
+    main_text = (
+        gui / "genesis_cryo.bob"
+    ).read_text(
+        encoding="utf-8"
+    )
+
+    assert "CRYOSTAT OVERVIEW" in main_text
+    assert "MAGNET CRYOSTAT" in main_text
+    assert "5 T MAGNET" in main_text
+    assert "1 K FRIDGE" in main_text
+    assert "TARGET STICK" in main_text
+    assert "TARGET CELL" in main_text

@@ -1,1349 +1,2013 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version='1.0' encoding='utf-8'?>
 <display version="2.0.0">
   <name>Genesis Cryogenic Target</name>
   <width>1560</width>
   <height>1080</height>
-
   <widget type="rectangle" version="2.0.0">
     <name>Page</name>
-    <x>0</x><y>0</y>
-    <width>1560</width><height>1080</height>
+    <x>0</x>
+    <y>0</y>
+    <width>1560</width>
+    <height>1080</height>
     <line_width>0</line_width>
-
-    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
   </widget>
   <widget type="rectangle" version="2.0.0">
     <name>Header</name>
-    <x>0</x><y>0</y>
-    <width>1560</width><height>70</height>
+    <x>0</x>
+    <y>0</y>
+    <width>1560</width>
+    <height>70</height>
     <line_width>0</line_width>
-
-    <background_color><color red="0" green="36" blue="92" alpha="255"/></background_color>
+    <background_color>
+      <color red="0" green="36" blue="92" alpha="255" />
+    </background_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Title</name>
-    <x>24</x><y>14</y>
-    <width>850</width><height>32</height>
+    <x>24</x>
+    <y>14</y>
+    <width>850</width>
+    <height>32</height>
     <text>UNH Genesis - Polarized Target / Cryogenics</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="BOLD" size="22.0"/></font>
-    <foreground_color><color red="255" green="255" blue="255" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="22.0" />
+    </font>
+    <foreground_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Subtitle</name>
-    <x>25</x><y>44</y>
-    <width>900</width><height>20</height>
+    <x>25</x>
+    <y>44</y>
+    <width>900</width>
+    <height>20</height>
     <text>Shift-worker process overview</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
-    <foreground_color><color red="255" green="255" blue="255" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="11.0" />
+    </font>
+    <foreground_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="rectangle" version="2.0.0">
     <name>Status_Card</name>
-    <x>20</x><y>85</y>
-    <width>1520</width><height>95</height>
+    <x>20</x>
+    <y>85</y>
+    <width>1520</width>
+    <height>95</height>
     <line_width>0</line_width>
-    <corner_width>8</corner_width><corner_height>8</corner_height>
-    <background_color><color red="245" green="248" blue="252" alpha="255"/></background_color>
+    <corner_width>8</corner_width>
+    <corner_height>8</corner_height>
+    <background_color>
+      <color red="245" green="248" blue="252" alpha="255" />
+    </background_color>
   </widget>
   <widget type="rectangle" version="2.0.0">
     <name>Status_Header</name>
-    <x>20</x><y>85</y>
-    <width>1520</width><height>38</height>
+    <x>20</x>
+    <y>85</y>
+    <width>1520</width>
+    <height>38</height>
     <line_width>0</line_width>
-    <corner_width>8</corner_width><corner_height>8</corner_height>
-    <background_color><color red="220" green="231" blue="243" alpha="255"/></background_color>
+    <corner_width>8</corner_width>
+    <corner_height>8</corner_height>
+    <background_color>
+      <color red="220" green="231" blue="243" alpha="255" />
+    </background_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Status_Title</name>
-    <x>34</x><y>92</y>
-    <width>1492</width><height>24</height>
+    <x>34</x>
+    <y>92</y>
+    <width>1492</width>
+    <height>24</height>
     <text>SYSTEM STATUS</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="BOLD" size="15.0"/></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="15.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Status0L</name>
-    <x>40</x><y>134</y>
-    <width>95</width><height>22</height>
+    <x>40</x>
+    <y>134</y>
+    <width>95</width>
+    <height>22</height>
     <text>Target:</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="BOLD" size="12.0"/></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="12.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Status0V</name>
-    <x>135</x><y>132</y>
-    <width>150</width><height>26</height>
+    <x>135</x>
+    <y>132</y>
+    <width>150</width>
+    <height>26</height>
     <pv_name>ca://UNH:GEN:CRYO:STATE:production</pv_name>
-    <format>6</format>
-    <font><font family="Liberation Sans" style="BOLD" size="12.0"/></font>
-    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="12.0" />
+    </font>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Status1L</name>
-    <x>260</x><y>134</y>
-    <width>95</width><height>22</height>
+    <x>260</x>
+    <y>134</y>
+    <width>95</width>
+    <height>22</height>
     <text>Material:</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="BOLD" size="12.0"/></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="12.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Status1V</name>
-    <x>355</x><y>132</y>
-    <width>140</width><height>26</height>
+    <x>355</x>
+    <y>132</y>
+    <width>140</width>
+    <height>26</height>
     <pv_name>ca://UNH:GEN:CRYO:STATE:material</pv_name>
-    <format>6</format>
-    <font><font family="Liberation Sans" style="BOLD" size="12.0"/></font>
-    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="12.0" />
+    </font>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Status2L</name>
-    <x>470</x><y>134</y>
-    <width>95</width><height>22</height>
+    <x>470</x>
+    <y>134</y>
+    <width>95</width>
+    <height>22</height>
     <text>Safety:</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="BOLD" size="12.0"/></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="12.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Status2V</name>
-    <x>565</x><y>132</y>
-    <width>105</width><height>26</height>
+    <x>565</x>
+    <y>132</y>
+    <width>105</width>
+    <height>26</height>
     <pv_name>ca://UNH:GEN:CRYO:SAFE:Safe_Permit</pv_name>
-    <format>6</format>
-    <font><font family="Liberation Sans" style="BOLD" size="12.0"/></font>
-    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="12.0" />
+    </font>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Status3L</name>
-    <x>650</x><y>134</y>
-    <width>95</width><height>22</height>
+    <x>650</x>
+    <y>134</y>
+    <width>95</width>
+    <height>22</height>
     <text>Alarms:</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="BOLD" size="12.0"/></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="12.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Status3V</name>
-    <x>745</x><y>132</y>
-    <width>100</width><height>26</height>
+    <x>745</x>
+    <y>132</y>
+    <width>100</width>
+    <height>26</height>
     <pv_name>ca://UNH:GEN:CRYO:ALARM:Alarm_Count</pv_name>
-    <format>6</format>
-    <font><font family="Liberation Sans" style="BOLD" size="12.0"/></font>
-    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="12.0" />
+    </font>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Status4L</name>
-    <x>820</x><y>134</y>
-    <width>95</width><height>22</height>
+    <x>820</x>
+    <y>134</y>
+    <width>95</width>
+    <height>22</height>
     <text>Archive:</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="BOLD" size="12.0"/></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="12.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Status4V</name>
-    <x>915</x><y>132</y>
-    <width>105</width><height>26</height>
+    <x>915</x>
+    <y>132</y>
+    <width>105</width>
+    <height>26</height>
     <pv_name>ca://UNH:GEN:CRYO:ARCH:Archive_Status</pv_name>
-    <format>6</format>
-    <font><font family="Liberation Sans" style="BOLD" size="12.0"/></font>
-    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="12.0" />
+    </font>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Status5L</name>
-    <x>1010</x><y>134</y>
-    <width>95</width><height>22</height>
+    <x>1010</x>
+    <y>134</y>
+    <width>95</width>
+    <height>22</height>
     <text>Missing PVs:</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="BOLD" size="12.0"/></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="12.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Status5V</name>
-    <x>1105</x><y>132</y>
-    <width>110</width><height>26</height>
+    <x>1105</x>
+    <y>132</y>
+    <width>110</width>
+    <height>26</height>
     <pv_name>ca://UNH:GEN:CRYO:ALARM:Alarm_Missing</pv_name>
-    <format>6</format>
-    <font><font family="Liberation Sans" style="BOLD" size="12.0"/></font>
-    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="12.0" />
+    </font>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="rectangle" version="2.0.0">
     <name>Magnet_Card</name>
-    <x>20</x><y>200</y>
-    <width>355</width><height>620</height>
+    <x>20</x>
+    <y>200</y>
+    <width>355</width>
+    <height>620</height>
     <line_width>0</line_width>
-    <corner_width>8</corner_width><corner_height>8</corner_height>
-    <background_color><color red="245" green="248" blue="252" alpha="255"/></background_color>
+    <corner_width>8</corner_width>
+    <corner_height>8</corner_height>
+    <background_color>
+      <color red="245" green="248" blue="252" alpha="255" />
+    </background_color>
   </widget>
   <widget type="rectangle" version="2.0.0">
     <name>Magnet_Header</name>
-    <x>20</x><y>200</y>
-    <width>355</width><height>38</height>
+    <x>20</x>
+    <y>200</y>
+    <width>355</width>
+    <height>38</height>
     <line_width>0</line_width>
-    <corner_width>8</corner_width><corner_height>8</corner_height>
-    <background_color><color red="220" green="231" blue="243" alpha="255"/></background_color>
+    <corner_width>8</corner_width>
+    <corner_height>8</corner_height>
+    <background_color>
+      <color red="220" green="231" blue="243" alpha="255" />
+    </background_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Magnet_Title</name>
-    <x>34</x><y>207</y>
-    <width>327</width><height>24</height>
+    <x>34</x>
+    <y>207</y>
+    <width>327</width>
+    <height>24</height>
     <text>MAGNET SPACE</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="BOLD" size="15.0"/></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="15.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>M1L</name>
-    <x>42</x><y>255</y>
-    <width>115</width><height>26</height>
+    <x>42</x>
+    <y>255</y>
+    <width>115</width>
+    <height>26</height>
     <text>M1</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="REGULAR" size="13.0"/></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>M1V</name>
-    <x>165</x><y>253</y>
-    <width>145</width><height>29</height>
+    <x>165</x>
+    <y>253</y>
+    <width>145</width>
+    <height>29</height>
     <pv_name>ca://UNH:GEN:CRYO:MAG:M1_TI</pv_name>
-    <format>6</format>
-    <font><font family="Liberation Sans" style="REGULAR" size="14.0"/></font>
-    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="14.0" />
+    </font>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>M1U</name>
-    <x>315</x><y>255</y>
-    <width>30</width><height>24</height>
+    <x>315</x>
+    <y>255</y>
+    <width>30</width>
+    <height>24</height>
     <text>K</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="REGULAR" size="12.0"/></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="12.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>M2L</name>
-    <x>42</x><y>307</y>
-    <width>115</width><height>26</height>
+    <x>42</x>
+    <y>307</y>
+    <width>115</width>
+    <height>26</height>
     <text>M2</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="REGULAR" size="13.0"/></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>M2V</name>
-    <x>165</x><y>305</y>
-    <width>145</width><height>29</height>
+    <x>165</x>
+    <y>305</y>
+    <width>145</width>
+    <height>29</height>
     <pv_name>ca://UNH:GEN:CRYO:MAG:M2_TI</pv_name>
-    <format>6</format>
-    <font><font family="Liberation Sans" style="REGULAR" size="14.0"/></font>
-    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="14.0" />
+    </font>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>M2U</name>
-    <x>315</x><y>307</y>
-    <width>30</width><height>24</height>
+    <x>315</x>
+    <y>307</y>
+    <width>30</width>
+    <height>24</height>
     <text>K</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="REGULAR" size="12.0"/></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="12.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>M3L</name>
-    <x>42</x><y>359</y>
-    <width>115</width><height>26</height>
+    <x>42</x>
+    <y>359</y>
+    <width>115</width>
+    <height>26</height>
     <text>M3</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="REGULAR" size="13.0"/></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>M3V</name>
-    <x>165</x><y>357</y>
-    <width>145</width><height>29</height>
+    <x>165</x>
+    <y>357</y>
+    <width>145</width>
+    <height>29</height>
     <pv_name>ca://UNH:GEN:CRYO:MAG:M3_TI</pv_name>
-    <format>6</format>
-    <font><font family="Liberation Sans" style="REGULAR" size="14.0"/></font>
-    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="14.0" />
+    </font>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>M3U</name>
-    <x>315</x><y>359</y>
-    <width>30</width><height>24</height>
+    <x>315</x>
+    <y>359</y>
+    <width>30</width>
+    <height>24</height>
     <text>K</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="REGULAR" size="12.0"/></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="12.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>M4L</name>
-    <x>42</x><y>411</y>
-    <width>115</width><height>26</height>
+    <x>42</x>
+    <y>411</y>
+    <width>115</width>
+    <height>26</height>
     <text>M4  (coil top)</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="BOLD" size="13.0"/></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>M4V</name>
-    <x>165</x><y>409</y>
-    <width>145</width><height>29</height>
+    <x>165</x>
+    <y>409</y>
+    <width>145</width>
+    <height>29</height>
     <pv_name>ca://UNH:GEN:CRYO:MAG:M4_TI</pv_name>
-    <format>6</format>
-    <font><font family="Liberation Sans" style="BOLD" size="14.0"/></font>
-    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="14.0" />
+    </font>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>M4U</name>
-    <x>315</x><y>411</y>
-    <width>30</width><height>24</height>
+    <x>315</x>
+    <y>411</y>
+    <width>30</width>
+    <height>24</height>
     <text>K</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="REGULAR" size="12.0"/></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="12.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>M5L</name>
-    <x>42</x><y>463</y>
-    <width>115</width><height>26</height>
+    <x>42</x>
+    <y>463</y>
+    <width>115</width>
+    <height>26</height>
     <text>M5</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="REGULAR" size="13.0"/></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="13.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>M5V</name>
-    <x>165</x><y>461</y>
-    <width>145</width><height>29</height>
+    <x>165</x>
+    <y>461</y>
+    <width>145</width>
+    <height>29</height>
     <pv_name>ca://UNH:GEN:CRYO:MAG:M5_TI</pv_name>
-    <format>6</format>
-    <font><font family="Liberation Sans" style="REGULAR" size="14.0"/></font>
-    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="14.0" />
+    </font>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>M5U</name>
-    <x>315</x><y>463</y>
-    <width>30</width><height>24</height>
+    <x>315</x>
+    <y>463</y>
+    <width>30</width>
+    <height>24</height>
     <text>K</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="REGULAR" size="12.0"/></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="12.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>FieldL</name>
-    <x>42</x><y>545</y>
-    <width>115</width><height>26</height>
+    <x>42</x>
+    <y>545</y>
+    <width>115</width>
+    <height>26</height>
     <text>Fringe field</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="BOLD" size="13.0"/></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>FieldV</name>
-    <x>165</x><y>543</y>
-    <width>145</width><height>29</height>
+    <x>165</x>
+    <y>543</y>
+    <width>145</width>
+    <height>29</height>
     <pv_name>ca://UNH:GEN:CRYO:FIELD:Fringe_FieldT</pv_name>
-    <format>6</format>
-    <font><font family="Liberation Sans" style="BOLD" size="14.0"/></font>
-    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="14.0" />
+    </font>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>FieldU</name>
-    <x>315</x><y>545</y>
-    <width>30</width><height>24</height>
+    <x>315</x>
+    <y>545</y>
+    <width>30</width>
+    <height>24</height>
     <text>T</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="REGULAR" size="12.0"/></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="12.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>MagCommL</name>
-    <x>42</x><y>600</y>
-    <width>115</width><height>24</height>
+    <x>42</x>
+    <y>600</y>
+    <width>115</width>
+    <height>24</height>
     <text>Magnet IOC:</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="REGULAR" size="12.0"/></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="12.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="led" version="2.0.0">
     <name>MagCommLED</name>
-    <x>165</x><y>600</y>
-    <width>22</width><height>22</height>
+    <x>165</x>
+    <y>600</y>
+    <width>22</width>
+    <height>22</height>
     <pv_name>ca://UNH:GEN:CRYO:MAG:COMM</pv_name>
   </widget>
   <widget type="label" version="2.0.0">
     <name>FieldCommL</name>
-    <x>42</x><y>640</y>
-    <width>115</width><height>24</height>
+    <x>42</x>
+    <y>640</y>
+    <width>115</width>
+    <height>24</height>
     <text>Field IOC:</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="REGULAR" size="12.0"/></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="12.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="led" version="2.0.0">
     <name>FieldCommLED</name>
-    <x>165</x><y>640</y>
-    <width>22</width><height>22</height>
+    <x>165</x>
+    <y>640</y>
+    <width>22</width>
+    <height>22</height>
     <pv_name>ca://UNH:GEN:CRYO:FIELD:COMM</pv_name>
-  </widget>
-  <widget type="action_button" version="3.0.0">
-    <name>OpenMagnet</name>
-    <x>42</x><y>750</y>
-    <width>142</width><height>34</height>
-    <actions>
-      <action type="open_display">
-        <file>genesis_cryo_magnet.bob</file>
-        <target>tab</target>
-        <description>Open Magnet Detail</description>
-      </action>
-    </actions>
-    <text>Magnet Detail</text>
-  </widget>
-  <widget type="action_button" version="3.0.0">
-    <name>OpenField</name>
-    <x>194</x><y>750</y>
-    <width>142</width><height>34</height>
-    <actions>
-      <action type="open_display">
-        <file>genesis_cryo_field.bob</file>
-        <target>tab</target>
-        <description>Open Field Detail</description>
-      </action>
-    </actions>
-    <text>Field Detail</text>
   </widget>
   <widget type="rectangle" version="2.0.0">
     <name>Cryostat_Card</name>
-    <x>395</x><y>200</y>
-    <width>690</width><height>620</height>
+    <x>395</x>
+    <y>200</y>
+    <width>690</width>
+    <height>620</height>
     <line_width>0</line_width>
-    <corner_width>8</corner_width><corner_height>8</corner_height>
-    <background_color><color red="245" green="248" blue="252" alpha="255"/></background_color>
+    <corner_width>8</corner_width>
+    <corner_height>8</corner_height>
+    <background_color>
+      <color red="245" green="248" blue="252" alpha="255" />
+    </background_color>
   </widget>
   <widget type="rectangle" version="2.0.0">
     <name>Cryostat_Header</name>
-    <x>395</x><y>200</y>
-    <width>690</width><height>38</height>
+    <x>395</x>
+    <y>200</y>
+    <width>690</width>
+    <height>38</height>
     <line_width>0</line_width>
-    <corner_width>8</corner_width><corner_height>8</corner_height>
-    <background_color><color red="220" green="231" blue="243" alpha="255"/></background_color>
+    <corner_width>8</corner_width>
+    <corner_height>8</corner_height>
+    <background_color>
+      <color red="220" green="231" blue="243" alpha="255" />
+    </background_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Cryostat_Title</name>
-    <x>409</x><y>207</y>
-    <width>662</width><height>24</height>
-    <text>CRYOSTAT / FRIDGE PANOPTICON</text>
+    <x>409</x>
+    <y>207</y>
+    <width>662</width>
+    <height>24</height>
+    <text>CRYOSTAT OVERVIEW</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="BOLD" size="15.0"/></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
-  </widget>
-  <widget type="rectangle" version="2.0.0">
-    <name>CryostatBody</name>
-    <x>655</x><y>285</y>
-    <width>175</width><height>405</height>
-    <line_width>0</line_width>
-    <corner_width>18</corner_width><corner_height>18</corner_height>
-    <background_color><color red="225" green="235" blue="247" alpha="255"/></background_color>
-  </widget>
-  <widget type="rectangle" version="2.0.0">
-    <name>TargetCell</name>
-    <x>690</x><y>610</y>
-    <width>105</width><height>58</height>
-    <line_width>0</line_width>
-    <corner_width>12</corner_width><corner_height>12</corner_height>
-    <background_color><color red="255" green="245" blue="220" alpha="255"/></background_color>
-  </widget>
-  <widget type="label" version="2.0.0">
-    <name>TargetCellLabel</name>
-    <x>695</x><y>626</y>
-    <width>95</width><height>24</height>
-    <text>TARGET CELL</text>
-    <transparent>true</transparent>
-    <horizontal_alignment>1</horizontal_alignment>
-    <font><font family="Liberation Sans" style="BOLD" size="12.0"/></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="15.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>F1L</name>
-    <x>425</x><y>265</y>
-    <width>48</width><height>24</height>
+    <x>425</x>
+    <y>265</y>
+    <width>48</width>
+    <height>24</height>
     <text>F1</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="BOLD" size="13.0"/></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>F1V</name>
-    <x>475</x><y>263</y>
-    <width>125</width><height>27</height>
+    <x>475</x>
+    <y>263</y>
+    <width>125</width>
+    <height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F1_TI</pv_name>
-    <format>6</format>
-    <font><font family="Liberation Sans" style="BOLD" size="13.0"/></font>
-    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>F1U</name>
-    <x>605</x><y>265</y>
-    <width>25</width><height>24</height>
+    <x>605</x>
+    <y>265</y>
+    <width>25</width>
+    <height>24</height>
     <text>K</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="11.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>F2L</name>
-    <x>425</x><y>320</y>
-    <width>48</width><height>24</height>
+    <x>425</x>
+    <y>320</y>
+    <width>48</width>
+    <height>24</height>
     <text>F2</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="BOLD" size="13.0"/></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>F2V</name>
-    <x>475</x><y>318</y>
-    <width>125</width><height>27</height>
+    <x>475</x>
+    <y>318</y>
+    <width>125</width>
+    <height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F2_TI</pv_name>
-    <format>6</format>
-    <font><font family="Liberation Sans" style="BOLD" size="13.0"/></font>
-    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>F2U</name>
-    <x>605</x><y>320</y>
-    <width>25</width><height>24</height>
+    <x>605</x>
+    <y>320</y>
+    <width>25</width>
+    <height>24</height>
     <text>K</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="11.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>F3L</name>
-    <x>425</x><y>375</y>
-    <width>48</width><height>24</height>
+    <x>425</x>
+    <y>375</y>
+    <width>48</width>
+    <height>24</height>
     <text>F3</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="BOLD" size="13.0"/></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>F3V</name>
-    <x>475</x><y>373</y>
-    <width>125</width><height>27</height>
+    <x>475</x>
+    <y>373</y>
+    <width>125</width>
+    <height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F3_TI</pv_name>
-    <format>6</format>
-    <font><font family="Liberation Sans" style="BOLD" size="13.0"/></font>
-    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>F3U</name>
-    <x>605</x><y>375</y>
-    <width>25</width><height>24</height>
+    <x>605</x>
+    <y>375</y>
+    <width>25</width>
+    <height>24</height>
     <text>K</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="11.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>F4L</name>
-    <x>425</x><y>430</y>
-    <width>48</width><height>24</height>
+    <x>425</x>
+    <y>430</y>
+    <width>48</width>
+    <height>24</height>
     <text>F4</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="BOLD" size="13.0"/></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>F4V</name>
-    <x>475</x><y>428</y>
-    <width>125</width><height>27</height>
+    <x>475</x>
+    <y>428</y>
+    <width>125</width>
+    <height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F4_TI</pv_name>
-    <format>6</format>
-    <font><font family="Liberation Sans" style="BOLD" size="13.0"/></font>
-    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>F4U</name>
-    <x>605</x><y>430</y>
-    <width>25</width><height>24</height>
+    <x>605</x>
+    <y>430</y>
+    <width>25</width>
+    <height>24</height>
     <text>K</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="11.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>F5L</name>
-    <x>425</x><y>485</y>
-    <width>48</width><height>24</height>
+    <x>425</x>
+    <y>485</y>
+    <width>48</width>
+    <height>24</height>
     <text>F5</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="BOLD" size="13.0"/></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>F5V</name>
-    <x>475</x><y>483</y>
-    <width>125</width><height>27</height>
+    <x>475</x>
+    <y>483</y>
+    <width>125</width>
+    <height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F5_TI</pv_name>
-    <format>6</format>
-    <font><font family="Liberation Sans" style="BOLD" size="13.0"/></font>
-    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>F5U</name>
-    <x>605</x><y>485</y>
-    <width>25</width><height>24</height>
+    <x>605</x>
+    <y>485</y>
+    <width>25</width>
+    <height>24</height>
     <text>K</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="11.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>F6L</name>
-    <x>425</x><y>540</y>
-    <width>48</width><height>24</height>
+    <x>425</x>
+    <y>540</y>
+    <width>48</width>
+    <height>24</height>
     <text>F6</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="BOLD" size="13.0"/></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>F6V</name>
-    <x>475</x><y>538</y>
-    <width>125</width><height>27</height>
+    <x>475</x>
+    <y>538</y>
+    <width>125</width>
+    <height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F6_TI</pv_name>
-    <format>6</format>
-    <font><font family="Liberation Sans" style="BOLD" size="13.0"/></font>
-    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>F6U</name>
-    <x>605</x><y>540</y>
-    <width>25</width><height>24</height>
+    <x>605</x>
+    <y>540</y>
+    <width>25</width>
+    <height>24</height>
     <text>K</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="11.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>F7L</name>
-    <x>855</x><y>265</y>
-    <width>48</width><height>24</height>
+    <x>855</x>
+    <y>265</y>
+    <width>48</width>
+    <height>24</height>
     <text>F7</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="BOLD" size="13.0"/></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>F7V</name>
-    <x>905</x><y>263</y>
-    <width>125</width><height>27</height>
+    <x>905</x>
+    <y>263</y>
+    <width>125</width>
+    <height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F7_TI</pv_name>
-    <format>6</format>
-    <font><font family="Liberation Sans" style="BOLD" size="13.0"/></font>
-    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>F7U</name>
-    <x>1035</x><y>265</y>
-    <width>25</width><height>24</height>
+    <x>1035</x>
+    <y>265</y>
+    <width>25</width>
+    <height>24</height>
     <text>K</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="11.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>F8L</name>
-    <x>855</x><y>320</y>
-    <width>48</width><height>24</height>
+    <x>855</x>
+    <y>320</y>
+    <width>48</width>
+    <height>24</height>
     <text>F8</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="BOLD" size="13.0"/></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>F8V</name>
-    <x>905</x><y>318</y>
-    <width>125</width><height>27</height>
+    <x>905</x>
+    <y>318</y>
+    <width>125</width>
+    <height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F8_TI</pv_name>
-    <format>6</format>
-    <font><font family="Liberation Sans" style="BOLD" size="13.0"/></font>
-    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>F8U</name>
-    <x>1035</x><y>320</y>
-    <width>25</width><height>24</height>
+    <x>1035</x>
+    <y>320</y>
+    <width>25</width>
+    <height>24</height>
     <text>K</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="11.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>F9L</name>
-    <x>855</x><y>375</y>
-    <width>48</width><height>24</height>
+    <x>855</x>
+    <y>375</y>
+    <width>48</width>
+    <height>24</height>
     <text>F9</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="BOLD" size="13.0"/></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>F9V</name>
-    <x>905</x><y>373</y>
-    <width>125</width><height>27</height>
+    <x>905</x>
+    <y>373</y>
+    <width>125</width>
+    <height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F9_TI</pv_name>
-    <format>6</format>
-    <font><font family="Liberation Sans" style="BOLD" size="13.0"/></font>
-    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>F9U</name>
-    <x>1035</x><y>375</y>
-    <width>25</width><height>24</height>
+    <x>1035</x>
+    <y>375</y>
+    <width>25</width>
+    <height>24</height>
     <text>K</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="11.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>F10L</name>
-    <x>855</x><y>430</y>
-    <width>48</width><height>24</height>
+    <x>855</x>
+    <y>430</y>
+    <width>48</width>
+    <height>24</height>
     <text>F10</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="BOLD" size="13.0"/></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>F10V</name>
-    <x>905</x><y>428</y>
-    <width>125</width><height>27</height>
+    <x>905</x>
+    <y>428</y>
+    <width>125</width>
+    <height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F10_TI</pv_name>
-    <format>6</format>
-    <font><font family="Liberation Sans" style="BOLD" size="13.0"/></font>
-    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>F10U</name>
-    <x>1035</x><y>430</y>
-    <width>25</width><height>24</height>
+    <x>1035</x>
+    <y>430</y>
+    <width>25</width>
+    <height>24</height>
     <text>K</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="11.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>F11L</name>
-    <x>855</x><y>485</y>
-    <width>48</width><height>24</height>
+    <x>855</x>
+    <y>485</y>
+    <width>48</width>
+    <height>24</height>
     <text>F11</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="BOLD" size="13.0"/></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>F11V</name>
-    <x>905</x><y>483</y>
-    <width>125</width><height>27</height>
+    <x>905</x>
+    <y>483</y>
+    <width>125</width>
+    <height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F11_TI</pv_name>
-    <format>6</format>
-    <font><font family="Liberation Sans" style="BOLD" size="13.0"/></font>
-    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>F11U</name>
-    <x>1035</x><y>485</y>
-    <width>25</width><height>24</height>
+    <x>1035</x>
+    <y>485</y>
+    <width>25</width>
+    <height>24</height>
     <text>K</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="11.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Pressure0L</name>
-    <x>425</x><y>715</y>
-    <width>80</width><height>22</height>
+    <x>425</x>
+    <y>715</y>
+    <width>80</width>
+    <height>22</height>
     <text>Cell</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="BOLD" size="12.0"/></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="12.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Pressure0V</name>
-    <x>425</x><y>740</y>
-    <width>135</width><height>27</height>
+    <x>425</x>
+    <y>740</y>
+    <width>135</width>
+    <height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:CELL:Cell_PI</pv_name>
-    <format>6</format>
-    <font><font family="Liberation Sans" style="BOLD" size="12.0"/></font>
-    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="12.0" />
+    </font>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Pressure1L</name>
-    <x>585</x><y>715</y>
-    <width>80</width><height>22</height>
+    <x>585</x>
+    <y>715</y>
+    <width>80</width>
+    <height>22</height>
     <text>Pump</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="BOLD" size="12.0"/></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="12.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Pressure1V</name>
-    <x>585</x><y>740</y>
-    <width>135</width><height>27</height>
+    <x>585</x>
+    <y>740</y>
+    <width>135</width>
+    <height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:VAC:Pump_PI</pv_name>
-    <format>6</format>
-    <font><font family="Liberation Sans" style="BOLD" size="12.0"/></font>
-    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="12.0" />
+    </font>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Pressure2L</name>
-    <x>745</x><y>715</y>
-    <width>80</width><height>22</height>
+    <x>745</x>
+    <y>715</y>
+    <width>80</width>
+    <height>22</height>
     <text>OVC</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="BOLD" size="12.0"/></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="12.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Pressure2V</name>
-    <x>745</x><y>740</y>
-    <width>135</width><height>27</height>
+    <x>745</x>
+    <y>740</y>
+    <width>135</width>
+    <height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:VAC:OVC_PI</pv_name>
-    <format>6</format>
-    <font><font family="Liberation Sans" style="BOLD" size="12.0"/></font>
-    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="12.0" />
+    </font>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Pressure3L</name>
-    <x>905</x><y>715</y>
-    <width>80</width><height>22</height>
+    <x>905</x>
+    <y>715</y>
+    <width>80</width>
+    <height>22</height>
     <text>Ion</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="BOLD" size="12.0"/></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="12.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Pressure3V</name>
-    <x>905</x><y>740</y>
-    <width>135</width><height>27</height>
+    <x>905</x>
+    <y>740</y>
+    <width>135</width>
+    <height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:ION:Ion_PI</pv_name>
-    <format>6</format>
-    <font><font family="Liberation Sans" style="BOLD" size="12.0"/></font>
-    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="12.0" />
+    </font>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>PressureUnits</name>
-    <x>425</x><y>776</y>
-    <width>450</width><height>20</height>
-    <text>Pressure readbacks (Torr)</text>
+    <x>425</x>
+    <y>776</y>
+    <width>450</width>
+    <height>20</height>
+    <text>Pressure readbacks</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
-    <foreground_color><color red="85" green="96" blue="108" alpha="255"/></foreground_color>
-  </widget>
-  <widget type="action_button" version="3.0.0">
-    <name>OpenFridge</name>
-    <x>735</x><y>775</y>
-    <width>150</width><height>34</height>
-    <actions>
-      <action type="open_display">
-        <file>genesis_cryo_fridge.bob</file>
-        <target>tab</target>
-        <description>Open Fridge Detail</description>
-      </action>
-    </actions>
-    <text>Fridge Detail</text>
-  </widget>
-  <widget type="action_button" version="3.0.0">
-    <name>OpenVacuum</name>
-    <x>895</x><y>775</y>
-    <width>160</width><height>34</height>
-    <actions>
-      <action type="open_display">
-        <file>genesis_cryo_vacuum.bob</file>
-        <target>tab</target>
-        <description>Open Vacuum Detail</description>
-      </action>
-    </actions>
-    <text>Vacuum Detail</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="11.0" />
+    </font>
+    <foreground_color>
+      <color red="85" green="96" blue="108" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="rectangle" version="2.0.0">
     <name>Operations_Card</name>
-    <x>1105</x><y>200</y>
-    <width>435</width><height>620</height>
+    <x>1105</x>
+    <y>200</y>
+    <width>435</width>
+    <height>620</height>
     <line_width>0</line_width>
-    <corner_width>8</corner_width><corner_height>8</corner_height>
-    <background_color><color red="245" green="248" blue="252" alpha="255"/></background_color>
+    <corner_width>8</corner_width>
+    <corner_height>8</corner_height>
+    <background_color>
+      <color red="245" green="248" blue="252" alpha="255" />
+    </background_color>
   </widget>
   <widget type="rectangle" version="2.0.0">
     <name>Operations_Header</name>
-    <x>1105</x><y>200</y>
-    <width>435</width><height>38</height>
+    <x>1105</x>
+    <y>200</y>
+    <width>435</width>
+    <height>38</height>
     <line_width>0</line_width>
-    <corner_width>8</corner_width><corner_height>8</corner_height>
-    <background_color><color red="220" green="231" blue="243" alpha="255"/></background_color>
+    <corner_width>8</corner_width>
+    <corner_height>8</corner_height>
+    <background_color>
+      <color red="220" green="231" blue="243" alpha="255" />
+    </background_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Operations_Title</name>
-    <x>1119</x><y>207</y>
-    <width>407</width><height>24</height>
+    <x>1119</x>
+    <y>207</y>
+    <width>407</width>
+    <height>24</height>
     <text>SAFETY / ALARMS / COLD BOARD</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="BOLD" size="15.0"/></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="15.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Permit0L</name>
-    <x>1128</x><y>255</y>
-    <width>125</width><height>24</height>
+    <x>1128</x>
+    <y>255</y>
+    <width>125</width>
+    <height>24</height>
     <text>CB permit:</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="BOLD" size="12.0"/></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="12.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="led" version="2.0.0">
     <name>Permit0LED</name>
-    <x>1260</x><y>255</y>
-    <width>22</width><height>22</height>
+    <x>1260</x>
+    <y>255</y>
+    <width>22</width>
+    <height>22</height>
     <pv_name>ca://UNH:GEN:CRYO:SAFE:CB_Permit</pv_name>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Permit0V</name>
-    <x>1292</x><y>254</y>
-    <width>105</width><height>26</height>
+    <x>1292</x>
+    <y>254</y>
+    <width>105</width>
+    <height>26</height>
     <pv_name>ca://UNH:GEN:CRYO:SAFE:CB_Permit</pv_name>
-    <format>6</format>
-    <font><font family="Liberation Sans" style="BOLD" size="12.0"/></font>
-    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="12.0" />
+    </font>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Permit1L</name>
-    <x>1128</x><y>297</y>
-    <width>125</width><height>24</height>
+    <x>1128</x>
+    <y>297</y>
+    <width>125</width>
+    <height>24</height>
     <text>Vacuum permit:</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="BOLD" size="12.0"/></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="12.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="led" version="2.0.0">
     <name>Permit1LED</name>
-    <x>1260</x><y>297</y>
-    <width>22</width><height>22</height>
+    <x>1260</x>
+    <y>297</y>
+    <width>22</width>
+    <height>22</height>
     <pv_name>ca://UNH:GEN:CRYO:SAFE:Vac_Permit</pv_name>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Permit1V</name>
-    <x>1292</x><y>296</y>
-    <width>105</width><height>26</height>
+    <x>1292</x>
+    <y>296</y>
+    <width>105</width>
+    <height>26</height>
     <pv_name>ca://UNH:GEN:CRYO:SAFE:Vac_Permit</pv_name>
-    <format>6</format>
-    <font><font family="Liberation Sans" style="BOLD" size="12.0"/></font>
-    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="12.0" />
+    </font>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Permit2L</name>
-    <x>1128</x><y>339</y>
-    <width>125</width><height>24</height>
+    <x>1128</x>
+    <y>339</y>
+    <width>125</width>
+    <height>24</height>
     <text>Data permit:</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="BOLD" size="12.0"/></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="12.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="led" version="2.0.0">
     <name>Permit2LED</name>
-    <x>1260</x><y>339</y>
-    <width>22</width><height>22</height>
+    <x>1260</x>
+    <y>339</y>
+    <width>22</width>
+    <height>22</height>
     <pv_name>ca://UNH:GEN:CRYO:SAFE:Data_Permit</pv_name>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Permit2V</name>
-    <x>1292</x><y>338</y>
-    <width>105</width><height>26</height>
+    <x>1292</x>
+    <y>338</y>
+    <width>105</width>
+    <height>26</height>
     <pv_name>ca://UNH:GEN:CRYO:SAFE:Data_Permit</pv_name>
-    <format>6</format>
-    <font><font family="Liberation Sans" style="BOLD" size="12.0"/></font>
-    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="12.0" />
+    </font>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Permit3L</name>
-    <x>1128</x><y>381</y>
-    <width>125</width><height>24</height>
+    <x>1128</x>
+    <y>381</y>
+    <width>125</width>
+    <height>24</height>
     <text>Overall safe:</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="BOLD" size="12.0"/></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="12.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="led" version="2.0.0">
     <name>Permit3LED</name>
-    <x>1260</x><y>381</y>
-    <width>22</width><height>22</height>
+    <x>1260</x>
+    <y>381</y>
+    <width>22</width>
+    <height>22</height>
     <pv_name>ca://UNH:GEN:CRYO:SAFE:Safe_Permit</pv_name>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Permit3V</name>
-    <x>1292</x><y>380</y>
-    <width>105</width><height>26</height>
+    <x>1292</x>
+    <y>380</y>
+    <width>105</width>
+    <height>26</height>
     <pv_name>ca://UNH:GEN:CRYO:SAFE:Safe_Permit</pv_name>
-    <format>6</format>
-    <font><font family="Liberation Sans" style="BOLD" size="12.0"/></font>
-    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="12.0" />
+    </font>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>ReasonL</name>
-    <x>1128</x><y>425</y>
-    <width>115</width><height>24</height>
+    <x>1128</x>
+    <y>425</y>
+    <width>115</width>
+    <height>24</height>
     <text>Safety reason:</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="BOLD" size="12.0"/></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="12.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>ReasonV</name>
-    <x>1128</x><y>450</y>
-    <width>385</width><height>30</height>
+    <x>1128</x>
+    <y>450</y>
+    <width>385</width>
+    <height>30</height>
     <pv_name>ca://UNH:GEN:CRYO:SAFE:Safe_Reason</pv_name>
-    <format>6</format>
-    <font><font family="Liberation Sans" style="BOLD" size="11.0"/></font>
-    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="11.0" />
+    </font>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>AlarmCountL</name>
-    <x>1128</x><y>500</y>
-    <width>110</width><height>24</height>
+    <x>1128</x>
+    <y>500</y>
+    <width>110</width>
+    <height>24</height>
     <text>Alarms:</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="BOLD" size="12.0"/></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="12.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>AlarmCountV</name>
-    <x>1240</x><y>498</y>
-    <width>80</width><height>27</height>
+    <x>1240</x>
+    <y>498</y>
+    <width>80</width>
+    <height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:ALARM:Alarm_Count</pv_name>
-    <format>6</format>
-    <font><font family="Liberation Sans" style="BOLD" size="13.0"/></font>
-    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>AlarmWorstL</name>
-    <x>1330</x><y>500</y>
-    <width>75</width><height>24</height>
+    <x>1330</x>
+    <y>500</y>
+    <width>75</width>
+    <height>24</height>
     <text>Worst:</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="BOLD" size="12.0"/></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="12.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>AlarmWorstV</name>
-    <x>1400</x><y>498</y>
-    <width>110</width><height>27</height>
+    <x>1400</x>
+    <y>498</y>
+    <width>110</width>
+    <height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:ALARM:Alarm_Worst</pv_name>
-    <format>6</format>
-    <font><font family="Liberation Sans" style="BOLD" size="12.0"/></font>
-    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="12.0" />
+    </font>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>AlarmFirstL</name>
-    <x>1128</x><y>538</y>
-    <width>110</width><height>24</height>
+    <x>1128</x>
+    <y>538</y>
+    <width>110</width>
+    <height>24</height>
     <text>First alarm:</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="REGULAR" size="12.0"/></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="12.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>AlarmFirstV</name>
-    <x>1240</x><y>536</y>
-    <width>270</width><height>27</height>
+    <x>1240</x>
+    <y>536</y>
+    <width>270</width>
+    <height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:ALARM:Alarm_First</pv_name>
-    <format>6</format>
-    <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
-    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="11.0" />
+    </font>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>ColdBoardHeader</name>
-    <x>1128</x><y>588</y>
-    <width>180</width><height>24</height>
+    <x>1128</x>
+    <y>588</y>
+    <width>180</width>
+    <height>24</height>
     <text>Cold board</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="BOLD" size="14.0"/></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="14.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>CB0L</name>
-    <x>1128</x><y>620</y>
-    <width>80</width><height>22</height>
+    <x>1128</x>
+    <y>620</y>
+    <width>80</width>
+    <height>22</height>
     <text>Voltage:</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="11.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>CB0V</name>
-    <x>1210</x><y>618</y>
-    <width>135</width><height>25</height>
+    <x>1210</x>
+    <y>618</y>
+    <width>135</width>
+    <height>25</height>
     <pv_name>ca://UNH:GEN:CRYO:COLDBOARD:Coldboard_VI</pv_name>
-    <format>6</format>
-    <font><font family="Liberation Sans" style="BOLD" size="12.0"/></font>
-    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="12.0" />
+    </font>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>CB0U</name>
-    <x>1350</x><y>620</y>
-    <width>35</width><height>22</height>
+    <x>1350</x>
+    <y>620</y>
+    <width>35</width>
+    <height>22</height>
     <text>V</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="11.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>CB1L</name>
-    <x>1128</x><y>655</y>
-    <width>80</width><height>22</height>
+    <x>1128</x>
+    <y>655</y>
+    <width>80</width>
+    <height>22</height>
     <text>Current:</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="11.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>CB1V</name>
-    <x>1210</x><y>653</y>
-    <width>135</width><height>25</height>
+    <x>1210</x>
+    <y>653</y>
+    <width>135</width>
+    <height>25</height>
     <pv_name>ca://UNH:GEN:CRYO:COLDBOARD:Coldboard_CI</pv_name>
-    <format>6</format>
-    <font><font family="Liberation Sans" style="BOLD" size="12.0"/></font>
-    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="12.0" />
+    </font>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>CB1U</name>
-    <x>1350</x><y>655</y>
-    <width>35</width><height>22</height>
+    <x>1350</x>
+    <y>655</y>
+    <width>35</width>
+    <height>22</height>
     <text>A</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="11.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>CB2L</name>
-    <x>1128</x><y>690</y>
-    <width>80</width><height>22</height>
+    <x>1128</x>
+    <y>690</y>
+    <width>80</width>
+    <height>22</height>
     <text>Power:</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="11.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>CB2V</name>
-    <x>1210</x><y>688</y>
-    <width>135</width><height>25</height>
+    <x>1210</x>
+    <y>688</y>
+    <width>135</width>
+    <height>25</height>
     <pv_name>ca://UNH:GEN:CRYO:COLDBOARD:Coldboard_PI</pv_name>
-    <format>6</format>
-    <font><font family="Liberation Sans" style="BOLD" size="12.0"/></font>
-    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="12.0" />
+    </font>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>CB2U</name>
-    <x>1350</x><y>690</y>
-    <width>35</width><height>22</height>
+    <x>1350</x>
+    <y>690</y>
+    <width>35</width>
+    <height>22</height>
     <text>W</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="11.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>CB3L</name>
-    <x>1128</x><y>725</y>
-    <width>80</width><height>22</height>
+    <x>1128</x>
+    <y>725</y>
+    <width>80</width>
+    <height>22</height>
     <text>Output:</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="11.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>CB3V</name>
-    <x>1210</x><y>723</y>
-    <width>135</width><height>25</height>
+    <x>1210</x>
+    <y>723</y>
+    <width>135</width>
+    <height>25</height>
     <pv_name>ca://UNH:GEN:CRYO:COLDBOARD:Coldboard_Mode</pv_name>
-    <format>6</format>
-    <font><font family="Liberation Sans" style="BOLD" size="12.0"/></font>
-    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="12.0" />
+    </font>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>CB3U</name>
-    <x>1350</x><y>725</y>
-    <width>35</width><height>22</height>
-    <text></text>
+    <x>1350</x>
+    <y>725</y>
+    <width>35</width>
+    <height>22</height>
+    <text />
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
-  </widget>
-  <widget type="action_button" version="3.0.0">
-    <name>OpenSafety</name>
-    <x>1128</x><y>765</y>
-    <width>180</width><height>34</height>
-    <actions>
-      <action type="open_display">
-        <file>genesis_cryo_safety.bob</file>
-        <target>tab</target>
-        <description>Open Safety / State</description>
-      </action>
-    </actions>
-    <text>Safety / State</text>
-  </widget>
-  <widget type="action_button" version="3.0.0">
-    <name>OpenColdBoard</name>
-    <x>1320</x><y>765</y>
-    <width>190</width><height>34</height>
-    <actions>
-      <action type="open_display">
-        <file>genesis_cryo_coldboard.bob</file>
-        <target>tab</target>
-        <description>Open Cold Board Detail</description>
-      </action>
-    </actions>
-    <text>Cold Board Detail</text>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="11.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="rectangle" version="2.0.0">
     <name>Navigation_Card</name>
-    <x>20</x><y>845</y>
-    <width>1520</width><height>190</height>
+    <x>20</x>
+    <y>845</y>
+    <width>1520</width>
+    <height>190</height>
     <line_width>0</line_width>
-    <corner_width>8</corner_width><corner_height>8</corner_height>
-    <background_color><color red="245" green="248" blue="252" alpha="255"/></background_color>
+    <corner_width>8</corner_width>
+    <corner_height>8</corner_height>
+    <background_color>
+      <color red="245" green="248" blue="252" alpha="255" />
+    </background_color>
   </widget>
   <widget type="rectangle" version="2.0.0">
     <name>Navigation_Header</name>
-    <x>20</x><y>845</y>
-    <width>1520</width><height>38</height>
+    <x>20</x>
+    <y>845</y>
+    <width>1520</width>
+    <height>38</height>
     <line_width>0</line_width>
-    <corner_width>8</corner_width><corner_height>8</corner_height>
-    <background_color><color red="220" green="231" blue="243" alpha="255"/></background_color>
+    <corner_width>8</corner_width>
+    <corner_height>8</corner_height>
+    <background_color>
+      <color red="220" green="231" blue="243" alpha="255" />
+    </background_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Navigation_Title</name>
-    <x>34</x><y>852</y>
-    <width>1492</width><height>24</height>
+    <x>34</x>
+    <y>852</y>
+    <width>1492</width>
+    <height>24</height>
     <text>OPERATOR NAVIGATION</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="BOLD" size="15.0"/></font>
-    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="15.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
   <widget type="action_button" version="3.0.0">
     <name>Nav0</name>
-    <x>42</x><y>905</y>
-    <width>185</width><height>34</height>
+    <x>42</x>
+    <y>905</y>
+    <width>165</width>
+    <height>34</height>
     <actions>
       <action type="open_display">
         <file>genesis_cryo_fridge.bob</file>
@@ -1355,8 +2019,10 @@
   </widget>
   <widget type="action_button" version="3.0.0">
     <name>Nav1</name>
-    <x>245</x><y>905</y>
-    <width>185</width><height>34</height>
+    <x>219</x>
+    <y>905</y>
+    <width>165</width>
+    <height>34</height>
     <actions>
       <action type="open_display">
         <file>genesis_cryo_magnet.bob</file>
@@ -1368,8 +2034,25 @@
   </widget>
   <widget type="action_button" version="3.0.0">
     <name>Nav2</name>
-    <x>448</x><y>905</y>
-    <width>185</width><height>34</height>
+    <x>396</x>
+    <y>905</y>
+    <width>165</width>
+    <height>34</height>
+    <actions>
+      <action type="open_display">
+        <file>genesis_cryo_field.bob</file>
+        <target>tab</target>
+        <description>Open Field</description>
+      </action>
+    </actions>
+    <text>Field</text>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Nav3</name>
+    <x>573</x>
+    <y>905</y>
+    <width>165</width>
+    <height>34</height>
     <actions>
       <action type="open_display">
         <file>genesis_cryo_vacuum.bob</file>
@@ -1380,9 +2063,11 @@
     <text>Vacuum</text>
   </widget>
   <widget type="action_button" version="3.0.0">
-    <name>Nav3</name>
-    <x>651</x><y>905</y>
-    <width>185</width><height>34</height>
+    <name>Nav4</name>
+    <x>750</x>
+    <y>905</y>
+    <width>165</width>
+    <height>34</height>
     <actions>
       <action type="open_display">
         <file>genesis_cryo_coldboard.bob</file>
@@ -1393,9 +2078,11 @@
     <text>Cold Board</text>
   </widget>
   <widget type="action_button" version="3.0.0">
-    <name>Nav4</name>
-    <x>854</x><y>905</y>
-    <width>185</width><height>34</height>
+    <name>Nav5</name>
+    <x>927</x>
+    <y>905</y>
+    <width>165</width>
+    <height>34</height>
     <actions>
       <action type="open_display">
         <file>genesis_cryo_safety.bob</file>
@@ -1406,9 +2093,11 @@
     <text>Safety / State</text>
   </widget>
   <widget type="action_button" version="3.0.0">
-    <name>Nav5</name>
-    <x>1057</x><y>905</y>
-    <width>185</width><height>34</height>
+    <name>Nav6</name>
+    <x>1104</x>
+    <y>905</y>
+    <width>165</width>
+    <height>34</height>
     <actions>
       <action type="open_display">
         <file>genesis_cryo_data.bob</file>
@@ -1419,9 +2108,11 @@
     <text>Data / Trends</text>
   </widget>
   <widget type="action_button" version="3.0.0">
-    <name>Nav6</name>
-    <x>1260</x><y>905</y>
-    <width>185</width><height>34</height>
+    <name>Nav7</name>
+    <x>1281</x>
+    <y>905</y>
+    <width>165</width>
+    <height>34</height>
     <actions>
       <action type="open_display">
         <file>genesis_cryo_diagnostics.bob</file>
@@ -1433,12 +2124,172 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>OperatorNote</name>
-    <x>42</x><y>965</y>
-    <width>1450</width><height>42</height>
-    <text>Overview is intentionally read-only. Hardware controls are available only on the appropriate detail screen and remain subject to Genesis write gates and target safety interlocks.</text>
+    <x>42</x>
+    <y>965</y>
+    <width>1450</width>
+    <height>42</height>
+    <text>Overview is intentionally read-only. Open each detail page once, then use its existing Phoebus tab to switch views and preserve the live trend buffer. Hardware controls remain subject to Genesis write gates and target safety interlocks.</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
-    <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
-    <foreground_color><color red="85" green="96" blue="108" alpha="255"/></foreground_color>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="11.0" />
+    </font>
+    <foreground_color>
+      <color red="85" green="96" blue="108" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>MagnetCryostat</name>
+    <x>650</x>
+    <y>280</y>
+    <width>185</width>
+    <height>410</height>
+    <line_width>0</line_width>
+    <corner_width>18</corner_width>
+    <corner_height>18</corner_height>
+    <background_color>
+      <color red="225" green="235" blue="247" alpha="255" />
+    </background_color>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>MagnetCoilLeft</name>
+    <x>662</x>
+    <y>405</y>
+    <width>24</width>
+    <height>165</height>
+    <line_width>0</line_width>
+    <corner_width>12</corner_width>
+    <corner_height>12</corner_height>
+    <background_color>
+      <color red="255" green="245" blue="220" alpha="255" />
+    </background_color>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>MagnetCoilRight</name>
+    <x>799</x>
+    <y>405</y>
+    <width>24</width>
+    <height>165</height>
+    <line_width>0</line_width>
+    <corner_width>12</corner_width>
+    <corner_height>12</corner_height>
+    <background_color>
+      <color red="255" green="245" blue="220" alpha="255" />
+    </background_color>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>FridgeInsert</name>
+    <x>704</x>
+    <y>325</y>
+    <width>77</width>
+    <height>278</height>
+    <line_width>0</line_width>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>TargetStick</name>
+    <x>737</x>
+    <y>300</y>
+    <width>12</width>
+    <height>325</height>
+    <line_width>0</line_width>
+    <background_color>
+      <color red="0" green="36" blue="92" alpha="255" />
+    </background_color>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>TargetCell</name>
+    <x>701</x>
+    <y>595</y>
+    <width>84</width>
+    <height>62</height>
+    <line_width>0</line_width>
+    <corner_width>12</corner_width>
+    <corner_height>12</corner_height>
+    <background_color>
+      <color red="255" green="245" blue="220" alpha="255" />
+    </background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>SchematicCryostatLabel</name>
+    <x>660</x>
+    <y>288</y>
+    <width>165</width>
+    <height>22</height>
+    <text>MAGNET CRYOSTAT</text>
+    <transparent>true</transparent>
+    <horizontal_alignment>1</horizontal_alignment>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="12.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>SchematicStickLabel</name>
+    <x>688</x>
+    <y>340</y>
+    <width>145</width>
+    <height>22</height>
+    <text>TARGET STICK</text>
+    <transparent>true</transparent>
+    <horizontal_alignment>1</horizontal_alignment>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="12.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>SchematicFridgeLabel</name>
+    <x>699</x>
+    <y>455</y>
+    <width>90</width>
+    <height>22</height>
+    <text>1 K FRIDGE</text>
+    <transparent>true</transparent>
+    <horizontal_alignment>1</horizontal_alignment>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="12.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>SchematicMagnetLabel</name>
+    <x>690</x>
+    <y>535</y>
+    <width>105</width>
+    <height>22</height>
+    <text>5 T MAGNET</text>
+    <transparent>true</transparent>
+    <horizontal_alignment>1</horizontal_alignment>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="12.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>SchematicCellLabel</name>
+    <x>696</x>
+    <y>614</y>
+    <width>95</width>
+    <height>22</height>
+    <text>TARGET CELL</text>
+    <transparent>true</transparent>
+    <horizontal_alignment>1</horizontal_alignment>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="12.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
   </widget>
 </display>
