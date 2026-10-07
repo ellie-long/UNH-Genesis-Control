@@ -1,0 +1,47 @@
+# Genesis target/Cryo physical profile.
+# Imported from Farooq's UNH DAQ IOC settings and adapted to the
+# standalone Genesis architecture.
+#
+# Physical endpoint/channel/alarm values remain subject to lab
+# verification. Hardware writes are disabled by default.
+
+general:
+  prefix: UNH:GEN:CRYO:VAC
+  log_dir: logs
+  epics_addr_list: None
+  delay: 0.5
+tpg262:
+  module: target_ioc.instruments.tpg262
+  ip: 192.168.1.251
+  port: 5011
+  timeout: 2
+  delay: 2
+  channels:
+  - Pump
+  - OVC
+  records:
+    Pump_PI:
+      DESC: TPG 262 gauge 1 pressure
+      EGU: mbar
+      PREC: 4
+      HIHI: 0.1
+      HIGH: 0.01
+      LOW: 1.0e-11
+      LOLO: 0.0
+    OVC_PI:
+      DESC: TPG 262 gauge 2 pressure
+      EGU: mbar
+      PREC: 4
+      HIHI: 0.001
+      HIGH: 0.0001
+      LOW: 1.0e-11
+      LOLO: 0.0
+    Pump_Status:
+      DESC: TPG 262 gauge 1 sensor status
+    OVC_Status:
+      DESC: TPG 262 gauge 2 sensor status
+    Pump_Unit:
+      DESC: TPG 262 display unit
+    Pump_IDN:
+      DESC: TPG 262 sensor types
+  write_enabled: false

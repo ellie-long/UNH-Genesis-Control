@@ -20,8 +20,11 @@ try:
         SUBSYSTEM_OPTIONS,
         MICROWAVE_GROUP_OPTIONS,
         MICROWAVE_PRESETS,
+        CRYO_GROUP_OPTIONS,
+        CRYO_PRESETS,
         filter_pvs,
         resolve_microwave_preset,
+        resolve_cryo_preset,
     )
 except ImportError:
     # Supports module-style imports used by Genesis tests.
@@ -29,8 +32,11 @@ except ImportError:
         SUBSYSTEM_OPTIONS,
         MICROWAVE_GROUP_OPTIONS,
         MICROWAVE_PRESETS,
+        CRYO_GROUP_OPTIONS,
+        CRYO_PRESETS,
         filter_pvs,
         resolve_microwave_preset,
+        resolve_cryo_preset,
     )
 
 # Page configuration
@@ -294,6 +300,7 @@ def main():
         )
 
         microwave_group = "All Microwave"
+        cryo_group = "All Cryo"
 
         if subsystem == "Microwave":
             microwave_group = st.selectbox(
@@ -302,10 +309,18 @@ def main():
                 index=0,
             )
 
+        if subsystem == "Cryo":
+            cryo_group = st.selectbox(
+                "Cryo device group",
+                options=CRYO_GROUP_OPTIONS,
+                index=0,
+            )
+
         filtered_pvs = filter_pvs(
             available_pvs,
             subsystem=subsystem,
             microwave_group=microwave_group,
+            cryo_group=cryo_group,
         )
 
         if not filtered_pvs:
@@ -332,10 +347,31 @@ def main():
                 ),
             )
 
-        default_pvs = resolve_microwave_preset(
-            filtered_pvs,
-            preset_name,
-        )
+        elif subsystem == "Cryo":
+            preset_name = st.selectbox(
+                "Quick view",
+                options=list(CRYO_PRESETS),
+                index=0,
+                help=(
+                    "Cryo cooldown / target quick-view presets. "
+                    "Manual PV selection remains available."
+                ),
+            )
+
+        if subsystem == "Microwave":
+            default_pvs = resolve_microwave_preset(
+                filtered_pvs,
+                preset_name,
+            )
+
+        elif subsystem == "Cryo":
+            default_pvs = resolve_cryo_preset(
+                filtered_pvs,
+                preset_name,
+            )
+
+        else:
+            default_pvs = []
 
         if not default_pvs:
             default_pvs = [
@@ -356,6 +392,7 @@ def main():
                 "pv_selection_"
                 f"{subsystem}_"
                 f"{microwave_group}_"
+                f"{cryo_group}_"
                 f"{preset_name}"
             ),
         )

@@ -1,0 +1,203 @@
+# states_unh.yaml - the UNH target run-state table, read by logic_devices/target_status.py
+#
+# Same shape as the toolkit's states.yaml (J. Maxwell, Hall B cryotarget):
+#
+#   options.status      the states the operator can select        -> mbbOut 'status'
+#   options.material    the target material                        -> mbbOut 'material'
+#   options.reports     what 'production' reads when a state's conditions are met
+#   options.advance     state -> next state, used only when 'auto' is set
+#   options.thresholds  material -> state -> {PV: [low, high]}; the reading must lie
+#                       strictly between low and high.  A missing reading never counts.
+#   <State>:            the page pushed out when that state is selected.
+#                       PV: {material: [HIHI, HIGH, LOW, LOLO]}  sets alarm limits
+#                       PV: {material: value}                    writes the PV
+#                       A bare PV name is this prefix's (UNH:F1_TI); a name with a
+#                       colon in it is used exactly as written.
+#
+# ---------------------------------------------------------------------------
+# EVERY NUMBER BELOW IS A PLACEHOLDER.
+#
+# They are shaped correctly and safe to run with (nothing here drives an output
+# except the RF enables in Safe), but they are NOT this target's operating
+# numbers, and the channel mapping is a guess: F1_TI is assumed to be the cell /
+# 1 K stage and F7_TI the still or reservoir, because settings.yaml does not yet
+# say which LS224 input is on what.  Before trusting 'production', replace the
+# thresholds from your own run log and re-point the channel names.
+# ---------------------------------------------------------------------------
+
+options:
+  status:
+    - Warm
+    - Cooldown
+    - Cold
+    - Polarizing
+    - TE
+    - Anneal
+    - Safe
+
+  material:
+    - Empty
+    - ND3
+    - NH3
+
+  reports:          # production reading when that state's conditions are satisfied
+    Warm: Warm
+    Cooldown: Cooling
+    Cold: Cold
+    Polarizing: Polarizing
+    TE: TE Ready
+    Anneal: Annealing
+    Safe: Not Ready
+
+  advance:          # only acted on when the 'auto' PV is set; empty = never advance
+    Cooldown: Cold
+
+  thresholds:
+    Empty: &bare_conditions
+      Warm:
+        F1_TI: [250, 350]
+      Cooldown:
+        F1_TI: [1.0, 300]
+        OVC_PI: [0, 1.0e-2]
+      Cold:
+        F1_TI: [0.5, 4.5]
+        OVC_PI: [0, 1.0e-4]
+      Polarizing:
+        F1_TI: [0.5, 4.5]
+        OVC_PI: [0, 1.0e-4]
+        Fringe_FieldT: [0.01, 6.0]
+      TE:
+        F1_TI: [0.9, 1.6]
+        OVC_PI: [0, 1.0e-4]
+        Fringe_FieldT: [0.01, 6.0]
+      Anneal:
+        F1_TI: [70, 120]
+      Safe:
+        F1_TI: [0.3, 350]
+
+    ND3: *bare_conditions     # same conditions until the group's numbers differ
+    NH3: *bare_conditions
+
+# ---------------------------------------------------------------------------
+# The pages.  Each state sets the alarm limits that make sense in that state,
+# so a 1 K reading is an alarm while warming up and normal while polarizing.
+# ---------------------------------------------------------------------------
+
+Warm:
+  F1_TI:
+    Empty: [350, 320, 200, 150]
+    ND3:   [350, 320, 200, 150]
+    NH3:   [350, 320, 200, 150]
+  F7_TI:
+    Empty: [350, 320, 200, 150]
+    ND3:   [350, 320, 200, 150]
+    NH3:   [350, 320, 200, 150]
+  OVC_PI:
+    Empty: [1.0e+3, 1.0e+3, -1, -1]
+    ND3:   [1.0e+3, 1.0e+3, -1, -1]
+    NH3:   [1.0e+3, 1.0e+3, -1, -1]
+
+Cooldown:
+  F1_TI:
+    Empty: [320, 310, 0.8, 0.5]
+    ND3:   [320, 310, 0.8, 0.5]
+    NH3:   [320, 310, 0.8, 0.5]
+  F7_TI:
+    Empty: [320, 310, 0.8, 0.5]
+    ND3:   [320, 310, 0.8, 0.5]
+    NH3:   [320, 310, 0.8, 0.5]
+  OVC_PI:
+    Empty: [1.0e-2, 1.0e-3, -1, -1]
+    ND3:   [1.0e-2, 1.0e-3, -1, -1]
+    NH3:   [1.0e-2, 1.0e-3, -1, -1]
+
+Cold:
+  F1_TI:
+    Empty: [4.5, 4.2, 0.6, 0.5]
+    ND3:   [4.5, 4.2, 0.6, 0.5]
+    NH3:   [4.5, 4.2, 0.6, 0.5]
+  F7_TI:
+    Empty: [6.0, 5.0, 0.6, 0.5]
+    ND3:   [6.0, 5.0, 0.6, 0.5]
+    NH3:   [6.0, 5.0, 0.6, 0.5]
+  M1_TI:
+    Empty: [6.0, 5.0, 3.0, 2.0]
+    ND3:   [6.0, 5.0, 3.0, 2.0]
+    NH3:   [6.0, 5.0, 3.0, 2.0]
+  OVC_PI:
+    Empty: [1.0e-4, 1.0e-5, -1, -1]
+    ND3:   [1.0e-4, 1.0e-5, -1, -1]
+    NH3:   [1.0e-4, 1.0e-5, -1, -1]
+
+Polarizing:
+  F1_TI:
+    Empty: [2.0, 1.6, 0.8, 0.6]
+    ND3:   [2.0, 1.6, 0.8, 0.6]
+    NH3:   [2.0, 1.6, 0.8, 0.6]
+  M1_TI:
+    Empty: [6.0, 5.0, 3.0, 2.0]
+    ND3:   [6.0, 5.0, 3.0, 2.0]
+    NH3:   [6.0, 5.0, 3.0, 2.0]
+  OVC_PI:
+    Empty: [1.0e-4, 1.0e-5, -1, -1]
+    ND3:   [1.0e-4, 1.0e-5, -1, -1]
+    NH3:   [1.0e-4, 1.0e-5, -1, -1]
+  Fringe_FieldT:
+    Empty: [6.0, 5.5, 0.01, 0.005]
+    ND3:   [6.0, 5.5, 0.01, 0.005]
+    NH3:   [6.0, 5.5, 0.01, 0.005]
+
+TE:
+  F1_TI:
+    Empty: [1.6, 1.4, 0.9, 0.8]
+    ND3:   [1.6, 1.4, 0.9, 0.8]
+    NH3:   [1.6, 1.4, 0.9, 0.8]
+  Fringe_FieldT:
+    Empty: [6.0, 5.5, 0.01, 0.005]
+    ND3:   [6.0, 5.5, 0.01, 0.005]
+    NH3:   [6.0, 5.5, 0.01, 0.005]
+  # a TE measurement is taken with no RF on the coil
+  Gen_RF:
+    Empty: 0
+    ND3:   0
+    NH3:   0
+
+Anneal:
+  F1_TI:
+    Empty: [130, 120, 70, 60]
+    ND3:   [130, 120, 70, 60]
+    NH3:   [130, 120, 70, 60]
+  Gen_RF:
+    Empty: 0
+    ND3:   0
+    NH3:   0
+
+# Safe is the one page that drives outputs, and every write on it turns
+# something OFF.  RF off, trigger output off, burn path terminated.
+#
+# NMR_Connected is deliberately NOT here, though reconnecting the Q-meter looks
+# like part of "safe".  Two reasons:
+#
+#  * turning something ON is not this page's job.  A state machine that can
+#    energise a path is a second controller of that path, and during a burn it
+#    fought the BLAST sequence: the sequence wrote NMR_Connected 0 at step 3,
+#    this page wrote it back to 1, and the switch flapped at HTTP speed;
+#  * the burn interlock already owns the Q-meter's path.  Reconnecting it is an
+#    action with a precondition (the burn path confirmed terminated), and that
+#    precondition lives in one place: UNH:NMR_Permit.
+#
+# To put the Q-meter back on the coil, use the NMR path control on the RF chain
+# screen, or the BLAST sequence's own step 11 - both of which check the permit.
+Safe:
+  Gen_RF:
+    Empty: 0
+    ND3:   0
+    NH3:   0
+  Trig_Output:
+    Empty: 0
+    ND3:   0
+    NH3:   0
+  SSRF_Connected:
+    Empty: 0
+    ND3:   0
+    NH3:   0

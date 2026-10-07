@@ -1,0 +1,38 @@
+general:
+  prefix: UNH:GEN:CRYO:STATE
+  log_dir: logs
+  epics_addr_list: 127.0.0.1:5112 127.0.0.1:5113 127.0.0.1:5115 127.0.0.1:5116
+  delay: 0.5
+target_status:
+  module: logic_devices.target_status
+  autostart: false
+  delay: 5
+  states_file: logic_devices/states_unh.yaml
+  last_file: archive/cryo_last_state.yaml
+  channels:
+  - None
+  pv_aliases:
+    F1_TI: UNH:GEN:CRYO:FRIDGE:F1_TI
+    OVC_PI: UNH:GEN:CRYO:VAC:OVC_PI
+    Cell_PI: UNH:GEN:CRYO:CELL:Cell_PI
+    Fringe_FieldT: UNH:GEN:CRYO:FIELD:Fringe_FieldT
+    Coldboard_VC: UNH:GEN:CRYO:COLDBOARD:Coldboard_VC
+    Coldboard_CC: UNH:GEN:CRYO:COLDBOARD:Coldboard_CC
+    Coldboard_Mode: UNH:GEN:CRYO:COLDBOARD:Coldboard_Mode
+  records:
+    status:
+      DESC: Intended target state
+    material:
+      DESC: Target material
+    auto:
+      DESC: Allow automatic state advance
+    production:
+      DESC: State actually satisfied now
+    conditions:
+      DESC: All selected-state conditions met
+    unmet:
+      DESC: First condition not met
+    state_applied:
+      DESC: Last target-state page applied
+  state_table_validated: false
+  apply_enabled: false

@@ -1,0 +1,36 @@
+# Genesis target/Cryo physical profile.
+# Imported from Farooq's UNH DAQ IOC settings and adapted to the
+# standalone Genesis architecture.
+#
+# Physical endpoint/channel/alarm values remain subject to lab
+# verification. Hardware writes are disabled by default.
+
+general:
+  prefix: UNH:GEN:CRYO:CELL
+  log_dir: logs
+  epics_addr_list: None
+  delay: 0.5
+mks902b:
+  module: target_ioc.instruments.mks902b
+  ip: 192.168.1.251
+  port: 5004
+  timeout: 2
+  delay: 2
+  address: 253
+  query: PR4
+  channels:
+  - Cell
+  records:
+    Cell_PI:
+      DESC: MKS 902B piezo pressure
+      EGU: Torr
+      PREC: 4
+      HIHI: 900
+      HIGH: 800
+      LOW: 0.0001
+      LOLO: 0.0
+    Cell_Status:
+      DESC: MKS 902B reply status
+    Cell_IDN:
+      DESC: MKS 902B device type and serial
+  write_enabled: false

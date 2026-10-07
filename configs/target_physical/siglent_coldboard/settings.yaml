@@ -1,0 +1,76 @@
+# Genesis target/Cryo physical profile.
+# Imported from Farooq's UNH DAQ IOC settings and adapted to the
+# standalone Genesis architecture.
+#
+# Physical endpoint/channel/alarm values remain subject to lab
+# verification. Hardware writes are disabled by default.
+
+general:
+  prefix: UNH:GEN:CRYO:COLDBOARD
+  log_dir: logs
+  epics_addr_list: None
+  delay: 0.5
+siglent_coldboard:
+  module: target_ioc.instruments.spd1000x
+  ip: 192.168.1.5
+  port: 5025
+  transport: socket
+  timeout: 5
+  settle: 0.1
+  delay: 1
+  voltage_limit: 30.0
+  current_limit: 5.0
+  channels:
+  - Coldboard
+  records:
+    Coldboard_VI:
+      DESC: Cold board supply measured voltage
+      EGU: V
+      PREC: 3
+      HIHI: 30.5
+      HIGH: 30.0
+      LOW: -0.5
+      LOLO: -1.0
+    Coldboard_CI:
+      DESC: Cold board supply measured current
+      EGU: A
+      PREC: 3
+      HIHI: 5.5
+      HIGH: 5.0
+      LOW: -0.5
+      LOLO: -1.0
+    Coldboard_PI:
+      DESC: Cold board supply measured power
+      EGU: W
+      PREC: 3
+      HIHI: 160
+      HIGH: 150
+      LOW: -1
+      LOLO: -2
+    Coldboard_VC:
+      DESC: Cold board supply voltage setpoint
+      EGU: V
+      PREC: 2
+      DRVH: 30.0
+      DRVL: 0.0
+      HIHI: 30.5
+      HIGH: 30.0
+      LOW: -0.5
+      LOLO: -1.0
+    Coldboard_CC:
+      DESC: Cold board supply current limit
+      EGU: A
+      PREC: 2
+      DRVH: 5.0
+      DRVL: 0.0
+      HIHI: 5.5
+      HIGH: 5.0
+      LOW: -0.5
+      LOLO: -1.0
+    Coldboard_Mode:
+      DESC: Cold board supply output enable
+    Coldboard_CVCC:
+      DESC: Cold board supply regulation mode
+    Coldboard_IDN:
+      DESC: Cold board supply identification
+  write_enabled: false

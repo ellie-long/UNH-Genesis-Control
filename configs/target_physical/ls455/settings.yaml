@@ -1,0 +1,39 @@
+# Genesis target/Cryo physical profile.
+# Imported from Farooq's UNH DAQ IOC settings and adapted to the
+# standalone Genesis architecture.
+#
+# Physical endpoint/channel/alarm values remain subject to lab
+# verification. Hardware writes are disabled by default.
+
+general:
+  prefix: UNH:GEN:CRYO:FIELD
+  log_dir: logs
+  epics_addr_list: None
+  delay: 0.5
+ls455:
+  module: target_ioc.instruments.ls455
+  ip: 192.168.1.251
+  port: 5007
+  timeout: 2
+  delay: 1
+  tesla_scale: 0.0001
+  tesla_offset: 0.0
+  channels:
+  - Fringe
+  records:
+    Fringe_Field:
+      DESC: Fringe field, instrument unit
+      PREC: 5
+    Fringe_FieldT:
+      DESC: Fringe field in tesla
+      EGU: T
+      PREC: 6
+      HIHI: 6.0
+      HIGH: 5.5
+      LOW: -0.001
+      LOLO: -0.01
+    Fringe_Unit:
+      DESC: Gaussmeter display unit
+    Fringe_IDN:
+      DESC: Lake Shore 455 identification
+  write_enabled: false

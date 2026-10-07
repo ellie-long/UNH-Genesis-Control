@@ -12,7 +12,7 @@ PORT="${GENESIS_ARCHIVE_VIEWER_PORT:-8501}"
 cd "$ROOT/archive"
 
 echo "Starting Genesis Archive Viewer..."
-echo "PV telemetry + ssRF session visualization"
+echo "Genesis PV telemetry: Cryo + Microwave + ssRF"
 echo "URL: http://127.0.0.1:${PORT}"
 echo "Press Ctrl+C to stop"
 echo

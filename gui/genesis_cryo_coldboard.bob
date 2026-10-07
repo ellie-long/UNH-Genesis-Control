@@ -1,0 +1,311 @@
+<display version="2.0.0">
+  <name>Genesis Cryo - Cold Board</name>
+  <width>1400</width>
+  <height>480</height>
+  <widget type="label" version="2.0.0">
+    <name>Title_siglent_coldboard</name>
+    <x>10</x>
+    <y>10</y>
+    <width>1380</width>
+    <height>31</height>
+    <text>siglent_coldboard</text>
+    <transparent>true</transparent>
+    <class>TITLE</class>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>L_heartbeat</name>
+    <x>10</x>
+    <y>50</y>
+    <width>140</width>
+    <height>20</height>
+    <text>last update (s)</text>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>T_heartbeat</name>
+    <x>160</x>
+    <y>50</y>
+    <width>110</width>
+    <height>20</height>
+    <pv_name>ca://UNH:GEN:CRYO:COLDBOARD:MAN:siglent_coldboard_time</pv_name>
+    <format>1</format>
+    <precision>0</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>L_UNH:GEN:CRYO:COLDBOARD:Coldboard_VI</name>
+    <x>10</x>
+    <y>77</y>
+    <width>140</width>
+    <height>20</height>
+    <text>Coldboard_VI</text>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>T_UNH:GEN:CRYO:COLDBOARD:Coldboard_VI</name>
+    <x>160</x>
+    <y>77</y>
+    <width>150</width>
+    <height>20</height>
+    <pv_name>ca://UNH:GEN:CRYO:COLDBOARD:Coldboard_VI</pv_name>
+    <format>1</format>
+    <precision>4</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>L_UNH:GEN:CRYO:COLDBOARD:Coldboard_CI</name>
+    <x>10</x>
+    <y>98</y>
+    <width>140</width>
+    <height>20</height>
+    <text>Coldboard_CI</text>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>T_UNH:GEN:CRYO:COLDBOARD:Coldboard_CI</name>
+    <x>160</x>
+    <y>98</y>
+    <width>150</width>
+    <height>20</height>
+    <pv_name>ca://UNH:GEN:CRYO:COLDBOARD:Coldboard_CI</pv_name>
+    <format>1</format>
+    <precision>4</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>L_UNH:GEN:CRYO:COLDBOARD:Coldboard_PI</name>
+    <x>10</x>
+    <y>119</y>
+    <width>140</width>
+    <height>20</height>
+    <text>Coldboard_PI</text>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>T_UNH:GEN:CRYO:COLDBOARD:Coldboard_PI</name>
+    <x>160</x>
+    <y>119</y>
+    <width>150</width>
+    <height>20</height>
+    <pv_name>ca://UNH:GEN:CRYO:COLDBOARD:Coldboard_PI</pv_name>
+    <format>1</format>
+    <precision>4</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>L_UNH:GEN:CRYO:COLDBOARD:Coldboard_VC</name>
+    <x>10</x>
+    <y>140</y>
+    <width>140</width>
+    <height>20</height>
+    <text>Coldboard_VC</text>
+  </widget>
+  <widget type="textentry" version="2.0.0">
+    <name>E_UNH:GEN:CRYO:COLDBOARD:Coldboard_VC</name>
+    <x>160</x>
+    <y>140</y>
+    <width>150</width>
+    <height>20</height>
+    <pv_name>ca://UNH:GEN:CRYO:COLDBOARD:Coldboard_VC</pv_name>
+    <format>1</format>
+    <precision>4</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>L_UNH:GEN:CRYO:COLDBOARD:Coldboard_CC</name>
+    <x>10</x>
+    <y>161</y>
+    <width>140</width>
+    <height>20</height>
+    <text>Coldboard_CC</text>
+  </widget>
+  <widget type="textentry" version="2.0.0">
+    <name>E_UNH:GEN:CRYO:COLDBOARD:Coldboard_CC</name>
+    <x>160</x>
+    <y>161</y>
+    <width>150</width>
+    <height>20</height>
+    <pv_name>ca://UNH:GEN:CRYO:COLDBOARD:Coldboard_CC</pv_name>
+    <format>1</format>
+    <precision>4</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>L_UNH:GEN:CRYO:COLDBOARD:Coldboard_Mode</name>
+    <x>10</x>
+    <y>182</y>
+    <width>140</width>
+    <height>20</height>
+    <text>Coldboard_Mode</text>
+  </widget>
+  <widget type="slide_button" version="2.0.0">
+    <name>S_UNH:GEN:CRYO:COLDBOARD:Coldboard_Mode</name>
+    <x>160</x>
+    <y>182</y>
+    <width>100</width>
+    <height>20</height>
+    <pv_name>ca://UNH:GEN:CRYO:COLDBOARD:Coldboard_Mode</pv_name>
+    <off_label>OFF</off_label>
+    <on_label>ON</on_label>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>L_UNH:GEN:CRYO:COLDBOARD:Coldboard_CVCC</name>
+    <x>10</x>
+    <y>203</y>
+    <width>140</width>
+    <height>20</height>
+    <text>Coldboard_CVCC</text>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>T_UNH:GEN:CRYO:COLDBOARD:Coldboard_CVCC</name>
+    <x>160</x>
+    <y>203</y>
+    <width>260</width>
+    <height>20</height>
+    <pv_name>ca://UNH:GEN:CRYO:COLDBOARD:Coldboard_CVCC</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>L_UNH:GEN:CRYO:COLDBOARD:Coldboard_IDN</name>
+    <x>10</x>
+    <y>224</y>
+    <width>140</width>
+    <height>20</height>
+    <text>Coldboard_IDN</text>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>T_UNH:GEN:CRYO:COLDBOARD:Coldboard_IDN</name>
+    <x>160</x>
+    <y>224</y>
+    <width>260</width>
+    <height>20</height>
+    <pv_name>ca://UNH:GEN:CRYO:COLDBOARD:Coldboard_IDN</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>L_UNH:GEN:CRYO:COLDBOARD:Coldboard_Conn</name>
+    <x>10</x>
+    <y>245</y>
+    <width>140</width>
+    <height>20</height>
+    <text>Coldboard_Conn</text>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>T_UNH:GEN:CRYO:COLDBOARD:Coldboard_Conn</name>
+    <x>160</x>
+    <y>245</y>
+    <width>150</width>
+    <height>20</height>
+    <pv_name>ca://UNH:GEN:CRYO:COLDBOARD:Coldboard_Conn</pv_name>
+    <format>1</format>
+    <precision>4</precision>
+  </widget>
+  <widget type="databrowser" version="2.0.0">
+    <name>Trend</name>
+    <x>460</x>
+    <y>50</y>
+    <width>930</width>
+    <height>240</height>
+    <file>genesis_cryo_coldboard.plt</file>
+    <show_toolbar>true</show_toolbar>
+  </widget>
+  <widget type="action_button" version="2.0.0">
+    <name>Back</name>
+    <x>10</x>
+    <y>310</y>
+    <width>140</width>
+    <height>24</height>
+    <text>&lt; all instruments</text>
+    <actions>
+      <action type="open_display">
+        <file>genesis_cryo.bob</file>
+        <target>tab</target>
+        <description>&lt; all instruments</description>
+      </action>
+    </actions>
+  </widget>
+<widget type="rectangle" version="2.0.0">
+    <name>Genesis_Status_Card</name>
+    <x>8</x><y>370</y>
+    <width>760</width><height>95</height>
+    <line_width>0</line_width>
+    <background_color><color red="225" green="235" blue="247" alpha="255" /></background_color>
+  </widget>
+
+  <widget type="label" version="2.0.0">
+    <name>Genesis_Status_Title</name>
+    <x>20</x><y>378</y>
+    <width>180</width><height>22</height>
+    <text>Genesis status</text>
+    <transparent>true</transparent>
+    <font><font family="Liberation Sans" style="BOLD" size="13.0" /></font>
+  </widget>
+
+  <widget type="label" version="2.0.0">
+    <name>Genesis_COMM_L</name>
+    <x>20</x><y>408</y>
+    <width>65</width><height>22</height>
+    <text>COMM:</text>
+    <transparent>true</transparent>
+    <font><font family="Liberation Sans" style="REGULAR" size="12.0" /></font>
+  </widget>
+
+  <widget type="textupdate" version="2.0.0">
+    <name>Genesis_COMM_V</name>
+    <x>85</x><y>406</y>
+    <width>85</width><height>25</height>
+    <pv_name>ca://UNH:GEN:CRYO:COLDBOARD:COMM</pv_name>
+  </widget>
+
+  <widget type="label" version="2.0.0">
+    <name>Genesis_WRITE_L</name>
+    <x>190</x><y>408</y>
+    <width>75</width><height>22</height>
+    <text>Writes:</text>
+    <transparent>true</transparent>
+    <font><font family="Liberation Sans" style="REGULAR" size="12.0" /></font>
+  </widget>
+
+  <widget type="textupdate" version="2.0.0">
+    <name>Genesis_WRITE_V</name>
+    <x>265</x><y>406</y>
+    <width>90</width><height>25</height>
+    <pv_name>ca://UNH:GEN:CRYO:COLDBOARD:WRITE_ENABLED</pv_name>
+  </widget>
+
+  <widget type="label" version="2.0.0">
+    <name>Genesis_ERROR_L</name>
+    <x>375</x><y>408</y>
+    <width>55</width><height>22</height>
+    <text>Error:</text>
+    <transparent>true</transparent>
+    <font><font family="Liberation Sans" style="REGULAR" size="12.0" /></font>
+  </widget>
+
+  <widget type="textupdate" version="2.0.0">
+    <name>Genesis_ERROR_V</name>
+    <x>430</x><y>406</y>
+    <width>325</width><height>25</height>
+    <pv_name>ca://UNH:GEN:CRYO:COLDBOARD:ERROR</pv_name>
+  </widget>
+
+  <widget type="label" version="2.0.0">
+    <name>Genesis_LASTOK_L</name>
+    <x>20</x><y>437</y>
+    <width>65</width><height>22</height>
+    <text>Last OK:</text>
+    <transparent>true</transparent>
+    <font><font family="Liberation Sans" style="REGULAR" size="12.0" /></font>
+  </widget>
+
+  <widget type="textupdate" version="2.0.0">
+    <name>Genesis_LASTOK_V</name>
+    <x>85</x><y>435</y>
+    <width>220</width><height>25</height>
+    <pv_name>ca://UNH:GEN:CRYO:COLDBOARD:LAST_OK</pv_name>
+  </widget>
+
+  <widget type="action_button" version="3.0.0">
+    <name>Genesis_Back</name>
+    <x>575</x><y>432</y>
+    <width>180</width><height>30</height>
+    <actions>
+      <action type="open_display">
+        <file>genesis_cryo.bob</file>
+        <target>tab</target>
+        <description>Return to Cryo Overview</description>
+      </action>
+    </actions>
+    <text>&lt; Cryo Overview</text>
+  </widget>
+</display>

@@ -1,0 +1,770 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<display version="2.0.0">
+  <name>Genesis Cryo Diagnostics</name>
+  <width>1180</width>
+  <height>920</height>
+
+  <widget type="rectangle" version="2.0.0">
+    <name>Page</name>
+    <x>0</x><y>0</y>
+    <width>1180</width><height>920</height>
+    <line_width>0</line_width>
+
+    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>Header</name>
+    <x>0</x><y>0</y>
+    <width>1180</width><height>70</height>
+    <line_width>0</line_width>
+
+    <background_color><color red="0" green="36" blue="92" alpha="255"/></background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Title</name>
+    <x>24</x><y>18</y>
+    <width>850</width><height>30</height>
+    <text>UNH Genesis - Cryo Diagnostics</text>
+    <transparent>true</transparent>
+    <horizontal_alignment>0</horizontal_alignment>
+    <font><font family="Liberation Sans" style="BOLD" size="22.0"/></font>
+    <foreground_color><color red="255" green="255" blue="255" alpha="255"/></foreground_color>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>Physical_Card</name>
+    <x>20</x><y>95</y>
+    <width>1140</width><height>455</height>
+    <line_width>0</line_width>
+    <corner_width>8</corner_width><corner_height>8</corner_height>
+    <background_color><color red="245" green="248" blue="252" alpha="255"/></background_color>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>Physical_Header</name>
+    <x>20</x><y>95</y>
+    <width>1140</width><height>38</height>
+    <line_width>0</line_width>
+    <corner_width>8</corner_width><corner_height>8</corner_height>
+    <background_color><color red="220" green="231" blue="243" alpha="255"/></background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Physical_Title</name>
+    <x>34</x><y>102</y>
+    <width>1112</width><height>24</height>
+    <text>PHYSICAL IOCs</text>
+    <transparent>true</transparent>
+    <horizontal_alignment>0</horizontal_alignment>
+    <font><font family="Liberation Sans" style="BOLD" size="15.0"/></font>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>HdrDevice</name>
+    <x>42</x><y>145</y>
+    <width>165</width><height>22</height>
+    <text>Device</text>
+    <transparent>true</transparent>
+    <horizontal_alignment>0</horizontal_alignment>
+    <font><font family="Liberation Sans" style="BOLD" size="11.0"/></font>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>HdrCOMM</name>
+    <x>245</x><y>145</y>
+    <width>110</width><height>22</height>
+    <text>COMM</text>
+    <transparent>true</transparent>
+    <horizontal_alignment>0</horizontal_alignment>
+    <font><font family="Liberation Sans" style="BOLD" size="11.0"/></font>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>HdrWrites</name>
+    <x>375</x><y>145</y>
+    <width>110</width><height>22</height>
+    <text>Writes</text>
+    <transparent>true</transparent>
+    <horizontal_alignment>0</horizontal_alignment>
+    <font><font family="Liberation Sans" style="BOLD" size="11.0"/></font>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>HdrLast OK</name>
+    <x>505</x><y>145</y>
+    <width>190</width><height>22</height>
+    <text>Last OK</text>
+    <transparent>true</transparent>
+    <horizontal_alignment>0</horizontal_alignment>
+    <font><font family="Liberation Sans" style="BOLD" size="11.0"/></font>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>HdrHeartbeat</name>
+    <x>715</x><y>145</y>
+    <width>190</width><height>22</height>
+    <text>Heartbeat</text>
+    <transparent>true</transparent>
+    <horizontal_alignment>0</horizontal_alignment>
+    <font><font family="Liberation Sans" style="BOLD" size="11.0"/></font>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>HdrError</name>
+    <x>920</x><y>145</y>
+    <width>200</width><height>22</height>
+    <text>Error</text>
+    <transparent>true</transparent>
+    <horizontal_alignment>0</horizontal_alignment>
+    <font><font family="Liberation Sans" style="BOLD" size="11.0"/></font>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Dev0L</name>
+    <x>42</x><y>180</y>
+    <width>180</width><height>24</height>
+    <text>Cold Board</text>
+    <transparent>true</transparent>
+    <horizontal_alignment>0</horizontal_alignment>
+    <font><font family="Liberation Sans" style="BOLD" size="12.0"/></font>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>Dev0LED</name>
+    <x>250</x><y>180</y>
+    <width>22</width><height>22</height>
+    <pv_name>ca://UNH:GEN:CRYO:COLDBOARD:COMM</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Dev0COMM</name>
+    <x>280</x><y>178</y>
+    <width>80</width><height>27</height>
+    <pv_name>ca://UNH:GEN:CRYO:COLDBOARD:COMM</pv_name>
+    <format>6</format>
+    <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
+    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Dev0WRITE</name>
+    <x>375</x><y>178</y>
+    <width>105</width><height>27</height>
+    <pv_name>ca://UNH:GEN:CRYO:COLDBOARD:WRITE_ENABLED</pv_name>
+    <format>6</format>
+    <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
+    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Dev0LAST</name>
+    <x>505</x><y>178</y>
+    <width>185</width><height>27</height>
+    <pv_name>ca://UNH:GEN:CRYO:COLDBOARD:LAST_OK</pv_name>
+    <format>6</format>
+    <font><font family="Liberation Sans" style="REGULAR" size="10.0"/></font>
+    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Dev0HB</name>
+    <x>715</x><y>178</y>
+    <width>185</width><height>27</height>
+    <pv_name>ca://UNH:GEN:CRYO:COLDBOARD:MAN:siglent_coldboard_time</pv_name>
+    <format>6</format>
+    <font><font family="Liberation Sans" style="REGULAR" size="10.0"/></font>
+    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Dev0ERR</name>
+    <x>920</x><y>178</y>
+    <width>210</width><height>27</height>
+    <pv_name>ca://UNH:GEN:CRYO:COLDBOARD:ERROR</pv_name>
+    <format>6</format>
+    <font><font family="Liberation Sans" style="REGULAR" size="10.0"/></font>
+    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Dev1L</name>
+    <x>42</x><y>228</y>
+    <width>180</width><height>24</height>
+    <text>Cell Gauge</text>
+    <transparent>true</transparent>
+    <horizontal_alignment>0</horizontal_alignment>
+    <font><font family="Liberation Sans" style="BOLD" size="12.0"/></font>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>Dev1LED</name>
+    <x>250</x><y>228</y>
+    <width>22</width><height>22</height>
+    <pv_name>ca://UNH:GEN:CRYO:CELL:COMM</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Dev1COMM</name>
+    <x>280</x><y>226</y>
+    <width>80</width><height>27</height>
+    <pv_name>ca://UNH:GEN:CRYO:CELL:COMM</pv_name>
+    <format>6</format>
+    <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
+    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Dev1WRITE</name>
+    <x>375</x><y>226</y>
+    <width>105</width><height>27</height>
+    <pv_name>ca://UNH:GEN:CRYO:CELL:WRITE_ENABLED</pv_name>
+    <format>6</format>
+    <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
+    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Dev1LAST</name>
+    <x>505</x><y>226</y>
+    <width>185</width><height>27</height>
+    <pv_name>ca://UNH:GEN:CRYO:CELL:LAST_OK</pv_name>
+    <format>6</format>
+    <font><font family="Liberation Sans" style="REGULAR" size="10.0"/></font>
+    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Dev1HB</name>
+    <x>715</x><y>226</y>
+    <width>185</width><height>27</height>
+    <pv_name>ca://UNH:GEN:CRYO:CELL:MAN:mks902b_time</pv_name>
+    <format>6</format>
+    <font><font family="Liberation Sans" style="REGULAR" size="10.0"/></font>
+    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Dev1ERR</name>
+    <x>920</x><y>226</y>
+    <width>210</width><height>27</height>
+    <pv_name>ca://UNH:GEN:CRYO:CELL:ERROR</pv_name>
+    <format>6</format>
+    <font><font family="Liberation Sans" style="REGULAR" size="10.0"/></font>
+    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Dev2L</name>
+    <x>42</x><y>276</y>
+    <width>180</width><height>24</height>
+    <text>Pump / OVC</text>
+    <transparent>true</transparent>
+    <horizontal_alignment>0</horizontal_alignment>
+    <font><font family="Liberation Sans" style="BOLD" size="12.0"/></font>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>Dev2LED</name>
+    <x>250</x><y>276</y>
+    <width>22</width><height>22</height>
+    <pv_name>ca://UNH:GEN:CRYO:VAC:COMM</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Dev2COMM</name>
+    <x>280</x><y>274</y>
+    <width>80</width><height>27</height>
+    <pv_name>ca://UNH:GEN:CRYO:VAC:COMM</pv_name>
+    <format>6</format>
+    <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
+    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Dev2WRITE</name>
+    <x>375</x><y>274</y>
+    <width>105</width><height>27</height>
+    <pv_name>ca://UNH:GEN:CRYO:VAC:WRITE_ENABLED</pv_name>
+    <format>6</format>
+    <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
+    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Dev2LAST</name>
+    <x>505</x><y>274</y>
+    <width>185</width><height>27</height>
+    <pv_name>ca://UNH:GEN:CRYO:VAC:LAST_OK</pv_name>
+    <format>6</format>
+    <font><font family="Liberation Sans" style="REGULAR" size="10.0"/></font>
+    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Dev2HB</name>
+    <x>715</x><y>274</y>
+    <width>185</width><height>27</height>
+    <pv_name>ca://UNH:GEN:CRYO:VAC:MAN:tpg262_time</pv_name>
+    <format>6</format>
+    <font><font family="Liberation Sans" style="REGULAR" size="10.0"/></font>
+    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Dev2ERR</name>
+    <x>920</x><y>274</y>
+    <width>210</width><height>27</height>
+    <pv_name>ca://UNH:GEN:CRYO:VAC:ERROR</pv_name>
+    <format>6</format>
+    <font><font family="Liberation Sans" style="REGULAR" size="10.0"/></font>
+    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Dev3L</name>
+    <x>42</x><y>324</y>
+    <width>180</width><height>24</height>
+    <text>Ion Gauge</text>
+    <transparent>true</transparent>
+    <horizontal_alignment>0</horizontal_alignment>
+    <font><font family="Liberation Sans" style="BOLD" size="12.0"/></font>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>Dev3LED</name>
+    <x>250</x><y>324</y>
+    <width>22</width><height>22</height>
+    <pv_name>ca://UNH:GEN:CRYO:ION:COMM</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Dev3COMM</name>
+    <x>280</x><y>322</y>
+    <width>80</width><height>27</height>
+    <pv_name>ca://UNH:GEN:CRYO:ION:COMM</pv_name>
+    <format>6</format>
+    <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
+    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Dev3WRITE</name>
+    <x>375</x><y>322</y>
+    <width>105</width><height>27</height>
+    <pv_name>ca://UNH:GEN:CRYO:ION:WRITE_ENABLED</pv_name>
+    <format>6</format>
+    <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
+    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Dev3LAST</name>
+    <x>505</x><y>322</y>
+    <width>185</width><height>27</height>
+    <pv_name>ca://UNH:GEN:CRYO:ION:LAST_OK</pv_name>
+    <format>6</format>
+    <font><font family="Liberation Sans" style="REGULAR" size="10.0"/></font>
+    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Dev3HB</name>
+    <x>715</x><y>322</y>
+    <width>185</width><height>27</height>
+    <pv_name>ca://UNH:GEN:CRYO:ION:MAN:ionivac_time</pv_name>
+    <format>6</format>
+    <font><font family="Liberation Sans" style="REGULAR" size="10.0"/></font>
+    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Dev3ERR</name>
+    <x>920</x><y>322</y>
+    <width>210</width><height>27</height>
+    <pv_name>ca://UNH:GEN:CRYO:ION:ERROR</pv_name>
+    <format>6</format>
+    <font><font family="Liberation Sans" style="REGULAR" size="10.0"/></font>
+    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Dev4L</name>
+    <x>42</x><y>372</y>
+    <width>180</width><height>24</height>
+    <text>Fringe Field</text>
+    <transparent>true</transparent>
+    <horizontal_alignment>0</horizontal_alignment>
+    <font><font family="Liberation Sans" style="BOLD" size="12.0"/></font>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>Dev4LED</name>
+    <x>250</x><y>372</y>
+    <width>22</width><height>22</height>
+    <pv_name>ca://UNH:GEN:CRYO:FIELD:COMM</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Dev4COMM</name>
+    <x>280</x><y>370</y>
+    <width>80</width><height>27</height>
+    <pv_name>ca://UNH:GEN:CRYO:FIELD:COMM</pv_name>
+    <format>6</format>
+    <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
+    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Dev4WRITE</name>
+    <x>375</x><y>370</y>
+    <width>105</width><height>27</height>
+    <pv_name>ca://UNH:GEN:CRYO:FIELD:WRITE_ENABLED</pv_name>
+    <format>6</format>
+    <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
+    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Dev4LAST</name>
+    <x>505</x><y>370</y>
+    <width>185</width><height>27</height>
+    <pv_name>ca://UNH:GEN:CRYO:FIELD:LAST_OK</pv_name>
+    <format>6</format>
+    <font><font family="Liberation Sans" style="REGULAR" size="10.0"/></font>
+    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Dev4HB</name>
+    <x>715</x><y>370</y>
+    <width>185</width><height>27</height>
+    <pv_name>ca://UNH:GEN:CRYO:FIELD:MAN:ls455_time</pv_name>
+    <format>6</format>
+    <font><font family="Liberation Sans" style="REGULAR" size="10.0"/></font>
+    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Dev4ERR</name>
+    <x>920</x><y>370</y>
+    <width>210</width><height>27</height>
+    <pv_name>ca://UNH:GEN:CRYO:FIELD:ERROR</pv_name>
+    <format>6</format>
+    <font><font family="Liberation Sans" style="REGULAR" size="10.0"/></font>
+    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Dev5L</name>
+    <x>42</x><y>420</y>
+    <width>180</width><height>24</height>
+    <text>Fridge LS224</text>
+    <transparent>true</transparent>
+    <horizontal_alignment>0</horizontal_alignment>
+    <font><font family="Liberation Sans" style="BOLD" size="12.0"/></font>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>Dev5LED</name>
+    <x>250</x><y>420</y>
+    <width>22</width><height>22</height>
+    <pv_name>ca://UNH:GEN:CRYO:FRIDGE:COMM</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Dev5COMM</name>
+    <x>280</x><y>418</y>
+    <width>80</width><height>27</height>
+    <pv_name>ca://UNH:GEN:CRYO:FRIDGE:COMM</pv_name>
+    <format>6</format>
+    <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
+    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Dev5WRITE</name>
+    <x>375</x><y>418</y>
+    <width>105</width><height>27</height>
+    <pv_name>ca://UNH:GEN:CRYO:FRIDGE:WRITE_ENABLED</pv_name>
+    <format>6</format>
+    <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
+    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Dev5LAST</name>
+    <x>505</x><y>418</y>
+    <width>185</width><height>27</height>
+    <pv_name>ca://UNH:GEN:CRYO:FRIDGE:LAST_OK</pv_name>
+    <format>6</format>
+    <font><font family="Liberation Sans" style="REGULAR" size="10.0"/></font>
+    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Dev5HB</name>
+    <x>715</x><y>418</y>
+    <width>185</width><height>27</height>
+    <pv_name>ca://UNH:GEN:CRYO:FRIDGE:MAN:ls224_fridge_time</pv_name>
+    <format>6</format>
+    <font><font family="Liberation Sans" style="REGULAR" size="10.0"/></font>
+    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Dev5ERR</name>
+    <x>920</x><y>418</y>
+    <width>210</width><height>27</height>
+    <pv_name>ca://UNH:GEN:CRYO:FRIDGE:ERROR</pv_name>
+    <format>6</format>
+    <font><font family="Liberation Sans" style="REGULAR" size="10.0"/></font>
+    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Dev6L</name>
+    <x>42</x><y>468</y>
+    <width>180</width><height>24</height>
+    <text>Magnet LS224</text>
+    <transparent>true</transparent>
+    <horizontal_alignment>0</horizontal_alignment>
+    <font><font family="Liberation Sans" style="BOLD" size="12.0"/></font>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>Dev6LED</name>
+    <x>250</x><y>468</y>
+    <width>22</width><height>22</height>
+    <pv_name>ca://UNH:GEN:CRYO:MAG:COMM</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Dev6COMM</name>
+    <x>280</x><y>466</y>
+    <width>80</width><height>27</height>
+    <pv_name>ca://UNH:GEN:CRYO:MAG:COMM</pv_name>
+    <format>6</format>
+    <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
+    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Dev6WRITE</name>
+    <x>375</x><y>466</y>
+    <width>105</width><height>27</height>
+    <pv_name>ca://UNH:GEN:CRYO:MAG:WRITE_ENABLED</pv_name>
+    <format>6</format>
+    <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
+    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Dev6LAST</name>
+    <x>505</x><y>466</y>
+    <width>185</width><height>27</height>
+    <pv_name>ca://UNH:GEN:CRYO:MAG:LAST_OK</pv_name>
+    <format>6</format>
+    <font><font family="Liberation Sans" style="REGULAR" size="10.0"/></font>
+    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Dev6HB</name>
+    <x>715</x><y>466</y>
+    <width>185</width><height>27</height>
+    <pv_name>ca://UNH:GEN:CRYO:MAG:MAN:ls224_magnet_time</pv_name>
+    <format>6</format>
+    <font><font family="Liberation Sans" style="REGULAR" size="10.0"/></font>
+    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Dev6ERR</name>
+    <x>920</x><y>466</y>
+    <width>210</width><height>27</height>
+    <pv_name>ca://UNH:GEN:CRYO:MAG:ERROR</pv_name>
+    <format>6</format>
+    <font><font family="Liberation Sans" style="REGULAR" size="10.0"/></font>
+    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>Logic_Card</name>
+    <x>20</x><y>575</y>
+    <width>1140</width><height>250</height>
+    <line_width>0</line_width>
+    <corner_width>8</corner_width><corner_height>8</corner_height>
+    <background_color><color red="245" green="248" blue="252" alpha="255"/></background_color>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>Logic_Header</name>
+    <x>20</x><y>575</y>
+    <width>1140</width><height>38</height>
+    <line_width>0</line_width>
+    <corner_width>8</corner_width><corner_height>8</corner_height>
+    <background_color><color red="220" green="231" blue="243" alpha="255"/></background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Logic_Title</name>
+    <x>34</x><y>582</y>
+    <width>1112</width><height>24</height>
+    <text>LOGIC / DATA IOCs</text>
+    <transparent>true</transparent>
+    <horizontal_alignment>0</horizontal_alignment>
+    <font><font family="Liberation Sans" style="BOLD" size="15.0"/></font>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Logic0L</name>
+    <x>42</x><y>635</y>
+    <width>165</width><height>24</height>
+    <text>Alarm Summary</text>
+    <transparent>true</transparent>
+    <horizontal_alignment>0</horizontal_alignment>
+    <font><font family="Liberation Sans" style="BOLD" size="12.0"/></font>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Logic0HBL</name>
+    <x>217</x><y>635</y>
+    <width>35</width><height>24</height>
+    <text>HB:</text>
+    <transparent>true</transparent>
+    <horizontal_alignment>0</horizontal_alignment>
+    <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Logic0HB</name>
+    <x>257</x><y>633</y>
+    <width>285</width><height>27</height>
+    <pv_name>ca://UNH:GEN:CRYO:ALARM:MAN:alarm_summary_time</pv_name>
+    <format>6</format>
+    <font><font family="Liberation Sans" style="REGULAR" size="10.0"/></font>
+    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Logic1L</name>
+    <x>592</x><y>635</y>
+    <width>165</width><height>24</height>
+    <text>Safety Interlock</text>
+    <transparent>true</transparent>
+    <horizontal_alignment>0</horizontal_alignment>
+    <font><font family="Liberation Sans" style="BOLD" size="12.0"/></font>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Logic1HBL</name>
+    <x>767</x><y>635</y>
+    <width>35</width><height>24</height>
+    <text>HB:</text>
+    <transparent>true</transparent>
+    <horizontal_alignment>0</horizontal_alignment>
+    <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Logic1HB</name>
+    <x>807</x><y>633</y>
+    <width>285</width><height>27</height>
+    <pv_name>ca://UNH:GEN:CRYO:SAFE:MAN:safety_interlock_time</pv_name>
+    <format>6</format>
+    <font><font family="Liberation Sans" style="REGULAR" size="10.0"/></font>
+    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Logic2L</name>
+    <x>42</x><y>690</y>
+    <width>165</width><height>24</height>
+    <text>Target State</text>
+    <transparent>true</transparent>
+    <horizontal_alignment>0</horizontal_alignment>
+    <font><font family="Liberation Sans" style="BOLD" size="12.0"/></font>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Logic2HBL</name>
+    <x>217</x><y>690</y>
+    <width>35</width><height>24</height>
+    <text>HB:</text>
+    <transparent>true</transparent>
+    <horizontal_alignment>0</horizontal_alignment>
+    <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Logic2HB</name>
+    <x>257</x><y>688</y>
+    <width>285</width><height>27</height>
+    <pv_name>ca://UNH:GEN:CRYO:STATE:MAN:target_status_time</pv_name>
+    <format>6</format>
+    <font><font family="Liberation Sans" style="REGULAR" size="10.0"/></font>
+    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Logic3L</name>
+    <x>592</x><y>690</y>
+    <width>165</width><height>24</height>
+    <text>Save / Restore</text>
+    <transparent>true</transparent>
+    <horizontal_alignment>0</horizontal_alignment>
+    <font><font family="Liberation Sans" style="BOLD" size="12.0"/></font>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Logic3HBL</name>
+    <x>767</x><y>690</y>
+    <width>35</width><height>24</height>
+    <text>HB:</text>
+    <transparent>true</transparent>
+    <horizontal_alignment>0</horizontal_alignment>
+    <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Logic3HB</name>
+    <x>807</x><y>688</y>
+    <width>285</width><height>27</height>
+    <pv_name>ca://UNH:GEN:CRYO:SAVE:MAN:save_restore_time</pv_name>
+    <format>6</format>
+    <font><font family="Liberation Sans" style="REGULAR" size="10.0"/></font>
+    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Logic4L</name>
+    <x>42</x><y>745</y>
+    <width>165</width><height>24</height>
+    <text>Archiver</text>
+    <transparent>true</transparent>
+    <horizontal_alignment>0</horizontal_alignment>
+    <font><font family="Liberation Sans" style="BOLD" size="12.0"/></font>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Logic4HBL</name>
+    <x>217</x><y>745</y>
+    <width>35</width><height>24</height>
+    <text>HB:</text>
+    <transparent>true</transparent>
+    <horizontal_alignment>0</horizontal_alignment>
+    <font><font family="Liberation Sans" style="REGULAR" size="11.0"/></font>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Logic4HB</name>
+    <x>257</x><y>743</y>
+    <width>285</width><height>27</height>
+    <pv_name>ca://UNH:GEN:CRYO:ARCH:MAN:archiver_time</pv_name>
+    <format>6</format>
+    <font><font family="Liberation Sans" style="REGULAR" size="10.0"/></font>
+    <background_color><color red="255" green="255" blue="255" alpha="255"/></background_color>
+    <foreground_color><color red="28" green="38" blue="48" alpha="255"/></foreground_color>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Back</name>
+    <x>940</x><y>855</y>
+    <width>200</width><height>34</height>
+    <actions>
+      <action type="open_display">
+        <file>genesis_cryo.bob</file>
+        <target>tab</target>
+        <description>Open &lt; Cryo Overview</description>
+      </action>
+    </actions>
+    <text>&lt; Cryo Overview</text>
+  </widget>
+</display>

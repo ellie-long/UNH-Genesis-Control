@@ -1,0 +1,506 @@
+<display version="2.0.0">
+  <name>Genesis Cryo - Magnet</name>
+  <width>1400</width>
+  <height>677</height>
+  <widget type="label" version="2.0.0">
+    <name>Title_ls224_magnet</name>
+    <x>10</x>
+    <y>10</y>
+    <width>1380</width>
+    <height>31</height>
+    <text>ls224_magnet</text>
+    <transparent>true</transparent>
+    <class>TITLE</class>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>L_heartbeat</name>
+    <x>10</x>
+    <y>50</y>
+    <width>140</width>
+    <height>20</height>
+    <text>last update (s)</text>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>T_heartbeat</name>
+    <x>160</x>
+    <y>50</y>
+    <width>110</width>
+    <height>20</height>
+    <pv_name>ca://UNH:GEN:CRYO:MAG:MAN:ls224_magnet_time</pv_name>
+    <format>1</format>
+    <precision>0</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>L_UNH:GEN:CRYO:MAG:M1_TI</name>
+    <x>10</x>
+    <y>77</y>
+    <width>140</width>
+    <height>20</height>
+    <text>M1_TI</text>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>T_UNH:GEN:CRYO:MAG:M1_TI</name>
+    <x>160</x>
+    <y>77</y>
+    <width>150</width>
+    <height>20</height>
+    <pv_name>ca://UNH:GEN:CRYO:MAG:M1_TI</pv_name>
+    <format>1</format>
+    <precision>4</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>L_UNH:GEN:CRYO:MAG:M1_RI</name>
+    <x>10</x>
+    <y>98</y>
+    <width>140</width>
+    <height>20</height>
+    <text>M1_RI</text>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>T_UNH:GEN:CRYO:MAG:M1_RI</name>
+    <x>160</x>
+    <y>98</y>
+    <width>150</width>
+    <height>20</height>
+    <pv_name>ca://UNH:GEN:CRYO:MAG:M1_RI</pv_name>
+    <format>1</format>
+    <precision>4</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>L_UNH:GEN:CRYO:MAG:M1_Status</name>
+    <x>10</x>
+    <y>119</y>
+    <width>140</width>
+    <height>20</height>
+    <text>M1_Status</text>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>T_UNH:GEN:CRYO:MAG:M1_Status</name>
+    <x>160</x>
+    <y>119</y>
+    <width>260</width>
+    <height>20</height>
+    <pv_name>ca://UNH:GEN:CRYO:MAG:M1_Status</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>L_UNH:GEN:CRYO:MAG:M1_Conn</name>
+    <x>10</x>
+    <y>140</y>
+    <width>140</width>
+    <height>20</height>
+    <text>M1_Conn</text>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>T_UNH:GEN:CRYO:MAG:M1_Conn</name>
+    <x>160</x>
+    <y>140</y>
+    <width>150</width>
+    <height>20</height>
+    <pv_name>ca://UNH:GEN:CRYO:MAG:M1_Conn</pv_name>
+    <format>1</format>
+    <precision>4</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>L_UNH:GEN:CRYO:MAG:M2_TI</name>
+    <x>10</x>
+    <y>161</y>
+    <width>140</width>
+    <height>20</height>
+    <text>M2_TI</text>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>T_UNH:GEN:CRYO:MAG:M2_TI</name>
+    <x>160</x>
+    <y>161</y>
+    <width>150</width>
+    <height>20</height>
+    <pv_name>ca://UNH:GEN:CRYO:MAG:M2_TI</pv_name>
+    <format>1</format>
+    <precision>4</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>L_UNH:GEN:CRYO:MAG:M2_RI</name>
+    <x>10</x>
+    <y>182</y>
+    <width>140</width>
+    <height>20</height>
+    <text>M2_RI</text>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>T_UNH:GEN:CRYO:MAG:M2_RI</name>
+    <x>160</x>
+    <y>182</y>
+    <width>150</width>
+    <height>20</height>
+    <pv_name>ca://UNH:GEN:CRYO:MAG:M2_RI</pv_name>
+    <format>1</format>
+    <precision>4</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>L_UNH:GEN:CRYO:MAG:M2_Status</name>
+    <x>10</x>
+    <y>203</y>
+    <width>140</width>
+    <height>20</height>
+    <text>M2_Status</text>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>T_UNH:GEN:CRYO:MAG:M2_Status</name>
+    <x>160</x>
+    <y>203</y>
+    <width>260</width>
+    <height>20</height>
+    <pv_name>ca://UNH:GEN:CRYO:MAG:M2_Status</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>L_UNH:GEN:CRYO:MAG:M2_Conn</name>
+    <x>10</x>
+    <y>224</y>
+    <width>140</width>
+    <height>20</height>
+    <text>M2_Conn</text>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>T_UNH:GEN:CRYO:MAG:M2_Conn</name>
+    <x>160</x>
+    <y>224</y>
+    <width>150</width>
+    <height>20</height>
+    <pv_name>ca://UNH:GEN:CRYO:MAG:M2_Conn</pv_name>
+    <format>1</format>
+    <precision>4</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>L_UNH:GEN:CRYO:MAG:M3_TI</name>
+    <x>10</x>
+    <y>245</y>
+    <width>140</width>
+    <height>20</height>
+    <text>M3_TI</text>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>T_UNH:GEN:CRYO:MAG:M3_TI</name>
+    <x>160</x>
+    <y>245</y>
+    <width>150</width>
+    <height>20</height>
+    <pv_name>ca://UNH:GEN:CRYO:MAG:M3_TI</pv_name>
+    <format>1</format>
+    <precision>4</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>L_UNH:GEN:CRYO:MAG:M3_RI</name>
+    <x>10</x>
+    <y>266</y>
+    <width>140</width>
+    <height>20</height>
+    <text>M3_RI</text>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>T_UNH:GEN:CRYO:MAG:M3_RI</name>
+    <x>160</x>
+    <y>266</y>
+    <width>150</width>
+    <height>20</height>
+    <pv_name>ca://UNH:GEN:CRYO:MAG:M3_RI</pv_name>
+    <format>1</format>
+    <precision>4</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>L_UNH:GEN:CRYO:MAG:M3_Status</name>
+    <x>10</x>
+    <y>287</y>
+    <width>140</width>
+    <height>20</height>
+    <text>M3_Status</text>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>T_UNH:GEN:CRYO:MAG:M3_Status</name>
+    <x>160</x>
+    <y>287</y>
+    <width>260</width>
+    <height>20</height>
+    <pv_name>ca://UNH:GEN:CRYO:MAG:M3_Status</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>L_UNH:GEN:CRYO:MAG:M3_Conn</name>
+    <x>10</x>
+    <y>308</y>
+    <width>140</width>
+    <height>20</height>
+    <text>M3_Conn</text>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>T_UNH:GEN:CRYO:MAG:M3_Conn</name>
+    <x>160</x>
+    <y>308</y>
+    <width>150</width>
+    <height>20</height>
+    <pv_name>ca://UNH:GEN:CRYO:MAG:M3_Conn</pv_name>
+    <format>1</format>
+    <precision>4</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>L_UNH:GEN:CRYO:MAG:M4_TI</name>
+    <x>10</x>
+    <y>329</y>
+    <width>140</width>
+    <height>20</height>
+    <text>M4_TI</text>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>T_UNH:GEN:CRYO:MAG:M4_TI</name>
+    <x>160</x>
+    <y>329</y>
+    <width>150</width>
+    <height>20</height>
+    <pv_name>ca://UNH:GEN:CRYO:MAG:M4_TI</pv_name>
+    <format>1</format>
+    <precision>4</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>L_UNH:GEN:CRYO:MAG:M4_RI</name>
+    <x>10</x>
+    <y>350</y>
+    <width>140</width>
+    <height>20</height>
+    <text>M4_RI</text>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>T_UNH:GEN:CRYO:MAG:M4_RI</name>
+    <x>160</x>
+    <y>350</y>
+    <width>150</width>
+    <height>20</height>
+    <pv_name>ca://UNH:GEN:CRYO:MAG:M4_RI</pv_name>
+    <format>1</format>
+    <precision>4</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>L_UNH:GEN:CRYO:MAG:M4_Status</name>
+    <x>10</x>
+    <y>371</y>
+    <width>140</width>
+    <height>20</height>
+    <text>M4_Status</text>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>T_UNH:GEN:CRYO:MAG:M4_Status</name>
+    <x>160</x>
+    <y>371</y>
+    <width>260</width>
+    <height>20</height>
+    <pv_name>ca://UNH:GEN:CRYO:MAG:M4_Status</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>L_UNH:GEN:CRYO:MAG:M4_Conn</name>
+    <x>10</x>
+    <y>392</y>
+    <width>140</width>
+    <height>20</height>
+    <text>M4_Conn</text>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>T_UNH:GEN:CRYO:MAG:M4_Conn</name>
+    <x>160</x>
+    <y>392</y>
+    <width>150</width>
+    <height>20</height>
+    <pv_name>ca://UNH:GEN:CRYO:MAG:M4_Conn</pv_name>
+    <format>1</format>
+    <precision>4</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>L_UNH:GEN:CRYO:MAG:M5_TI</name>
+    <x>10</x>
+    <y>413</y>
+    <width>140</width>
+    <height>20</height>
+    <text>M5_TI</text>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>T_UNH:GEN:CRYO:MAG:M5_TI</name>
+    <x>160</x>
+    <y>413</y>
+    <width>150</width>
+    <height>20</height>
+    <pv_name>ca://UNH:GEN:CRYO:MAG:M5_TI</pv_name>
+    <format>1</format>
+    <precision>4</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>L_UNH:GEN:CRYO:MAG:M5_RI</name>
+    <x>10</x>
+    <y>434</y>
+    <width>140</width>
+    <height>20</height>
+    <text>M5_RI</text>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>T_UNH:GEN:CRYO:MAG:M5_RI</name>
+    <x>160</x>
+    <y>434</y>
+    <width>150</width>
+    <height>20</height>
+    <pv_name>ca://UNH:GEN:CRYO:MAG:M5_RI</pv_name>
+    <format>1</format>
+    <precision>4</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>L_UNH:GEN:CRYO:MAG:M5_Status</name>
+    <x>10</x>
+    <y>455</y>
+    <width>140</width>
+    <height>20</height>
+    <text>M5_Status</text>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>T_UNH:GEN:CRYO:MAG:M5_Status</name>
+    <x>160</x>
+    <y>455</y>
+    <width>260</width>
+    <height>20</height>
+    <pv_name>ca://UNH:GEN:CRYO:MAG:M5_Status</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>L_UNH:GEN:CRYO:MAG:M5_Conn</name>
+    <x>10</x>
+    <y>476</y>
+    <width>140</width>
+    <height>20</height>
+    <text>M5_Conn</text>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>T_UNH:GEN:CRYO:MAG:M5_Conn</name>
+    <x>160</x>
+    <y>476</y>
+    <width>150</width>
+    <height>20</height>
+    <pv_name>ca://UNH:GEN:CRYO:MAG:M5_Conn</pv_name>
+    <format>1</format>
+    <precision>4</precision>
+  </widget>
+  <widget type="databrowser" version="2.0.0">
+    <name>Trend</name>
+    <x>460</x>
+    <y>50</y>
+    <width>930</width>
+    <height>447</height>
+    <file>genesis_cryo_magnet.plt</file>
+    <show_toolbar>true</show_toolbar>
+  </widget>
+  <widget type="action_button" version="2.0.0">
+    <name>Back</name>
+    <x>10</x>
+    <y>507</y>
+    <width>140</width>
+    <height>24</height>
+    <text>&lt; all instruments</text>
+    <actions>
+      <action type="open_display">
+        <file>genesis_cryo.bob</file>
+        <target>tab</target>
+        <description>&lt; all instruments</description>
+      </action>
+    </actions>
+  </widget>
+<widget type="rectangle" version="2.0.0">
+    <name>Genesis_Status_Card</name>
+    <x>8</x><y>567</y>
+    <width>760</width><height>95</height>
+    <line_width>0</line_width>
+    <background_color><color red="225" green="235" blue="247" alpha="255" /></background_color>
+  </widget>
+
+  <widget type="label" version="2.0.0">
+    <name>Genesis_Status_Title</name>
+    <x>20</x><y>575</y>
+    <width>180</width><height>22</height>
+    <text>Genesis status</text>
+    <transparent>true</transparent>
+    <font><font family="Liberation Sans" style="BOLD" size="13.0" /></font>
+  </widget>
+
+  <widget type="label" version="2.0.0">
+    <name>Genesis_COMM_L</name>
+    <x>20</x><y>605</y>
+    <width>65</width><height>22</height>
+    <text>COMM:</text>
+    <transparent>true</transparent>
+    <font><font family="Liberation Sans" style="REGULAR" size="12.0" /></font>
+  </widget>
+
+  <widget type="textupdate" version="2.0.0">
+    <name>Genesis_COMM_V</name>
+    <x>85</x><y>603</y>
+    <width>85</width><height>25</height>
+    <pv_name>ca://UNH:GEN:CRYO:MAG:COMM</pv_name>
+  </widget>
+
+  <widget type="label" version="2.0.0">
+    <name>Genesis_WRITE_L</name>
+    <x>190</x><y>605</y>
+    <width>75</width><height>22</height>
+    <text>Writes:</text>
+    <transparent>true</transparent>
+    <font><font family="Liberation Sans" style="REGULAR" size="12.0" /></font>
+  </widget>
+
+  <widget type="textupdate" version="2.0.0">
+    <name>Genesis_WRITE_V</name>
+    <x>265</x><y>603</y>
+    <width>90</width><height>25</height>
+    <pv_name>ca://UNH:GEN:CRYO:MAG:WRITE_ENABLED</pv_name>
+  </widget>
+
+  <widget type="label" version="2.0.0">
+    <name>Genesis_ERROR_L</name>
+    <x>375</x><y>605</y>
+    <width>55</width><height>22</height>
+    <text>Error:</text>
+    <transparent>true</transparent>
+    <font><font family="Liberation Sans" style="REGULAR" size="12.0" /></font>
+  </widget>
+
+  <widget type="textupdate" version="2.0.0">
+    <name>Genesis_ERROR_V</name>
+    <x>430</x><y>603</y>
+    <width>325</width><height>25</height>
+    <pv_name>ca://UNH:GEN:CRYO:MAG:ERROR</pv_name>
+  </widget>
+
+  <widget type="label" version="2.0.0">
+    <name>Genesis_LASTOK_L</name>
+    <x>20</x><y>634</y>
+    <width>65</width><height>22</height>
+    <text>Last OK:</text>
+    <transparent>true</transparent>
+    <font><font family="Liberation Sans" style="REGULAR" size="12.0" /></font>
+  </widget>
+
+  <widget type="textupdate" version="2.0.0">
+    <name>Genesis_LASTOK_V</name>
+    <x>85</x><y>632</y>
+    <width>220</width><height>25</height>
+    <pv_name>ca://UNH:GEN:CRYO:MAG:LAST_OK</pv_name>
+  </widget>
+
+  <widget type="action_button" version="3.0.0">
+    <name>Genesis_Back</name>
+    <x>575</x><y>629</y>
+    <width>180</width><height>30</height>
+    <actions>
+      <action type="open_display">
+        <file>genesis_cryo.bob</file>
+        <target>tab</target>
+        <description>Return to Cryo Overview</description>
+      </action>
+    </actions>
+    <text>&lt; Cryo Overview</text>
+  </widget>
+</display>

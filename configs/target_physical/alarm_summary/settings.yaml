@@ -1,0 +1,38 @@
+general:
+  prefix: UNH:GEN:CRYO:ALARM
+  log_dir: logs
+  epics_addr_list: >-
+    127.0.0.1:5111
+    127.0.0.1:5112
+    127.0.0.1:5113
+    127.0.0.1:5114
+    127.0.0.1:5115
+    127.0.0.1:5116
+    127.0.0.1:5117
+    127.0.0.1:5119
+    127.0.0.1:5120
+    127.0.0.1:5121
+  delay: 0.5
+
+alarm_summary:
+  module: logic_devices.alarm_summary
+  autostart: false
+  delay: 2
+  settings_file: configs/target_physical/ioc_manager/settings.yaml
+  exclude:
+    - _IDN
+    - _Error
+  log_file: archive/cryo_alarm_log.csv
+  channels:
+    - None
+  records:
+    Alarm_Count:   {DESC: Cryo PVs in MINOR or worse}
+    Alarm_Major:   {DESC: Cryo PVs in MAJOR or INVALID}
+    Alarm_Worst:   {DESC: Worst current Cryo severity}
+    Alarm_First:   {DESC: First PV at worst severity}
+    Alarm_Latch:   {DESC: Worst severity since acknowledge}
+    Alarm_LatchPV: {DESC: PV which raised alarm latch}
+    Alarm_LatchAt: {DESC: Time alarm latch was raised}
+    Alarm_Ack:     {DESC: Acknowledge alarm history}
+    Alarm_Scanned: {DESC: Number of Cryo PVs scanned}
+    Alarm_Missing: {DESC: Number of unreadable Cryo PVs}

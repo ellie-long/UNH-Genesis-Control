@@ -306,3 +306,93 @@ failure retains owners and returns nonzero. ACF/direct-CA ownership remains a
 physical acceptance item. The current canonical procedure is
 `SSRF_OPERATOR_QUICK_START.md`; details are in `SSRF_FINAL_PHYSICAL_OPERATION.md`.
 Historical no-RF commissioning records may show their original commands; the dedicated demo runtime has been removed.
+
+## Cryogenic Target / Cryostat operation
+
+The Genesis Cryogenic Target stack is operated independently from Microwave,
+ssRF, and PyNMR.
+
+Operator commands:
+
+    genesis cryo-start
+    genesis cryo-status
+    genesis cryo-phoebus
+    genesis cryo-viewer
+    genesis cryo-stop
+
+The physical deployment manifest is:
+
+    configs/target_physical/ioc_manager/settings.yaml
+
+The normal Cryo runtime uses twelve IOC owners:
+
+    siglent_coldboard
+    mks902b
+    tpg262
+    ionivac
+    ls455
+    ls224_fridge
+    ls224_magnet
+    safety_interlock
+    target_status
+    save_restore
+    archiver
+    alarm_summary
+
+All Cryo physical IOCs start with hardware writes disabled. The standard
+physical lifecycle verifies the corresponding WRITE_ENABLED PVs remain false
+before enabling data archiving.
+
+The main operator display is:
+
+    gui/genesis_cryo.bob
+
+The main overview is intentionally read-only. Hardware-changing controls live
+only on dedicated detail screens and remain subject to the Genesis device
+write gate and the relevant safety logic.
+
+The current logic_devices/limits_unh.yaml values are inherited placeholder
+values and are not validated UNH operating limits. Safety enforcement therefore
+remains disabled for the Phase-I physical baseline. The safety IOC is used for
+monitoring, reporting, latching, and operator visibility until validated limits
+are supplied.
+
+The current logic_devices/states_unh.yaml state thresholds and channel mapping
+are also unvalidated placeholder data. The physical target_status profile
+therefore sets:
+
+    state_table_validated: false
+    apply_enabled: false
+
+In this mode target-status information is advisory only. The IOC cannot push a
+state page, modify alarm-limit fields from the state table, or auto-advance.
+The physical operator GUI exposes requested state, material, and auto mode as
+read-only values while this condition remains in force.
+
+Save/restore saves both ordinary settings and enables, but enables are restored
+only when SR_Restore_Enables is deliberately selected. Enable restoration is
+fail-closed: an active safety fault or an unreachable safety interlock refuses
+the enable restore. Ordinary settings-only restoration remains available.
+
+logic_devices/pid.py is retained from the target-control software but is not a
+standard Cryo physical IOC owner. The PID can directly drive an output when
+Auto is enabled, so it remains a commissioning/future-control component until
+its process model, limits, tuning, and operational ownership are validated.
+
+The Cryo CSV archiver monitors the explicit Cryo PV set and is enabled only
+after startup verifies the read-only physical baseline. Historical data can be
+viewed through:
+
+    genesis cryo-viewer
+
+or the common Genesis archive viewer.
+
+cryo-stop does not command hardware ON or OFF. If the cold-board IOC is
+running, shutdown first confirms Coldboard_Mode is OFF. If that state cannot
+be read, or if it reports ON, the lifecycle refuses to abandon the cold-board
+software owner.
+
+Physical start and stop are Ubuntu/WSL operations. The Mac remains the
+development/edit host and is used only for static validation before the exact
+candidate commit is transferred to Ubuntu for regression and hardware
+acceptance.

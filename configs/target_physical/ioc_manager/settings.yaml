@@ -1,0 +1,93 @@
+general:
+  prefix: UNH:GEN:CRYO
+  log_dir: logs
+  epics_addr_list: 127.0.0.1:5111 127.0.0.1:5112 127.0.0.1:5113 127.0.0.1:5114 127.0.0.1:5115
+    127.0.0.1:5116 127.0.0.1:5117 127.0.0.1:5118 127.0.0.1:5119 127.0.0.1:5120 127.0.0.1:5121
+    127.0.0.1:5122
+  manager_ca_server_port: 5110
+  manager_pva_server_port: 5210
+  delay: 0.5
+siglent_coldboard:
+  autostart: false
+  settings_folder: configs/target_physical/siglent_coldboard
+  ioc: siglent_coldboard
+  heartbeat_pv: UNH:GEN:CRYO:COLDBOARD:MAN:siglent_coldboard_time
+  ca_server_port: 5111
+  pva_server_port: 5211
+mks902b:
+  autostart: false
+  settings_folder: configs/target_physical/mks902b
+  ioc: mks902b
+  heartbeat_pv: UNH:GEN:CRYO:CELL:MAN:mks902b_time
+  ca_server_port: 5112
+  pva_server_port: 5212
+tpg262:
+  autostart: false
+  settings_folder: configs/target_physical/tpg262
+  ioc: tpg262
+  heartbeat_pv: UNH:GEN:CRYO:VAC:MAN:tpg262_time
+  ca_server_port: 5113
+  pva_server_port: 5213
+ionivac:
+  autostart: false
+  settings_folder: configs/target_physical/ionivac
+  ioc: ionivac
+  heartbeat_pv: UNH:GEN:CRYO:ION:MAN:ionivac_time
+  ca_server_port: 5114
+  pva_server_port: 5214
+ls455:
+  autostart: false
+  settings_folder: configs/target_physical/ls455
+  ioc: ls455
+  heartbeat_pv: UNH:GEN:CRYO:FIELD:MAN:ls455_time
+  ca_server_port: 5115
+  pva_server_port: 5215
+ls224_fridge:
+  autostart: false
+  settings_folder: configs/target_physical/ls224_fridge
+  ioc: ls224_fridge
+  heartbeat_pv: UNH:GEN:CRYO:FRIDGE:MAN:ls224_fridge_time
+  ca_server_port: 5116
+  pva_server_port: 5216
+ls224_magnet:
+  autostart: false
+  settings_folder: configs/target_physical/ls224_magnet
+  ioc: ls224_magnet
+  heartbeat_pv: UNH:GEN:CRYO:MAG:MAN:ls224_magnet_time
+  ca_server_port: 5117
+  pva_server_port: 5217
+alarm_summary:
+  autostart: false
+  settings_folder: configs/target_physical/alarm_summary
+  ioc: alarm_summary
+  heartbeat_pv: UNH:GEN:CRYO:ALARM:MAN:alarm_summary_time
+  ca_server_port: 5118
+  pva_server_port: 5218
+safety_interlock:
+  autostart: false
+  settings_folder: configs/target_physical/safety_interlock
+  ioc: safety_interlock
+  heartbeat_pv: UNH:GEN:CRYO:SAFE:MAN:safety_interlock_time
+  ca_server_port: 5119
+  pva_server_port: 5219
+target_status:
+  autostart: false
+  settings_folder: configs/target_physical/target_status
+  ioc: target_status
+  heartbeat_pv: UNH:GEN:CRYO:STATE:MAN:target_status_time
+  ca_server_port: 5120
+  pva_server_port: 5220
+save_restore:
+  autostart: false
+  settings_folder: configs/target_physical/save_restore
+  ioc: save_restore
+  heartbeat_pv: UNH:GEN:CRYO:SAVE:MAN:save_restore_time
+  ca_server_port: 5121
+  pva_server_port: 5221
+archiver:
+  autostart: false
+  settings_folder: configs/target_physical/archiver
+  ioc: archiver
+  heartbeat_pv: UNH:GEN:CRYO:ARCH:MAN:archiver_time
+  ca_server_port: 5122
+  pva_server_port: 5222

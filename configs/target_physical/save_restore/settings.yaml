@@ -1,0 +1,33 @@
+general:
+  prefix: UNH:GEN:CRYO:SAVE
+  log_dir: logs
+  epics_addr_list: >-
+    127.0.0.1:5111
+    127.0.0.1:5119
+  delay: 0.5
+
+save_restore:
+  module: logic_devices.save_restore
+  autostart: false
+  delay: 5
+  snapshot_dir: archive/cryo_snapshots
+  settings_file: configs/target_physical/ioc_manager/settings.yaml
+  interval: 900
+  keep: 200
+
+  # Genesis safety-interlock dependency for enable restoration.
+  interlock_pv: UNH:GEN:CRYO:SAFE:Safe_Fault
+
+  channels:
+    - None
+
+  records:
+    SR_Save:            {DESC: Snapshot Cryo setpoints now}
+    SR_Restore:         {DESC: Restore from named snapshot}
+    SR_File:            {DESC: Snapshot to restore}
+    SR_Auto:            {DESC: Snapshot automatically}
+    SR_Restore_Enables: {DESC: Permit restoring enable states}
+    SR_Count:           {DESC: PVs saved or restored}
+    SR_Failed:          {DESC: PVs that could not be read or written}
+    SR_Last:            {DESC: Time of last snapshot}
+    SR_Status:          {DESC: Result of last save or restore}

@@ -6,6 +6,11 @@ scipy~=1.18.1
 screenutils
 pyvisa~=1.16.2
 pyvisa-py~=0.8.1
+pyModbusTCP~=0.3.0
+simple-pid~=2.0.1
+psutil
+alicat
+zaber-motion
 pandas
 plotly
 streamlit

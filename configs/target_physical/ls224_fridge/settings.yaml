@@ -1,0 +1,133 @@
+# Genesis target/Cryo physical profile.
+# Imported from Farooq's UNH DAQ IOC settings and adapted to the
+# standalone Genesis architecture.
+#
+# Physical endpoint/channel/alarm values remain subject to lab
+# verification. Hardware writes are disabled by default.
+
+general:
+  prefix: UNH:GEN:CRYO:FRIDGE
+  log_dir: logs
+  epics_addr_list: None
+  delay: 0.5
+ls224_fridge:
+  module: target_ioc.instruments.ls224
+  ip: 192.168.1.19
+  port: 7777
+  timeout: 3
+  delay: 2
+  calibration: calibration/fridge_thermometry.csv
+  channels:
+  - F1
+  - F2
+  - F3
+  - F4
+  - F5
+  - F6
+  - F7
+  - F8
+  - F9
+  - F10
+  - F11
+  slots:
+  - A
+  - C1
+  - C2
+  - C3
+  - C4
+  - C5
+  - B
+  - D1
+  - D2
+  - D3
+  - D4
+  records:
+    F1_TI:
+      DESC: Fridge F1 temperature
+      EGU: K
+      PREC: 4
+      HIHI: 330
+      HIGH: 310
+      LOW: 0.05
+      LOLO: 0.0
+    F2_TI:
+      DESC: Fridge F2 temperature
+      EGU: K
+      PREC: 4
+      HIHI: 330
+      HIGH: 310
+      LOW: 0.05
+      LOLO: 0.0
+    F3_TI:
+      DESC: Fridge F3 temperature
+      EGU: K
+      PREC: 4
+      HIHI: 330
+      HIGH: 310
+      LOW: 0.05
+      LOLO: 0.0
+    F4_TI:
+      DESC: Fridge F4 temperature
+      EGU: K
+      PREC: 4
+      HIHI: 330
+      HIGH: 310
+      LOW: 0.05
+      LOLO: 0.0
+    F5_TI:
+      DESC: Fridge F5 temperature
+      EGU: K
+      PREC: 4
+      HIHI: 330
+      HIGH: 310
+      LOW: 0.05
+      LOLO: 0.0
+    F6_TI:
+      DESC: Fridge F6 temperature
+      EGU: K
+      PREC: 4
+      HIHI: 330
+      HIGH: 310
+      LOW: 0.05
+      LOLO: 0.0
+    F7_TI:
+      DESC: Fridge F7 temperature
+      EGU: K
+      PREC: 4
+      HIHI: 330
+      HIGH: 310
+      LOW: 0.05
+      LOLO: 0.0
+    F8_TI:
+      DESC: Fridge F8 temperature
+      EGU: K
+      PREC: 4
+      HIHI: 330
+      HIGH: 310
+      LOW: 0.05
+      LOLO: 0.0
+    F9_TI:
+      DESC: Fridge F9 temperature
+      EGU: K
+      PREC: 4
+      HIHI: 330
+      HIGH: 310
+      LOW: 0.05
+      LOLO: 0.0
+    F10_TI:
+      DESC: Fridge F10 temperature
+      EGU: K
+      PREC: 4
+      HIHI: 330
+      HIGH: 310
+      LOW: 0.05
+      LOLO: 0.0
+    F11_TI:
+      DESC: Fridge F11 temperature (CCCS sensor)
+      EGU: K
+      PREC: 4
+      HIHI: 330
+      HIGH: 310
+      LOW: 0.05
+      LOLO: 0.0
+  write_enabled: false

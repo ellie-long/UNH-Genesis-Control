@@ -1,0 +1,73 @@
+# Genesis target/Cryo physical profile.
+# Imported from Farooq's UNH DAQ IOC settings and adapted to the
+# standalone Genesis architecture.
+#
+# Physical endpoint/channel/alarm values remain subject to lab
+# verification. Hardware writes are disabled by default.
+
+general:
+  prefix: UNH:GEN:CRYO:MAG
+  log_dir: logs
+  epics_addr_list: None
+  delay: 0.5
+ls224_magnet:
+  module: target_ioc.instruments.ls224
+  ip: 192.168.1.20
+  port: 7777
+  timeout: 3
+  delay: 2
+  calibration: calibration/magnet_thermometry.csv
+  channels:
+  - M1
+  - M2
+  - M3
+  - M4
+  - M5
+  slots:
+  - D3
+  - D1
+  - D2
+  - D4
+  - D5
+  records:
+    M1_TI:
+      DESC: Magnet M1 temperature (CCS2 sensor)
+      EGU: K
+      PREC: 4
+      HIHI: 8.0
+      HIGH: 6.0
+      LOW: 0.05
+      LOLO: 0.0
+    M2_TI:
+      DESC: Magnet M2 temperature
+      EGU: K
+      PREC: 4
+      HIHI: 8.0
+      HIGH: 6.0
+      LOW: 0.05
+      LOLO: 0.0
+    M3_TI:
+      DESC: Magnet M3 temperature
+      EGU: K
+      PREC: 4
+      HIHI: 8.0
+      HIGH: 6.0
+      LOW: 0.05
+      LOLO: 0.0
+    M4_TI:
+      DESC: Magnet M4 temperature
+      EGU: K
+      PREC: 4
+      HIHI: 8.0
+      HIGH: 6.0
+      LOW: 0.05
+      LOLO: 0.0
+    M5_TI:
+      DESC: Magnet M5 temperature
+      EGU: K
+      PREC: 4
+      HIHI: 8.0
+      HIGH: 6.0
+      LOW: 0.05
+      LOLO: 0.0
+  write_enabled: false

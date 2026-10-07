@@ -1,0 +1,86 @@
+# logic_devices/limits_unh.yaml - every trip threshold in the safety interlock
+#
+# ===========================================================================
+#  EVERY NUMBER IN THIS FILE IS A PLACEHOLDER.  NONE OF THEM CAME FROM THE
+#  UNH CRYOSTAT.  They are ordered so the file runs and the logic can be
+#  tested, not because they are the right values for this target.
+#
+#  Until each one is replaced, set `enforce: false` below.  With enforce off
+#  the interlock still reads, judges, latches and reports - you get the
+#  alarms and the state PVs - but it never drives an output.  That is the
+#  honest configuration for a set of thresholds nobody has verified: an
+#  interlock that trips on a wrong number is worse than none, because it
+#  teaches the operator to ignore it.
+#
+#  Each entry says what it should be derived from.  `tools/pv_logger.py`
+#  exports the archive to a wide CSV, which is where the real numbers are.
+# ===========================================================================
+
+# Held here rather than in settings.yaml because these are physics limits, not
+# wiring: they change when the target or the fridge changes, and they should be
+# reviewable on their own, in one screenful, by someone who was not the person
+# who set up the IOCs.
+
+# One switch for the whole IOC.  false = watch and report, never act.
+enforce: false
+
+coldboard:
+  # The cold board is regulated against F1_TI (see pid_coldboard in
+  # settings.yaml).  Driving it while that sensor is hot, unreadable, or while
+  # the supply is delivering more power than the board can take, is the case
+  # this interlock exists for.
+  #
+  # PLACEHOLDER: derive `trip_k` from the highest F1_TI ever seen during a
+  # normal polarizing run, plus margin.  `clear_k` must be below `trip_k` -
+  # the gap is what stops the output chattering on and off at the threshold.
+  temperature_pvs: [F1_TI]
+  trip_k: 4.5
+  clear_k: 4.0
+
+  # PLACEHOLDER: the board's own dissipation limit, from its spec, not from
+  # the supply's 150 W.  Coldboard_PI above this trips the output.
+  power_pv: Coldboard_PI
+  trip_w: 120.0
+  clear_w: 100.0
+
+  # What gets turned off on a trip.  Output enable only - never a setpoint,
+  # so a fault here cannot silently change what the board will do when it
+  # comes back.
+  output_pv: Coldboard_Mode
+
+vacuum:
+  # A vacuum loss removes the thermal isolation, so anything putting heat into
+  # the insert has to stop, and a burn must not start.
+  #
+  # PLACEHOLDER: `ovc_trip` should be roughly a decade above the OVC's normal
+  # operating pressure, `cell_trip` a little above the cell's.  Both are read
+  # in whatever unit their gauge IOC serves - check EGU on the PV before you
+  # put a number here, the TPG 262 is in mbar and the MKS 902B in Torr.
+  ovc_pv: OVC_PI
+  ovc_trip: 1.0e-3          # mbar
+  ovc_clear: 5.0e-4         # mbar
+
+  cell_pv: Cell_PI
+  cell_trip: 900.0          # Torr - above atmosphere means the gauge is lying
+  cell_clear: 800.0         # Torr
+
+  # Turned off on a trip: heat into a failed vacuum is the thing to stop.  The
+  # burn is not driven off here - it is withheld through Vac_Permit, which the
+  # sequencer waits on, so a burn already in flight ends through its own safe
+  # -state path rather than being cut in the middle.
+  output_pv: Coldboard_Mode
+
+watchdog:
+  # An interlock that reads a frozen number is worse than one that reads
+  # nothing, because the frozen number looks fine.  This one asks, every
+  # cycle, whether the readings the other two interlocks depend on are still
+  # arriving - and says so by name.
+  #
+  # PLACEHOLDER: `stale_s` should be a few times the slowest `delay:` in
+  # settings.yaml (currently 2 s on the LS224s), not a round number.
+  stale_s: 30.0
+
+  # The PVs whose age matters.  Left empty, the IOC watches the _Conn PV of
+  # every instrument IOC in settings.yaml plus the PVs named above, which is
+  # what you want; list names here only to narrow it.
+  watch: []

@@ -75,6 +75,7 @@ class Device(BaseDevice):
         self.pvs['Archive_Status'] = builder.mbbIn('Archive_Status',
                                            'Stopped', 'Running', 'Error')
         self.pvs['Archive_PV_Count'] = builder.longIn('Archive_PV_Count')
+        self.pvs['Archive_Writes'] = builder.longIn('Archive_Writes')
 
         # Control PVs
         self.pvs['Archive_Enable'] = builder.boolOut('Archive_Enable',
@@ -87,6 +88,7 @@ class Device(BaseDevice):
         # Initialize values
         self.pvs['Archive_Status'].set(0)  # Stopped
         self.pvs['Archive_PV_Count'].set(0)
+        self.pvs['Archive_Writes'].set(0)
         self.pvs['Archive_Deadband'].set(self.deadband)
         self.pvs['Archive_Time_Increment'].set(self.time_increment)
         self.pvs['Archive_Enable'].set(False)
@@ -450,6 +452,8 @@ class Device(BaseDevice):
                 self._write_count += 1
             else:
                 self._write_count = 1
+
+            self.pvs['Archive_Writes'].set(self._write_count)
 
         except Exception as e:
             print(f"Error writing {pv_name}: {e}")

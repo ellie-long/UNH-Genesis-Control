@@ -68,6 +68,7 @@ SSRF_PHYSICAL_STATUS_SCRIPT="${ROOT}/scripts/check_ssrf_physical_readonly.sh"
 SSRF_FINAL_START_SCRIPT="${ROOT}/scripts/start_ssrf_physical.sh"
 SSRF_FINAL_STOP_SCRIPT="${ROOT}/scripts/stop_ssrf_physical.sh"
 SSRF_KEYSIGHT_DEPLOY_SCRIPT="${ROOT}/scripts/deploy_ssrf_keysight_pi.sh"
+CRYO_PHYSICAL_SCRIPT="${ROOT}/scripts/cryo_physical.sh"
 
 require_file() {
     [ -f "$1" ] || die "Required file not found: $1"
@@ -116,6 +117,14 @@ MICROWAVE PHYSICAL OPERATION
   mw-rf-ready           Verify the Microwave RF-control readiness conditions.
   mw-stop               Run the verified Microwave safe shutdown workflow.
 
+CRYOGENIC TARGET PHYSICAL OPERATION
+  cryo-start            Start the physical Cryogenic Target stack.
+                        Physical hardware writes remain disabled by default.
+  cryo-status           Read-only Cryo IOC, COMM, safety and archive status.
+  cryo-stop             Stop Cryo software owners after safe release checks.
+  cryo-phoebus          Open the Genesis Cryo operator GUI.
+  cryo-viewer           Open the common Genesis archive viewer.
+
 SSRF PHYSICAL OPERATION
   ssrf-physical-status Read-only physical ssRF/Keysight status and safe baseline.
   ssrf-deploy-keysight Deploy the final Keysight IOC/runtime to the Raspberry Pi.
@@ -143,7 +152,7 @@ TESTS
   test-ssrf            Run all test_ssrf*.py unit/regression tests.
   test-mw              Run Microwave Phase-I unit/integration regression tests.
   archive-viewer       Launch common read-only Genesis EPICS archive viewer.
-                       Includes Microwave/ssRF subsystem filtering.
+                       Includes Microwave/ssRF/Cryo subsystem filtering.
   test-fitter          Run fitter/planner/stager/runtime integration tests.
   test-auth            Run Genesis/ssRF authorization-security tests.
   test-all             Run all Python unittest tests under tests/.
@@ -425,6 +434,7 @@ show_status() {
     echo
     note "PV status is profile-specific."
     note "Use: genesis mw-status"
+    note "Use: genesis cryo-status"
     note "Use: genesis ssrf-physical-status"
     note "Use: genesis sim-status"
 }
@@ -492,6 +502,10 @@ PROFILES = [
     (
         "MICROWAVE SIMULATOR",
         Path("configs/commissioning/microwave_sim"),
+    ),
+    (
+        "CRYO PHYSICAL",
+        Path("configs/target_physical"),
     ),
     (
         "SSRF PHYSICAL",
@@ -861,6 +875,58 @@ mw_physical_stop() {
 }
 
 
+cryo_physical_start() {
+    require_env
+    require_file "${CRYO_PHYSICAL_SCRIPT}"
+
+    echo
+    echo "===== START CRYOGENIC TARGET STACK ====="
+    echo "+ ./scripts/cryo_physical.sh start"
+
+    "${CRYO_PHYSICAL_SCRIPT}" start
+}
+
+
+cryo_physical_status() {
+    require_env
+    require_file "${CRYO_PHYSICAL_SCRIPT}"
+
+    echo
+    echo "===== CRYOGENIC TARGET STATUS ====="
+    echo "+ ./scripts/cryo_physical.sh status"
+
+    "${CRYO_PHYSICAL_SCRIPT}" status
+}
+
+
+cryo_physical_stop() {
+    require_env
+    require_file "${CRYO_PHYSICAL_SCRIPT}"
+
+    echo
+    echo "===== STOP CRYOGENIC TARGET STACK ====="
+    echo "+ ./scripts/cryo_physical.sh stop"
+
+    "${CRYO_PHYSICAL_SCRIPT}" stop
+}
+
+
+cryo_phoebus() {
+    require_env
+    require_file "${CRYO_PHYSICAL_SCRIPT}"
+
+    "${CRYO_PHYSICAL_SCRIPT}" phoebus
+}
+
+
+cryo_viewer() {
+    require_env
+    require_file "${CRYO_PHYSICAL_SCRIPT}"
+
+    "${CRYO_PHYSICAL_SCRIPT}" viewer
+}
+
+
 ssrf_physical_status() {
     require_env
     echo
@@ -983,6 +1049,22 @@ case "${cmd}" in
         ;;
     mw-stop)
         mw_physical_stop
+        ;;
+
+    cryo-start)
+        cryo_physical_start
+        ;;
+    cryo-status)
+        cryo_physical_status
+        ;;
+    cryo-stop)
+        cryo_physical_stop
+        ;;
+    cryo-phoebus)
+        cryo_phoebus
+        ;;
+    cryo-viewer)
+        cryo_viewer
         ;;
 
     ssrf-physical-status)

@@ -1,0 +1,39 @@
+general:
+  prefix: UNH:GEN:CRYO:SAFE
+  log_dir: logs
+  epics_addr_list: >-
+    127.0.0.1:5111
+    127.0.0.1:5112
+    127.0.0.1:5113
+    127.0.0.1:5116
+  delay: 0.5
+
+safety_interlock:
+  module: logic_devices.safety_interlock
+  autostart: false
+  delay: 1
+  limits: logic_devices/limits_unh.yaml
+  channels:
+    - None
+
+  # Farooq's bare target names translated only at the Genesis boundary.
+  pv_aliases:
+    F1_TI: UNH:GEN:CRYO:FRIDGE:F1_TI
+    Coldboard_PI: UNH:GEN:CRYO:COLDBOARD:Coldboard_PI
+    Coldboard_Mode: UNH:GEN:CRYO:COLDBOARD:Coldboard_Mode
+    OVC_PI: UNH:GEN:CRYO:VAC:OVC_PI
+    Cell_PI: UNH:GEN:CRYO:CELL:Cell_PI
+
+  records:
+    CB_Permit:    {DESC: Safe to power the cold board}
+    Vac_Permit:   {DESC: Vacuum good enough to add heat}
+    Data_Permit:  {DESC: Readings behind permits are fresh}
+    Safe_Permit:  {DESC: All Cryo safety permits}
+    Safe_State:   {DESC: Cryo safety interlock state}
+    Safe_Fault:   {DESC: Latched Cryo safety trip}
+    Safe_Reason:  {DESC: First unsafe condition}
+    Safe_Trips:   {DESC: Safety trips since IOC start}
+    Safe_Stale:   {DESC: Watched readings not updating}
+    Safe_Enforce: {DESC: Enforce or report-only mode}
+    Safe_Reset:   {DESC: Clear safety latch}
+    Safe_Limits:  {DESC: Safety-limit configuration state}
