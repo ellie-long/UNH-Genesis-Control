@@ -192,7 +192,17 @@ def test_cryo_manager_contract():
     ca_ports = {general["manager_ca_server_port"]}
     pva_ports = {general["manager_pva_server_port"]}
 
-    assert set(manager) - {"general"} == set(PHYSICAL)
+    logic_owners = {
+        "alarm_summary",
+        "safety_interlock",
+        "target_status",
+        "save_restore",
+        "archiver",
+    }
+
+    assert set(manager) - {"general"} == (
+        set(PHYSICAL) | logic_owners
+    )
 
     for name, expected in PHYSICAL.items():
         cfg = manager[name]
