@@ -297,3 +297,39 @@ def test_python313_telnet_compatibility_does_not_import_telnetlib():
 
             if isinstance(node, ast.ImportFrom):
                 assert node.module != "telnetlib"
+
+
+
+def test_alarm_summary_has_logic_ioc_read_visibility():
+    """Alarm aggregation must be able to read the logic PVs it monitors."""
+    from pathlib import Path
+    import yaml
+
+    repo = Path(__file__).resolve().parents[1]
+
+    cfg = yaml.safe_load(
+        (
+            repo
+            / "configs"
+            / "target_physical"
+            / "alarm_summary"
+            / "settings.yaml"
+        ).read_text(
+            encoding="utf-8"
+        )
+    )
+
+    addresses = set(
+        str(
+            cfg["general"][
+                "epics_addr_list"
+            ]
+        ).split()
+    )
+
+    assert {
+        "127.0.0.1:5119",
+        "127.0.0.1:5120",
+        "127.0.0.1:5121",
+        "127.0.0.1:5122",
+    } <= addresses

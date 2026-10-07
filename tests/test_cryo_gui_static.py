@@ -230,8 +230,8 @@ def test_cryo_gui_rendering_contract():
                 conn_count += 1
 
                 assert (
-                    widget.find("format")
-                    is None
+                    widget.findtext("format")
+                    == "6"
                 ), (
                     path.name,
                     pv,
@@ -374,3 +374,129 @@ def test_cryo_gui_headers_and_final_schematic():
     assert "1 K FRIDGE" in main_text
     assert "TARGET STICK" in main_text
     assert "TARGET CELL" in main_text
+
+
+
+def test_cryo_final_operator_acceptance_contract():
+    """Protect corrections found during live Phoebus acceptance."""
+    from pathlib import Path
+    import xml.etree.ElementTree as ET
+
+    repo = Path(__file__).resolve().parents[1]
+    gui = repo / "gui"
+
+    bobs = sorted(
+        gui.glob("genesis_cryo*.bob")
+    )
+
+    conn_count = 0
+
+    for path in bobs:
+        root = ET.parse(path).getroot()
+
+        assert (
+            "all instruments"
+            not in path.read_text(
+                encoding="utf-8"
+            ).lower()
+        )
+
+        for widget in root.findall(
+            ".//widget[@type='textupdate']"
+        ):
+            pv = (
+                widget.findtext("pv_name")
+                or ""
+            )
+
+            if pv.endswith("_Conn"):
+                conn_count += 1
+                assert (
+                    widget.findtext("format")
+                    == "6"
+                ), (
+                    path.name,
+                    pv,
+                    widget.findtext("format"),
+                )
+
+    assert conn_count > 0
+
+    main = ET.parse(
+        gui / "genesis_cryo.bob"
+    ).getroot()
+
+    widgets = {
+        (
+            widget.findtext("name")
+            or ""
+        ): widget
+        for widget in main.findall("widget")
+    }
+
+    for idx in range(6):
+        widget = widgets[
+            f"Status{idx}V"
+        ]
+
+        assert int(
+            widget.findtext("width")
+        ) <= 105
+
+    for idx in range(4):
+        widget = widgets[
+            f"Permit{idx}LED"
+        ]
+
+        off = widget.find(
+            "off_color/color"
+        )
+        on = widget.find(
+            "on_color/color"
+        )
+
+        assert off is not None
+        assert on is not None
+
+        assert (
+            off.get("red"),
+            off.get("green"),
+            off.get("blue"),
+        ) == (
+            "200",
+            "50",
+            "50",
+        )
+
+        assert (
+            on.get("red"),
+            on.get("green"),
+            on.get("blue"),
+        ) == (
+            "30",
+            "160",
+            "70",
+        )
+
+    data = ET.parse(
+        gui / "genesis_cryo_data.bob"
+    ).getroot()
+
+    enabled = [
+        widget
+        for widget in data.findall(
+            ".//widget[@type='textupdate']"
+        )
+        if (
+            widget.findtext("pv_name")
+            or ""
+        ).endswith(
+            ":ARCH:Archive_Enable"
+        )
+    ]
+
+    assert len(enabled) == 1
+    assert (
+        enabled[0].findtext("format")
+        == "6"
+    )

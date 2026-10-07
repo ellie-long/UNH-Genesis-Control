@@ -2531,6 +2531,173 @@ print(
 )
 
 
+
+# GENESIS_FINAL_OPERATOR_ACCEPTANCE_V1
+#
+# Corrections found during final physical GUI acceptance:
+#   1. Imported *_Conn bool records must render their enum text.
+#   2. Remove legacy "< all instruments" navigation.
+#   3. Overview permit LEDs explicitly use red=blocked, green=permit.
+#   4. Compact SYSTEM STATUS values so alarm borders do not collide.
+#   5. Archive_Enable renders its Boolean state as text.
+import xml.etree.ElementTree as _ET
+
+
+def _ensure_text_child(_node, _tag, _value):
+    _child = _node.find(_tag)
+
+    if _child is None:
+        _child = _ET.SubElement(
+            _node,
+            _tag,
+        )
+
+    _child.text = str(_value)
+    return _child
+
+
+def _set_led_color(
+    _widget,
+    _tag,
+    _rgb,
+):
+    _container = _widget.find(_tag)
+
+    if _container is None:
+        _container = _ET.SubElement(
+            _widget,
+            _tag,
+        )
+
+    _color = _container.find("color")
+
+    if _color is None:
+        _color = _ET.SubElement(
+            _container,
+            "color",
+        )
+
+    _color.set("red", str(_rgb[0]))
+    _color.set("green", str(_rgb[1]))
+    _color.set("blue", str(_rgb[2]))
+
+
+_acceptance_conn = 0
+_acceptance_legacy_buttons = 0
+
+for _bob in sorted(
+    GUI.glob("genesis_cryo*.bob")
+):
+    _tree = _ET.parse(_bob)
+    _root = _tree.getroot()
+
+    # Imported per-channel connection records are bool/enum PVs.
+    for _widget in _root.findall(
+        ".//widget[@type='textupdate']"
+    ):
+        _pv = (
+            _widget.findtext("pv_name")
+            or ""
+        )
+
+        if _pv.endswith("_Conn"):
+            _ensure_text_child(
+                _widget,
+                "format",
+                "6",
+            )
+            _acceptance_conn += 1
+
+        if (
+            _pv.endswith(
+                ":ARCH:Archive_Enable"
+            )
+        ):
+            _ensure_text_child(
+                _widget,
+                "format",
+                "6",
+            )
+
+    # Remove old Farooq navigation that no longer belongs in Genesis.
+    for _widget in list(
+        _root.findall("widget")
+    ):
+        _text = (
+            _widget.findtext("text")
+            or ""
+        ).strip().lower()
+
+        if "all instruments" in _text:
+            _root.remove(_widget)
+            _acceptance_legacy_buttons += 1
+
+    # Main-overview-only corrections.
+    if _bob.name == "genesis_cryo.bob":
+
+        _widgets = {
+            (
+                widget.findtext("name")
+                or ""
+            ): widget
+            for widget in _root.findall("widget")
+        }
+
+        # Keep alarm-decoration borders from visually colliding with
+        # the following status label.
+        for _idx in range(6):
+            _widget = _widgets.get(
+                f"Status{_idx}V"
+            )
+
+            if _widget is not None:
+                _ensure_text_child(
+                    _widget,
+                    "width",
+                    "105",
+                )
+
+        # Permit semantics:
+        # false/0 = withheld/blocked = red
+        # true/1  = permit granted   = green
+        for _idx in range(4):
+            _widget = _widgets.get(
+                f"Permit{_idx}LED"
+            )
+
+            if _widget is not None:
+                _set_led_color(
+                    _widget,
+                    "off_color",
+                    (200, 50, 50),
+                )
+                _set_led_color(
+                    _widget,
+                    "on_color",
+                    (30, 160, 70),
+                )
+
+    _ET.indent(
+        _tree,
+        space="  ",
+    )
+
+    _tree.write(
+        _bob,
+        encoding="utf-8",
+        xml_declaration=True,
+    )
+
+print(
+    "[ACCEPTANCE] connection fields normalized:",
+    _acceptance_conn,
+)
+
+print(
+    "[ACCEPTANCE] legacy all-instruments buttons removed:",
+    _acceptance_legacy_buttons,
+)
+
 # Generated XML must remain source-control clean.
 # Template interpolation intentionally leaves some whitespace-only lines;
 # normalize all generated BOB files once before final validation.
