@@ -174,9 +174,10 @@ def test_cryo_gui_rendering_contract():
         )
     ) == 2
 
-    # Operator-level pages should use the PV's native Channel
-    # Access metadata instead of forcing Phoebus string format 6
-    # onto numeric counters, temperatures, pressures and timestamps.
+    # Operator-level numeric/status fields should use the PV's native
+    # Channel Access metadata instead of forcing Phoebus string format 6.
+    # Archive_Enable is intentionally exempt: live Phoebus acceptance
+    # showed that this Boolean/enum field needs format 6 for text rendering.
     native_format_pages = (
         "genesis_cryo.bob",
         "genesis_cryo_vacuum.bob",
@@ -196,12 +197,23 @@ def test_cryo_gui_rendering_contract():
             ".//widget[@type='textupdate']"
         ):
             fmt = widget.findtext("format")
+            pv = (
+                widget.findtext("pv_name")
+                or ""
+            )
 
-            if fmt == "6":
+            allowed_format6 = {
+                "ca://UNH:GEN:CRYO:ARCH:Archive_Enable",
+            }
+
+            if (
+                fmt == "6"
+                and pv not in allowed_format6
+            ):
                 bad.append(
                     (
                         widget.findtext("name"),
-                        widget.findtext("pv_name"),
+                        pv,
                     )
                 )
 
