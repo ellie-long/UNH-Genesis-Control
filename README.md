@@ -24,7 +24,7 @@ work, together with common EPICS infrastructure, Phoebus interfaces, archiving,
 simulation profiles, fitter/Burn Setup software, safety/interlock logic, and
 hardware communication shims.
 
-NMR/PyNMR and Magnet integration are subsequent Genesis integration milestones.
+PyNMR TestSim-to-Genesis online-fitter integration is validated as a software milestone; physical NMR/PyNMR commissioning and Magnet integration remain subsequent Genesis integration milestones.
 Cryogenic and higher-level supervisory systems are later extensions.
 
 Physical launchers existing in this repository must not be interpreted as blanket

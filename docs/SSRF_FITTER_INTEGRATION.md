@@ -4,6 +4,14 @@
 
 Integrate the UNH spin-1 NMR fitter and adaptive ssRF waveform generation into Genesis without allowing analysis software to bypass EPICS authorization, the ssRF sequencer, interlocks, or device write gates.
 
+## Validated PyNMR TestSim interface
+
+The software-only PyNMR TestSim -> Genesis fitter path has been validated independently of the physical ssRF hardware stack.
+
+Operational reproduction and validation instructions are maintained in `docs/PYNMR_FITTER_TESTSIM_QUICK_START.md`.
+
+The accepted Genesis milestone is tagged `pynmr-fitter-integration-validated-2026-10-08`.
+
 ## Architecture
 
 ```text

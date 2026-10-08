@@ -94,6 +94,9 @@ It must not blindly kill normal Genesis sessions, restore normal Genesis automat
 
 # Fitter / adaptive waveform
 
+For the validated software-only PyNMR TestSim -> Genesis fitter workflow, including the separate `pynmr` and `genesis-p1` environments and canonical fitter ports, see `docs/PYNMR_FITTER_TESTSIM_QUICK_START.md`.
+
+
 Fitter endpoints:
 
 ```text
