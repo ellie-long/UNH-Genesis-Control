@@ -4394,7 +4394,7 @@
 
 
 
-      <autoscale>false</autoscale>
+      <autoscale>true</autoscale>
 
       <minimum>32.05</minimum>
 
