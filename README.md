@@ -25,7 +25,7 @@ simulation profiles, fitter/Burn Setup software, safety/interlock logic, and
 hardware communication shims.
 
 PyNMR TestSim-to-Genesis online-fitter integration is validated as a software milestone; physical NMR/PyNMR commissioning and Magnet integration remain subsequent Genesis integration milestones.
-Cryogenic and higher-level supervisory systems are later extensions.
+The Cryogenic Target Phase-I control stack has completed live lab acceptance and is integrated into the Genesis main branch; higher-level supervisory integration remains future work.
 
 Physical launchers existing in this repository must not be interpreted as blanket
 hardware acceptance. RF-enabled operation remains subject to the current

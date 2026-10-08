@@ -312,6 +312,33 @@ Historical no-RF commissioning records may show their original commands; the ded
 
 ## Cryogenic Target / Cryostat operation
 
+### Phase-I validated baseline
+
+The live Cryogenic Target Phase-I operator acceptance is frozen at:
+
+    commit: 974ddde0b52218aca0f3dfe217fcdc560ebd70bc
+    tag:    cryo-phase1-lab-freeze-2026-10-07
+
+That milestone records the accepted live GUI and read-only hardware behavior.
+
+A later post-freeze commit:
+
+    591a96a368ee6f3f3cd086193e952af33421bd58
+
+changed only `tests/test_cryo_gui_static.py`. It reconciled the static GUI
+regression with the already validated live Phoebus behavior for
+`UNH:GEN:CRYO:ARCH:Archive_Enable`, which intentionally requires Phoebus
+format 6 for its Boolean/enum text rendering.
+
+The post-freeze correction did not modify Cryo runtime code or `.bob` GUI
+implementation. The focused Cryo GUI regression subsequently passed 10/10 on
+Ubuntu/WSL, and both the original accepted Cryo implementation and the
+regression correction are now incorporated into `main`.
+
+The original Cryo lab-freeze tag remains unchanged; no additional Cryo
+acceptance tag is required for this test-only reconciliation.
+
+
 The Genesis Cryogenic Target stack is operated independently from Microwave,
 ssRF, and PyNMR.
 
