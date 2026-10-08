@@ -4394,11 +4394,11 @@
 
 
 
-      <autoscale>true</autoscale>
+      <autoscale>false</autoscale>
 
-      <minimum>32.05</minimum>
+      <minimum>32.25</minimum>
 
-      <maximum>32.52</maximum>
+      <maximum>33.15</maximum>
 
 
 
