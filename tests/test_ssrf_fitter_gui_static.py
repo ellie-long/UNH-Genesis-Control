@@ -315,63 +315,71 @@ class TestSsrfFitterGuiStatic(
 
     def test_xyplot_sources(self):
 
-        plots = [
-            node
-            for node
-            in self.widgets
-            if (
-                node.attrib.get(
-                    "type"
-                )
-                == "xyplot"
+        plots = {
+            widget.findtext("name"): widget
+            for widget in self.widgets
+            if widget.attrib.get("type") == "xyplot"
+        }
+
+        self.assertEqual(
+            set(plots),
+            {"Incoming_NMR_Plot", "NMR_Fit_Plot"},
+        )
+
+        expected = {
+            "Incoming_NMR_Plot": {"RAW"},
+            "NMR_Fit_Plot": {"DATA", "TOTAL_FIT"},
+        }
+
+        for name, signals in expected.items():
+
+            traces = plots[name].findall("traces/trace")
+
+            self.assertEqual(
+                {
+                    trace.findtext("x_pv")
+                    for trace in traces
+                },
+                {"ca://$(P):FREQS_MHZ"},
             )
-        ]
+
+            self.assertEqual(
+                {
+                    trace.findtext("y_pv")
+                    for trace in traces
+                },
+                {
+                    f"ca://$(P):{signal}"
+                    for signal in signals
+                },
+            )
+
+    def test_polarization_history(self):
+
+        widget = self.widget_by_name("P_Q_History")
 
         self.assertEqual(
-            len(plots),
-            1,
-        )
-
-        traces = plots[0].findall(
-            "traces/trace"
+            widget.attrib.get("type"),
+            "databrowser",
         )
 
         self.assertEqual(
-            len(traces),
-            2,
+            widget.findtext("file"),
+            "genesis_ssrf_fitter_pq.plt",
         )
+
+        plot = ET.parse(
+            GUI.parent / "genesis_ssrf_fitter_pq.plt"
+        ).getroot()
 
         self.assertEqual(
             {
-                trace.findtext(
-                    "x_pv"
-                )
-                for trace in traces
+                pv.findtext("name")
+                for pv in plot.findall("pvlist/pv")
             },
             {
-                (
-                    "ca://$(P):"
-                    "FREQS_MHZ"
-                ),
-            },
-        )
-
-        self.assertEqual(
-            {
-                trace.findtext(
-                    "y_pv"
-                )
-                for trace in traces
-            },
-            {
-                (
-                    "ca://$(P):"
-                    "DATA"
-                ),
-                (
-                    "ca://$(P):"
-                    "TOTAL_FIT"
-                ),
+                "UNH:GEN:SSRF:FIT:P_FIT",
+                "UNH:GEN:SSRF:FIT:Q_FIT",
             },
         )
 

@@ -14,7 +14,7 @@
 
 
 
-  <height>1190</height>
+  <height>1570</height>
 
 
 
@@ -4304,7 +4304,7 @@
 
 
 
-    <name>NMR_Fit_Plot</name>
+    <name>Incoming_NMR_Plot</name>
 
 
 
@@ -4319,17 +4319,239 @@
 
 
 
-    <width>1180</width>
+    <width>570</width>
 
 
 
 
-    <height>325</height>
+    <height>310</height>
 
 
 
 
-    <title>NMR Spectrum and Fitter Result</title>
+    <title>Incoming NMR (Fitter Input)</title>
+
+
+
+
+    <show_toolbar>true</show_toolbar>
+
+
+
+
+    <background_color>
+
+
+
+
+      <color red="255" green="255" blue="255"/>
+
+
+
+
+    </background_color>
+
+
+
+
+    <foreground_color>
+
+
+
+
+      <color red="0" green="0" blue="0"/>
+
+
+
+
+    </foreground_color>
+
+
+
+
+    <grid_color>
+
+
+
+
+      <color red="210" green="215" blue="220"/>
+
+
+
+
+    </grid_color>
+
+
+
+
+    <x_axis>
+
+
+
+
+      <title>Frequency (MHz)</title>
+
+
+
+
+      <autoscale>false</autoscale>
+
+      <minimum>32.25</minimum>
+
+      <maximum>33.15</maximum>
+
+
+
+
+      <log_scale>false</log_scale>
+
+
+
+
+      <show_grid>true</show_grid>
+
+
+
+
+    </x_axis>
+
+
+
+
+    <y_axes>
+
+
+
+
+      <y_axis>
+
+
+
+
+        <title>NMR Signal (arb. units)</title>
+
+
+
+
+        <autoscale>true</autoscale>
+
+
+
+
+        <log_scale>false</log_scale>
+
+
+
+
+        <show_grid>true</show_grid>
+
+
+
+
+        <on_right>false</on_right>
+
+
+
+
+      </y_axis>
+
+
+
+
+    </y_axes>
+
+
+
+
+    <traces>
+<trace>
+
+
+
+
+        <name>Incoming NMR</name>
+
+
+
+
+        <x_pv>ca://$(P):FREQS_MHZ</x_pv>
+
+
+
+
+        <y_pv>ca://$(P):RAW</y_pv>
+
+
+
+
+        <axis>0</axis>
+
+
+
+
+        <trace_type>1</trace_type>
+
+
+
+
+        <line_width>2</line_width>
+
+
+
+
+        <color>
+
+
+
+
+          <color red="0" green="53" blue="145"/>
+
+
+
+
+        </color>
+
+
+
+
+      </trace>
+    </traces>
+
+
+
+
+  </widget>
+<widget type="xyplot" version="3.0.0">
+
+
+
+
+    <name>NMR_Fit_Plot</name>
+
+
+
+
+    <x>650</x>
+
+
+
+
+    <y>830</y>
+
+
+
+
+    <width>570</width>
+
+
+
+
+    <height>310</height>
+
+
+
+
+    <title>Processed NMR and Total Fit</title>
 
 
 
@@ -4584,6 +4806,16 @@
 
 
   </widget>
+<widget type="databrowser" version="2.0.0">
+  <name>P_Q_History</name>
+  <x>40</x>
+  <y>1160</y>
+  <width>1180</width>
+  <height>350</height>
+  <file>genesis_ssrf_fitter_pq.plt</file>
+  <show_toolbar>true</show_toolbar>
+</widget>
+
 
 
 
@@ -4603,7 +4835,7 @@
 
 
 
-    <y>1162</y>
+    <y>1526</y>
 
 
 
