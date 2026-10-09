@@ -1,0 +1,1204 @@
+<?xml version='1.0' encoding='utf-8'?>
+<display version="2.0.0">
+  <name>Genesis Microwave Visualization</name>
+  <width>1600</width>
+  <height>880</height>
+  <widget type="rectangle" version="2.0.0">
+    <name>Page</name>
+    <x>0</x>
+    <y>0</y>
+    <width>1600</width>
+    <height>880</height>
+    <line_width>0</line_width>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>Header</name>
+    <x>0</x>
+    <y>0</y>
+    <width>1600</width>
+    <height>54</height>
+    <line_width>0</line_width>
+    <background_color>
+      <color red="0" green="36" blue="92" alpha="255" />
+    </background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Title</name>
+    <x>18</x>
+    <y>13</y>
+    <width>830</width>
+    <height>30</height>
+    <text>UNH Genesis  |  Microwave Live Visualization</text>
+    <transparent>true</transparent>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="20.0" />
+    </font>
+    <foreground_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Open_0</name>
+    <x>992</x>
+    <y>12</y>
+    <width>142</width>
+    <height>30</height>
+    <actions>
+      <action type="open_display">
+        <file>genesis_microwave.bob</file>
+        <target>tab</target>
+        <description>Open Microwave Main</description>
+      </action>
+    </actions>
+    <text>Microwave Main</text>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Open_1</name>
+    <x>1142</x>
+    <y>12</y>
+    <width>142</width>
+    <height>30</height>
+    <actions>
+      <action type="open_display">
+        <file>genesis_mw_supervisor.bob</file>
+        <target>tab</target>
+        <description>Open Supervisor</description>
+      </action>
+    </actions>
+    <text>Supervisor</text>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Open_2</name>
+    <x>1292</x>
+    <y>12</y>
+    <width>142</width>
+    <height>30</height>
+    <actions>
+      <action type="open_display">
+        <file>genesis_mw_vaunix.bob</file>
+        <target>tab</target>
+        <description>Open Vaunix</description>
+      </action>
+    </actions>
+    <text>Vaunix</text>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Open_3</name>
+    <x>1442</x>
+    <y>12</y>
+    <width>142</width>
+    <height>30</height>
+    <actions>
+      <action type="open_display">
+        <file>genesis_mw_robot.bob</file>
+        <target>tab</target>
+        <description>Open Robot</description>
+      </action>
+    </actions>
+    <text>Robot</text>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>Card_0</name>
+    <x>20</x>
+    <y>70</y>
+    <width>500</width>
+    <height>116</height>
+    <line_width>0</line_width>
+    <background_color>
+      <color red="245" green="248" blue="252" alpha="255" />
+    </background_color>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>CardHead_0</name>
+    <x>20</x>
+    <y>70</y>
+    <width>500</width>
+    <height>27</height>
+    <line_width>0</line_width>
+    <background_color>
+      <color red="220" green="231" blue="243" alpha="255" />
+    </background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>CardTitle_0</name>
+    <x>32</x>
+    <y>73</y>
+    <width>475</width>
+    <height>22</height>
+    <text>1  MICROWAVE SUPERVISOR</text>
+    <transparent>true</transparent>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Caption_0_0</name>
+    <x>30</x>
+    <y>109</y>
+    <width>104</width>
+    <height>23</height>
+    <text>Connected</text>
+    <transparent>true</transparent>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="11.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Readback_0_0</name>
+    <x>134</x>
+    <y>109</y>
+    <width>129</width>
+    <height>23</height>
+    <pv_name>pva://UNH:GEN:MW:SUP:SystemConnected</pv_name>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="12.0" />
+    </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Caption_0_1</name>
+    <x>276</x>
+    <y>109</y>
+    <width>104</width>
+    <height>23</height>
+    <text>RF permit</text>
+    <transparent>true</transparent>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="11.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Readback_0_1</name>
+    <x>380</x>
+    <y>109</y>
+    <width>129</width>
+    <height>23</height>
+    <pv_name>pva://UNH:GEN:MW:SUP:RFPermissive</pv_name>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="12.0" />
+    </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Caption_0_2</name>
+    <x>30</x>
+    <y>142</y>
+    <width>104</width>
+    <height>23</height>
+    <text>RF actual</text>
+    <transparent>true</transparent>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="11.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Readback_0_2</name>
+    <x>134</x>
+    <y>142</y>
+    <width>129</width>
+    <height>23</height>
+    <pv_name>pva://UNH:GEN:MW:SUP:RFActual</pv_name>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="12.0" />
+    </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Caption_0_3</name>
+    <x>276</x>
+    <y>142</y>
+    <width>104</width>
+    <height>23</height>
+    <text>RF state</text>
+    <transparent>true</transparent>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="11.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Readback_0_3</name>
+    <x>380</x>
+    <y>142</y>
+    <width>129</width>
+    <height>23</height>
+    <pv_name>pva://UNH:GEN:MW:SUP:RFState</pv_name>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="12.0" />
+    </font>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>Card_1</name>
+    <x>550</x>
+    <y>70</y>
+    <width>500</width>
+    <height>116</height>
+    <line_width>0</line_width>
+    <background_color>
+      <color red="245" green="248" blue="252" alpha="255" />
+    </background_color>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>CardHead_1</name>
+    <x>550</x>
+    <y>70</y>
+    <width>500</width>
+    <height>27</height>
+    <line_width>0</line_width>
+    <background_color>
+      <color red="220" green="231" blue="243" alpha="255" />
+    </background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>CardTitle_1</name>
+    <x>562</x>
+    <y>73</y>
+    <width>475</width>
+    <height>22</height>
+    <text>2  VAUNIX / SOURCE</text>
+    <transparent>true</transparent>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Caption_1_0</name>
+    <x>560</x>
+    <y>109</y>
+    <width>104</width>
+    <height>23</height>
+    <text>Connected</text>
+    <transparent>true</transparent>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="11.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Readback_1_0</name>
+    <x>664</x>
+    <y>109</y>
+    <width>129</width>
+    <height>23</height>
+    <pv_name>pva://UNH:GEN:MW:SRC:MW_Connected</pv_name>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="12.0" />
+    </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Caption_1_1</name>
+    <x>806</x>
+    <y>109</y>
+    <width>104</width>
+    <height>23</height>
+    <text>RF state</text>
+    <transparent>true</transparent>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="11.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Readback_1_1</name>
+    <x>910</x>
+    <y>109</y>
+    <width>129</width>
+    <height>23</height>
+    <pv_name>pva://UNH:GEN:MW:SRC:MW_RF_STATE</pv_name>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="12.0" />
+    </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Caption_1_2</name>
+    <x>560</x>
+    <y>142</y>
+    <width>104</width>
+    <height>23</height>
+    <text>Frequency</text>
+    <transparent>true</transparent>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="11.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Readback_1_2</name>
+    <x>664</x>
+    <y>142</y>
+    <width>129</width>
+    <height>23</height>
+    <pv_name>pva://UNH:GEN:MW:SRC:MW_FI</pv_name>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="12.0" />
+    </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Caption_1_3</name>
+    <x>806</x>
+    <y>142</y>
+    <width>104</width>
+    <height>23</height>
+    <text>Power RBV</text>
+    <transparent>true</transparent>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="11.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Readback_1_3</name>
+    <x>910</x>
+    <y>142</y>
+    <width>129</width>
+    <height>23</height>
+    <pv_name>pva://UNH:GEN:MW:SRC:MW_PWRI</pv_name>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="12.0" />
+    </font>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>Card_2</name>
+    <x>1080</x>
+    <y>70</y>
+    <width>500</width>
+    <height>116</height>
+    <line_width>0</line_width>
+    <background_color>
+      <color red="245" green="248" blue="252" alpha="255" />
+    </background_color>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>CardHead_2</name>
+    <x>1080</x>
+    <y>70</y>
+    <width>500</width>
+    <height>27</height>
+    <line_width>0</line_width>
+    <background_color>
+      <color red="220" green="231" blue="243" alpha="255" />
+    </background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>CardTitle_2</name>
+    <x>1092</x>
+    <y>73</y>
+    <width>475</width>
+    <height>22</height>
+    <text>3  ROBOT POSITION</text>
+    <transparent>true</transparent>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Caption_2_0</name>
+    <x>1090</x>
+    <y>109</y>
+    <width>104</width>
+    <height>23</height>
+    <text>Comm</text>
+    <transparent>true</transparent>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="11.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Readback_2_0</name>
+    <x>1194</x>
+    <y>109</y>
+    <width>129</width>
+    <height>23</height>
+    <pv_name>pva://UNH:GEN:MW:ROBOT:COMM_STATUS</pv_name>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="12.0" />
+    </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Caption_2_1</name>
+    <x>1336</x>
+    <y>109</y>
+    <width>104</width>
+    <height>23</height>
+    <text>Motion inhibited</text>
+    <transparent>true</transparent>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="11.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Readback_2_1</name>
+    <x>1440</x>
+    <y>109</y>
+    <width>129</width>
+    <height>23</height>
+    <pv_name>pva://UNH:GEN:MW:ROBOT:MOTION_INHIBITED</pv_name>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="12.0" />
+    </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Caption_2_2</name>
+    <x>1090</x>
+    <y>142</y>
+    <width>104</width>
+    <height>23</height>
+    <text>X (cm)</text>
+    <transparent>true</transparent>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="11.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Readback_2_2</name>
+    <x>1194</x>
+    <y>142</y>
+    <width>129</width>
+    <height>23</height>
+    <pv_name>pva://UNH:GEN:MW:ROBOT:X_CM</pv_name>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="12.0" />
+    </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Caption_2_3</name>
+    <x>1336</x>
+    <y>142</y>
+    <width>104</width>
+    <height>23</height>
+    <text>Y (cm)</text>
+    <transparent>true</transparent>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="11.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Readback_2_3</name>
+    <x>1440</x>
+    <y>142</y>
+    <width>129</width>
+    <height>23</height>
+    <pv_name>pva://UNH:GEN:MW:ROBOT:Y_CM</pv_name>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="12.0" />
+    </font>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>Card_3</name>
+    <x>20</x>
+    <y>197</y>
+    <width>500</width>
+    <height>116</height>
+    <line_width>0</line_width>
+    <background_color>
+      <color red="245" green="248" blue="252" alpha="255" />
+    </background_color>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>CardHead_3</name>
+    <x>20</x>
+    <y>197</y>
+    <width>500</width>
+    <height>27</height>
+    <line_width>0</line_width>
+    <background_color>
+      <color red="220" green="231" blue="243" alpha="255" />
+    </background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>CardTitle_3</name>
+    <x>32</x>
+    <y>200</y>
+    <width>475</width>
+    <height>22</height>
+    <text>4  POWER SUPPLY</text>
+    <transparent>true</transparent>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Caption_3_0</name>
+    <x>30</x>
+    <y>236</y>
+    <width>104</width>
+    <height>23</height>
+    <text>Comm</text>
+    <transparent>true</transparent>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="11.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Readback_3_0</name>
+    <x>134</x>
+    <y>236</y>
+    <width>129</width>
+    <height>23</height>
+    <pv_name>pva://UNH:GEN:MW:PS:COMM</pv_name>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="12.0" />
+    </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Caption_3_1</name>
+    <x>276</x>
+    <y>236</y>
+    <width>104</width>
+    <height>23</height>
+    <text>Output</text>
+    <transparent>true</transparent>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="11.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Readback_3_1</name>
+    <x>380</x>
+    <y>236</y>
+    <width>129</width>
+    <height>23</height>
+    <pv_name>pva://UNH:GEN:MW:PS:OUTPUT_RBV</pv_name>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="12.0" />
+    </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Caption_3_2</name>
+    <x>30</x>
+    <y>269</y>
+    <width>104</width>
+    <height>23</height>
+    <text>Voltage</text>
+    <transparent>true</transparent>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="11.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Readback_3_2</name>
+    <x>134</x>
+    <y>269</y>
+    <width>129</width>
+    <height>23</height>
+    <pv_name>pva://UNH:GEN:MW:PS:VMEAS</pv_name>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="12.0" />
+    </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Caption_3_3</name>
+    <x>276</x>
+    <y>269</y>
+    <width>104</width>
+    <height>23</height>
+    <text>Current</text>
+    <transparent>true</transparent>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="11.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Readback_3_3</name>
+    <x>380</x>
+    <y>269</y>
+    <width>129</width>
+    <height>23</height>
+    <pv_name>pva://UNH:GEN:MW:PS:IMEAS</pv_name>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="12.0" />
+    </font>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>Card_4</name>
+    <x>550</x>
+    <y>197</y>
+    <width>500</width>
+    <height>116</height>
+    <line_width>0</line_width>
+    <background_color>
+      <color red="245" green="248" blue="252" alpha="255" />
+    </background_color>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>CardHead_4</name>
+    <x>550</x>
+    <y>197</y>
+    <width>500</width>
+    <height>27</height>
+    <line_width>0</line_width>
+    <background_color>
+      <color red="220" green="231" blue="243" alpha="255" />
+    </background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>CardTitle_4</name>
+    <x>562</x>
+    <y>200</y>
+    <width>475</width>
+    <height>22</height>
+    <text>5  FREQUENCY SWEEP</text>
+    <transparent>true</transparent>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Caption_4_0</name>
+    <x>560</x>
+    <y>236</y>
+    <width>104</width>
+    <height>23</height>
+    <text>State</text>
+    <transparent>true</transparent>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="11.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Readback_4_0</name>
+    <x>664</x>
+    <y>236</y>
+    <width>129</width>
+    <height>23</height>
+    <pv_name>pva://UNH:GEN:MW:SUP:SweepState</pv_name>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="12.0" />
+    </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Caption_4_1</name>
+    <x>806</x>
+    <y>236</y>
+    <width>104</width>
+    <height>23</height>
+    <text>Progress</text>
+    <transparent>true</transparent>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="11.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Readback_4_1</name>
+    <x>910</x>
+    <y>236</y>
+    <width>129</width>
+    <height>23</height>
+    <pv_name>pva://UNH:GEN:MW:SUP:SweepProgress</pv_name>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="12.0" />
+    </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Caption_4_2</name>
+    <x>560</x>
+    <y>269</y>
+    <width>104</width>
+    <height>23</height>
+    <text>Frequency</text>
+    <transparent>true</transparent>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="11.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Readback_4_2</name>
+    <x>664</x>
+    <y>269</y>
+    <width>129</width>
+    <height>23</height>
+    <pv_name>pva://UNH:GEN:MW:SUP:SweepCurrentFrequency</pv_name>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="12.0" />
+    </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Caption_4_3</name>
+    <x>806</x>
+    <y>269</y>
+    <width>104</width>
+    <height>23</height>
+    <text>Dwell</text>
+    <transparent>true</transparent>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="11.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Readback_4_3</name>
+    <x>910</x>
+    <y>269</y>
+    <width>129</width>
+    <height>23</height>
+    <pv_name>pva://UNH:GEN:MW:SUP:SweepDwell</pv_name>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="12.0" />
+    </font>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>Card_5</name>
+    <x>1080</x>
+    <y>197</y>
+    <width>500</width>
+    <height>116</height>
+    <line_width>0</line_width>
+    <background_color>
+      <color red="245" green="248" blue="252" alpha="255" />
+    </background_color>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>CardHead_5</name>
+    <x>1080</x>
+    <y>197</y>
+    <width>500</width>
+    <height>27</height>
+    <line_width>0</line_width>
+    <background_color>
+      <color red="220" green="231" blue="243" alpha="255" />
+    </background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>CardTitle_5</name>
+    <x>1092</x>
+    <y>200</y>
+    <width>475</width>
+    <height>22</height>
+    <text>6  OWNERSHIP / MODES</text>
+    <transparent>true</transparent>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Caption_5_0</name>
+    <x>1090</x>
+    <y>236</y>
+    <width>104</width>
+    <height>23</height>
+    <text>Control owned</text>
+    <transparent>true</transparent>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="11.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Readback_5_0</name>
+    <x>1194</x>
+    <y>236</y>
+    <width>129</width>
+    <height>23</height>
+    <pv_name>pva://UNH:GEN:MW:SUP:ControlOwned</pv_name>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="12.0" />
+    </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Caption_5_1</name>
+    <x>1336</x>
+    <y>236</y>
+    <width>104</width>
+    <height>23</height>
+    <text>RF valid</text>
+    <transparent>true</transparent>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="11.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Readback_5_1</name>
+    <x>1440</x>
+    <y>236</y>
+    <width>129</width>
+    <height>23</height>
+    <pv_name>pva://UNH:GEN:MW:SUP:RFValid</pv_name>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="12.0" />
+    </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Caption_5_2</name>
+    <x>1090</x>
+    <y>269</y>
+    <width>104</width>
+    <height>23</height>
+    <text>Supervisor sim</text>
+    <transparent>true</transparent>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="11.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Readback_5_2</name>
+    <x>1194</x>
+    <y>269</y>
+    <width>129</width>
+    <height>23</height>
+    <pv_name>pva://UNH:GEN:MW:SUP:Simulation</pv_name>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="12.0" />
+    </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Caption_5_3</name>
+    <x>1336</x>
+    <y>269</y>
+    <width>104</width>
+    <height>23</height>
+    <text>Source sim</text>
+    <transparent>true</transparent>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="11.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Readback_5_3</name>
+    <x>1440</x>
+    <y>269</y>
+    <width>129</width>
+    <height>23</height>
+    <pv_name>pva://UNH:GEN:MW:SRC:MW_Simulation</pv_name>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="12.0" />
+    </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Frequency_History_Label</name>
+    <x>25</x>
+    <y>323</y>
+    <width>755</width>
+    <height>20</height>
+    <text>Microwave Frequency Readbacks</text>
+    <transparent>true</transparent>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="databrowser" version="2.0.0">
+    <name>Frequency_History</name>
+    <x>20</x>
+    <y>346</y>
+    <width>770</width>
+    <height>215</height>
+    <file>genesis_mw_frequency.plt</file>
+    <show_toolbar>true</show_toolbar>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Power_History_Label</name>
+    <x>815</x>
+    <y>323</y>
+    <width>755</width>
+    <height>20</height>
+    <text>Source Power Readback</text>
+    <transparent>true</transparent>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="databrowser" version="2.0.0">
+    <name>Power_History</name>
+    <x>810</x>
+    <y>346</y>
+    <width>770</width>
+    <height>215</height>
+    <file>genesis_mw_source_power.plt</file>
+    <show_toolbar>true</show_toolbar>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Robot_History_Label</name>
+    <x>25</x>
+    <y>569</y>
+    <width>755</width>
+    <height>20</height>
+    <text>Robot X / Y Positions (cm)</text>
+    <transparent>true</transparent>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="databrowser" version="2.0.0">
+    <name>Robot_History</name>
+    <x>20</x>
+    <y>592</y>
+    <width>770</width>
+    <height>215</height>
+    <file>genesis_mw_robot_position.plt</file>
+    <show_toolbar>true</show_toolbar>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Supply_History_Label</name>
+    <x>815</x>
+    <y>569</y>
+    <width>755</width>
+    <height>20</height>
+    <text>Power Supply: Voltage / Current</text>
+    <transparent>true</transparent>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="databrowser" version="2.0.0">
+    <name>Supply_History</name>
+    <x>810</x>
+    <y>592</y>
+    <width>770</width>
+    <height>215</height>
+    <file>genesis_mw_supply_vi.plt</file>
+    <show_toolbar>true</show_toolbar>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Footer</name>
+    <x>22</x>
+    <y>838</y>
+    <width>1550</width>
+    <height>22</height>
+    <text>READ-ONLY  |  PV readings are reported values, not independently measured RF output. Live trends require running IOCs; history requires archived samples.</text>
+    <transparent>true</transparent>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="11.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+</display>

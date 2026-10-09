@@ -1,0 +1,73 @@
+<?xml version='1.0' encoding='utf-8'?>
+<databrowser>
+  <title>Robot Position Readbacks</title>
+  <show_toolbar>true</show_toolbar>
+  <show_legend>true</show_legend>
+  <grid>true</grid>
+  <update_period>2.0</update_period>
+  <scroll_step>5</scroll_step>
+  <scroll>true</scroll>
+  <start>-10 minutes</start>
+  <end>now</end>
+  <archive_rescale>STAGGER</archive_rescale>
+  <axes>
+    <axis>
+      <visible>true</visible>
+      <name>Position (cm)</name>
+      <use_axis_name>false</use_axis_name>
+      <use_trace_names>true</use_trace_names>
+      <right>false</right>
+      <color>
+        <red>0</red>
+        <green>0</green>
+        <blue>0</blue>
+      </color>
+      <autoscale>true</autoscale>
+      <log_scale>false</log_scale>
+      <grid>true</grid>
+    </axis>
+  </axes>
+  <annotations />
+  <pvlist>
+    <pv>
+      <display_name>Robot X (cm)</display_name>
+      <visible>true</visible>
+      <name>pva://UNH:GEN:MW:ROBOT:X_CM</name>
+      <axis>0</axis>
+      <color>
+        <red>0</red>
+        <green>0</green>
+        <blue>255</blue>
+      </color>
+      <trace_type>LINES_DIRECT</trace_type>
+      <linewidth>2</linewidth>
+      <line_style>SOLID</line_style>
+      <point_type>NONE</point_type>
+      <point_size>2</point_size>
+      <waveform_index>0</waveform_index>
+      <period>0.0</period>
+      <ring_size>5000</ring_size>
+      <request>OPTIMIZED</request>
+    </pv>
+    <pv>
+      <display_name>Robot Y (cm)</display_name>
+      <visible>true</visible>
+      <name>pva://UNH:GEN:MW:ROBOT:Y_CM</name>
+      <axis>0</axis>
+      <color>
+        <red>200</red>
+        <green>0</green>
+        <blue>0</blue>
+      </color>
+      <trace_type>LINES_DIRECT</trace_type>
+      <linewidth>2</linewidth>
+      <line_style>SOLID</line_style>
+      <point_type>NONE</point_type>
+      <point_size>2</point_size>
+      <waveform_index>0</waveform_index>
+      <period>0.0</period>
+      <ring_size>5000</ring_size>
+      <request>OPTIMIZED</request>
+    </pv>
+  </pvlist>
+</databrowser>

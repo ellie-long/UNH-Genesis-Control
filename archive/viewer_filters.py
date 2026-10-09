@@ -79,6 +79,40 @@ MICROWAVE_PRESETS = {
 }
 
 
+SSRF_PRESETS = {
+    "Manual selection": (),
+    "ssRF - Fitted P / Q": (
+        "UNH_GEN_SSRF_FIT_P_FIT", "UNH_GEN_SSRF_FIT_Q_FIT",
+    ),
+    "ssRF - SMC100A Frequency": (
+        "UNH_GEN_SSRF_GEN_FREQ_RBV",
+    ),
+    "ssRF - RF Level / Recipe Levels": (
+        "UNH_GEN_SSRF_GEN_LEVEL_RBV",
+        "UNH_GEN_SSRF_RECIPE_START_LEVEL_DBM",
+        "UNH_GEN_SSRF_RECIPE_TARGET_LEVEL_DBM",
+    ),
+    "ssRF - WaveGen Voltages": (
+        "UNH_GEN_SSRF_WGEN_VHIGH_RBV",
+        "UNH_GEN_SSRF_WGEN_VLOW_RBV",
+        "UNH_GEN_SSRF_RECIPE_VHIGH_V",
+        "UNH_GEN_SSRF_RECIPE_VLOW_V",
+    ),
+    "ssRF - WaveGen Timing": (
+        "UNH_GEN_SSRF_WGEN_PERIOD_RBV",
+        "UNH_GEN_SSRF_RECIPE_FM_PERIOD_S",
+    ),
+    "ssRF - RF / FM States": (
+        "UNH_GEN_SSRF_GEN_RF_RBV",
+        "UNH_GEN_SSRF_GEN_FM_RBV",
+        "UNH_GEN_SSRF_WGEN_OUTPUT_RBV",
+    ),
+    "ssRF - Burn Readiness": (
+        "UNH_GEN_SSRF_SEQ_EXECUTION_ARMED",
+        "UNH_GEN_SSRF_RECIPE_LATEST_FIT_VALID",
+    ),
+}
+
 CRYO_PRESETS = {
     "Manual selection": (),
 
@@ -331,6 +365,12 @@ def resolve_microwave_preset(
 
     return resolved[:4]
 
+
+def resolve_ssrf_preset(available_pvs, preset_name):
+    """Choose from PVs actually archived; never synthesize data."""
+    return _resolve_preset(
+        available_pvs, SSRF_PRESETS.get(preset_name, ())
+    )
 
 def resolve_cryo_preset(
     available_pvs,

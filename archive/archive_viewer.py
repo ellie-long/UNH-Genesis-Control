@@ -20,10 +20,12 @@ try:
         SUBSYSTEM_OPTIONS,
         MICROWAVE_GROUP_OPTIONS,
         MICROWAVE_PRESETS,
+        SSRF_PRESETS,
         CRYO_GROUP_OPTIONS,
         CRYO_PRESETS,
         filter_pvs,
         resolve_microwave_preset,
+        resolve_ssrf_preset,
         resolve_cryo_preset,
     )
 except ImportError:
@@ -32,10 +34,12 @@ except ImportError:
         SUBSYSTEM_OPTIONS,
         MICROWAVE_GROUP_OPTIONS,
         MICROWAVE_PRESETS,
+        SSRF_PRESETS,
         CRYO_GROUP_OPTIONS,
         CRYO_PRESETS,
         filter_pvs,
         resolve_microwave_preset,
+        resolve_ssrf_preset,
         resolve_cryo_preset,
     )
 
@@ -347,6 +351,14 @@ def main():
                 ),
             )
 
+        elif subsystem == "ssRF":
+            preset_name = st.selectbox(
+                "Quick view",
+                options=list(SSRF_PRESETS),
+                index=0,
+                help="Archived ssRF quick views; manual PV selection remains available.",
+            )
+
         elif subsystem == "Cryo":
             preset_name = st.selectbox(
                 "Quick view",
@@ -360,6 +372,12 @@ def main():
 
         if subsystem == "Microwave":
             default_pvs = resolve_microwave_preset(
+                filtered_pvs,
+                preset_name,
+            )
+
+        elif subsystem == "ssRF":
+            default_pvs = resolve_ssrf_preset(
                 filtered_pvs,
                 preset_name,
             )

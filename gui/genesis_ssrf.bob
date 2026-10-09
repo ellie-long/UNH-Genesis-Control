@@ -1878,4 +1878,5 @@
 <widget type="textentry" version="3.0.0"><name>ManualFMParam2</name><x>1180</x><y>1320</y><width>130</width><height>25</height><pv_name>ca://UNH:GEN:SSRF:SEQ:VHIGH_V</pv_name></widget>
 <widget type="label" version="2.0.0"><name>ManualFMParamLabel3</name><x>1380</x><y>1320</y><width>250</width><height>25</height><text>WaveGen low V (set before prepare)</text></widget>
 <widget type="textentry" version="3.0.0"><name>ManualFMParam3</name><x>1630</x><y>1320</y><width>130</width><height>25</height><pv_name>ca://UNH:GEN:SSRF:SEQ:VLOW_V</pv_name></widget>
+  <widget type="action_button" version="3.0.0"><name>Open_ssRF_Visualization</name><x>1130</x><y>12</y><width>190</width><height>32</height><actions><action type="open_display"><file>genesis_ssrf_workflow_view.bob</file><target>tab</target><description>Open ssRF Live Visualization</description></action></actions><text>ssRF Live Visualization</text></widget>
 </display>

@@ -1936,4 +1936,5 @@
     <name>RB_YLIMIT_V</name><x>1015</x><y>990</y><width>145</width><height>24</height>
     <pv_name>pva://UNH:GEN:MW:ROBOT:Y_LIMITS</pv_name><format>6</format>
   </widget>
+  <widget type="action_button" version="3.0.0"><name>Open_MW_Visualization</name><x>978</x><y>52</y><width>190</width><height>32</height><actions><action type="open_display"><file>genesis_mw_visualization.bob</file><target>tab</target><description>Open MW Live Visualization</description></action></actions><text>MW Live Visualization</text></widget>
 </display>
