@@ -123,6 +123,24 @@ def main(argv=None):
         default=8779,
         help="protected local PyNMR input port",
     )
+    ap.add_argument(
+        "--pynmr-ipc-path",
+        default=None,
+        help="Opt-in absolute PyNMR IPC Unix socket path",
+    )
+    ap.add_argument(
+        "--pynmr-ipc-allowed-uid",
+        type=int,
+        action="append",
+        default=None,
+        help="Allowed IPC peer UID; repeatable",
+    )
+    ap.add_argument(
+        "--pynmr-ipc-shared-gid",
+        type=int,
+        default=None,
+        help="Optional Unix socket shared-group GID",
+    )
     ap.add_argument("--material", default="d-butanol", choices=list(E.MATERIAL_NAMES))
     ap.add_argument("--mode", default=E.MODE_BASELINE, choices=list(E.ALL_MODES))
     ap.add_argument("--eq-buffer", type=int, default=E.EQ_BUFFER_DEFAULT,
@@ -158,6 +176,28 @@ def main(argv=None):
             ap.error("NMR input and publisher ports must differ")
     elif a.nmr_source is not None:
         ap.error("--nmr-source requires --nmr-protected")
+    # Protected PyNMR IPC is explicit and fail-closed.
+    if a.pynmr_ipc_path is not None:
+        from pathlib import Path as _IPCPath
+        if not a.nmr_protected or a.nmr_source != "pynmr":
+            ap.error("PyNMR IPC requires protected PyNMR mode")
+        if not _IPCPath(a.pynmr_ipc_path).is_absolute():
+            ap.error("PyNMR IPC socket path must be absolute")
+        if not a.pynmr_ipc_allowed_uid:
+            ap.error("PyNMR IPC requires explicit allowed UIDs")
+        if any(uid < 0 for uid in a.pynmr_ipc_allowed_uid):
+            ap.error("IPC UIDs must be nonnegative")
+        if (
+            a.pynmr_ipc_shared_gid is not None
+            and a.pynmr_ipc_shared_gid < 0
+        ):
+            ap.error("IPC shared GID must be nonnegative")
+    elif (
+        a.pynmr_ipc_allowed_uid is not None
+        or a.pynmr_ipc_shared_gid is not None
+    ):
+        ap.error("IPC credentials require --pynmr-ipc-path")
+
     _setup_logging()
 
     if a.replace and procctl is None:
@@ -190,6 +230,13 @@ def main(argv=None):
         srv = ProtectedNMRRuntime(
             state,
             selected_source=a.nmr_source,
+            pynmr_ipc_path=a.pynmr_ipc_path,
+            pynmr_ipc_allowed_uids=(
+                tuple(a.pynmr_ipc_allowed_uid)
+                if a.pynmr_ipc_path is not None
+                else None
+            ),
+            pynmr_ipc_shared_gid=a.pynmr_ipc_shared_gid,
             pv_factory=PV,
             labview_port=a.port,
             pynmr_port=a.pynmr_port,

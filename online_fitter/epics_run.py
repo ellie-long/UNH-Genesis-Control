@@ -951,6 +951,21 @@ def _build_run_args(args):
             "--pynmr-port",
             str(args.pynmr_port),
         ])
+        if getattr(args, "pynmr_ipc_path", None) is not None:
+            run_args.extend([
+                "--pynmr-ipc-path",
+                args.pynmr_ipc_path,
+            ])
+            for uid in getattr(args, "pynmr_ipc_allowed_uid", None) or ():
+                run_args.extend([
+                    "--pynmr-ipc-allowed-uid",
+                    str(uid),
+                ])
+            if getattr(args, "pynmr_ipc_shared_gid", None) is not None:
+                run_args.extend([
+                    "--pynmr-ipc-shared-gid",
+                    str(args.pynmr_ipc_shared_gid),
+                ])
 
     return run_args
 
@@ -995,6 +1010,24 @@ def main(argv=None):
         help="Protected PyNMR localhost receiver port",
     )
     parser.add_argument(
+        "--pynmr-ipc-path",
+        default=None,
+        help="Opt-in absolute PyNMR IPC Unix socket path",
+    )
+    parser.add_argument(
+        "--pynmr-ipc-allowed-uid",
+        type=int,
+        action="append",
+        default=None,
+        help="Allowed IPC peer UID; repeatable",
+    )
+    parser.add_argument(
+        "--pynmr-ipc-shared-gid",
+        type=int,
+        default=None,
+        help="Optional Unix socket shared-group GID",
+    )
+    parser.add_argument(
         "--material",
         default="d-butanol",
         choices=list(ALLOWED_MATERIALS),
@@ -1019,6 +1052,28 @@ def main(argv=None):
     )
 
     args = parser.parse_args(argv)
+
+    # Protected PyNMR IPC is explicit and fail-closed.
+    if args.pynmr_ipc_path is not None:
+        from pathlib import Path as _IPCPath
+        if not args.nmr_protected or args.nmr_source != "pynmr":
+            parser.error("PyNMR IPC requires protected PyNMR mode")
+        if not _IPCPath(args.pynmr_ipc_path).is_absolute():
+            parser.error("PyNMR IPC socket path must be absolute")
+        if not args.pynmr_ipc_allowed_uid:
+            parser.error("PyNMR IPC requires explicit allowed UIDs")
+        if any(uid < 0 for uid in args.pynmr_ipc_allowed_uid):
+            parser.error("IPC UIDs must be nonnegative")
+        if (
+            args.pynmr_ipc_shared_gid is not None
+            and args.pynmr_ipc_shared_gid < 0
+        ):
+            parser.error("IPC shared GID must be nonnegative")
+    elif (
+        args.pynmr_ipc_allowed_uid is not None
+        or args.pynmr_ipc_shared_gid is not None
+    ):
+        parser.error("IPC credentials require --pynmr-ipc-path")
 
     if args.nmr_protected:
         if args.nmr_source is None:
