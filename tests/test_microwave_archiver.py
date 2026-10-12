@@ -61,7 +61,7 @@ class MicrowaveArchiverConfig(unittest.TestCase):
 
         self.assertEqual(
             cfg["archiver"]["time_increment"],
-            300,
+            1,
         )
 
     def test_all_microwave_sim_iocs_discoverable(self):

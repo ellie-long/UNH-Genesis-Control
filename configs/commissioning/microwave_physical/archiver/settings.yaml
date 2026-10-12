@@ -11,7 +11,7 @@ archiver:
   archive_path: archive/data
   settings_file: configs/commissioning/microwave_physical/ioc_manager/settings.yaml
   deadband: 0.01
-  time_increment: 300
+  time_increment: 1
   delay: 5
   channels:
   - None

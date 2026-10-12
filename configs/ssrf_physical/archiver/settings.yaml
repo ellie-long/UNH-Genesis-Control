@@ -10,7 +10,7 @@ archiver:
   delay: 1.0
   archive_path: archive/data
   deadband: 0.001
-  time_increment: 10
+  time_increment: 1
   channels:
     - None
   explicit_pvs:
