@@ -175,6 +175,7 @@ class PyNMRLocalIPC:
         self._listener = None
         self._thread = None
         self._stop = threading.Event()
+        self._bound_socket_identity = None
 
     @property
     def running(self):
@@ -239,6 +240,10 @@ class PyNMRLocalIPC:
 
         try:
             listener.bind(str(self.path))
+            bound = self.path.lstat()
+            self._bound_socket_identity = (
+                bound.st_dev, bound.st_ino
+            )
 
             if self.shared_gid is not None:
                 if self.path.stat().st_gid != self.shared_gid:
@@ -253,8 +258,7 @@ class PyNMRLocalIPC:
             listener.settimeout(0.1)
         except BaseException:
             listener.close()
-            if self.path.is_socket():
-                self.path.unlink()
+            self._remove_owned_socket()
             raise
 
         self._stop.clear()
@@ -374,6 +378,27 @@ class PyNMRLocalIPC:
             with connection:
                 self._handle(connection)
 
+    def _remove_owned_socket(self):
+        identity = self._bound_socket_identity
+        self._bound_socket_identity = None
+
+        if identity is None:
+            return
+
+        try:
+            info = self.path.lstat()
+        except FileNotFoundError:
+            return
+
+        if (
+            stat.S_ISSOCK(info.st_mode)
+            and (info.st_dev, info.st_ino) == identity
+        ):
+            try:
+                self.path.unlink()
+            except FileNotFoundError:
+                pass
+
     def close(self):
         self._stop.set()
 
@@ -395,5 +420,4 @@ class PyNMRLocalIPC:
 
         self._thread = None
 
-        if self.path.is_socket():
-            self.path.unlink()
+        self._remove_owned_socket()

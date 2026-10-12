@@ -14,6 +14,8 @@ from .nmr_switch_readback import NMRReadbackPoller
 from .source_receiver import SourceAwareProcessor
 from .packet_binding import PacketBoundAdmission
 from .source_state import NMRSourceState
+from .pynmr_event_adapter import PyNMRCompletedEventAdapter
+from .pynmr_local_ipc import PyNMRLocalIPC
 
 
 class ProtectedNMRRuntime:
@@ -28,6 +30,9 @@ class ProtectedNMRRuntime:
         pynmr_port=8779,
         verbose=False,
         poll_interval_s=0.5,
+        pynmr_ipc_path=None,
+        pynmr_ipc_allowed_uids=None,
+        pynmr_ipc_shared_gid=None,
     ):
         if (
             type(poll_interval_s) not in (int, float)
@@ -67,6 +72,37 @@ class ProtectedNMRRuntime:
             verbose=verbose,
         )
 
+        # IPC is disabled unless an explicit path and UID
+        # allowlist are supplied by the deployment layer.
+        self.event_adapter = None
+        self.event_ipc = None
+
+        if pynmr_ipc_path is None:
+            if (
+                pynmr_ipc_allowed_uids is not None
+                or pynmr_ipc_shared_gid is not None
+            ):
+                raise ValueError(
+                    "IPC credentials supplied without IPC path"
+                )
+        else:
+            if pynmr_ipc_allowed_uids is None:
+                raise ValueError(
+                    "IPC requires an explicit UID allowlist"
+                )
+
+            self.event_adapter = PyNMRCompletedEventAdapter(
+                self.source_state,
+                self.packet_binding,
+            )
+
+            self.event_ipc = PyNMRLocalIPC(
+                pynmr_ipc_path,
+                self._attest_pynmr_ipc,
+                allowed_uids=pynmr_ipc_allowed_uids,
+                shared_gid=pynmr_ipc_shared_gid,
+            )
+
         self.poll_interval_s = poll_interval_s
         self._stop = threading.Event()
         self._thread = None
@@ -85,6 +121,22 @@ class ProtectedNMRRuntime:
             return self._inner_processor(
                 state, message, trusted_source
             )
+
+    def _attest_pynmr_ipc(self, event, message):
+        """Admit only events from an already armed adapter.
+
+        IPC UID permission is not sufficient to arm acquisition.
+        The producer-session handshake remains a separate step.
+        """
+        if (
+            self._stop.is_set()
+            or self.event_adapter is None
+        ):
+            return False
+
+        return self.event_adapter.attest_completed_event(
+            event, message
+        )
 
     def select_source(self, source):
         """Change software selection only; NEVER switch hardware."""
@@ -109,6 +161,9 @@ class ProtectedNMRRuntime:
         self._stop.clear()
 
         try:
+            if self.event_ipc is not None:
+                self.event_ipc.start()
+
             thread = threading.Thread(
                 target=self._poll_loop,
                 name="genesis-nmr-readback",
@@ -118,7 +173,11 @@ class ProtectedNMRRuntime:
             self._thread = thread
         except BaseException:
             self._stop.set()
-            self.transport.close()
+            try:
+                if self.event_ipc is not None:
+                    self.event_ipc.close()
+            finally:
+                self.transport.close()
             raise
 
         return self
@@ -130,7 +189,16 @@ class ProtectedNMRRuntime:
             self._thread.join(timeout=3.0)
             self._thread = None
 
-        self.transport.close()
+        try:
+            if self.event_ipc is not None:
+                self.event_ipc.close()
+        finally:
+            if self.event_adapter is not None:
+                self.event_adapter.invalidate()
+                self.source_state.update_stream(
+                    "pynmr", False
+                )
+            self.transport.close()
 
     def snapshot(self):
         return self.source_state.snapshot()
