@@ -8,6 +8,7 @@ The two TCP receivers are loopback-only.
 """
 
 import threading
+from .pynmr_producer_session import PinnedPyNMRProducer
 
 from .dual_source_transport import DualSourceTransport
 from .nmr_switch_readback import NMRReadbackPoller
@@ -79,6 +80,13 @@ class ProtectedNMRRuntime:
         # allowlist are supplied by the deployment layer.
         self.event_adapter = None
         self.event_ipc = None
+        self.producer_session = (
+            PinnedPyNMRProducer.from_environment()
+            if pynmr_ipc_path is not None else None
+        )
+        self._commissioning_armed = False
+        self._commissioning_invalid = False
+        self._commissioning_route_epoch = None
 
         if pynmr_ipc_path is None:
             if (
@@ -104,6 +112,10 @@ class ProtectedNMRRuntime:
                 self._attest_pynmr_ipc,
                 allowed_uids=pynmr_ipc_allowed_uids,
                 shared_gid=pynmr_ipc_shared_gid,
+                peer_authorizer=(
+                    self.producer_session.peer_allowed
+                    if self.producer_session is not None else None
+                ),
             )
 
         self.poll_interval_s = poll_interval_s
@@ -140,6 +152,47 @@ class ProtectedNMRRuntime:
                 and self.event_adapter is not None
             ):
                 self.event_adapter.invalidate()
+                if (
+                    self.producer_session is not None
+                    and self._commissioning_armed
+                ):
+                    self._commissioning_armed = False
+                    self._commissioning_invalid = True
+
+    def _update_commissioning_arm(self):
+        """Arm only after verifying the pinned producer and route."""
+        if self.producer_session is None:
+            return
+
+        with self.source_state.fit_guard():
+            if self._commissioning_invalid:
+                return
+
+            if not self.producer_session.matches_process():
+                self.event_adapter.invalidate()
+                self._commissioning_armed = False
+                self._commissioning_invalid = True
+                return
+
+            state = self.source_state.snapshot()
+            ready = self.event_adapter._route_ready(state)
+
+            if self._commissioning_armed:
+                if (
+                    not ready
+                    or state["route_epoch"]
+                    != self._commissioning_route_epoch
+                ):
+                    self.event_adapter.invalidate()
+                    self._commissioning_armed = False
+                    self._commissioning_invalid = True
+                return
+
+            if ready and self.event_adapter.arm():
+                self._commissioning_armed = True
+                self._commissioning_route_epoch = (
+                    state["route_epoch"]
+                )
 
     def _attest_pynmr_ipc(self, event, message):
         """Admit only events from an already armed adapter.
@@ -147,6 +200,13 @@ class ProtectedNMRRuntime:
         IPC UID permission is not sufficient to arm acquisition.
         The producer-session handshake remains a separate step.
         """
+        if self.producer_session is not None:
+            if (
+                not self._commissioning_armed
+                or self._commissioning_invalid
+                or not self.producer_session.matches_process()
+            ):
+                return False
         if (
             self._stop.is_set()
             or self.event_adapter is None
@@ -165,8 +225,14 @@ class ProtectedNMRRuntime:
         while not self._stop.wait(self.poll_interval_s):
             try:
                 self.poller.poll_once()
+                if self.producer_session is not None:
+                    self._update_commissioning_arm()
             except Exception:
                 self.source_state.update_route(None, None)
+                if self.producer_session is not None:
+                    self.event_adapter.invalidate()
+                    self._commissioning_armed = False
+                    self._commissioning_invalid = True
 
     def start(self):
         if self._thread is not None:

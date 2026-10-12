@@ -122,6 +122,7 @@ class PyNMRLocalIPC:
         allowed_uids=None,
         shared_gid=None,
         max_frame_bytes=MAX_FRAME_BYTES,
+        peer_authorizer=None,
     ):
         if not callable(on_event):
             raise TypeError("on_event must be callable")
@@ -167,6 +168,9 @@ class PyNMRLocalIPC:
 
         self.path = Path(path)
         self.on_event = on_event
+        if peer_authorizer is not None and not callable(peer_authorizer):
+            raise TypeError("Invalid peer authorizer")
+        self.peer_authorizer = peer_authorizer
         self.allowed_uid = allowed_uid
         self.allowed_uids = allowed
         self.shared_gid = shared_gid
@@ -308,6 +312,11 @@ class PyNMRLocalIPC:
                 self._reply(
                     connection, False, "peer not permitted"
                 )
+                return
+
+            if (self.peer_authorizer is not None and
+                self.peer_authorizer(pid, uid, gid) is not True):
+                self._reply(connection, False, "producer session not authorized")
                 return
 
             with connection.makefile("rb") as reader:
