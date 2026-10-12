@@ -56,6 +56,9 @@ class ProtectedNMRRuntime:
             packet_observer=self.packet_binding.observe_packet,
         )
 
+        self._inner_processor = self.processor
+        self.processor = self._process_sweep_serialized
+
         self.transport = DualSourceTransport(
             fitter_state,
             self.processor,
@@ -73,6 +76,15 @@ class ProtectedNMRRuntime:
         observation = self.source_state.snapshot()
         observation["post_switch_ready"] = False
         return observation
+
+    def _process_sweep_serialized(
+        self, state, message, trusted_source
+    ):
+        """Keep admission and fit atomic with observed route updates."""
+        with self.source_state.fit_guard():
+            return self._inner_processor(
+                state, message, trusted_source
+            )
 
     def select_source(self, source):
         """Change software selection only; NEVER switch hardware."""

@@ -180,6 +180,15 @@ class NMRSourceState:
                 ),
             }
 
+    def fit_guard(self):
+        """Serialize fitting with observed route/selection updates.
+
+        All NMRSourceState transitions use this same RLock.
+        This does not control an independently operated
+        physical switch before its EPICS readback changes.
+        """
+        return self._lock
+
     def take_for_sweep(self):
         """Consume one validated event ticket.
 
