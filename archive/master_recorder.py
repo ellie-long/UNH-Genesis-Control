@@ -11,10 +11,14 @@ from datetime import datetime, timezone
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
+from archive.master_storage import (
+    WriterLease, verify_metadata, verify_appendable,
+)
+
 
 UTC = timezone.utc
 LOCAL = ZoneInfo("America/New_York")
-SUPPORTED_INTERVALS = (1.0, 0.5, 0.2)
+MIN_INTERVAL_S = 1.0
 
 
 def aware_utc(value=None):
@@ -56,8 +60,10 @@ class MasterRecorder:
         interval_s=1.0, stale_after_s=60.0
     ):
         interval_s = float(interval_s)
-        if interval_s not in SUPPORTED_INTERVALS:
-            raise ValueError("Unsupported snapshot interval")
+        if not math.isfinite(interval_s) or interval_s < MIN_INTERVAL_S:
+            raise ValueError(
+                "Snapshot interval must be at least 1 second"
+            )
         if not registry:
             raise ValueError("PV registry cannot be empty")
         if stale_after_s <= 0:
@@ -72,22 +78,33 @@ class MasterRecorder:
         self.last_snapshot = None
         self.handles = {}
         self.closed = False
+        self._writer_lease = WriterLease(self.root)
 
     def _directory(self, when):
         directory = self.root / aware_utc(when).date().isoformat()
         directory.mkdir(parents=True, exist_ok=True)
         metadata = directory / "metadata.json"
-        if not metadata.exists():
-            metadata.write_text(
-                json.dumps({
-                    "schema_version": 1,
-                    "timezone": "America/New_York",
-                    "timestamp_standard": "UTC",
-                    "snapshot_interval_s": self.interval_s,
-                    "pv_registry": self.registry,
-                }, indent=2, allow_nan=False) + "\n"
-            )
+        expected = {
+            "schema_version": 1,
+            "timezone": "America/New_York",
+            "timestamp_standard": "UTC",
+            "snapshot_interval_s": self.interval_s,
+            "pv_registry": self.registry,
+        }
+        verify_metadata(metadata, expected)
         return directory
+
+    def _csv_columns(self):
+        columns = ["timestamp_utc", "timestamp_local"]
+        for name in self.names:
+            columns.extend([
+                name + "|value",
+                name + "|quality",
+                name + "|age_s",
+                name + "|received_utc",
+                name + "|source_utc",
+            ])
+        return columns
 
     def _handle(self, when, kind):
         directory = self._directory(when)
@@ -95,28 +112,33 @@ class MasterRecorder:
 
         if key not in self.handles:
             if kind == "events":
-                handle = (directory / "genesis_master.jsonl").open(
-                    "a", encoding="utf-8"
-                )
+                path = directory / "genesis_master.jsonl"
+                verify_appendable(path)
+                handle = path.open("a", encoding="utf-8")
                 self.handles[key] = (handle, None)
             else:
                 path = directory / "genesis_master.csv"
                 existed = path.exists() and path.stat().st_size > 0
+
+                if existed:
+                    verify_appendable(path)
+                    with path.open(
+                        newline="", encoding="utf-8"
+                    ) as previous:
+                        observed = next(csv.reader(previous), None)
+
+                    if observed != self._csv_columns():
+                        raise RuntimeError(
+                            "Master CSV column schema mismatch; "
+                            "a new dataset segment is required"
+                        )
+
                 handle = path.open(
                     "a", newline="", encoding="utf-8"
                 )
                 writer = csv.writer(handle)
                 if not existed:
-                    header = ["timestamp_utc", "timestamp_local"]
-                    for name in self.names:
-                        header.extend([
-                            name + "|value",
-                            name + "|quality",
-                            name + "|age_s",
-                            name + "|received_utc",
-                            name + "|source_utc",
-                        ])
-                    writer.writerow(header)
+                    writer.writerow(self._csv_columns())
                     handle.flush()
                 self.handles[key] = (handle, writer)
 
@@ -247,8 +269,12 @@ class MasterRecorder:
     def close(self):
         if self.closed:
             return
-        for handle, _ in self.handles.values():
-            handle.flush()
-            handle.close()
-        self.handles.clear()
-        self.closed = True
+
+        try:
+            for handle, _ in self.handles.values():
+                handle.flush()
+                handle.close()
+        finally:
+            self.handles.clear()
+            self.closed = True
+            self._writer_lease.close()

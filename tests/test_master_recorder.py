@@ -80,7 +80,7 @@ def test_missing_stale_disconnected(tmp_path):
     ]
 
 
-@pytest.mark.parametrize("interval", [1.0, 0.5, 0.2])
+@pytest.mark.parametrize("interval", [1.0, 2.0, 5.0])
 def test_supported_intervals(tmp_path, interval):
     recorder = MasterRecorder(
         tmp_path, {"UNH:GEN:TEST:PV": {}}, interval_s=interval
@@ -120,3 +120,13 @@ def test_daily_rotation(tmp_path):
     assert (
         tmp_path / "2026-10-13" / "genesis_master.csv"
     ).exists()
+
+
+@pytest.mark.parametrize("interval", [0.5, 0.2])
+def test_faster_than_one_second_rejected(tmp_path, interval):
+    with pytest.raises(ValueError, match="at least"):
+        MasterRecorder(
+            tmp_path,
+            {"UNH:GEN:TEST:PV": {}},
+            interval_s=interval,
+        )
