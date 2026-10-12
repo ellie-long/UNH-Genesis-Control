@@ -41,8 +41,11 @@ class ProtectedNMRRuntime:
             self.source_state, pv_factory
         )
 
+        # A completed-event ticket does not establish which
+        # TCP packet belongs to that event. Until a trusted
+        # acquisition adapter binds both together, fail closed.
         self.processor = SourceAwareProcessor(
-            self.source_state.take_for_sweep
+            self._observe_unattested
         )
 
         self.transport = DualSourceTransport(
@@ -56,6 +59,12 @@ class ProtectedNMRRuntime:
         self.poll_interval_s = poll_interval_s
         self._stop = threading.Event()
         self._thread = None
+
+    def _observe_unattested(self):
+        """Never authorize an unbound incoming TCP spectrum."""
+        observation = self.source_state.snapshot()
+        observation["post_switch_ready"] = False
+        return observation
 
     def select_source(self, source):
         """Change software selection only; NEVER switch hardware."""

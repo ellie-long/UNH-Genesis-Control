@@ -102,6 +102,45 @@ def test_protected_runtime_fails_closed_without_events():
     assert runtime.transport.ports == {}
 
 
+def test_unbound_event_ticket_cannot_fit_arbitrary_tcp_packet():
+    """A fresh event alone must never authorize another spectrum."""
+    import time
+
+    runtime, _ = make_runtime()
+
+    try:
+        runtime.start()
+
+        # Simulate a trusted event without associating its
+        # acquisition identity with an incoming TCP spectrum.
+        runtime.source_state.update_stream("labview", True)
+
+        started = time.monotonic()
+        time.sleep(0.002)
+        completed = time.monotonic()
+
+        assert runtime.source_state.completed_event(
+            "labview", started, completed
+        )
+
+        # The event ticket exists, but has no packet binding.
+        assert runtime.snapshot()["post_switch_ready"] is True
+
+        reply = send(
+            runtime.transport.ports["labview"],
+            {"type": "sweep"},
+        )
+
+        assert reply["ok"] is False
+        assert "post-switch" in reply["error"]
+
+        # An unrelated TCP packet cannot consume the event.
+        assert runtime.snapshot()["post_switch_ready"] is True
+
+    finally:
+        runtime.shutdown()
+
+
 def test_invalid_software_source_rejected():
     runtime, _ = make_runtime()
     with pytest.raises(ValueError):
