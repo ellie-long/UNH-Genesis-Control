@@ -152,7 +152,13 @@ class _Handler(socketserver.StreamRequestHandler):
                 msg = protocol.decode_message(raw_line)
                 mtype = msg.get("type", "sweep")
                 if mtype == "sweep":
-                    reply = _handle_sweep(state, msg)
+                    processor = getattr(self.server, "sweep_processor", None)
+                    if processor is None:
+                        reply = _handle_sweep(state, msg)
+                    else:
+                        reply = processor(
+                            state, msg, self.server.trusted_source
+                        )
                 elif mtype == "ping":
                     reply = {"ok": True, "pong": True, "n_received": state.n_received,
                              "status": state.engine.status()}
@@ -200,16 +206,25 @@ class _Server(socketserver.ThreadingTCPServer):
 _LOOPBACK = {"127.0.0.1", "::1", "localhost"}
 
 
-def make_server(state, host=protocol.DEFAULT_HOST, port=protocol.DEFAULT_PORT, verbose=False):
+def make_server(state, host=protocol.DEFAULT_HOST, port=protocol.DEFAULT_PORT, verbose=False, *, trusted_source=None, sweep_processor=None):
     """Create the loopback-only TCP server. Refuses any non-loopback bind address so
     the lab LAN (VME crate / RF switches) is never exposed. ``verbose`` prints each
     connection, received line (with its terminator), and reply -- for LabVIEW debugging."""
     if host not in _LOOPBACK:
         raise ValueError(f"refusing to bind non-loopback host {host!r} -- "
                          f"this server must be 127.0.0.1 only (LAN carries the VME crate / RF switches)")
+    if (trusted_source is None) != (sweep_processor is None):
+        raise ValueError("protected receiver requires both source and processor")
+    if sweep_processor is not None:
+        if trusted_source not in ("labview", "pynmr"):
+            raise ValueError("invalid trusted receiver source")
+        if not callable(sweep_processor):
+            raise ValueError("sweep processor must be callable")
     srv = _Server((host, port), _Handler)
     srv.state = state
     srv.verbose = verbose
+    srv.trusted_source = trusted_source
+    srv.sweep_processor = sweep_processor
     return srv
 
 
