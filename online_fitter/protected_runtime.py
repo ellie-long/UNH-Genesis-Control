@@ -12,6 +12,7 @@ import threading
 from .dual_source_transport import DualSourceTransport
 from .nmr_switch_readback import NMRReadbackPoller
 from .source_receiver import SourceAwareProcessor
+from .packet_binding import PacketBoundAdmission
 from .source_state import NMRSourceState
 
 
@@ -44,8 +45,15 @@ class ProtectedNMRRuntime:
         # A completed-event ticket does not establish which
         # TCP packet belongs to that event. Until a trusted
         # acquisition adapter binds both together, fail closed.
+        self.packet_binding = PacketBoundAdmission(
+            self.source_state
+        )
+
+        # No real acquisition adapter is registered yet.
+        # Therefore no attestation can be minted by TCP alone.
         self.processor = SourceAwareProcessor(
-            self._observe_unattested
+            self._observe_unattested,
+            packet_observer=self.packet_binding.observe_packet,
         )
 
         self.transport = DualSourceTransport(

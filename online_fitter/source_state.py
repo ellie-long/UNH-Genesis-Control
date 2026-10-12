@@ -34,6 +34,7 @@ class NMRSourceState:
         self._transition_at = None
         self._last_event_at = None
         self._pending = False
+        self._route_epoch = 0
 
         self._streams = {
             "labview": False,
@@ -41,6 +42,7 @@ class NMRSourceState:
         }
 
     def _invalidate(self, now):
+        self._route_epoch += 1
         self._transition_at = now
         self._route_at = None
         self._confirmed_at = None
@@ -159,6 +161,7 @@ class NMRSourceState:
 
             return {
                 "selected_source": self._selected,
+                "route_epoch": self._route_epoch,
                 "nmr_mask": self._mask,
                 "nmr_comm": self._comm,
                 "route_age_s": route_age,

@@ -11,11 +11,17 @@ from .source_gate import evaluate_source
 
 
 class SourceAwareProcessor:
-    def __init__(self, observe, fit=None):
+    def __init__(self, observe, fit=None, packet_observer=None):
         if not callable(observe):
             raise TypeError("observe must be callable")
         self.observe = observe
         self.fit = fit
+        if (
+            packet_observer is not None
+            and not callable(packet_observer)
+        ):
+            raise TypeError("packet observer must be callable")
+        self.packet_observer = packet_observer
 
     @staticmethod
     def reject(reason):
@@ -26,7 +32,12 @@ class SourceAwareProcessor:
             return self.reject("invalid sweep message")
 
         try:
-            observation = self.observe()
+            if self.packet_observer is None:
+                observation = self.observe()
+            else:
+                observation = self.packet_observer(
+                    msg, trusted_source
+                )
         except Exception:
             return self.reject("trusted source observation unavailable")
 
