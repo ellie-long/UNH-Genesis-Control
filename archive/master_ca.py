@@ -6,11 +6,17 @@ All callbacks enter a bounded queue; one task writes to MasterRecorder.
 
 import asyncio
 from contextlib import suppress
+from dataclasses import dataclass
 from datetime import datetime, timezone
 import math
 
 
 UTC = timezone.utc
+
+
+@dataclass
+class _Barrier:
+    future: asyncio.Future
 
 
 def source_timestamp(raw):
@@ -123,6 +129,11 @@ class MasterCACollector:
             event = await self.queue.get()
 
             try:
+                if isinstance(event, _Barrier):
+                    if not event.future.done():
+                        event.future.set_result(None)
+                    continue
+
                 if self.fatal_error is None:
                     pv, value, received, source, connected = event
 
@@ -183,6 +194,27 @@ class MasterCACollector:
         except Exception:
             await self.stop()
             raise
+
+    async def flush(self):
+        """Wait for events queued before this barrier.
+
+        Later monitor updates cannot indefinitely postpone a snapshot.
+        """
+        self.check_health()
+
+        if not self.running or self.worker is None:
+            raise RuntimeError("Collector is not running")
+
+        future = asyncio.get_running_loop().create_future()
+
+        try:
+            self.queue.put_nowait(_Barrier(future))
+        except asyncio.QueueFull as error:
+            self._fail(error)
+            self.check_health()
+
+        await future
+        self.check_health()
 
     async def drain(self):
         await self.queue.join()
