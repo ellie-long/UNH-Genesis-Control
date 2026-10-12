@@ -70,6 +70,9 @@ class ProtectedNMRRuntime:
             labview_port=labview_port,
             pynmr_port=pynmr_port,
             verbose=verbose,
+            connection_observer=(
+                self._stream_connection_changed
+            ),
         )
 
         # IPC is disabled unless an explicit path and UID
@@ -121,6 +124,22 @@ class ProtectedNMRRuntime:
             return self._inner_processor(
                 state, message, trusted_source
             )
+
+    def _stream_connection_changed(
+        self, source, connected
+    ):
+        # Actual TCP lifecycle, not producer authentication.
+        with self.source_state.fit_guard():
+            self.source_state.update_stream(
+                source, connected
+            )
+
+            if (
+                source == "pynmr"
+                and not connected
+                and self.event_adapter is not None
+            ):
+                self.event_adapter.invalidate()
 
     def _attest_pynmr_ipc(self, event, message):
         """Admit only events from an already armed adapter.

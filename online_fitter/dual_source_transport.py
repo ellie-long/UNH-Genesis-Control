@@ -18,6 +18,11 @@ No EPICS or hardware operations occur in this module.
 from . import server
 
 
+from .nmr_tcp_connection_tracker import (
+    TCPConnectionTracker,
+)
+
+
 class DualSourceTransport:
     def __init__(
         self,
@@ -27,6 +32,7 @@ class DualSourceTransport:
         labview_port=8777,
         pynmr_port=8779,
         verbose=False,
+        connection_observer=None,
     ):
         if not callable(processor):
             raise TypeError(
@@ -48,6 +54,12 @@ class DualSourceTransport:
         self.state = state
         self.processor = processor
         self.verbose = verbose
+        if (
+            connection_observer is not None
+            and not callable(connection_observer)
+        ):
+            raise TypeError("Invalid connection observer")
+        self.connection_observer = connection_observer
 
         self._requested_ports = {
             "labview": labview_port,
@@ -72,6 +84,7 @@ class DualSourceTransport:
 
         opened = {}
         running = {}
+        tracking = {}
 
         try:
             for source in ("labview", "pynmr"):
@@ -83,6 +96,18 @@ class DualSourceTransport:
                     trusted_source=source,
                     sweep_processor=self.processor,
                 )
+
+                if self.connection_observer is not None:
+                    monitor = TCPConnectionTracker(
+                        source,
+                        self.connection_observer,
+                    )
+                    opened[source].RequestHandlerClass = (
+                        monitor.wrap(
+                            opened[source].RequestHandlerClass
+                        )
+                    )
+                    tracking[source] = monitor
 
             ports = [
                 listener.server_address[1]
@@ -111,11 +136,20 @@ class DualSourceTransport:
 
             raise
 
+        self._connection_trackers = tracking
         self._listeners = opened
         self._threads = running
         return self
 
     def close(self):
+        tracking = getattr(
+            self, "_connection_trackers", {}
+        )
+        self._connection_trackers = {}
+
+        for monitor in tracking.values():
+            monitor.close()
+
         listeners = self._listeners
         threads = self._threads
 
