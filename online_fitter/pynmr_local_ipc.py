@@ -118,14 +118,43 @@ class PyNMRLocalIPC:
         path,
         on_event,
         *,
-        allowed_uid,
+        allowed_uid=None,
+        allowed_uids=None,
+        shared_gid=None,
         max_frame_bytes=MAX_FRAME_BYTES,
     ):
         if not callable(on_event):
             raise TypeError("on_event must be callable")
 
-        if type(allowed_uid) is not int or allowed_uid < 0:
-            raise ValueError("Explicit allowed Unix UID required")
+        if (allowed_uid is None) == (allowed_uids is None):
+            raise ValueError(
+                "Specify exactly one of allowed_uid or allowed_uids"
+            )
+
+        if allowed_uid is not None:
+            allowed_uids = (allowed_uid,)
+
+        if (
+            not isinstance(
+                allowed_uids, (tuple, list, set, frozenset)
+            )
+            or not allowed_uids
+            or any(
+                type(uid) is not int or uid < 0
+                for uid in allowed_uids
+            )
+        ):
+            raise ValueError("Invalid Unix UID allowlist")
+
+        allowed = frozenset(allowed_uids)
+
+        if shared_gid is None:
+            if len(allowed) != 1:
+                raise ValueError(
+                    "Multiple UIDs require a dedicated shared_gid"
+                )
+        elif type(shared_gid) is not int or shared_gid < 0:
+            raise ValueError("Invalid shared Unix GID")
 
         if (
             type(max_frame_bytes) is not int
@@ -139,6 +168,8 @@ class PyNMRLocalIPC:
         self.path = Path(path)
         self.on_event = on_event
         self.allowed_uid = allowed_uid
+        self.allowed_uids = allowed
+        self.shared_gid = shared_gid
         self.max_frame_bytes = max_frame_bytes
 
         self._listener = None
@@ -163,13 +194,39 @@ class PyNMRLocalIPC:
 
         if (
             not stat.S_ISDIR(info.st_mode)
+            or parent.is_symlink()
             or info.st_uid != os.getuid()
-            or info.st_mode & 0o077
         ):
             raise PermissionError(
-                "IPC parent must be private and owned "
-                "by the Genesis process user"
+                "IPC parent must be an owned, real directory"
             )
+
+        mode = stat.S_IMODE(info.st_mode)
+
+        if self.shared_gid is None:
+            if mode & 0o077:
+                raise PermissionError(
+                    "Single-user IPC directory must be private"
+                )
+        else:
+            # 2770: owner/group rwx, setgid inheritance,
+            # no access for other Unix accounts.
+            if (
+                info.st_gid != self.shared_gid
+                or mode != 0o2770
+            ):
+                raise PermissionError(
+                    "Shared IPC parent requires mode 2770 "
+                    "and the configured group ownership"
+                )
+
+            if self.shared_gid not in (
+                os.getegid(), *os.getgroups()
+            ):
+                raise PermissionError(
+                    "Genesis process is not a member "
+                    "of the configured IPC group"
+                )
 
         if os.path.lexists(self.path):
             raise FileExistsError(
@@ -182,7 +239,16 @@ class PyNMRLocalIPC:
 
         try:
             listener.bind(str(self.path))
-            os.chmod(self.path, 0o600)
+
+            if self.shared_gid is not None:
+                if self.path.stat().st_gid != self.shared_gid:
+                    raise PermissionError(
+                        "IPC socket did not inherit shared group"
+                    )
+                os.chmod(self.path, 0o660)
+            else:
+                os.chmod(self.path, 0o600)
+
             listener.listen(4)
             listener.settimeout(0.1)
         except BaseException:
@@ -234,7 +300,7 @@ class PyNMRLocalIPC:
                 connection
             )
 
-            if pid <= 0 or uid != self.allowed_uid:
+            if pid <= 0 or uid not in self.allowed_uids:
                 self._reply(
                     connection, False, "peer not permitted"
                 )

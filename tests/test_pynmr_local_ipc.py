@@ -179,3 +179,113 @@ def test_refuses_nonprivate_parent_directory():
 
         with pytest.raises(PermissionError):
             server.start()
+
+
+
+def test_multiple_users_require_explicit_shared_group():
+    uid = os.getuid()
+
+    with pytest.raises(ValueError, match="shared_gid"):
+        PyNMRLocalIPC(
+            "/tmp/not_started.sock",
+            lambda event, message: False,
+            allowed_uids=(uid, uid + 1),
+        )
+
+
+def test_shared_group_socket_permissions():
+    """Exercise group permissions with the current test GID."""
+
+    with tempfile.TemporaryDirectory() as temporary:
+        directory = Path(temporary)
+        directory.chmod(0o2770)
+
+        socket_path = directory / "pynmr.sock"
+        uid = os.getuid()
+        second_uid = 1000 if uid != 1000 else 1001
+
+        server = PyNMRLocalIPC(
+            socket_path,
+            lambda event, message: True,
+            allowed_uids=(uid, second_uid),
+            shared_gid=os.getegid(),
+        )
+
+        try:
+            server.start()
+
+            info = socket_path.stat()
+
+            assert socket_path.is_socket()
+            assert info.st_gid == os.getegid()
+            assert info.st_mode & 0o777 == 0o660
+
+            result = request(
+                socket_path,
+                encode(envelope()),
+            )
+
+            assert result["ok"] is True
+
+        finally:
+            server.close()
+
+
+def test_shared_socket_rejects_unlisted_peer_uid():
+    """Simulated credentials test; no second-user login needed."""
+
+    with tempfile.TemporaryDirectory() as temporary:
+        directory = Path(temporary)
+        directory.chmod(0o2770)
+
+        socket_path = directory / "pynmr.sock"
+        uid = os.getuid()
+        second_uid = 1000 if uid != 1000 else 1001
+
+        server = PyNMRLocalIPC(
+            socket_path,
+            lambda event, message: True,
+            allowed_uids=(uid, second_uid),
+            shared_gid=os.getegid(),
+        )
+
+        try:
+            server.start()
+
+            # Inject a synthetic, unauthorized peer identity
+            # to test the application's allowlist decision.
+            server._peer_credentials = (
+                lambda connection: (12345, 999999, 999999)
+            )
+
+            result = request(
+                socket_path,
+                encode(envelope()),
+            )
+
+            assert result["ok"] is False
+            assert result["reason"] == "peer not permitted"
+
+        finally:
+            server.close()
+
+
+def test_shared_mode_rejects_private_only_directory():
+    with tempfile.TemporaryDirectory() as temporary:
+        directory = Path(temporary)
+
+        # A shared socket must not silently operate
+        # within an incorrectly configured directory.
+        directory.chmod(0o700)
+
+        uid = os.getuid()
+
+        server = PyNMRLocalIPC(
+            directory / "pynmr.sock",
+            lambda event, message: False,
+            allowed_uids=(uid, uid + 1),
+            shared_gid=os.getegid(),
+        )
+
+        with pytest.raises(PermissionError, match="2770"):
+            server.start()
