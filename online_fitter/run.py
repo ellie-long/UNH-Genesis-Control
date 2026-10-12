@@ -196,6 +196,7 @@ def main(argv=None):
             verbose=a.verbose,
         )
         srv.start()
+        state.genesis_nmr_protected_runtime = srv
         print(
             "[online_fitter] protected dual NMR receivers on "
             f"127.0.0.1:{a.port} (LabVIEW) and "

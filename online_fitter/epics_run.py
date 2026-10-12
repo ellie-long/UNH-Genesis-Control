@@ -116,6 +116,47 @@ class FitterEpicsInterface:
             length=256,
         )
 
+        # Read-only dual-source NMR status.
+        # No hardware source-switch commands are exposed here.
+        p["NMR_PROTECTED"] = builder.boolIn(
+            "NMR_PROTECTED",
+            ZNAM="Legacy",
+            ONAM="Protected",
+        )
+        p["NMR_SOURCE_RBV"] = builder.stringIn(
+            "NMR_SOURCE_RBV"
+        )
+        p["NMR_PHYSICAL_RBV"] = builder.stringIn(
+            "NMR_PHYSICAL_RBV"
+        )
+        p["NMR_MASK_RBV"] = builder.longIn(
+            "NMR_MASK_RBV"
+        )
+        p["NMR_ROUTE_OK"] = builder.boolIn(
+            "NMR_ROUTE_OK",
+            ZNAM="Unverified",
+            ONAM="Verified",
+        )
+        p["NMR_STREAM_OK"] = builder.boolIn(
+            "NMR_STREAM_OK",
+            ZNAM="Unavailable",
+            ONAM="Connected",
+        )
+        p["NMR_EVENT_READY"] = builder.boolIn(
+            "NMR_EVENT_READY",
+            ZNAM="Not ready",
+            ONAM="Pending event",
+        )
+        p["NMR_FIT_ELIGIBLE"] = builder.boolIn(
+            "NMR_FIT_ELIGIBLE",
+            ZNAM="Blocked",
+            ONAM="Eligible",
+        )
+        p["NMR_STATUS"] = builder.longStringIn(
+            "NMR_STATUS",
+            length=256,
+        )
+
         # Operator controls. These are fitter-software controls only.
         p["MODE_CMD"] = builder.stringOut(
             "MODE_CMD",
@@ -202,6 +243,16 @@ class FitterEpicsInterface:
         p["WARNING"].set("Waiting for fitter")
         p["NPTS"].set(0)
 
+        p["NMR_PROTECTED"].set(0)
+        p["NMR_SOURCE_RBV"].set("Disabled")
+        p["NMR_PHYSICAL_RBV"].set("UNVERIFIED")
+        p["NMR_MASK_RBV"].set(-1)
+        p["NMR_ROUTE_OK"].set(0)
+        p["NMR_STREAM_OK"].set(0)
+        p["NMR_EVENT_READY"].set(0)
+        p["NMR_FIT_ELIGIBLE"].set(0)
+        p["NMR_STATUS"].set("Protected NMR inactive")
+
     # ------------------------------------------------------------------
     # Runtime ownership
     # ------------------------------------------------------------------
@@ -235,7 +286,103 @@ class FitterEpicsInterface:
             else:
                 self.pvs["FITTER_UP"].set(0)
 
+            self._sync_nmr_source_readbacks()
             self._stop.wait(0.5)
+
+
+    def _sync_nmr_source_readbacks(self):
+        """Publish software/readback status without EPICS writes."""
+
+        p = self.pvs
+
+        state = self.holder.state
+        runtime = getattr(
+            state,
+            "genesis_nmr_protected_runtime",
+            None,
+        ) if state is not None else None
+
+        if runtime is None:
+            p["NMR_PROTECTED"].set(0)
+            p["NMR_SOURCE_RBV"].set("Disabled")
+            p["NMR_PHYSICAL_RBV"].set("UNVERIFIED")
+            p["NMR_MASK_RBV"].set(-1)
+            p["NMR_ROUTE_OK"].set(0)
+            p["NMR_STREAM_OK"].set(0)
+            p["NMR_EVENT_READY"].set(0)
+            p["NMR_FIT_ELIGIBLE"].set(0)
+            p["NMR_STATUS"].set("Protected NMR inactive")
+            return
+
+        try:
+            snapshot = runtime.snapshot()
+            if not isinstance(snapshot, dict):
+                raise ValueError("Invalid NMR source observation")
+        except Exception:
+            snapshot = {}
+
+        selected = snapshot.get("selected_source")
+        mask = snapshot.get("nmr_mask")
+        comm = snapshot.get("nmr_comm")
+        age = snapshot.get("route_age_s")
+
+        if type(mask) is int and mask == 0:
+            physical = "labview"
+        elif type(mask) is int and mask == 3:
+            physical = "pynmr"
+        else:
+            physical = None
+
+        route_fresh = (
+            type(age) in (int, float)
+            and 0 <= age <= 5.0
+        )
+
+        route_ok = (
+            type(comm) is int
+            and comm == 1
+            and physical is not None
+            and physical == selected
+            and route_fresh
+        )
+
+        stream_ok = (
+            snapshot.get("stream_connected") is True
+        )
+        event_ready = (
+            snapshot.get("post_switch_ready") is True
+        )
+
+        p["NMR_PROTECTED"].set(1)
+        p["NMR_SOURCE_RBV"].set(
+            str(selected or "None")[:39]
+        )
+        p["NMR_PHYSICAL_RBV"].set(
+            str(physical or "UNVERIFIED")[:39]
+        )
+        p["NMR_MASK_RBV"].set(
+            mask if type(mask) is int else -1
+        )
+        p["NMR_ROUTE_OK"].set(int(route_ok))
+        p["NMR_STREAM_OK"].set(int(stream_ok))
+        p["NMR_EVENT_READY"].set(int(event_ready))
+
+        # A pending ticket is NOT sufficient to establish
+        # packet/event association. The protected deployment
+        # remains blocked until that trusted adapter exists.
+        p["NMR_FIT_ELIGIBLE"].set(0)
+
+        if not route_ok:
+            message = "NMR source route unverified or mismatched"
+        elif not stream_ok:
+            message = "Waiting for trusted NMR acquisition stream"
+        else:
+            message = (
+                "Fitting blocked: acquisition-to-spectrum "
+                "binding not commissioned"
+            )
+
+        p["NMR_STATUS"].set(message)
 
     # ------------------------------------------------------------------
     # EPICS command callbacks
@@ -796,6 +943,15 @@ def _build_run_args(args):
     if args.replace:
         run_args.append("--replace")
 
+    if args.nmr_protected:
+        run_args.extend([
+            "--nmr-protected",
+            "--nmr-source",
+            args.nmr_source,
+            "--pynmr-port",
+            str(args.pynmr_port),
+        ])
+
     return run_args
 
 
@@ -822,6 +978,23 @@ def main(argv=None):
         default=DEFAULT_PUBLISH_PORT,
     )
     parser.add_argument(
+        "--nmr-protected",
+        action="store_true",
+        help="Enable protected dual-source NMR receiving",
+    )
+    parser.add_argument(
+        "--nmr-source",
+        choices=("labview", "pynmr"),
+        default=None,
+        help="Software source selection only; no hardware switching",
+    )
+    parser.add_argument(
+        "--pynmr-port",
+        type=int,
+        default=8779,
+        help="Protected PyNMR localhost receiver port",
+    )
+    parser.add_argument(
         "--material",
         default="d-butanol",
         choices=list(ALLOWED_MATERIALS),
@@ -846,6 +1019,33 @@ def main(argv=None):
     )
 
     args = parser.parse_args(argv)
+
+    if args.nmr_protected:
+        if args.nmr_source is None:
+            parser.error(
+                "--nmr-protected requires --nmr-source"
+            )
+        if args.replace:
+            parser.error(
+                "--replace is disabled in protected NMR mode"
+            )
+        ports = (
+            args.port,
+            args.pynmr_port,
+            args.publish_port,
+        )
+        if (
+            any(not 1 <= port <= 65535 for port in ports)
+            or len(set(ports)) != 3
+        ):
+            parser.error(
+                "Protected NMR input and publisher ports "
+                "must be distinct valid TCP ports"
+            )
+    elif args.nmr_source is not None:
+        parser.error(
+            "--nmr-source requires --nmr-protected"
+        )
 
     if args.port == args.publish_port:
         raise SystemExit(
