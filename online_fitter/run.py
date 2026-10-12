@@ -106,6 +106,23 @@ def main(argv=None):
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--host", default=protocol.DEFAULT_HOST, help="loopback host (default 127.0.0.1)")
     ap.add_argument("--port", type=int, default=protocol.DEFAULT_PORT)
+    ap.add_argument(
+        "--nmr-protected",
+        action="store_true",
+        help="opt-in protected dual-source NMR receiving mode",
+    )
+    ap.add_argument(
+        "--nmr-source",
+        choices=("labview", "pynmr"),
+        default=None,
+        help="software source selection; does not move hardware",
+    )
+    ap.add_argument(
+        "--pynmr-port",
+        type=int,
+        default=8779,
+        help="protected local PyNMR input port",
+    )
     ap.add_argument("--material", default="d-butanol", choices=list(E.MATERIAL_NAMES))
     ap.add_argument("--mode", default=E.MODE_BASELINE, choices=list(E.ALL_MODES))
     ap.add_argument("--eq-buffer", type=int, default=E.EQ_BUFFER_DEFAULT,
@@ -132,6 +149,15 @@ def main(argv=None):
                          "percent) misplaces the plot axes. 'permonitor': crisp per-monitor, but can "
                          "misplace clicks on fractional scaling.")
     a = ap.parse_args(argv)
+    if a.nmr_protected:
+        if a.nmr_source is None:
+            ap.error("--nmr-protected requires --nmr-source")
+        if a.replace:
+            ap.error("--replace is disabled in protected NMR mode")
+        if len({a.port, a.pynmr_port, a.publish_port}) != 3:
+            ap.error("NMR input and publisher ports must differ")
+    elif a.nmr_source is not None:
+        ap.error("--nmr-source requires --nmr-protected")
     _setup_logging()
 
     if a.replace and procctl is None:
@@ -157,21 +183,46 @@ def main(argv=None):
     state = S.SharedState(eng, mode=a.mode, publisher=pub)
     # Bind with a short retry: after --replace the just-killed instance's listening socket can linger
     # for a beat, and TCP servers on the same port fail with "address in use" until it releases.
-    deadline = time.time() + (6.0 if a.replace else 0.0)
-    while True:
-        try:
-            srv = S.make_server(state, host=a.host, port=a.port, verbose=a.verbose)
-            break
-        except OSError as exc:
-            if time.time() >= deadline:
-                print(f"[online_fitter] could not bind {a.host}:{a.port} -- {exc}\n"
-                      f"  another process may still hold the port. Try: python -m online_fitter.stop "
-                      f"--port {a.port}", flush=True)
-                raise
-            time.sleep(0.3)
-    S.serve_in_thread(srv)
-    print(f"[online_fitter] loopback fit server on {a.host}:{a.port}  "
-          f"(material={a.material}, mode={a.mode})", flush=True)
+    if a.nmr_protected:
+        from epics import PV
+        from .protected_runtime import ProtectedNMRRuntime
+
+        srv = ProtectedNMRRuntime(
+            state,
+            selected_source=a.nmr_source,
+            pv_factory=PV,
+            labview_port=a.port,
+            pynmr_port=a.pynmr_port,
+            verbose=a.verbose,
+        )
+        srv.start()
+        print(
+            "[online_fitter] protected dual NMR receivers on "
+            f"127.0.0.1:{a.port} (LabVIEW) and "
+            f"127.0.0.1:{a.pynmr_port} (PyNMR)",
+            flush=True,
+        )
+        print(
+            "[online_fitter] fitting remains blocked until "
+            "trusted acquisition-event binding is implemented",
+            flush=True,
+        )
+    else:
+        deadline = time.time() + (6.0 if a.replace else 0.0)
+        while True:
+            try:
+                srv = S.make_server(state, host=a.host, port=a.port, verbose=a.verbose)
+                break
+            except OSError as exc:
+                if time.time() >= deadline:
+                    print(f"[online_fitter] could not bind {a.host}:{a.port} -- {exc}\n"
+                          f"  another process may still hold the port. Try: python -m online_fitter.stop "
+                          f"--port {a.port}", flush=True)
+                    raise
+                time.sleep(0.3)
+        S.serve_in_thread(srv)
+        print(f"[online_fitter] loopback fit server on {a.host}:{a.port}  "
+              f"(material={a.material}, mode={a.mode})", flush=True)
 
     if a.no_gui:
         print("[online_fitter] headless -- Ctrl+C to stop.", flush=True)
