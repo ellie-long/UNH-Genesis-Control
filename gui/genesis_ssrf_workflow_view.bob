@@ -1168,7 +1168,7 @@
     <y>569</y>
     <width>755</width>
     <height>20</height>
-    <text>SMC RF Level / Recipe Target (dBm)</text>
+    <text>RF Level and Reference (dBm)</text>
     <transparent>true</transparent>
     <font>
       <font family="Liberation Sans" style="BOLD" size="13.0" />

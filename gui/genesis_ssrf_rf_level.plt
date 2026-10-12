@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <databrowser>
-  <title>SMC100A RF Level vs Recipe Target</title>
+  <title>SMC100A RF Level and Reference</title>
   <show_toolbar>true</show_toolbar>
   <show_legend>true</show_legend>
   <grid>true</grid>
@@ -50,7 +50,7 @@
       <request>OPTIMIZED</request>
     </pv>
     <pv>
-      <display_name>Recipe target (not measured)</display_name>
+      <display_name>Reference level (not measured)</display_name>
       <visible>true</visible>
       <name>UNH:GEN:SSRF:RECIPE:TARGET_LEVEL_DBM</name>
       <axis>0</axis>

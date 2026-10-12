@@ -208,7 +208,7 @@ class MicrowaveGUI(unittest.TestCase):
 
         self.assertEqual(
             len(targets),
-            4,
+            5,
         )
 
         self.assertEqual(
