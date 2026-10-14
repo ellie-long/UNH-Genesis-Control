@@ -1,0 +1,141 @@
+# cooldown_sim channel map: past-record column -> Genesis instrument channel.
+#
+# BEST-EFFORT MAPPING FOR REVIEW.  Each entry carries a confidence level and a
+# rationale.  Run `python -m cooldown_sim channel-map-report` to regenerate the
+# human-readable cross-check table (docs/COOLDOWN_SIM_CHANNEL_MAP.md), and see
+# <run>/channel_map_check.html after a real-data run for source-vs-Genesis
+# overlays of every mapped channel.
+#
+# Keys per channel:
+#   source:     canonical column name (cooldown_sim/data/aliases.py), or null
+#   select:     {by: <text column>, <value>: <column>, ..., default: <column>}
+#               picks the source column row-by-row from a text column
+#   units:      units of the recorded value
+#   wire:       conversion applied before the emulator answers (see
+#               cooldown_sim/conversions.py): none | torr_to_mbar |
+#               ionivac_count | ls224_ohms
+#   valid:      [lo, hi] in recorded units; values outside are treated as
+#               garbage -> absent (never clipped into range)
+#   absent:     what the emulator does when the record has no value:
+#               invalid  -> instrument answers but flags the reading invalid
+#               refuse   -> instrument not present (connection refused)
+#               output_off -> supply present, output OFF, 0 V / 0 A
+#   confidence: high | medium | guess
+#   note:       why this mapping was chosen / what to check
+
+instruments:
+
+  ls224_fridge:          # UNH:GEN:CRYO:FRIDGE  (LS224 #1, configs/target_physical/ls224_fridge)
+    wire: ls224_ohms     # profile has calibration: -> driver reads SRDG? ohms
+    absent: invalid
+    channels:
+      F1:  {source: F1,  units: K, valid: [0.01, 400], confidence: high, note: "Same F1-F11 names in LabVIEW and Genesis; F-sensor slots from calibration/fridge_thermometry.csv"}
+      F2:  {source: F2,  units: K, valid: [0.01, 400], confidence: high}
+      F3:  {source: F3,  units: K, valid: [0.01, 400], confidence: high}
+      F4:  {source: F4,  units: K, valid: [0.01, 400], confidence: high}
+      F5:  {source: F5,  units: K, valid: [0.01, 400], confidence: high}
+      F6:  {source: F6,  units: K, valid: [0.01, 400], confidence: high}
+      F7:  {source: F7,  units: K, valid: [0.01, 400], confidence: high}
+      F8:  {source: F8,  units: K, valid: [0.01, 400], confidence: high}
+      F9:  {source: F9,  units: K, valid: [0.01, 400], confidence: high}
+      F10: {source: F10, units: K, valid: [0.01, 400], confidence: high}
+      F11: {source: F11, units: K, valid: [0.01, 400], confidence: high}
+
+  ls224_magnet:          # UNH:GEN:CRYO:MAG  (LS224 #2)
+    wire: ls224_ohms
+    absent: invalid
+    channels:
+      M1: {source: M1, units: K, valid: [0.01, 400], confidence: high, note: "Same M1-M5 names; slots from calibration/magnet_thermometry.csv"}
+      M2: {source: M2, units: K, valid: [0.01, 400], confidence: high}
+      M3: {source: M3, units: K, valid: [0.01, 400], confidence: high}
+      M4: {source: M4, units: K, valid: [0.01, 400], confidence: high}
+      M5: {source: M5, units: K, valid: [0.01, 400], confidence: high}
+
+  mks902b:               # UNH:GEN:CRYO:CELL  Cell_PI (Torr)
+    wire: none
+    absent: invalid
+    channels:
+      Cell:
+        select: {by: vp_range, Hi: manometer_hi, Lo: manometer_lo, OVER: manometer_hi, default: manometer_hi}
+        fallback: manometer           # 2020 single-range column
+        units: Torr
+        valid: [0.0, 1000.0]
+        confidence: guess
+        note: >-
+          The MKS 902B is an absolute piezo transducer (0.1-1000 Torr) on the
+          target cell.  Assumed to correspond to the LabVIEW "Manometer"
+          (vapor-pressure) readout, choosing the Hi or Lo range column by
+          "Vapor Pressure Range".  CHECK: is the 902B the same gauge as the
+          LabVIEW manometer, and which range column does it correspond to?
+
+  tpg262:                # UNH:GEN:CRYO:VAC  Pump_PI / OVC_PI (mbar)
+    wire: torr_to_mbar   # TPG answers in its display unit; emulator reports UNI=0 (mbar)
+    absent: invalid
+    channels:
+      Pump:
+        source: roots_pressure
+        units: Torr
+        valid: [1.0e-5, 1100.0]
+        confidence: guess
+        note: >-
+          TPG262 gauge 1 assumed to be the pumping-line gauge logged as
+          "Roots Pressure (Torr)" (0.1-30 Torr while pumping on the fridge).
+          CHECK: which LabVIEW pressure column is TPG262 channel 1?
+      OVC:
+        source: cold_cathode
+        units: Torr
+        valid: [1.0e-12, 1100.0]
+        confidence: guess
+        note: >-
+          TPG262 gauge 2 assumed to be the OVC cold-cathode gauge logged as
+          "ColdCathode.Pres (Torr)" (2021+).  The 2026-06 record has this
+          column entirely NaN, so OVC is invalid/absent for that cool-down.
+          CHECK: is the OVC gauge now the IONIVAC instead?
+
+  ionivac:               # UNH:GEN:CRYO:ION  Ion_PI (Torr)
+    wire: ionivac_count
+    absent: refuse       # a silent IONIVAC is how the driver detects "not present"
+    channels:
+      Ion: {source: ionivac, units: Torr, valid: [1.0e-12, 1100.0], confidence: high, note: "Same instrument name in LabVIEW and Genesis"}
+
+  ls455:                 # UNH:GEN:CRYO:FIELD  Fringe_Field (G) / Fringe_FieldT
+    wire: none           # emulator reports UNIT?=1 (gauss)
+    absent: refuse
+    channels:
+      Fringe: {source: fringe_g, units: G, valid: [-1.0e5, 1.0e5], confidence: high, note: "Fringe-field gaussmeter; column present 2021+ (not 2020)"}
+
+  siglent_coldboard:     # UNH:GEN:CRYO:COLDBOARD  (read-only in the live profile)
+    wire: none
+    absent: output_off
+    channels:
+      Coldboard:
+        source: null
+        units: V
+        confidence: guess
+        note: >-
+          No coldboard supply column exists in any past record ("PS Current"
+          is the magnet power supply).  The emulated supply is present with
+          output OFF at 0 V / 0 A unless a scenario or Sim Control sets a
+          coldboard heat load.  Expect the stale-data watchdog to flag the
+          constant reading (known issue).
+
+  mw_spd1305x:           # UNH:GEN:MW:PS  (UCA supply for the microwave source)
+    wire: none
+    absent: output_off
+    channels:
+      CH1: {source: uca_v, units: V, valid: [-1.0, 30.0], confidence: medium, note: "\"UCA (V)\" (2021+) / \"UCA Voltage (V)\" (2020); NaN in 2026-06.  RF ON requires 5.0 +/- 0.1 V (microwave_ioc/rf_safety.py)."}
+
+# History inputs used by the target model and the autopilot (not instrument
+# emulators).  Same keys as above.
+history:
+  mw_rf_on:   {source: mw_rf_status, units: bool, valid: [0, 1], confidence: medium, note: "\"MMwaves RF Status\" / 2020 \"RF Status\" (Off -> 0)"}
+  mw_freq:    {source: mw_freq_ghz, units: GHz, valid: [100.0, 200.0], confidence: medium, note: "-257.674453 GHz is the DAQ's RF-off sentinel; other out-of-range values are garbage"}
+  mw_power:   {source: mw_power_db, units: dB, valid: [-60.0, 30.0], confidence: medium, note: "\"MMwaves Power (dB)\"; occasional 1e8 garbage values are rejected by valid range.  CHECK: does this equal the Vaunix MW_PWRC setpoint?"}
+  hb_freq:    {source: hb_freq_mhz, units: MHz, valid: [1.0, 300.0], confidence: medium, note: "ssRF / holeburning SMC100A carrier"}
+  hb_power:   {source: hb_power_dbm, units: dBm, valid: [-140.0, 30.0], confidence: medium, note: "2020 logged mV (not aliased)"}
+  field:      {source: central_field, units: T, valid: [0.0, 6.0], confidence: high}
+  magnet_i:   {source: magnet_current, units: A, valid: [0.0, 120.0], confidence: high}
+  online_p:   {source: online_p, units: "%", valid: [-110.0, 110.0], confidence: high, note: "LabVIEW live area-method P; values beyond +/-110 % are display glitches"}
+  t_cup:      {source: T1, units: K, valid: [0.05, 400], confidence: medium, note: "Target-cup thermometer; no Genesis IOC reads it (CCX placeholder in magnet_thermometry.csv) -- used only as the model's lattice temperature"}
+  he_level_fridge: {source: fridge_he_level, units: in, valid: [0.0, 60.0], confidence: high}
+  he_level_magnet: {source: magnet_lhe_level, units: in, valid: [0.0, 60.0], confidence: high}
