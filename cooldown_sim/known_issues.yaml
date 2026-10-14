@@ -1,0 +1,42 @@
+# Live-Genesis behaviours a simulated cool-down exposes that are NOT bugs in
+# the simulator.  Reports mark matching observations KNOWN (warning) instead
+# of FAIL.  Each should become its own reviewed fix in the live code; remove
+# the entry here when it is fixed so the regression turns back into a check.
+
+conn-pv-not-served:
+  summary: >-
+    tools/pv_map.py and the cryo archiver explicit_pvs list <Ch>_Conn PVs for
+    the LS224, MKS902B, TPG262, IONIVAC and LS455 IOCs, but only spd1000x
+    creates a _Conn PV (the serial drivers expose COMM instead).  21 PVs are
+    never served, so the alarm summary marks them missing/INVALID and
+    Alarm_Worst is INVALID in every run.
+  where: [tools/pv_map.py, configs/target_physical/archiver/settings.yaml]
+  match: {pv_suffix: _Conn, iocs: [ls224_fridge, ls224_magnet, mks902b, tpg262, ionivac, ls455]}
+
+stale-watchdog-on-constant-reading:
+  summary: >-
+    logic_devices/safety_interlock.py treats a reading as stale when its
+    value has not changed for stale_s.  A legitimately constant reading (the
+    idle coldboard at 0 W, a gauge at its floor) drops Data_Permit.
+  where: [logic_devices/safety_interlock.py]
+  match: {pv: "UNH:GEN:CRYO:SAFE:Data_Permit"}
+
+vac-permit-not-consumed:
+  summary: >-
+    limits_unh.yaml and the safety_interlock docstring say the ssRF sequencer
+    reads CRYO:SAFE:Vac_Permit before a burn, but no ssRF or microwave code
+    or configuration references it, so a vacuum trip does not block a burn.
+  where: [logic_devices/limits_unh.yaml, logic_devices/safety_interlock.py, logic_devices/ssrf_sequencer.py]
+  match: {scenario_check: burn_blocked_by_vac_permit}
+
+comm-flag-tracks-gateway:
+  summary: >-
+    For instruments behind the serial-to-Ethernet gateway (MKS902B, TPG262,
+    IONIVAC, LS455) and the LS224, a failed poll triggers an immediate
+    reconnect; the gateway/instrument TCP port still accepts, so COMM returns
+    to Connected and ERROR is cleared one poll later even though the
+    instrument is silent or answering garbage.  The fault remains visible
+    only as READ alarms on the channel PVs and a LAST_OK / heartbeat that
+    stops advancing.  Operators watching COMM alone will miss it.
+  where: [genesis_common/scpi_base.py, genesis_common/base_device.py]
+  match: {fault_modes: [silent, garbage, nak], pv_suffix: COMM}
