@@ -1,0 +1,37 @@
+# PVs the autopilot may write: the command PVs an operator uses on the
+# Phoebus screens.  Anything else is refused by autopilot/ca.py.
+#
+# Deliberately absent: every device-level setpoint (e.g. Coldboard_VC/_Mode,
+# SMC100A RF/level, WaveGen output, switch masks, Vaunix RF) -- those are
+# driven only by the supervisors/sequencers the operator commands.
+
+allow:
+  # cryo
+  - UNH:GEN:CRYO:ARCH:Archive_Enable
+  - UNH:GEN:CRYO:SAFE:Safe_Reset
+  - UNH:GEN:CRYO:STATE:status
+  - UNH:GEN:CRYO:STATE:material
+  - UNH:GEN:CRYO:STATE:auto
+  - UNH:GEN:CRYO:SAVE:SR_Save
+  # NMR fitter
+  - UNH:GEN:SSRF:FIT:MODE_CMD
+  - UNH:GEN:SSRF:FIT:UPDATE_CONSTANTS_CMD
+  # microwave supervisor (operator-level commands)
+  - UNH:GEN:MW:SUP:*_CMD
+  - UNH:GEN:MW:SUP:OutputFrequency
+  - UNH:GEN:MW:SUP:RFEnable
+  # ssRF sequencer (operator-level commands and recipe parameters)
+  - UNH:GEN:SSRF:SEQ:*_CMD
+  - UNH:GEN:SSRF:SEQ:*_SP
+  - UNH:GEN:SSRF:FIT:WAVEFORM_STAGE_REQ
+
+# Explicitly refused even if a pattern above would match (belt and braces).
+deny:
+  - UNH:GEN:CRYO:COLDBOARD:*
+  - UNH:GEN:SSRF:GEN:*
+  - UNH:GEN:SSRF:WGEN:*
+  - UNH:GEN:SSRF:NMR_SW:*
+  - UNH:GEN:SSRF:RF_SW:*
+  - UNH:GEN:MW:SRC:*
+  - UNH:GEN:MW:PS:*
+  - UNH:GEN:MW:ROBOT:*
