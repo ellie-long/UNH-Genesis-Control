@@ -1,0 +1,81 @@
+# cooldown_sim stack table.
+#
+# Which canonical Genesis IOCs a simulated cool-down launches, the private
+# replay CA/PVA ports each one gets, and what (emulator or existing simulator)
+# stands in for its hardware.  Profiles are GENERATED from the canonical
+# settings named here -- never copied -- so the replay always runs the live
+# configuration except for the allowlisted loopback/port/output-path keys
+# (see cooldown_sim/profile.py and tests/cooldown_sim/*profile_drift*).
+#
+# Replay ports: CA 61xx / PVA 62xx, emulators 16xxx.  All bound to 127.0.0.1.
+# None of these numbers appear in any live profile or launch script; the
+# guard and a unit test enforce that.
+
+legs:
+  cryo:
+    manager: configs/target_physical/ioc_manager/settings.yaml
+    iocs:
+      siglent_coldboard: {ca: 6111, pva: 6211, emulator: {kind: scpi_supply, port: 16025, model: SPD1168X}}
+      mks902b:           {ca: 6112, pva: 6212, emulator: {kind: mks902b, port: 16004}}
+      tpg262:            {ca: 6113, pva: 6213, emulator: {kind: tpg262, port: 16011}}
+      ionivac:           {ca: 6114, pva: 6214, emulator: {kind: ionivac, port: 16005}}
+      ls455:             {ca: 6115, pva: 6215, emulator: {kind: ls455, port: 16007}}
+      ls224_fridge:      {ca: 6116, pva: 6216, emulator: {kind: ls224, port: 16012}}
+      ls224_magnet:      {ca: 6117, pva: 6217, emulator: {kind: ls224, port: 16013}}
+      alarm_summary:     {ca: 6118, pva: 6218}
+      safety_interlock:  {ca: 6119, pva: 6219}
+      target_status:     {ca: 6120, pva: 6220}
+      save_restore:      {ca: 6121, pva: 6221}
+      archiver:          {ca: 6122, pva: 6222}
+
+  ssrf:
+    manager: configs/commissioning/ssrf_sim_active/ioc_manager/settings.yaml
+    iocs:
+      ssrf_smc100a:          {ca: 6130, pva: 6230, simulator: {tool: tools/sim_smc100a.py, port: 16028}}
+      ssrf_keysight_wavegen: {ca: 6131, pva: 6231, simulator: {tool: tools/sim_keysight_wavegen.py, port: 16027}}
+      ssrf_nmr_switch:       {ca: 6132, pva: 6232, simulator: {tool: tools/sim_minicircuits_switch.py, port: 16081}}
+      ssrf_rf_switch:        {ca: 6133, pva: 6233, simulator: {tool: tools/sim_minicircuits_switch.py, port: 16082}}
+      ssrf_interlock:        {ca: 6134, pva: 6234}
+      # logic_devices/ssrf_lifecycle.py imports fcntl and
+      # genesis_common/execution_authorization.py imports pwd at module top,
+      # so the sequencer cannot start on native Windows.  Reported SKIPPED.
+      ssrf_sequencer:        {ca: 6135, pva: 6235, posix_only: true}
+
+  mw:
+    manager: configs/commissioning/microwave_sim/ioc_manager/settings.yaml
+    iocs:
+      mw_vaunix_lms: {ca: 6141, pva: 6241}     # simulation: true -> LocalSimulationConnection
+      mw_supervisor: {ca: 6142, pva: 6242}     # simulation: true
+      mw_pcl602:     {ca: 6143, pva: 6243}     # simulation: true
+    # The UCA supply has no sim variant; rf_safety needs its readbacks to
+    # permit RF ON.  Borrow the PHYSICAL spd1305x IOC, pointed at a loopback
+    # emulator.  Its write_enabled/initialize flags are carried unchanged.
+    borrowed:
+      mw_spd1305x:
+        manager: configs/commissioning/microwave_physical/ioc_manager/settings.yaml
+        ca: 6140
+        pva: 6240
+        emulator: {kind: scpi_supply, port: 16026, model: SPD1305X}
+
+  nmr:
+    # online_fitter.epics_run (not a master_ioc IOC).
+    fitter: {ca: 6100, pva: 6200, fit_port: 16777, publish_port: 16778, pynmr_port: 16779}
+
+  sim:
+    # cooldown_sim.controller, run through the unchanged master_ioc.py.
+    controller: {prefix: "UNH:GEN:SIM", ca: 6150, pva: 6250, control_port: 16150}
+
+# EPICS client-side ports for every replay process.
+epics:
+  ca_repeater_port: 6198
+  pva_broadcast_port: 6299
+
+# Canonical IOC-manager entries deliberately NOT launched, with the reason.
+# The drift guard fails if a canonical manager gains an entry that is neither
+# launched above nor listed here.
+excluded:
+  configs/commissioning/microwave_physical/ioc_manager/settings.yaml:
+    mw_vaunix_lms: physical Vaunix; the microwave_sim variant is launched instead
+    mw_supervisor: physical supervisor; the microwave_sim variant is launched instead
+    mw_pcl602: physical robot; the microwave_sim variant is launched instead
+    archiver: Microwave CSV archiver; cooldown_sim.probe records all MW PVs
