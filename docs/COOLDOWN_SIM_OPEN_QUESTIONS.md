@@ -49,6 +49,12 @@ named in each item. Numbers are stable: answered items move to *Settled*.
       per dopant, gamma_d/2pi = 6.53566 MHz/T and the +/- factors (sim
       values: irradiated d-butanol 28.025 / 28.077, TEMPO d-butanol
       28.052 / 28.108, trityl d-propanediol 28.026 / 28.041 GHz/T).
+- [ ] 37. 2020-12-10/11 (TEMPO d-butanol at the beta peak, f/B 28.0505,
+      1.05 K): the record's area P reaches ~35 % within an hour, but the
+      TEMPO rate fit (stage 5, fitted to that night's lineshape-derived P)
+      saturates near 25 % at the same conditions. Does the LabVIEW area P read
+      high against the lineshape P there (calibration), or is the fit's drive
+      low?
 - [ ] 5. Does Q lag Q_B(P) as P rebuilds after a quench or anneal?
 - [ ] 8. Quench field: dump time and level, re-ramp delay and rate, starting
       P after the re-ramp.
