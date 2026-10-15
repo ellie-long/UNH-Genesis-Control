@@ -10,7 +10,9 @@ timestamps back to sim time.
 
 from __future__ import annotations
 
+import collections
 import csv
+import math
 import json
 import threading
 import time
@@ -67,6 +69,8 @@ class SimEngine:
         self.info: dict = {}
         self.last_event = ""
         self.autopilot = {"mw": False, "ssrf": False, "fit": False}
+        #: operator microwave requests for the MW leg (thread-safe deque): ("frequency", GHz)
+        self.mw_requests: collections.deque = collections.deque()
         self.stop_requested = threading.Event()
 
     # ----------------------------------------------------------- lifecycle
@@ -185,6 +189,22 @@ class SimEngine:
                 detail = f"{key[0]}.{key[1]} forced to {v:g} (recorded units)"
             self.events.write(self.clock.now(), "override", detail)
             self.last_event = f"override {detail}"
+        elif cmd == "magic":
+            # the DAQ's quick tune: set the microwave frequency to the best P-up
+            # ("+") or P-down ("-") frequency at the present field, as an operator
+            model = getattr(self.provider, "model", None)
+            if model is None:
+                raise ValueError("this session has no target model")
+            sign = "+" if str(request.get("sign", "+")).startswith(("+", "p")) else "-"
+            f = model.magic_GHz(sign, self.clock.now())
+            if not (math.isfinite(f) and 138.0 <= f <= 142.0):
+                raise ValueError(f"magic {sign}: {f:.3f} GHz is outside 138-142 GHz (field off?)")
+            if self.autopilot.get("mw"):
+                self.autopilot["mw"] = False
+                self.events.write(self.clock.now(), "autopilot", "mw off (operator took the microwaves)")
+            self.mw_requests.append(("frequency", round(f, 4)))
+            self.events.write(self.clock.now(), "microwave", f"magic {sign}: {f:.4f} GHz")
+            self.last_event = f"magic {sign}: {f:.3f} GHz"
         elif cmd == "stop":
             self.stop_requested.set()
             self.events.write(self.clock.now(), "session", "end requested")

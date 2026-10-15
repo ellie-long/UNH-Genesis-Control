@@ -193,9 +193,19 @@ class MicrowaveLeg:
                                  f"microwave RF ON not confirmed: {msg}")
         return False
 
+    async def apply_requests(self) -> None:
+        """Operator requests queued by Sim Control (e.g. magic frequency)."""
+        reqs = getattr(self.engine, "mw_requests", None)
+        while reqs:
+            kind, value = reqs.popleft()
+            if kind == "frequency":
+                await self.ca.caput(f"{SUP}:OutputFrequency", float(value))
+                self._cmd["freq"] = float(value)
+
     async def run(self, stop_event) -> None:
         while not stop_event.is_set():
             try:
+                await self.apply_requests()
                 await self.step()
             except Exception as exc:  # noqa: BLE001 - keep the session alive
                 self.engine.events.write(self.engine.clock.now(), "autopilot-error", f"microwave: {exc}")

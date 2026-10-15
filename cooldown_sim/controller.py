@@ -34,7 +34,8 @@ TRUTH = (("TRUE_P", "%", "P"), ("TRUE_Q", "%", "Q"), ("TRUE_T_LATTICE", "K", "T_
          ("TRUE_T_BATH", "K", "T_bath"),
          ("TRUE_Q_BOLTZMANN", "%", "Q_boltzmann"),
          ("FIT_P", "%", "fit_P"), ("FIT_RESID_P", "%", "fit_resid_P"),
-         ("NMR_CENTER", "MHz", "nmr_window_center_MHz"), ("NMR_SPAN", "MHz", "nmr_window_span_MHz"))
+         ("NMR_CENTER", "MHz", "nmr_window_center_MHz"), ("NMR_SPAN", "MHz", "nmr_window_span_MHz"),
+         ("MAGIC_PLUS", "GHz", "magic_plus_GHz"), ("MAGIC_MINUS", "GHz", "magic_minus_GHz"))
 
 #: model inputs settable from Sim Control: (PV, model key, units, DRVL, DRVH)
 MODEL_INPUTS = (("CB_HEAT_W_CMD", "coldboard_heat_W", "W", 0.0, 5.0),
@@ -116,6 +117,10 @@ class Device:
                                         on_update=lambda v: v and self._cmd({"cmd": "note", "text": str(v)}))
         p["MARK_CMD"] = b.boolOut("MARK_CMD", ZNAM="", ONAM="Mark", always_update=True,
                                   on_update=lambda v: v and self._cmd({"cmd": "mark"}))
+        p["MAGIC_PLUS_CMD"] = b.boolOut("MAGIC_PLUS_CMD", ZNAM="", ONAM="Magic +", always_update=True,
+                                        on_update=lambda v: v and self._cmd({"cmd": "magic", "sign": "+"}))
+        p["MAGIC_MINUS_CMD"] = b.boolOut("MAGIC_MINUS_CMD", ZNAM="", ONAM="Magic -", always_update=True,
+                                         on_update=lambda v: v and self._cmd({"cmd": "magic", "sign": "-"}))
         p["END_SESSION_CMD"] = b.boolOut("END_SESSION_CMD", ZNAM="", ONAM="End", always_update=True,
                                          on_update=lambda v: v and self._cmd({"cmd": "stop"}))
 

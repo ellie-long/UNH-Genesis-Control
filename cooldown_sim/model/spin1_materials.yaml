@@ -32,6 +32,15 @@ lineshape:
       0.134, 0.115, 0.134, 0.212, 0.281, 0.291, 0.331, 0.448, 0.513, 0.454,
       0.655, 0.800, 0.845, 1.118, 1.118, 0.427]
 
+# "Magic" frequencies (GHz/T x field): the DAQ's quick tune to the best P-up
+# (plus) or P-down (minus) frequency.  plus = 28.025 is what the LabVIEW DAQ
+# set (the record sits exactly at 28.025 x B whenever it was used); minus is
+# the P-down peak of the measured lineshape for irradiated d-butanol until the
+# DAQ's own constant is known (open question 34).  A material may override.
+magic:
+  plus: 28.025
+  minus: 28.077
+
 # Per material: the fitted rate set (the microwave-driven rates as measured at
 # the material's P-up optimum) and that optimum's f/B.  The lineshape is
 # shifted so x_opt lands on peak_x.  Off the optimum the P-up drive scales
@@ -58,6 +67,7 @@ materials:
       d-butanol, Dec 2020 sign-flip sequence fit (B 5.0498 T, T 1.05 K); x_opt
       is the lineshape's own beta peak.
     x_opt: 28.052
+    magic: {plus: 28.052, minus: 28.108}
     rates: {k_e: 0.1, k_s: 0.0001, k_zeta1: 0.0, k_zeta2: 0.000769,
             k_phitheta1: 6.6e-05, k_phitheta2: 0.0, k_alpha1: 3.153481, k_alpha2: 1.0e-05,
             k_beta1: 5.498735, k_beta2: 2.678993, k_sigma1: 43.107754, k_sigma2: 65.269232,

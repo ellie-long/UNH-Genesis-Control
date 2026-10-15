@@ -164,6 +164,11 @@ class TargetModel:
         self.state = self._initial(t0)
 
     # ----------------------------------------------------------- history
+    def magic_GHz(self, sign: str, t: float) -> float:
+        """The DAQ-style 'magic' frequency at t: '+' best P-up, '-' best P-down."""
+        B = self.field_T(t)
+        return spin1.magic_ratio(sign, self.material(t)) * B if B > 0.5 else float("nan")
+
     def material(self, t: float) -> str:
         """Target material at t: the replayed cool-down's schedule, else the default."""
         return spin1.material_for(self.cooldown, t)
@@ -412,5 +417,6 @@ class TargetModel:
                 "mw_freq_GHz": f_op, "heat_cb_W": self.inputs.coldboard_heat_W,
                 "heat_total_W": heat_total, "boiloff_delta_slm": s.dflow,
                 "quench_level": s.q, "Q_boltzmann": 100.0 * ph.q_boltzmann(s.P),
+                "magic_plus_GHz": self.magic_GHz("+", t), "magic_minus_GHz": self.magic_GHz("-", t),
                 "nmr_window_center_MHz": self.nmr_window(t)[0],
                 "nmr_window_span_MHz": self.nmr_window(t)[1]}

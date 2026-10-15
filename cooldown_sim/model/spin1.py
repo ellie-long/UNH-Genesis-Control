@@ -99,6 +99,14 @@ def material_for(cooldown: str | None, t: float | None = None, table: dict | Non
     return name
 
 
+def magic_ratio(sign: str, material: str = "", table: dict | None = None) -> float:
+    """GHz/T of the 'magic' frequency: '+' best P-up, '-' best P-down."""
+    table = table or load_table()
+    key = "plus" if sign.startswith("+") or sign.startswith("p") else "minus"
+    spec = (table.get("materials") or {}).get(material) or {}
+    return float((spec.get("magic") or table["magic"])[key])
+
+
 def lineshape(x: float, table: dict | None = None) -> tuple[float, float]:
     """(B, A): P-up and P-down pump strength at f/B = x (TEMPO frame), normalized."""
     ls = (table or load_table())["lineshape"]

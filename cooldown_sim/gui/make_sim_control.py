@@ -233,12 +233,15 @@ def build() -> str:
         w.append(label(lab, cx, cy, 112, 26, 10, False, MUTED))
         w.append(entry(f"{P}:{pv}", cx + 112, cy, 93, 26))
     yb = y + 278
-    w.append(button("MW on", f"{P}:MW_ON_CMD", 1, x + 15, yb, 80, 30))
-    w.append(button("MW off", f"{P}:MW_ON_CMD", 0, x + 100, yb, 80, 30))
-    w.append(button("Take baseline", f"{P}:TAKE_BASELINE_CMD", 1, x + 190, yb, 130, 30))
-    w.append(button("QUENCH", f"{P}:QUENCH_CMD", 1, x + 330, yb, 100, 30,
+    w.append(button("MW on", f"{P}:MW_ON_CMD", 1, x + 15, yb, 68, 30))
+    w.append(button("MW off", f"{P}:MW_ON_CMD", 0, x + 88, yb, 68, 30))
+    # the DAQ's quick tune: microwave frequency to the best P-up / P-down value
+    w.append(button("Magic +", f"{P}:MAGIC_PLUS_CMD", 1, x + 166, yb, 78, 30, bg=(200, 235, 205)))
+    w.append(button("Magic -", f"{P}:MAGIC_MINUS_CMD", 1, x + 249, yb, 78, 30, bg=(250, 230, 200)))
+    w.append(button("Take baseline", f"{P}:TAKE_BASELINE_CMD", 1, x + 337, yb, 112, 30))
+    w.append(button("QUENCH", f"{P}:QUENCH_CMD", 1, x + 454, yb, 88, 30,
                     confirm="Inject a quench-like warm-up into the simulated target?", bg=(245, 205, 205)))
-    w.append(button("Clear quench", f"{P}:QUENCH_CMD", 0, x + 440, yb, 120, 30))
+    w.append(button("Clear quench", f"{P}:QUENCH_CMD", 0, x + 547, yb, 100, 30))
 
     # autopilot + navigation card
     x, y = 20, 690

@@ -84,7 +84,7 @@ def add_parsers(sub) -> None:
     p.add_argument("command", help="status | play | pause | speed X | seek 'YYYY-MM-DD HH:MM' | "
                                    "jump MIN | fault INSTRUMENT MODE | autopilot LEG on|off | "
                                    "note TEXT | mark | model KEY VALUE | "
-                                   "override INSTRUMENT CHANNEL VALUE|record | stop")
+                                   "override INSTRUMENT CHANNEL VALUE|record | magic +|- | stop")
     p.add_argument("args", nargs="*")
     p.add_argument("--run", help="run directory (default: latest)")
     p.set_defaults(func=_ctl)
@@ -605,6 +605,8 @@ def _ctl(args) -> int:
         req = {"text": " ".join(a)}
     elif cmd == "model":
         req = {"key": a[0], "value": float(a[1])}
+    elif cmd == "magic":
+        req = {"sign": a[0] if a else "+"}
     elif cmd == "override":            # override tpg262 OVC 2e-3 | override tpg262 OVC record
         value = a[2] if len(a) > 2 else "record"
         req = {"instrument": a[0], "channel": a[1],
