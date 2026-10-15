@@ -166,7 +166,31 @@ def main(argv=None):
                          "'system': one uniform scale, clickable, but fractional scaling (e.g. 125 "
                          "percent) misplaces the plot axes. 'permonitor': crisp per-monitor, but can "
                          "misplace clicks on fractional scaling.")
+    ap.add_argument("--nmr-source-control-path", default=None,
+                    help="Opt-in Linux source-control Unix socket path")
+    ap.add_argument("--nmr-source-control-allowed-uid", type=int, default=None,
+                    help="Trusted sequencer Linux UID for source-control IPC")
+    ap.add_argument("--nmr-source-control-allowed-pid", type=int, default=None,
+                    help="Trusted sequencer Linux PID for source-control IPC")
+
     a = ap.parse_args(argv)
+    # All-or-none, opt-in, and separate from physical ssRF execution.
+    control_path = a.nmr_source_control_path
+    control_uid = a.nmr_source_control_allowed_uid
+    control_pid = a.nmr_source_control_allowed_pid
+    if any(value is not None for value in (control_path, control_uid, control_pid)):
+        from pathlib import Path as _NMRControlPath
+        if not a.nmr_protected:
+            ap.error("NMR source-control IPC requires protected NMR mode")
+        if (type(control_path) is not str or not control_path
+                or not _NMRControlPath(control_path).is_absolute()):
+            ap.error("NMR source-control IPC requires absolute socket path")
+        if type(control_uid) is not int or control_uid < 0:
+            ap.error("NMR source-control IPC requires trusted UID")
+        if type(control_pid) is not int or control_pid <= 0:
+            ap.error("NMR source-control IPC requires trusted PID")
+        if control_path == a.pynmr_ipc_path:
+            ap.error("NMR source-control and PyNMR event sockets must differ")
     if a.nmr_protected:
         if a.nmr_source is None:
             ap.error("--nmr-protected requires --nmr-source")
@@ -179,8 +203,8 @@ def main(argv=None):
     # Protected PyNMR IPC is explicit and fail-closed.
     if a.pynmr_ipc_path is not None:
         from pathlib import Path as _IPCPath
-        if not a.nmr_protected or a.nmr_source != "pynmr":
-            ap.error("PyNMR IPC requires protected PyNMR mode")
+        if not a.nmr_protected:
+            ap.error("PyNMR IPC requires protected NMR mode")
         if not _IPCPath(a.pynmr_ipc_path).is_absolute():
             ap.error("PyNMR IPC socket path must be absolute")
         if not a.pynmr_ipc_allowed_uid:
@@ -230,6 +254,9 @@ def main(argv=None):
         srv = ProtectedNMRRuntime(
             state,
             selected_source=a.nmr_source,
+            nmr_source_control_path=a.nmr_source_control_path,
+            nmr_source_control_allowed_uid=a.nmr_source_control_allowed_uid,
+            nmr_source_control_allowed_pid=a.nmr_source_control_allowed_pid,
             pynmr_ipc_path=a.pynmr_ipc_path,
             pynmr_ipc_allowed_uids=(
                 tuple(a.pynmr_ipc_allowed_uid)

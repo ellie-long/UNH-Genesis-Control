@@ -11,7 +11,7 @@ from online_fitter.source_receiver import SourceAwareProcessor
 def observation(source="pynmr", ready=True):
     return {
         "selected_source": source,
-        "nmr_mask": 3 if source == "pynmr" else 0,
+        "nmr_mask": 0,
         "nmr_comm": 1,
         "route_age_s": 0.1,
         "data_age_s": 0.2,

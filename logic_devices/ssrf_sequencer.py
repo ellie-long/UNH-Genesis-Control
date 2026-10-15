@@ -11,6 +11,13 @@ from __future__ import annotations
 
 import asyncio
 from logic_devices.ssrf_manual_rf import ManualRF
+from logic_devices.nmr_source_ipc_transaction import (
+    execute_nmr_source_change_via_ipc,
+    validate_ipc_configuration,
+)
+from logic_devices.nmr_source_readbacks import (
+    read_fitter_source_snapshot, verify_ssrf_rf_off_fresh,
+)
 from logic_devices.ssrf_lifecycle import OwnershipLock, startup_lifecycle_held
 
 import aioca
@@ -71,6 +78,13 @@ class Device:
         self.settings = settings
 
         self.pvs = {}
+
+        # Internal reservation for coordinated NMR software-source changes.
+        # No external command can acquire it until authorization
+        # and release handling are implemented and tested.
+        self._nmr_source_change_reserved = False
+        self._nmr_source_request = None
+        self._nmr_source_task = None
 
         # Execution remains disabled by default.  Only an explicitly
         # authorized simulator or physical profile may enable it.
@@ -524,6 +538,31 @@ class Device:
             "not yet evaluated"
         )
 
+        # Source-control status exists even when the write capability is off.
+        self.pvs["NMR_SOURCE_STATE"] = builder.stringIn("NMR_SOURCE_STATE")
+        self.pvs["NMR_SOURCE_REASON"] = builder.stringIn("NMR_SOURCE_REASON")
+        self.pvs["NMR_SOURCE_SELECTED_RBV"] = builder.stringIn(
+            "NMR_SOURCE_SELECTED_RBV"
+        )
+        self.pvs["NMR_SOURCE_EPOCH_RBV"] = builder.longIn(
+            "NMR_SOURCE_EPOCH_RBV"
+        )
+        self.pvs["NMR_SOURCE_SELECTED_RBV"].set("UNVERIFIED")
+        self.pvs["NMR_SOURCE_EPOCH_RBV"].set(-1)
+
+        if self.settings.get("nmr_source_selection_enabled", False) is True:
+            # No command is published for disabled or unconfigured profiles.
+            self._validated_nmr_source_configuration()
+            self.pvs["NMR_SOURCE_REQUEST"] = builder.stringOut(
+                "NMR_SOURCE_REQUEST",
+                always_update=True,
+                on_update_name=self._nmr_source_command,
+            )
+            self.pvs["NMR_SOURCE_REQUEST"].set("", process=False)
+            self._set_nmr_source_status("IDLE", "Software selection available")
+        else:
+            self._set_nmr_source_status("DISABLED", "Source selection disabled")
+
     # ------------------------------------------------------------
     # master_ioc compatibility
     # ------------------------------------------------------------
@@ -607,14 +646,195 @@ class Device:
                 process=False,
             )
 
+    def _validated_nmr_source_configuration(self):
+        """Validate full opt-in configuration; never infer trusted PIDs."""
+        settings = self.settings
+        config = {
+            "path": settings.get("nmr_source_control_path"),
+            "uid": settings.get("nmr_source_control_fitter_uid"),
+            "pid": settings.get("nmr_source_control_fitter_pid"),
+            "timeout_s": settings.get("nmr_source_control_timeout_s", 2.0),
+        }
+        validate_ipc_configuration(
+            path=config["path"], uid=config["uid"], pid=config["pid"],
+            read_fitter=read_fitter_source_snapshot,
+            timeout_s=config["timeout_s"],
+        )
+        freshness = settings.get("nmr_source_readback_max_age_s", 3.0)
+        if (type(freshness) not in (int, float)
+                or not 0.1 <= freshness <= 10.0):
+            raise ValueError("Invalid NMR source readback freshness limit")
+        config["max_age_s"] = float(freshness)
+        return config
+
+    def _set_nmr_source_status(self, state, reason):
+        self.pvs["NMR_SOURCE_STATE"].set(str(state)[:39])
+        self.pvs["NMR_SOURCE_REASON"].set(str(reason)[:39])
+
+    def _nmr_source_activity(self):
+        return (self._nmr_source_change_reserved
+                or self._nmr_source_request is not None
+                or (self._nmr_source_task is not None
+                    and not self._nmr_source_task.done()))
+
+    def _nmr_source_command(self, value, pv):
+        """Only latch selection. Never perform socket/EPICS I/O here."""
+        self._reset_momentary_command("NMR_SOURCE_REQUEST")
+        if not isinstance(value, str):
+            self._set_nmr_source_status("BLOCKED", "Invalid source request")
+            return
+        requested = value.strip().lower()
+        if requested not in ("labview", "pynmr"):
+            self._set_nmr_source_status("BLOCKED", "Use LABVIEW or PYNMR")
+            return
+        if self.settings.get("nmr_source_selection_enabled", False) is not True:
+            self._set_nmr_source_status("DISABLED", "Selection not authorized")
+            return
+        if (self._nmr_source_activity() or self._manual_busy()
+                or self._other_busy()):
+            self._set_nmr_source_status("BLOCKED", "Sequencer busy")
+            return
+        if self._manual.state != "DISARMED" or self._manual.fault:
+            self._set_nmr_source_status("BLOCKED", "Manual RF baseline unsafe")
+            return
+        self._nmr_source_request = requested
+        self._set_nmr_source_status("PENDING", "Request awaiting verification")
+
+    async def _run_nmr_source_request(self, source):
+        """Only the IOC dispatcher starts this transaction task."""
+
+        async def fresh_fitter():
+            result = await read_fitter_source_snapshot(
+                prefix=self.settings.get(
+                    "nmr_source_fitter_prefix", "UNH:GEN:SSRF:FIT"
+                ),
+                max_age_s=config["max_age_s"],
+            )
+            self.pvs["NMR_SOURCE_SELECTED_RBV"].set(
+                result["selected_source"].upper()
+            )
+            self.pvs["NMR_SOURCE_EPOCH_RBV"].set(result["route_epoch"])
+            return result
+
+        async def fresh_rf():
+            return await verify_ssrf_rf_off_fresh(
+                max_age_s=config["max_age_s"]
+            )
+
+        try:
+            # Configuration must fail through the same FAULT reporting
+            # path as readback or IPC failures.
+            config = self._validated_nmr_source_configuration()
+
+            # Independent freshness check before the reservation attempt.
+            await fresh_rf()
+            result = await execute_nmr_source_change_via_ipc(
+                requested=source,
+                sequencer=self,
+                read_fitter=fresh_fitter,
+                path=config["path"],
+                allowed_fitter_uid=config["uid"],
+                allowed_fitter_pid=config["pid"],
+                timeout_s=config["timeout_s"],
+                read_rf_off=fresh_rf,
+            )
+        except asyncio.CancelledError:
+            self._set_nmr_source_status("FAULT", "Source selection interrupted")
+            raise
+        except Exception as exc:
+            # No automatic retry or reservation release here. The transaction
+            # decides whether dispatch began; uncertain outcomes remain held.
+            self._set_nmr_source_status("FAULT", str(exc))
+        else:
+            self.pvs["NMR_SOURCE_SELECTED_RBV"].set(
+                result["selected_source"].upper()
+            )
+            self.pvs["NMR_SOURCE_EPOCH_RBV"].set(result["route_epoch"])
+            self._set_nmr_source_status("CONFIRMED", "Fitter source changed")
+
+    def _service_nmr_source_request(self):
+        if self._nmr_source_request is None:
+            return
+        requested = self._nmr_source_request
+        self._nmr_source_request = None
+        self._nmr_source_task = asyncio.create_task(
+            self._run_nmr_source_request(requested)
+        )
+
+    async def _acquire_nmr_source_change_reservation(self):
+        """Reserve idle sequencer and verify RF OFF before source selection.
+
+        No fitter command is sent by this method.
+        """
+        if self._nmr_source_change_reserved:
+            raise RuntimeError("NMR source change already reserved")
+
+        # Software-only NMR source selection has an independent,
+        # explicitly enabled capability. It never enables RF execution.
+        if self.settings.get(
+            "nmr_source_selection_enabled", False
+        ) is not True:
+            raise RuntimeError("NMR source selection not authorized")
+
+        # Ignore this transaction's own pending task, but not other work.
+        if self._manual_busy() or self._other_busy(include_nmr=False):
+            raise RuntimeError("Sequencer operation pending or active")
+
+        if self._manual.state != "DISARMED" or self._manual.fault:
+            raise RuntimeError("Manual RF safe baseline unverified")
+
+        # Set before the first await. Command admission must block
+        # competing operations throughout RF verification.
+        self._nmr_source_change_reserved = True
+
+        try:
+            rf = await self._execution_io.read_safety(
+                "UNH:GEN:SSRF:GEN:RF_RBV"
+            )
+            if isinstance(rf, bool) or rf != 0:
+                raise RuntimeError(
+                    f"Cannot change NMR source: SMC RF readback={rf!r}"
+                )
+        except BaseException:
+            # Preflight only: no fitter command was issued.
+            self._nmr_source_change_reserved = False
+            raise
+
+    def _cancel_nmr_source_change_reservation(self):
+        """Cancel a reservation before any fitter write is attempted.
+
+        The transaction coordinator alone must establish that no
+        write has begun. Never use this for uncertain outcomes.
+        """
+        if not self._nmr_source_change_reserved:
+            raise RuntimeError("No NMR source-change reservation")
+
+        self._nmr_source_change_reserved = False
+
+    def _complete_nmr_source_change_reservation(
+        self, *, confirmed
+    ):
+        """Release only after the fitter transaction is confirmed."""
+        if not self._nmr_source_change_reserved:
+            raise RuntimeError("No NMR source-change reservation")
+
+        if confirmed is not True:
+            raise RuntimeError(
+                "NMR source-change outcome unverified; "
+                "reservation remains active"
+            )
+
+        self._nmr_source_change_reserved = False
+
     def _manual_busy(self):
         return (self._manual_request is not None or self._safe_off_requested
                 or (self._manual_task is not None and not self._manual_task.done())
                 or self._manual.armed
                 or self._manual.state in ("RF_ON", "RF_FM_ACTIVE", "STOPPING", "CLEANUP_FAILED"))
 
-    def _other_busy(self):
-        return (self._start_requested or self._prepare_requested
+    def _other_busy(self, *, include_nmr=True):
+        return ((self._nmr_source_activity() if include_nmr else False)
+                or self._start_requested or self._prepare_requested
                 or self._waveform_stage_requested or self._execution_armed
                 or any(t is not None and not t.done() for t in
                        (self._execution_task, self._prepare_task, self._waveform_stage_task)))
@@ -732,7 +952,7 @@ class Device:
             or (self._waveform_stage_task is not None and not self._waveform_stage_task.done())
         )
 
-        if running or self._manual_busy():
+        if running or self._manual_busy() or self._nmr_source_activity():
             self._set_prepare_status("BLOCKED", "Sequence already active")
             return
         if staging:
@@ -788,7 +1008,9 @@ class Device:
 
         if pv_name == "ABORT_CMD":
             self._request_safe_off()
-        elif pv_name in ("ARM_CMD", "START_CMD") and self._manual_busy():
+        elif pv_name in ("ARM_CMD", "START_CMD") and (
+            self._manual_busy() or self._nmr_source_activity()
+        ):
             self._set_execution_status(EXEC_STATE_IDLE, "Manual operation or cleanup active")
             return
 
@@ -971,6 +1193,7 @@ class Device:
         if (
             burn_running
             or self._manual_busy()
+            or self._nmr_source_activity()
             or self._prepare_requested
             or (self._prepare_task is not None and not self._prepare_task.done())
             or self._start_requested
@@ -1484,6 +1707,18 @@ class Device:
         # Command callbacks only latch validated requests. Actual EPICS
         # forwarding/execution begins here on the IOC dispatcher loop.
         await self._service_manual()
+        self._service_nmr_source_request()
+
+        # Any queued/active NMR request inhibits burn readiness.
+        # ABORT and safe-off handling remain available above.
+        if self._nmr_source_activity():
+            self.pvs["READY"].set(0)
+            self.pvs["STATE"].set(STATE_BLOCKED)
+            self.pvs["REASON"].set(
+                "NMR software source change reserved"
+            )
+            return True
+
         if self._safe_off_requested or self._manual_busy():
             self.pvs["READY"].set(0)
             self.pvs["STATE"].set("MANUAL_OPERATION")
