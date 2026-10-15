@@ -169,6 +169,15 @@ named in each item. Numbers are stable: answered items move to *Settled*.
     pressure ever gets above the 1e-4 Torr range. Still to set: what rate
     counts as rapid. Whether the vacuum interlock should also act on it is
     question 3.
+29. **Cernox (CCX) support for T1/T3.** Lake Shore's Chebyshev form, per
+    range: Z = log10(R), k = ((Z - ZL) - (ZU - Z)) / (ZU - ZL),
+    T = sum_i A_i cos(i arccos k). The lab's calibration rows hold four ranges
+    (ZU, ZL, up to 9 coefficients each) followed by three resistance
+    boundaries in ohms (R above the first uses range 1, and so on). Checked
+    against a Lake Shore calibration certificate: the evaluation reproduces
+    the certificate's fitted temperatures from 0.37 K to 300 K. The sim's
+    LS224 emulator would also need the inverse (T to R, by root-finding).
+
 ### Live-system fixes
 
 16. **Over-flood.** F1 at or below 4.5 K means an over-flooded fridge with
