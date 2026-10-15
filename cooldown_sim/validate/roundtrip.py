@@ -103,6 +103,9 @@ def archive(run: Path, expected_pvs: list[str]) -> list[Check]:
     probe = loaders.probe(run)
     probe = probe[probe["connected"] == 1]
     files = loaders.archive_files(run)
+    # the probe stops before the IOCs do: rows archived after its last sample
+    # (any PV) record changes nobody was watching any more
+    probe_end = float(probe["wall"].max()) if len(probe) else float("inf")
     checks = []
     archived_pvs = 0
     for pv in expected_pvs:
@@ -121,6 +124,9 @@ def archive(run: Path, expected_pvs: list[str]) -> list[Check]:
             # the archiver may record a value before the probe has subscribed;
             # if it changed before the probe's first sample, nothing can check it
             if len(pw) and wall < pw[0] - 3.0 and not any(s == val for s in pv_str[:1]):
+                unverifiable += 1
+                continue
+            if wall > probe_end and not any(s == val for s in pv_str[-1:]):
                 unverifiable += 1
                 continue
             # the live archiver stamps rows with its own processing time
@@ -144,7 +150,7 @@ def archive(run: Path, expected_pvs: list[str]) -> list[Check]:
                 bad.append("")
         n_bad = len(bad)
         n_checked = len(a) - unverifiable
-        note = f" ({unverifiable} recorded before the probe subscribed)" if unverifiable else ""
+        note = f" ({unverifiable} recorded outside the probe's span)" if unverifiable else ""
         checks.append(Check(f"archive {pv}", "PASS" if n_bad == 0 else "FAIL",
                             f"{n_checked - n_bad}/{n_checked} archived rows match the PV{note}",
                             [b for b in bad if b]))

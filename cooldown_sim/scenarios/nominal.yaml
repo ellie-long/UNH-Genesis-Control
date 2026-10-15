@@ -1,0 +1,12 @@
+description: Data-free nominal spin-up; microwaves via the physical RF chain, fitter calibrated by autopilot
+source: synthetic
+start: "2000-01-01 02:00"
+duration_min: 40
+speed: 30                      # Update Constants' full fit takes ~20 s wall; at 60x it can
+                               # finish after the last sweep
+legs: [cryo, mw, nmr]
+expect:
+  - {check: "microwave RF ON requests", verdict: PASS}
+  - {check: "nmr fitter vs model truth", verdict: PASS}
+  - {check: "model vs record P", verdict: PASS}
+  - {check: "read-only proof", verdict: PASS}

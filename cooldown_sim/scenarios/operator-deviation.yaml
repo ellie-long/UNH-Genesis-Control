@@ -1,0 +1,15 @@
+description: Operator takes the microwaves from the autopilot and turns RF off early; P relaxes instead of spinning up
+source: synthetic
+start: "2000-01-01 02:00"
+duration_min: 60
+speed: 60
+legs: [cryo, mw, nmr]
+deviates_from_record: true
+autopilot: [mw, fit]
+actions:
+  - {at: 10, do: autopilot, leg: mw, on: false}
+  - {at: 10.2, do: caput, pv: "UNH:GEN:MW:SUP:RFAbort", value: 1}
+expect:
+  - {label: "RF goes off", pv: "UNH:GEN:MW:SUP:RFState", from: 10.5, to: 20, op: eq, value: 1}
+  - {label: "P relaxes instead of rising", truth: true_P, from: 50, to: 60, op: lt, value: 35}
+  - {check: "nmr fitter vs model truth", verdict: PASS}

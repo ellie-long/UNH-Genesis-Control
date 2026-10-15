@@ -173,6 +173,18 @@ class SimEngine:
             self.provider.set_input(request["key"], request["value"])
             self.events.write(self.clock.now(), "model", f"{request['key']} = {request['value']}")
             self.last_event = f"model {request['key']} = {request['value']}"
+        elif cmd == "override":
+            key = (request["instrument"], request["channel"])
+            value = request.get("value")
+            if value is None:
+                self.provider.overrides.pop(key, None)
+                detail = f"{key[0]}.{key[1]} back to the record"
+            else:
+                v = float(value)
+                self.provider.overrides[key] = lambda t, v=v: v
+                detail = f"{key[0]}.{key[1]} forced to {v:g} (recorded units)"
+            self.events.write(self.clock.now(), "override", detail)
+            self.last_event = f"override {detail}"
         elif cmd == "stop":
             self.stop_requested.set()
             self.events.write(self.clock.now(), "session", "end requested")

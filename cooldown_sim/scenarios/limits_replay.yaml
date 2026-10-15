@@ -1,0 +1,28 @@
+# SIM-ONLY safety-interlock limits for cooldown_sim scenarios.
+#
+# NOT RECOMMENDATIONS FOR THE CRYOSTAT.  The live file (logic_devices/
+# limits_unh.yaml) holds shipped placeholders, which keep enforcement off.
+# These values differ from the placeholders only so scenarios can exercise the
+# enforced-trip logic against the SYNTHETIC record (F1 ~80-300 K, OVC ~2e-7
+# Torr, cell ~0.6-1.4 Torr).  Applied as a replay-only override inside the run
+# directory; recorded in rewrites.json and the report.
+enforce: true
+coldboard:
+  temperature_pvs: [F1_TI]
+  trip_k: 320.0
+  clear_k: 310.0
+  power_pv: Coldboard_PI
+  trip_w: 4.0
+  clear_w: 3.0
+  output_pv: Coldboard_Mode
+vacuum:
+  ovc_pv: OVC_PI
+  ovc_trip: 1.1e-3          # mbar
+  ovc_clear: 5.5e-4         # mbar
+  cell_pv: Cell_PI
+  cell_trip: 850.0          # Torr
+  cell_clear: 750.0         # Torr
+  output_pv: Coldboard_Mode
+watchdog:
+  stale_s: 30.0
+  watch: []

@@ -1,0 +1,12 @@
+description: 20x NMR noise, then a 30 degree phase error; the fitter must keep running
+source: synthetic
+start: "2000-01-01 02:00"
+duration_min: 40
+speed: 60
+legs: [cryo, nmr]
+actions:
+  - {at: 15, do: model, key: nmr_noise_x, value: 20}
+  - {at: 25, do: model, key: nmr_phase_offset_deg, value: 30}
+expect:
+  - {label: "fitter stays up", pv: "UNH:GEN:SSRF:FIT:FITTER_UP", from: 1, to: 40, op: eq, value: 1, mode: always}
+  - {check: "nmr feeder", verdict: PASS}

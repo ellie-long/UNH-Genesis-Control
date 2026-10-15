@@ -1,0 +1,29 @@
+description: Quench-like warm-up with microwaves on; temperatures, cell pressure, vacuum trip, P collapse, recovery
+source: synthetic
+start: "2000-01-01 02:00"
+duration_min: 75
+speed: 20
+legs: [cryo, mw, nmr]
+deviates_from_record: true
+overrides:
+  safety_interlock: {limits: limits_replay.yaml}
+  target_status: {state_table_validated: true}
+# the fitter autopilot presses Update Constants after 40 sweeps (~7 min at 20x) and the
+# fitter reports CALIBRATED by ~13 min: quench after that, so it calibrates on a steady line
+actions:
+  - {at: 15, do: model, key: quench, value: 1}
+  - {at: 25, do: model, key: quench, value: 0}
+expect:
+  - {label: "fridge warms", pv: "UNH:GEN:CRYO:FRIDGE:F5_TI", from: 16, to: 25, op: gt, value: 20}
+  - {label: "cell pressure rises", pv: "UNH:GEN:CRYO:CELL:Cell_PI", from: 16, to: 25, op: gt, value: 600}
+  - {label: "vacuum trip", pv: "UNH:GEN:CRYO:SAFE:Vac_Permit", from: 16, to: 25, op: eq, value: 0}
+  - {label: "polarization collapses", truth: true_P, from: 18, to: 25, op: lt, value: 5}
+  - {label: "fridge recovers", pv: "UNH:GEN:CRYO:FRIDGE:F5_TI", from: 55, to: 75, op: lt, value: 12}
+  # still spinning up before the quench: the same (smaller) Q lag costs ~1.1 pp
+  - {label: "calibrated fitter tracks truth before the quench", truth: abs_fit_err_P, from: 13, to: 15, op: le, value: 1.5, mode: always}
+  - {label: "fitter keeps fitting through the recovery", truth: P_fit, from: 60, to: 75, op: gt, value: 15}
+# The equal-spin-temperature fitter reads P from the line's Q.  In the model Q
+# re-heals towards Q_B(P) with an ASSUMED 240 s time, so during the re-spin-up
+# from zero Q lags and P_fit reads ~13 % low (open question: does Q lag in data?)
+waive:
+  - {check: "nmr fitter vs model truth", reason: "re-spin-up after the quench: model Q lags Q_B(P) (assumed Q-healing), the single-temperature fitter reads P low"}

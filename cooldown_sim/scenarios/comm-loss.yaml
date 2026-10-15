@@ -1,0 +1,21 @@
+description: LS224 fridge goes silent, then the cell gauge is unplugged; alarms, the COMM flag and recovery
+source: synthetic
+start: "2000-01-01 02:00"
+duration_min: 30
+speed: 10
+legs: [cryo]
+actions:
+  - {at: 3, do: fault, instrument: ls224_fridge, mode: silent}
+  - {at: 10, do: fault, instrument: ls224_fridge, mode: none}
+  - {at: 14, do: fault, instrument: mks902b, mode: refuse}
+  - {at: 20, do: fault, instrument: mks902b, mode: none}
+expect:
+  - {label: "silent LS224 raises READ alarms", pv: "UNH:GEN:CRYO:FRIDGE:F5_TI", from: 4, to: 10, severity: ge, value: 1}
+  # known issue comm-flag-tracks-gateway: each timed-out poll drops COMM, the
+  # reconnect succeeds (the port still accepts) and COMM flips back to Connected
+  - {label: "silent gauge drops COMM on a timed-out poll", pv: "UNH:GEN:CRYO:FRIDGE:COMM", from: 4, to: 9.5, op: eq, value: 0}
+  - {label: "COMM flips back to Connected while the gauge is still silent", pv: "UNH:GEN:CRYO:FRIDGE:COMM", from: 5, to: 9.5, op: eq, value: 1,
+     note: "documents known issue comm-flag-tracks-gateway: COMM alone does not reveal a silent gauge"}
+  - {label: "LS224 recovers", pv: "UNH:GEN:CRYO:FRIDGE:F5_TI", from: 11, to: 20, severity: eq, value: 0}
+  - {label: "unplugged gauge shows COMM=0", pv: "UNH:GEN:CRYO:CELL:COMM", from: 15, to: 20, op: eq, value: 0}
+  - {label: "cell gauge reconnects", pv: "UNH:GEN:CRYO:CELL:COMM", from: 21, to: 30, op: eq, value: 1}

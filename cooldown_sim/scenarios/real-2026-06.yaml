@@ -1,0 +1,13 @@
+description: Real record 2026-06-17 10:30 (needs GENESIS_REPLAY_DATA); microwaves come on at 10:41
+source: real
+cooldown: 2026-06
+start: "2026-06-17 10:30"
+duration_min: 40
+speed: 60
+legs: [cryo, mw, nmr]
+# no fitter autopilot: P is ~6 % and drifting in this window, too weak for Update
+# Constants (P comes from the line asymmetry, which is nearly flat at a few %)
+autopilot: [mw]
+expect:
+  - {check: "microwave RF ON requests", verdict: PASS}
+  - {check: "read-only proof", verdict: PASS}

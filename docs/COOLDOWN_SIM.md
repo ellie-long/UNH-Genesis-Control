@@ -82,15 +82,24 @@ The same controls work from a terminal:
     python -m cooldown_sim ctl pause | play | speed 120 | jump -30 | seek 2026-06-17 18:00
     python -m cooldown_sim ctl fault ls224_fridge silent        # ... fault ls224_fridge none
     python -m cooldown_sim ctl model quench 1                     # coldboard_heat_W 2, mw_on 0, ...
+    python -m cooldown_sim ctl override tpg262 OVC 2e-3          # force a recorded channel (recorded units)
+    python -m cooldown_sim ctl override tpg262 OVC record        # ... back to the record
     python -m cooldown_sim ctl note "TE looks low"
     python -m cooldown_sim ctl stop
+
+Every session also writes `after_action.md`, with the timeline of actions,
+faults, notes and state changes. With the NMR leg it also writes
+`after_action.html` (true P against fitted P). Read these after a rehearsal.
 
 ### Things worth rehearsing
 
 * **NMR calibration.** Before **Update Constants**, the fitter reads about 12
   points low on real-amplitude lines. That is realistic: the preset constants
   do not match the DAQ gain. After calibration it tracks the truth to within
-  about 0.1 pp.
+  about 0.1 pp. Calibrate on a steady, well-polarized line: Update Constants
+  takes P from the line asymmetry, which is nearly flat at a few percent. On a
+  ~6 % or still-changing line the constants come out tens of percent off,
+  just as they would live.
 * **Baselines.** Shift the line off-window (*Line offset* about 1 MHz), take
   the baseline, then shift it back. Taking a baseline with the line in the
   window subtracts the signal, and the fitter then reads about 0 %. That is the
@@ -98,8 +107,9 @@ The same controls work from a terminal:
 * **Microwaves.** Switching microwaves off early relaxes P with
   T1 ≈ 3.2 h. Moving the frequency away from 28.025 GHz/T × B loses the
   enhancement.
-* **Comm faults.** A `silent` gauge behind the serial gateway keeps COMM
-  "Connected". Watch the channel alarms and LAST_OK instead (known issue
+* **Comm faults.** A `silent` gauge flickers COMM: each timed-out poll drops
+  it, and the reconnect that follows succeeds, so it reads "Connected" again
+  about 30 s later. Watch the channel alarms and LAST_OK instead (known issue
   `comm-flag-tracks-gateway`).
 * **Quench.** The fridge and magnet warm, cell pressure rises to atmosphere,
   P collapses, and the safety interlock withholds `Vac_Permit`.
@@ -146,6 +156,43 @@ The synthetic day is seeded (`--seed N`) and designed:
 Add `--faults data_gap,glitches` for record defects. Because the record *is*
 the model, the report requires model and record to agree.
 
+### Scripted scenarios
+
+    python -m cooldown_sim scenario list
+    python -m cooldown_sim scenario vacuum-trip            # one
+    python -m cooldown_sim scenario all                     # each in its own process; summary at the end
+
+A scenario (`cooldown_sim/scenarios/<name>.yaml`) is a regression run with:
+
+* **timed actions** (sim minutes after the start): model inputs, instrument
+  faults, channel overrides, autopilot hand-overs, operator caputs, notes.
+  They go through the same control channel and restricted operator CA as
+  Sim Control and the autopilot.
+* **expectations**, added to the report as `scenario:` checks. An expectation
+  can test a PV value or alarm severity over a window (`eventually`, or
+  `always`), a model truth (`true_P`, ...), or another check's verdict.
+  Because the probe records changes only, the value a PV held when the window
+  opened counts as a sample.
+* optional replay-only **profile overrides**. `limits_replay.yaml` is a
+  SIM-ONLY interlock limits file with `enforce: true`, so trips can be
+  exercised. Its numbers are **not** recommendations for the cryostat.
+
+| Scenario | Legs | What it exercises |
+|---|---|---|
+| `nominal` | cryo, mw, nmr | data-free spin-up through the physical RF chain; fitter calibrated by autopilot, tracks truth |
+| `operator-deviation` | cryo, mw, nmr | the operator takes the microwaves and turns RF off early; P relaxes instead of spinning up |
+| `quench` | cryo, mw, nmr | quench with microwaves on: fridge warms, cell pressure, vacuum trip, P collapses, recovery |
+| `vacuum-trip` | cryo | OVC past the enforced trip: latch, coldboard held off, latch survives recovery, operator reset |
+| `comm-loss` | cryo | LS224 goes silent, then the cell gauge is unplugged: alarms, COMM, recovery |
+| `data-gap` | cryo | 10-minute record gap: readings go invalid once the hold expires, then recover |
+| `glitchy-nmr` | cryo, nmr | 20x NMR noise, then a 30° phase error; the fitter keeps running |
+| `ssrf-burns` | cryo, ssrf | three logged burns through the real sequencer (Linux/WSL only) |
+| `protected-nmr` | cryo, ssrf, nmr | protected PyNMR mode refuses unattested spectra (Linux/WSL only) |
+| `real-2026-06` | cryo, mw, nmr | the real 2026-06-17 record with microwaves on at 10:41 (needs `GENESIS_REPLAY_DATA`) |
+
+Scenarios that need Linux or past data are reported SKIPPED where they cannot
+run.
+
 ## 4. What the target model knows, and what it assumes
 
 The model is **hybrid**. The record supplies every channel's real trajectory.
@@ -176,6 +223,7 @@ such as AFP, anneals or burns not in the blast log.
 | File | What |
 |---|---|
 | `report.md` / `report.json` | verdicts |
+| `after_action.md` / `.html` | the session timeline: actions, faults, notes, interlock and RF state changes; truth against fitter P |
 | `events.csv` | every clock, fault, model, autopilot, note and baseline event |
 | `probe.csv` | every watched PV update |
 | `served.csv` | every value an emulator sent |
@@ -194,5 +242,5 @@ such as AFP, anneals or burns not in the blast log.
 | protected PyNMR mode (`--nmr-protected`, needs `requirements-replay.txt`) | skipped | yes: rehearses that unattested spectra are refused |
 | Microwave leg (physical MW IOCs, real shim on a simulated brick) | yes | yes |
 
-Not built yet: the scripted fault scenarios with after-action reports. Open questions about the channel mapping
-are in `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`.
+Open questions about the channel mapping are in
+`docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`.

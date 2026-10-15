@@ -111,9 +111,17 @@ def checks(run: Path, runtime: dict, timeline=None, synthetic: bool = False) -> 
                          f"limit {CALIBRATED_TOL_PP} pp",
                          data={"median_abs_pp": med, "n": int(len(cal))}))
     else:
-        out.append(Check("nmr fitter vs model truth", "INFO",
-                         "the fitter was never calibrated in this run (Update Constants not "
-                         "pressed; the fitter autopilot does this in regression runs)"))
+        from . import loaders
+        probe = loaders.probe(run)
+        done = probe[(probe["pv"] == "UNH:GEN:SSRF:FIT:CALIBRATED") & (probe["value"] == "1")]
+        if len(done):
+            why = ("Update Constants finished too late: no sweeps were fitted with the new "
+                   "constants before the run ended (the full fit takes ~20 s wall; run slower "
+                   "or longer)")
+        else:
+            why = ("the fitter was never calibrated in this run (Update Constants not "
+                   "pressed; the fitter autopilot does this in regression runs)")
+        out.append(Check("nmr fitter vs model truth", "INFO", why))
     mvr = model_vs_record(df, timeline, synthetic)
     if mvr is not None:
         out.append(mvr)

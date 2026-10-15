@@ -29,9 +29,66 @@ lab answers are in `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`.
 | C2 | ssRF leg: sim-active IOCs + simulators, blast-log burn autopilot through the real sequencer, burn heat/hole model | done |
 | D1 | Synthetic (data-free) cool-downs (seeded generator in memory, faults) | done |
 | D2 | Protected PyNMR mode: admission/protection rehearsal (Linux) | done |
-| D3 | Scenario library, fault scenarios, after-action report | next |
+| D3 | Scenario library, fault scenarios, after-action report | done |
+
+**The planned build is complete.** What is left is Ells's call:
+
+1. Answer the open questions in `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`: four
+   channel-map guesses, and whether Q lags Q_B(P) on a spin-up from zero.
+2. Try an interactive rehearsal (guide section 2) with the real screens in
+   Phoebus.
+3. Decide whether to push `dev-sim` and merge it into `elong`.
+4. Schedule the live-code fixes listed under *Findings* below. Each is a
+   separate change to the live system, deliberately not made here.
 
 ## Log
+
+### 2026-10-15: Phase D3 (scenarios and after-action reports)
+* `python -m cooldown_sim scenario list | NAME ... | all` runs scripted
+  scenarios. `all` runs each one in its own process, then prints a summary.
+  Linux-only and data-needing scenarios are reported SKIPPED where they cannot
+  run.
+* A scenario (`cooldown_sim/scenarios/*.yaml`) is a regression run plus:
+  * **timed actions:** model inputs, faults, channel overrides, autopilot
+    hand-overs, operator caputs and notes. They go through the same control
+    channel and restricted operator CA as Sim Control.
+  * **expectations:** PV value or severity over a window, model truth
+    (including the fitter's error against truth), or another check's verdict.
+    A failed action fails the report; nothing is silently skipped.
+  * **waivers:** an explicit, reasoned FAIL→INFO for a general check that the
+    scenario deliberately drives outside its premise. Used once (`quench`).
+* The ten scenarios: nominal, operator-deviation, quench, vacuum-trip,
+  comm-loss, data-gap, glitchy-nmr, ssrf-burns, protected-nmr, real-2026-06.
+  `limits_replay.yaml` holds SIM-ONLY interlock limits with enforcement on, so
+  trips can be exercised. These are **not** recommendations for the cryostat.
+* Every session now writes `after_action.md`: a timeline of actions, faults,
+  notes and interlock/RF/fitter state changes. With the NMR leg it also writes
+  `after_action.html` (truth P against fitter P).
+* `ctl override INSTRUMENT CHANNEL VALUE|record` forces a recorded channel
+  during a rehearsal.
+* Validator fixes:
+  * PV expectations count the value held as the window opens (the probe
+    records changes only).
+  * Archive rows written after the probe stopped are unverifiable rather than
+    mismatches.
+  * A YAML trap: a bare `on:` key reads as boolean True, so the loader turns it
+    back into "on".
+* Behaviour the scenarios surfaced:
+  * **Q lag (model assumption, open question 5).** After a quench, the model's
+    Q re-heals towards Q_B(P) with an assumed 240 s time and lags during the
+    re-spin-up. The equal-spin-temperature fitter then reads P about 13 % low.
+  * **Weak-line calibration.** Update Constants on a line at about 6 % P (or
+    one still changing) mis-calibrates by tens of percent, as it would live:
+    P comes from the line asymmetry, which is nearly flat there.
+  * **The enforced interlock re-sends `Coldboard_Mode=0` every cycle while
+    tripped,** and logs "driven off" each time. The coldboard IOC is read-only,
+    so nothing reaches the supply (read-only proof PASS). Live, an "enforced"
+    trip therefore cannot actually turn the coldboard off.
+  * **A silent gauge flickers COMM** (drop on timeout, back to Connected on
+    the reconnect about 30 s later). This refines `comm-flag-tracks-gateway`.
+* **Results:** all ten scenarios PASS on WSL. On Windows, nine PASS and
+  `protected-nmr` is SKIPPED (Linux only). `ssrf-burns` on Windows passes with
+  the burn replay SKIPPED.
 
 ### 2026-10-15: Phase D2 (protected PyNMR mode)
 * `--nmr-protected` runs the unchanged fitter in protected PyNMR mode:
@@ -167,8 +224,9 @@ Tracked in `cooldown_sim/known_issues.yaml` and reported as KNOWN, not FAIL:
 1. **`conn-pv-not-served`:** 21 `_Conn` PVs that `pv_map` and the archiver
    expect are never served, so `Alarm_Worst` stays INVALID.
 2. **`comm-flag-tracks-gateway`:** a silent or garbage gauge behind the serial
-   gateway shows COMM = Connected again one poll later. Only the channel
-   alarms and `LAST_OK` reveal it.
+   gateway flickers COMM. Each timed-out poll drops it, and the reconnect
+   succeeds, so it reads Connected again about 30 s later. Only the channel
+   alarms and `LAST_OK` reveal the fault reliably.
 3. **`stale-watchdog-on-constant-reading`:** a legitimately constant reading
    drops `Data_Permit`.
 4. **`vac-permit-not-consumed`:** nothing in ssRF/MW reads
@@ -191,6 +249,11 @@ Also observed:
   (trip at ≥ 4.5 K). In the record F1 sits at about 200-300 K, so with
   enforcement on the cold-board interlock would latch permanently.
 * OVC (ColdCathode) and UCA voltage have no recorded data since 2025-11.
+* With enforcement on, the safety interlock's only actuator is
+  `COLDBOARD:Coldboard_Mode`. The coldboard IOC is `write_enabled: false`, so
+  an enforced trip is logged as "driven off" but changes nothing at the
+  supply. It also re-sends the write and logs it on every cycle while
+  tripped.
 * On native Windows the existing test suite has 4 collection errors (POSIX-only
   `pwd`/`fcntl` imports) and 30 failures. These are pre-existing.
 * Two existing tests are intermittently flaky even when run alone, unrelated
@@ -217,9 +280,12 @@ unlogged burns).
 
 ## Test status (latest)
 
-* `cooldown_sim` tests: **143 pass on WSL**, including 5 full-stack runs
-  (cryo, guard, cryo+NMR, cryo+MW, cryo+ssRF).
-* On Windows, 137 fast tests pass. The 4 full-stack runs pass and ssRF is
-  skipped (POSIX-only sequencer).
-* The existing suite gives the same results as before (aside from the two
-  flaky tests).
+* `cooldown_sim` fast tests: **167 pass on Windows** (8 skipped: full-stack and
+  POSIX-only), and the same on WSL inside the full suite.
+* Scenario library: 10/10 PASS on WSL; 9 PASS + 1 SKIPPED on Windows.
+* The existing suite gives the same results as before on both platforms:
+  * Windows: 4 collection errors and 30 failures, all pre-existing.
+  * WSL: under load, more of the timing-sensitive
+    `test_microwave_rf_operation` tests fail (their timeouts are 80-120 ms). Run
+    alone, only the baseline's `test_calibration_not_a_gate` fails.
+  * Plus the two known flaky tests.

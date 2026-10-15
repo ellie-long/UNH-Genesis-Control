@@ -23,7 +23,7 @@ from pathlib import Path
 
 import yaml
 
-from . import DATA_ENV, channel_map, guard, ports, profile, pvlist, run_dir
+from . import DATA_ENV, REPO_ROOT, channel_map, guard, ports, profile, pvlist, run_dir
 from .clock import SimClock
 from .data import records
 from .data.timeline import Timeline
@@ -74,10 +74,17 @@ def add_parsers(sub) -> None:
     p.add_argument("--seed", type=int, default=0)
     p.set_defaults(func=_run)
 
+    p = sub.add_parser("scenario", help="run scripted scenarios (list | NAME ... | all)")
+    p.add_argument("names", nargs="+", help="'list', 'all', or scenario names")
+    p.add_argument("--speed", type=float, default=None, help="override the scenario speed")
+    p.add_argument("--data", default=os.environ.get(DATA_ENV))
+    p.set_defaults(func=_scenario)
+
     p = sub.add_parser("ctl", help="control a running session (pause, play, speed, seek, fault ...)")
     p.add_argument("command", help="status | play | pause | speed X | seek 'YYYY-MM-DD HH:MM' | "
                                    "jump MIN | fault INSTRUMENT MODE | autopilot LEG on|off | "
-                                   "note TEXT | mark | model KEY VALUE | stop")
+                                   "note TEXT | mark | model KEY VALUE | "
+                                   "override INSTRUMENT CHANNEL VALUE|record | stop")
     p.add_argument("args", nargs="*")
     p.add_argument("--run", help="run directory (default: latest)")
     p.set_defaults(func=_ctl)
@@ -250,6 +257,10 @@ def _run(args) -> int:
     burns = None
     if args.nmr_protected:
         import importlib.util
+        if IS_WINDOWS:
+            # the protected receiver's pyepics client and the POSIX-only producer pin
+            print("--nmr-protected runs on Linux/WSL only")
+            return EXIT_SETUP
         if "nmr" not in legs or "ssrf" not in legs:
             print("--nmr-protected needs the nmr and ssrf legs (NMR-switch read-back)")
             return EXIT_SETUP
@@ -284,8 +295,9 @@ def _run(args) -> int:
 
     run = run_dir.create(args.mode, args.scenario)
     stacks = ports.load_stacks()
+    spec = getattr(args, "scenario_spec", None) or {}
     stack = profile.generate(run.path, tuple(l for l in legs if l not in SESSION_LEGS),
-                             offset=args.port_offset)
+                             offset=args.port_offset, overrides=spec.get("overrides"))
     from .validation import save_stack
     save_stack(stack)
     ctl_folder, ctl = controller_profile(run.path, stacks, args.port_offset)
@@ -329,6 +341,9 @@ async def _session(args, run, stack, stacks, timeline, cmap, t0, t1, meta, ctl_f
     engine = SimEngine(run, stack, timeline, cmap, clock, noise_rel=args.noise_rel, seed=args.seed,
                        provider=build_provider(args, timeline, cmap, clock),
                        supply_initial=SUPPLY_INITIAL)
+    spec = getattr(args, "scenario_spec", None)
+    if args.autopilot is None and spec is not None and "autopilot" in spec:
+        args.autopilot = ",".join(spec["autopilot"] or [])
     if args.autopilot is not None:
         start_on = {x.strip() for x in args.autopilot.split(",") if x.strip()}
     else:
@@ -359,6 +374,7 @@ async def _session(args, run, stack, stacks, timeline, cmap, t0, t1, meta, ctl_f
     ssrf_skipped = ""
     leg_stop = asyncio.Event()
     leg_tasks = []
+    player = None
     interrupted = False
     try:
         engine.start()
@@ -436,6 +452,10 @@ async def _session(args, run, stack, stacks, timeline, cmap, t0, t1, meta, ctl_f
                 ssrf_leg = SSRFLeg(engine, ca, cooldown_dir, burns=burns)
                 ssrf_leg.start()
                 leg_tasks.append(asyncio.create_task(ssrf_leg.run(leg_stop)))
+        if spec is not None and spec.get("actions"):
+            from .scenario import ScenarioPlayer
+            player = ScenarioPlayer(spec, engine, ca, t0)
+            leg_tasks.append(asyncio.create_task(player.run(leg_stop)))
         if "nmr" in legs:
             from .nmr.feeder import NMRFeeder
             from .nmr.source import NMRSource
@@ -518,6 +538,10 @@ async def _session(args, run, stack, stacks, timeline, cmap, t0, t1, meta, ctl_f
                    "mw_rf_on_refused": mw_leg.refusals if mw_leg else None,
                    "nmr_sweeps": feeder.sent if feeder else 0,
                    "nmr_protected": bool(args.nmr_protected),
+                   "scenario_spec": spec, "scenario_t0": t0,
+                   "model_deviates": bool((spec or {}).get("deviates_from_record")),
+                   "scenario_actions": ({"total": len(player.actions), "done": player.done,
+                                         "errors": player.errors} if player else None),
                    "nmr_errors": feeder.errors if feeder else 0}
         engine.stop()
         (run.sub("state") / "runtime.json").write_text(json.dumps(runtime, indent=2), encoding="utf-8")
@@ -568,6 +592,10 @@ def _ctl(args) -> int:
         req = {"text": " ".join(a)}
     elif cmd == "model":
         req = {"key": a[0], "value": float(a[1])}
+    elif cmd == "override":            # override tpg262 OVC 2e-3 | override tpg262 OVC record
+        value = a[2] if len(a) > 2 else "record"
+        req = {"instrument": a[0], "channel": a[1],
+               "value": None if value.lower() in ("record", "none", "off") else float(value)}
     try:
         client = ControlClient(int(port))
     except OSError:
@@ -628,3 +656,51 @@ def _stop(args) -> int:
     stopped = stop_run(run)
     print("stopped: " + (", ".join(stopped) if stopped else "nothing left running"))
     return 0
+
+
+# -------------------------------------------------------------- scenarios
+def scenario_args(spec: dict, speed: float | None, data: str | None):
+    """argparse-equivalent run arguments for a scenario."""
+    import argparse
+    return argparse.Namespace(
+        mode="regression", source=spec.get("source", "synthetic"), faults=",".join(spec.get("faults", [])),
+        cooldown=spec.get("cooldown"), data=data, start=spec.get("start"), day=None,
+        duration=float(spec.get("duration_min", 30)), speed=float(speed or spec.get("speed", 20)),
+        legs=",".join(spec.get("legs", ["cryo"])), scenario=spec["name"], autostart=False,
+        autopilot=None, model=spec.get("model"), nmr_protected=bool(spec.get("nmr_protected")),
+        port_offset=0, noise_rel=2e-5, seed=int(spec.get("seed", 0)), scenario_spec=spec)
+
+
+def _scenario(args) -> int:
+    from . import scenario as sc
+    from .__main__ import EXIT_FAIL, EXIT_OK
+    if args.names == ["list"]:
+        for name in sc.available():
+            spec = sc.load(name)
+            print(f"{name:22s} {spec.get('source', 'synthetic'):9s} {','.join(spec.get('legs', [])):18s} "
+                  f"{spec.get('description', '')}")
+        return EXIT_OK
+    names = sc.available() if args.names == ["all"] else args.names
+    results = []
+    for name in names:
+        spec = sc.load(name)
+        if spec.get("source") == "real" and not args.data:
+            results.append((name, "SKIPPED", f"needs ${DATA_ENV}"))
+            continue
+        if spec.get("posix_only") and IS_WINDOWS:
+            results.append((name, "SKIPPED", "needs Linux/WSL"))
+            continue
+        if len(names) == 1:
+            print(f"\n=== scenario {name}: {spec.get('description', '')}", flush=True)
+            code = _run(scenario_args(spec, args.speed, args.data))
+        else:                       # one process per scenario: libca state is per-process
+            import subprocess
+            cmd = [sys.executable, "-m", "cooldown_sim", "scenario", name]
+            if args.speed:
+                cmd += ["--speed", str(args.speed)]
+            code = subprocess.run(cmd, cwd=str(REPO_ROOT)).returncode
+        results.append((name, "PASS" if code == 0 else "FAIL", f"exit {code}"))
+    print("\nScenario summary")
+    for name, verdict, why in results:
+        print(f"  {verdict:7s} {name:22s} {why}")
+    return EXIT_FAIL if any(v == "FAIL" for _, v, _ in results) else EXIT_OK

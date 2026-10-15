@@ -1,0 +1,10 @@
+description: DAQ record has a 10-minute gap; readings go invalid once the hold expires, then recover
+source: synthetic
+faults: [data_gap]
+start: "2000-01-01 02:55"
+duration_min: 25
+speed: 10
+legs: [cryo]
+expect:
+  - {label: "readings go invalid in the gap", pv: "UNH:GEN:CRYO:FRIDGE:F5_Status", from: 11, to: 15, op: contains, value: "invalid"}
+  - {label: "readings recover after the gap", pv: "UNH:GEN:CRYO:FRIDGE:F5_Status", from: 16, to: 25, op: eq, value: "OK"}

@@ -1,0 +1,11 @@
+description: Protected PyNMR fitter mode refuses spectra from an unpinned producer
+source: synthetic
+start: "2000-01-01 02:00"
+duration_min: 15
+speed: 60
+legs: [cryo, ssrf, nmr]
+nmr_protected: true
+posix_only: true               # protected PyNMR mode: Linux/WSL only
+expect:
+  - {check: "protected NMR admission", verdict: PASS}
+  - {check: "protected NMR end-to-end fitting", verdict: KNOWN}

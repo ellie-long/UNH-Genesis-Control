@@ -1,0 +1,22 @@
+description: OVC pressure rises past the (SIM-ONLY, enforced) trip; latch, coldboard held off, reset
+source: synthetic
+start: "2000-01-01 02:00"
+duration_min: 25
+speed: 10
+legs: [cryo]
+overrides:
+  safety_interlock: {limits: limits_replay.yaml}
+actions:
+  - {at: 3, do: override, instrument: tpg262, channel: OVC, value: 2.0e-3}     # Torr -> 2.7e-3 mbar
+  - {at: 8, do: override, instrument: tpg262, channel: OVC, value: null}
+  - {at: 12, do: caput, pv: "UNH:GEN:CRYO:SAFE:Safe_Reset", value: 1}
+expect:
+  - {label: "vacuum trip withholds Vac_Permit", pv: "UNH:GEN:CRYO:SAFE:Vac_Permit", from: 4, to: 8, op: eq, value: 0}
+  - {label: "trip latches", pv: "UNH:GEN:CRYO:SAFE:Safe_Fault", from: 4, to: 8, op: eq, value: 1}
+  - {label: "reason names the OVC", pv: "UNH:GEN:CRYO:SAFE:Safe_Reason", from: 4, to: 8, op: contains, value: "OVC"}
+  - {label: "latch holds after the pressure recovers", pv: "UNH:GEN:CRYO:SAFE:Safe_Fault", from: 9.5, to: 11.5, op: eq, value: 1, mode: always}
+  - {label: "operator reset clears the latch", pv: "UNH:GEN:CRYO:SAFE:Safe_Fault", from: 12.5, to: 25, op: eq, value: 0}
+  # the interlock caputs Coldboard_Mode=0 on every trip cycle (logs/safety_interlock.log:
+  # "driven off"); the output is already 0, so the driver never reaches its write gate
+  - {label: "coldboard output stays off through the trip", pv: "UNH:GEN:CRYO:COLDBOARD:Coldboard_Mode", from: 0, to: 25, op: eq, value: 0, mode: always}
+  - {check: "read-only proof", verdict: PASS}
