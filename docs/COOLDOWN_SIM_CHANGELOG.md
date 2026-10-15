@@ -7,6 +7,16 @@ findings are in `COOLDOWN_SIM_PROGRESS.md`; questions for the lab are in
 
 ## 2026-10-15
 
+* `15d4f3c` **Trityl d-propanediol** (2020-09; 2020-12 until 12-09): its own
+  phenomenological DNP values (narrow line: P-up below f/B ~ 28.034, P-down
+  above), read off the trityl scan in Spin-1-Rates-Fit. Hindcast: 2020-09
+  MAE 15.7 -> 10.3 pp (median 13.7 -> 4.5), 2020-12 14.6 -> 10.7 (median
+  4.8 -> 3.0). Materials may now carry a `phenomenological` block.
+* `ee43e6f` The target model loads the replayed cool-down's fitted DNP values
+  itself (they were applied only when passed in explicitly).
+* Panopticon overview screen: being built on branch `dev-visualizer`
+  (worktree `../UNH-Genesis-Control-dev-visualizer`), modelled on the LabVIEW
+  overview screen.
 * `94ad496` **Magic + / Magic -** buttons on Sim Control (and `ctl magic +|-`):
   the DAQ's quick tune, setting the microwave frequency to the best P-up /
   P-down frequency at the present field through Genesis's supervisor
