@@ -34,9 +34,7 @@ How Genesis is configured today:
 * Nothing in Genesis supports the SPD4306X or any SPD4000X model.
 * The sim emulates the UCA as an SPD1305X and the coldboard as an SPD1168X.
 
-6. **Models.**
-   * Is the new single-channel UCA supply an SPD1305X? If not, the live UCA
-     IOC refuses it.
+6. **Cold-board supply model.** (The UCA supply is settled: see below.)
    * If the cold board is powered by the SPD4306X, Genesis has no driver for
      it. The current coldboard IOC would at best reach one channel, through
      commands written for a different model. Neither this nor the 4-channel
@@ -94,6 +92,9 @@ How Genesis is configured today:
      equilibrium) at full field?
 
 ## Settled
+
+* The UCA supply is a Siglent SPD1305X (Ells, 2026-10-15), matching the live
+  UCA IOC's `*IDN?` check and the sim's emulator.
 
 * Coldboard supply has no past-record column (question 4; Ells, 2026-10-15).
   * Before Genesis the cold board ran from an external DC supply, and its

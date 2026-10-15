@@ -240,15 +240,15 @@ equipment:
     note: "Ells 2026-10-15: possibly a Raspberry Pi (uncertain). CHECK: make and model, for the record"
   # ----------------------------------------------------------- microwave
   - genesis: mw_spd1305x
-    equipment: "Siglent SPD1305X single-channel DC supply (Ells: the newer 1-channel Siglent)"
+    equipment: "Siglent SPD1305X single-channel DC supply (confirmed by Ells, 2026-10-15)"
     role: UCA control voltage for the VDI chain (5 V = no microwave output, 0 V = full)
     link: Ethernet SCPI 192.168.1.19:5025
     prefix: UNH:GEN:MW:PS
     control: "write-enabled; source ceiling 5 V / 0.1 A; the IOC refuses a supply whose *IDN? is not SPD1305X"
     map: mw_spd1305x.CH1 (UCA V)
     sim: SCPI supply emulator (SPD1305X), 5 V, output ON
-    confidence: medium
-    note: "Open question 6: confirm the model is an SPD1305X"
+    confidence: high
+    note: "Model confirmed SPD1305X (Ells, 2026-10-15), matching the IOC's *IDN? check"
   - genesis: mw_vaunix_lms
     equipment: Vaunix LabBrick LMS-123 synthesizer (s/n 15033)
     role: Microwave source, ~11.67 GHz into the x12 multiplier -> ~140 GHz

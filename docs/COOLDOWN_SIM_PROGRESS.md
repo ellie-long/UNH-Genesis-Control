@@ -44,6 +44,11 @@ lab answers are in `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`.
 
 ## Log
 
+### 2026-10-15: UCA supply confirmed SPD1305X
+* Ells confirmed the UCA supply is an SPD1305X: it matches the live IOC and
+  the sim's emulator. `mw_spd1305x` is now high confidence; question 6 is
+  down to the cold-board supply.
+
 ### 2026-10-15: Equipment answers; microwave drive and F1 findings
 * Ells, recorded in `channel_map.yaml` (map regenerated):
   * IONIVAC = the vacuum of the shells between fridge and magnet spaces;
