@@ -43,6 +43,11 @@ How Genesis is configured today:
      it. The current coldboard IOC would at best reach one channel, through
      commands written for a different model. Neither this nor the 4-channel
      PV layout has been checked against the SPD4306X.
+   * Ells thinks the SPD4306X is the supply behind the `siglent_coldboard`
+     IOC. That driver is a port of Farooq's `spd1000x_lan_gui.py`, so the
+     coldboard may have been a single-channel SPD1000X then and swapped since.
+     A read-only check on the lab host settles it:
+     `caget UNH:GEN:CRYO:COLDBOARD:Coldboard_IDN`.
 7. **Coldboard load.** If the cold board's supply biases varactors, it is
    not a heater. Then the "coldboard heat" model input (assumed to heat the
    bath) and the 120 W interlock power limit would both need rethinking.
