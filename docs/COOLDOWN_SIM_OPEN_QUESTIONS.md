@@ -48,10 +48,6 @@ named in each item. Numbers are stable: answered items move to *Settled*.
 - [ ] 20. Go ahead with the vacuum rework under 3 once the interlock gauge is
       chosen (IONIVAC as the shells' vacuum, cold-cathode history as
       fallback)?
-- [ ] 21. May facts from the private lab notes (`ref_technotes/`) be
-      paraphrased into tracked files, item by item? (E.g. the fridge
-      sensor order and liquid-coverage rule, for a level and over-fill
-      indicator.)
 - [ ] 22. Try an interactive rehearsal (guide section 2) in Phoebus.
 - [ ] 23. Push `dev-sim` and merge into `elong`? Before any push: squash
       `642e0f3` into `d6a9045` (an early wording of question 10).
@@ -172,6 +168,10 @@ named in each item. Numbers are stable: answered items move to *Settled*.
     varactors at 0-19 V. Keep a rule, change it, or drop it?
 
 ## Settled
+
+* Private lab documents (question 21; Ells, 2026-10-15): the documents stay
+  private, but facts from them may be made public as part of the code where
+  the code needs them (constants, parameters, limits), paraphrased.
 
 * Microwave chain saturation (question 24; Ells, 2026-10-15): saturated from
   about -5 dB on the Vaunix, so 2022 to 2025-07 (-3 to -5 dB) ran at full
