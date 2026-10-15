@@ -76,9 +76,13 @@ The session starts **paused** at the chosen moment. Then:
 * **Autopilot** for Microwave, ssRF and Fitter. The autopilot replays the
   operator actions logged in the record. Switching a leg to **Human** hands it
   to you at once. The Microwave autopilot follows the real procedure: RF ON
-  with the UCA at 5 V, then, once ON is confirmed, the UCA lowered to the
-  history value; the UCA back to 5 V before RF OFF. The record has no usable
-  UCA voltage, so the history value is 0 V (full power).
+  when the record shows RF on, with the UCA at 5 V; once ON is confirmed, the
+  UCA follows the history UCA timeline; the UCA back to 5 V before RF OFF.
+  The record has no usable UCA voltage after 2021, so the timeline comes from
+  the cool-down logbooks (`cooldown_sim/model/uca_logbook.yaml`): 5 V until
+  the logbook says the UCA was lowered, then each logged setting in turn. An
+  RF-on period that no logbook entry covers goes to full power after 5 min.
+  The event log says which rule set each UCA value.
 * **Session:**
   * Logbook notes and Mark, stamped with sim and wall time.
   * **End session** stops everything and writes the report.
@@ -159,7 +163,8 @@ network and no data.
 
 The synthetic day is seeded (`--seed N`) and designed:
 
-* microwaves ON at 1:00 at the DNP optimum;
+* microwave RF ON at 1:00 at the DNP optimum, with the UCA lowered to full
+  power at 1:05 (the history rule for an RF-on period no logbook covers);
 * ssRF burns logged at 4:00;
 * microwaves OFF at 5:00.
 
@@ -209,7 +214,12 @@ The model is **hybrid**. The record supplies every channel's real trajectory.
 The model adds only the response to what *you do differently from history*, so
 repeating history reproduces the record exactly. Parameters live in
 `cooldown_sim/model/model_params.yaml`, each with its basis. Regenerate them
-with `python -m cooldown_sim fit-params`.
+with `python -m cooldown_sim fit-params`. The thermal response is fitted
+where the microwave *power* changed: at the UCA settings the logbooks state
+(and at the 2020-2021 record's UCA steps), with RF on and no other change
+within 4 min. RF on/off flips are not used, because RF comes on at 5 V with no
+power. `fit-params --method rf` prints the earlier RF-flip fit for
+comparison; it never writes the parameters.
 
 | Quantity | Source |
 |---|---|
@@ -217,10 +227,11 @@ with `python -m cooldown_sim fit-params`.
 | P∞ = 49.8 %, τ_up = 2450 s, T1_P = 11 600 s | Spin-1-Rates-Fit (Dec 2025 d-butanol) |
 | Q follows Q_B(P) = 2 − √(4 − 3P²), heals in 4 min | **assumed**; keeps TE-start spin-ups on the Boltzmann curve |
 | DNP lobe width / negative lobe | **assumed**; the record shows only small positive P below the optimum |
-| Microwave heat 62 mW at full drive | **measured**: logbook 2024-12-17, Roots-flow differential |
+| History microwave power | RF status, Vaunix power and frequency from the record. The UCA comes from the cool-down logbooks (`uca_logbook.yaml`, each entry *stated* or *inferred*): 5 V at RF ON until the logbook says it was lowered, RF OFF resets, and an RF-on period with no entry goes to full power after 5 min (**assumed**). In 2020-2021 the record's own UCA column is used, because the DAQ drove the UCA then |
+| Microwave heat 62 mW at full drive | **measured**: logbook 2024-12-17, Roots-flow differential across the logged 5 V / 0 V UCA toggles |
 | Boil-off 59.5 mW/slm | Keith (PSTP 2024); Spin-1-Rates-Fit dec15 thermal audit |
-| Cup (T1/T2/T3) ~10 K/W; bath ~2 K/W | cup partly fitted (T3); bath **assumed** |
-| Magnet thermometers M2-M4 | fitted from 13 isolated microwave transitions |
+| Cup (T1/T2/T3) ~2.2 K/W; bath ~2 K/W | cup partly fitted (T1 +0.137 K per full drive at 21 isolated UCA power steps, over 62 mW; the response is faster than the record's 20 s sampling); bath **assumed** (the fit sees only ~0.003 K per full drive) |
+| Magnet thermometers M1-M5 | not fitted: no consistent response at UCA power steps, so the model leaves them at the record |
 | Coldboard heat, quench | **assumed**, for exercising interlocks. Varactor-bias heating from the cold-board supply is **neglected** (none noticed; Ells, 2026-10-15): 0 W unless injected as a test fault |
 | NMR line, noise, drift | ported from the McClellan test-cooldown generator (real 2026-06 amplitudes) |
 
