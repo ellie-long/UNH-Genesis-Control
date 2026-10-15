@@ -15,7 +15,27 @@ CALIBRATED_TOL_PP = 1.0
 SETTLE_S = 120.0
 
 
-def checks(run: Path, runtime: dict) -> list[Check]:
+def model_vs_record(df, timeline, synthetic: bool) -> Check | None:
+    """Target-model P (truth) against the record's online P at each sweep."""
+    if timeline is None or "online_p" not in timeline.table.numeric:
+        return None
+    rec = timeline.values_at("online_p", df["sim"].to_numpy())
+    d = (df["true_P"].to_numpy() - rec)
+    d = d[np.isfinite(d)]
+    if not len(d):
+        return None
+    med = float(np.median(np.abs(d)))
+    if synthetic:
+        return Check("model vs record P", "PASS" if med <= 1.0 else "FAIL",
+                     f"synthetic record: model P tracks the designed trajectory, median "
+                     f"|diff| {med:.2f} pp over {len(d)} sweeps (limit 1 pp)")
+    return Check("model vs record P", "INFO",
+                 f"model fidelity against the real record: median |diff| {med:.2f} pp, "
+                 f"90th percentile {float(np.percentile(np.abs(d), 90)):.2f} pp over {len(d)} sweeps "
+                 "(the record includes operator actions the model does not see)")
+
+
+def checks(run: Path, runtime: dict, timeline=None, synthetic: bool = False) -> list[Check]:
     path = Path(run) / "nmr.csv"
     if not path.exists():
         return []
@@ -61,6 +81,9 @@ def checks(run: Path, runtime: dict) -> list[Check]:
         out.append(Check("nmr fitter vs model truth", "INFO",
                          "the fitter was never calibrated in this run (Update Constants not "
                          "pressed; the fitter autopilot does this in regression runs)"))
+    mvr = model_vs_record(df, timeline, synthetic)
+    if mvr is not None:
+        out.append(mvr)
     bad = df[~good_base]
     if len(bad):
         out.append(Check("nmr baseline taken on-window", "INFO",

@@ -27,11 +27,28 @@ lab answers are in `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`.
 | B3 | Live NMR source into the real online fitter | done |
 | C1 | Microwave leg: physical MW IOCs on the real Vaunix shim + simulated brick, UCA emulator, MW observer + autopilot | done |
 | C2 | ssRF leg: sim-active IOCs + simulators, blast-log burn autopilot through the real sequencer, burn heat/hole model | done |
-| D1 | Synthetic (data-free) cool-downs + committed fixture | next |
-| D2 | Protected PyNMR leg (Linux) | planned |
+| D1 | Synthetic (data-free) cool-downs (seeded generator in memory, faults) | done |
+| D2 | Protected PyNMR leg (Linux) | next |
 | D3 | Scenario library, fault scenarios, after-action report | planned |
 
 ## Log
+
+### 2026-10-15: Phase D1 (synthetic cool-downs)
+* `--source synthetic` runs a seeded, designed day with no data files at all:
+  * cold and steady at 4.939 T;
+  * microwaves ON at the DNP optimum at 1:00, spin-up;
+  * three logged ssRF burns at 4:00;
+  * microwaves OFF at 5:00, relaxation; end at 7:00.
+  * Channels wander with the McClellan generator's real-2026-06 amplitudes.
+  * Optional faults: `--faults data_gap,glitches`.
+* Chose an in-memory seeded generator over a committed fixture: deterministic,
+  no data in git, nothing to keep in sync.
+* Data-free full stack (cryo+MW+NMR), with no `GENESIS_REPLAY_DATA`: PASS.
+  * The model reproduces the designed record to 0.03 pp.
+  * The calibrated fitter matches truth to 0.27 pp.
+  * RF ON passed the physical microwave interlocks.
+* New report check `model vs record P`: PASS/FAIL on synthetic data; on real
+  data it is information (model fidelity).
 
 ### 2026-10-15: Phase C2 (ssRF leg)
 * The ssRF sim-active IOCs (SMC100A, WaveGen, both switches, interlock,

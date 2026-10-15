@@ -43,11 +43,16 @@ SESSION_LEGS = {"nmr"}
 def add_parsers(sub) -> None:
     p = sub.add_parser("run", help="run a simulated cool-down")
     p.add_argument("--mode", choices=["regression", "interactive"], default="regression")
-    p.add_argument("--source", choices=["real"], default="real")
+    p.add_argument("--source", choices=["real", "synthetic"], default="real",
+                   help="real: a past cool-down under $%s; synthetic: a seeded designed day "
+                        "(no data needed)" % DATA_ENV)
+    p.add_argument("--faults", default="",
+                   help="synthetic record faults, comma list: data_gap, glitches")
     p.add_argument("--cooldown", help="e.g. 2026-06 (directory under $%s)" % DATA_ENV)
     p.add_argument("--data", default=os.environ.get(DATA_ENV))
-    p.add_argument("--start", required=True,
-                   help="sim start, lab-local: 'YYYY-MM-DD HH:MM' (or HH:MM with --day)")
+    p.add_argument("--start", default=None,
+                   help="sim start, lab-local: 'YYYY-MM-DD HH:MM' (or HH:MM with --day); "
+                        "synthetic default: the start of the designed day")
     p.add_argument("--day", help="YYYY-MM-DD, combined with --start HH:MM")
     p.add_argument("--duration", type=float, default=None,
                    help="sim minutes (regression default 60; interactive: until ended)")
@@ -236,20 +241,33 @@ def _run(args) -> int:
     if unsupported:
         print(f"legs not available in this build: {sorted(unsupported)}")
         return EXIT_SETUP
-    if not args.cooldown:
-        print("--cooldown is required for --source real")
-        return EXIT_SETUP
-
     cmap = channel_map.load()
-    t0 = parse_start(args.start, args.day)
     duration = args.duration if args.duration is not None else (
         60.0 if args.mode == "regression" else 24 * 60.0)
-    t1 = t0 + 60.0 * duration
-    try:
-        timeline, cd = load_timeline(args.cooldown, args.data, t0, t1, cmap)
-    except (FileNotFoundError, SystemExit) as exc:
-        print(exc)
-        return EXIT_SETUP
+    burns = None
+    if args.source == "synthetic":
+        from .synth import cooldown as synth
+        faults = tuple(f.strip() for f in args.faults.split(",") if f.strip())
+        made = synth.make(seed=args.seed, faults=faults)
+        timeline, cd, burns = made.timeline, None, made.burns
+        t0 = parse_start(args.start, args.day) if args.start else made.t0
+        t1 = min(t0 + 60.0 * duration, made.t1)
+        source_meta = {"kind": "synthetic", "seed": args.seed, "faults": list(faults),
+                       "t0": t0, "t1": t1}
+        source_label = f"synthetic seed {args.seed}" + (f" faults {','.join(faults)}" if faults else "")
+    else:
+        if not args.cooldown or not args.start:
+            print("--source real needs --cooldown and --start")
+            return EXIT_SETUP
+        t0 = parse_start(args.start, args.day)
+        t1 = t0 + 60.0 * duration
+        try:
+            timeline, cd = load_timeline(args.cooldown, args.data, t0, t1, cmap)
+        except (FileNotFoundError, SystemExit) as exc:
+            print(exc)
+            return EXIT_SETUP
+        source_meta = {"kind": "real", "cooldown": str(cd), "t0": t0, "t1": t1}
+        source_label = f"real {cd.name}"
     if args.mode == "interactive":
         t1 = min(t1, timeline.end)
 
@@ -273,23 +291,23 @@ def _run(args) -> int:
             print(f"  {port}: {why}")
         return EXIT_SETUP
 
-    meta = {"mode": args.mode, "scenario": args.scenario, "source": f"real {cd.name}",
+    meta = {"mode": args.mode, "scenario": args.scenario, "source": source_label,
             "window": f"{records.format_epoch(t0)} -> {records.format_epoch(t1)}",
             "speed": args.speed, "legs": ",".join(legs), "model": model_kind(args),
             "platform": f"{platform.system()} {platform.release()}",
             "git": run.meta.get("git", {}).get("head", "")[:12]}
-    run.write_manifest(source={"kind": "real", "cooldown": str(cd), "t0": t0, "t1": t1},
+    run.write_manifest(source=source_meta,
                        args={k: v for k, v in vars(args).items() if k != "func"}, meta=meta,
                        controller=ctl, fitter=fitter if "nmr" in legs else None,
                        legs=list(legs))
     print(f"run directory: {run.path}")
     _route_native_stderr(run.sub("logs") / "runner.log")
     return asyncio.run(_session(args, run, stack, stacks, timeline, cmap, t0, t1, meta,
-                                ctl_folder, ctl, set(legs), fitter, cd))
+                                ctl_folder, ctl, set(legs), fitter, cd, burns))
 
 
 async def _session(args, run, stack, stacks, timeline, cmap, t0, t1, meta, ctl_folder, ctl,
-                   legs, fitter, cooldown_dir=None) -> int:
+                   legs, fitter, cooldown_dir=None, burns=None) -> int:
     from .__main__ import EXIT_FAIL, EXIT_OK, EXIT_SETUP
     from .control import ControlServer
     from .engine import SimEngine
@@ -399,7 +417,7 @@ async def _session(args, run, stack, stacks, timeline, cmap, t0, t1, meta, ctl_f
                                 "Windows; burn replay needs Linux/WSL")
             else:
                 from .autopilot.ssrf import SSRFLeg
-                ssrf_leg = SSRFLeg(engine, ca, cooldown_dir)
+                ssrf_leg = SSRFLeg(engine, ca, cooldown_dir, burns=burns)
                 ssrf_leg.start()
                 leg_tasks.append(asyncio.create_task(ssrf_leg.run(leg_stop)))
         if "nmr" in legs:
@@ -568,7 +586,10 @@ def _validate(args) -> int:
     stack = load_stack(run)
     src = manifest.get("source", {})
     timeline = None
-    if src.get("kind") == "real":
+    if src.get("kind") == "synthetic":
+        from .synth import cooldown as synth
+        timeline = synth.make(seed=src.get("seed", 0), faults=tuple(src.get("faults", ()))).timeline
+    elif src.get("kind") == "real":
         cooldown = src["cooldown"]
         if not Path(cooldown).is_dir():           # recorded on another OS/mount: find it by name
             cooldown = Path(cooldown.replace("\\", "/")).name

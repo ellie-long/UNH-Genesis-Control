@@ -46,7 +46,8 @@ def run_all(run: Path, stack: GeneratedStack, *, runtime: dict, timeline=None,
     for name, reason in runtime.get("skipped_legs", {}).items():
         checks.append(Check(f"leg {name}", "SKIPPED", reason))
     checks += roundtrip.device_channels(stack, run)
-    checks += nmr.checks(run, runtime)
+    synthetic = str((meta or {}).get("source", "")).startswith("synthetic")
+    checks += nmr.checks(run, runtime, timeline=timeline, synthetic=synthetic)
     checks += mw.checks(run, runtime)
     checks += ssrf.checks(run, runtime)
     if "cryo" in legs:

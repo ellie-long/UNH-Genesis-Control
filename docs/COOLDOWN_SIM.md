@@ -132,6 +132,20 @@ Opt-in full-stack tests:
 The fast tests run with the normal `python -m pytest -q`. They need no EPICS
 network and no data.
 
+### Without any past data
+
+    python -m cooldown_sim run --source synthetic --legs cryo,mw,nmr --duration 60
+    python -m cooldown_sim run --mode interactive --source synthetic --legs cryo,mw,nmr
+
+The synthetic day is seeded (`--seed N`) and designed:
+
+* microwaves ON at 1:00 at the DNP optimum;
+* ssRF burns logged at 4:00;
+* microwaves OFF at 5:00.
+
+Add `--faults data_gap,glitches` for record defects. Because the record *is*
+the model, the report requires model and record to agree.
+
 ## 4. What the target model knows, and what it assumes
 
 The model is **hybrid**. The record supplies every channel's real trajectory.
@@ -181,6 +195,5 @@ such as AFP, anneals or burns not in the blast log.
 | Microwave leg (physical MW IOCs, real shim on a simulated brick) | yes | yes |
 
 Not built yet: the
-protected-PyNMR leg, synthetic (data-free) cool-downs, and the scripted fault
-scenarios with after-action reports. Open questions about the channel mapping
+protected-PyNMR leg, and the scripted fault scenarios with after-action reports. Open questions about the channel mapping
 are in `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`.

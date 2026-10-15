@@ -71,12 +71,12 @@ def recipe_from_burn(b: Burn) -> dict:
 
 
 class SSRFLeg:
-    def __init__(self, engine, ca, cooldown_dir=None):
+    def __init__(self, engine, ca, cooldown_dir=None, burns=None):
         self.engine = engine
         self.ca = ca
         self.model = getattr(engine.provider, "model", None)
-        self.burns: list[Burn] = []
-        if cooldown_dir is not None:
+        self.burns: list[Burn] = [b for b in (burns or []) if b.ok]
+        if burns is None and cooldown_dir is not None:
             try:
                 self.burns = [b for b in read_cooldown_burns(cooldown_dir) if b.ok]
             except OSError:
