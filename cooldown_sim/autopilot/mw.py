@@ -18,11 +18,13 @@ reading -- it never shows power the operator did not deliberately set.
 Autopilot (``engine.autopilot["mw"]``): makes Genesis follow the logged
 microwave state using only operator PVs --
 ``SUP:OutputFrequency``, ``SRC:MW_PWRC``, ``SUP:RFEnable`` / ``SUP:RFAbort``
-and the UCA voltage ``PS:VSET_CMD`` -- following the real procedure: UCA at
-5 V for RF ON, lowered to the history value once RF ON is confirmed, and back
-to 5 V before RF OFF.  The record has no usable UCA voltage, so the history
-value is 0 V (full power).  It logs whether each RF ON was accepted, with the
-supervisor's InterlockMessage when it was not.
+and the UCA voltage ``PS:VSET_CMD`` -- following the real procedure: RF ON
+when the record shows RF on, with the UCA at 5 V; after RF ON is confirmed the
+UCA follows the history timeline (``uca_history``: 5 V until the logbook says
+it was lowered, then each logged setting; unlogged RF-on periods reach full
+power after 5 min), and it goes back to 5 V before RF OFF.  It logs whether
+each RF ON was accepted, with the supervisor's InterlockMessage when it was
+not, and why each UCA setting was chosen.
 """
 
 from __future__ import annotations
@@ -31,7 +33,7 @@ import asyncio
 import math
 import time
 
-from ..model.fit_params import HIST_UCA_V, UCA_SAFE_V, hist_drive
+from ..model.fit_params import UCA_SAFE_V, hist_uca
 
 SUP = "UNH:GEN:MW:SUP"
 SRC = "UNH:GEN:MW:SRC"
@@ -54,7 +56,9 @@ class MicrowaveLeg:
         self._subs = []
         self._last_on = None
         self._last_uca = math.nan
-        self._cmd = {"on": None, "freq": None, "power": None}
+        self._cmd = {"on": None, "freq": None, "power": None, "uca": None}
+        self._rf_confirmed = False
+        self._uca_why = ""
         self.refusals = 0
         self.accepted = 0
 
@@ -105,21 +109,30 @@ class MicrowaveLeg:
                                      f"UCA {uca:.3f} V observed{off}")
 
     # ---------------------------------------------------------- autopilot
-    def desired(self, t: float) -> tuple[bool, float, float]:
-        """(RF on, output GHz, power dBm) the record says the microwaves had
-        (the UCA while on is HIST_UCA_V: the record has no usable UCA)."""
+    def desired(self, t: float) -> tuple[bool, float, float, float]:
+        """(RF on, output GHz, power dBm, UCA V) the history says the microwaves
+        had: RF, frequency and power from the record, the UCA from the logbook
+        timeline (5 V while RF is off).  Sets ``_uca_why`` for the event log."""
         tl = self.engine.timeline
-        on = hist_drive(tl, t) > 0.05
+        rf = tl.value_at("mw_rf_status", t)
+        on = math.isfinite(rf) and rf > 0.5
         f = self.model._hist_freq(t) if self.model is not None else math.nan
         p = tl.value_at("mw_power_db", t)
         if not (math.isfinite(p) and POWER_RANGE_DBM[0] <= p <= POWER_RANGE_DBM[1]):
             p = 10.0
-        return on, f, p
+        s = hist_uca(tl, t)
+        uca = min(max(s.uca_V, 0.0), UCA_SAFE_V) if on and math.isfinite(s.uca_V) else UCA_SAFE_V
+        self._uca_why = {"stated": "history: logbook setting", "inferred": "history: logbook (inferred)",
+                         "record": "history: recorded UCA",
+                         "procedure": "history: 5 V until the logbook says it was lowered",
+                         "fallback": "history: unlogged RF-on period, full power after 5 min",
+                         }.get(s.source, "history")
+        return on, f, p, uca
 
     async def step(self) -> None:
         if not self.engine.autopilot.get("mw") or not self.engine.clock.running:
             return
-        on, f, p = self.desired(self.engine.clock.now())
+        on, f, p, uca = self.desired(self.engine.clock.now())
         if math.isfinite(f) and OUTPUT_RANGE_GHZ[0] <= f <= OUTPUT_RANGE_GHZ[1] and \
                 (self._cmd["freq"] is None or abs(f - self._cmd["freq"]) > 1e-3):
             await self.ca.caput(f"{SUP}:OutputFrequency", round(f, 6))
@@ -133,12 +146,16 @@ class MicrowaveLeg:
                 # Genesis enables RF only with the UCA at 5.0 +/- 0.1 V
                 await self._set_uca(UCA_SAFE_V, "for RF ON (enable needs 5 V)")
                 await self.ca.caput(f"{SUP}:RFEnable", 1)
-                if await self._confirm_on():
-                    # after a confirmed ON, deliberate UCA reduction is permitted
-                    await self._set_uca(HIST_UCA_V, "after RF ON confirmed (history: full power)")
+                self._rf_confirmed = await self._confirm_on()
             else:
+                self._rf_confirmed = False
                 await self._set_uca(UCA_SAFE_V, "before RF OFF")
                 await self.ca.caput(f"{SUP}:RFAbort", 1)
+            self._cmd["uca"] = UCA_SAFE_V
+        # after a confirmed ON, deliberate UCA changes follow the history timeline
+        if on and self._rf_confirmed and abs(uca - self._cmd["uca"]) > 0.05:
+            await self._set_uca(uca, f"({self._uca_why})")
+            self._cmd["uca"] = uca
 
     async def _set_uca(self, volts: float, why: str) -> bool:
         """Bring the UCA to ``volts`` through the operator setpoint and wait for
