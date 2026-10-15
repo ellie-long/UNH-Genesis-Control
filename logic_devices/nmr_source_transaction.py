@@ -75,6 +75,9 @@ async def execute_nmr_source_change(
         # Mark dispatch BEFORE awaiting the write. A timeout or
         # cancellation during the write has an uncertain outcome.
         command_dispatched = True
+        recovery = getattr(sequencer, "_nmr_recovery", None)
+        if recovery is not None:
+            recovery.dispatch(requested, before)
         await write_fitter(requested)
 
     except BaseException:
@@ -100,6 +103,9 @@ async def execute_nmr_source_change(
             # verification leaves the reservation in place.
             if before_release is not None:
                 await before_release()
+            recovery = getattr(sequencer, "_nmr_recovery", None)
+            if recovery is not None:
+                recovery.confirm(observed)
             sequencer._complete_nmr_source_change_reservation(
                 confirmed=True
             )

@@ -54,6 +54,22 @@ def apply_source_request(*, peer_uid, peer_pid, allowed_uid, allowed_pid,
     return {"selected_source": target, "route_epoch": after["route_epoch"]}
 
 
+def apply_source_snapshot(*, peer_uid, peer_pid, allowed_uid, allowed_pid, snapshot):
+    """Read the protected state only for the pinned sequencer process."""
+    if (type(peer_uid) is not int or type(peer_pid) is not int
+            or peer_uid != allowed_uid or peer_pid != allowed_pid
+            or peer_pid <= 0):
+        raise PermissionError("Unrecognized sequencer process")
+    result = snapshot()
+    if (type(result) is not dict
+            or result.get("selected_source") not in SOURCES
+            or type(result.get("route_epoch")) is not int
+            or result["route_epoch"] < 0):
+        raise RuntimeError("Fitter source snapshot unverified")
+    return {"selected_source": result["selected_source"],
+            "route_epoch": result["route_epoch"]}
+
+
 def _secure_socket_parent(path):
     p = Path(path)
     if not p.is_absolute():
@@ -125,12 +141,19 @@ class NMRSourceControlIPC:
             if not line or len(line) > MAX_LINE or not line.endswith(b"\n"):
                 raise ValueError("Invalid request framing")
             request = json.loads(line.decode("utf-8"))
-            result = apply_source_request(
-                peer_uid=peer_uid, peer_pid=peer_pid,
-                allowed_uid=self.allowed_uid, allowed_pid=self.allowed_pid,
-                request=request, snapshot=self.snapshot,
-                select_source=self.select_source,
-            )
+            if type(request) is dict and request == {"op": "snapshot"}:
+                result = apply_source_snapshot(
+                    peer_uid=peer_uid, peer_pid=peer_pid,
+                    allowed_uid=self.allowed_uid, allowed_pid=self.allowed_pid,
+                    snapshot=self.snapshot,
+                )
+            else:
+                result = apply_source_request(
+                    peer_uid=peer_uid, peer_pid=peer_pid,
+                    allowed_uid=self.allowed_uid, allowed_pid=self.allowed_pid,
+                    request=request, snapshot=self.snapshot,
+                    select_source=self.select_source,
+                )
             reply = {"ok": True, **result}
         except (Exception, asyncio.CancelledError):
             # Do not expose internal state or credentials to untrusted peers.

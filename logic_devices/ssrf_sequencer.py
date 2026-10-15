@@ -15,6 +15,8 @@ from logic_devices.nmr_source_ipc_transaction import (
     execute_nmr_source_change_via_ipc,
     validate_ipc_configuration,
 )
+from logic_devices.nmr_source_recovery import NMRSourceRecovery
+from logic_devices.nmr_source_ipc_client import request_source_snapshot
 from logic_devices.nmr_source_readbacks import (
     read_fitter_source_snapshot, verify_ssrf_rf_off_fresh,
 )
@@ -85,6 +87,24 @@ class Device:
         self._nmr_source_change_reserved = False
         self._nmr_source_request = None
         self._nmr_source_task = None
+        self._nmr_recovery_required = (
+            settings.get("nmr_source_selection_enabled", False) is True
+            or bool(settings.get("nmr_source_recovery_path"))
+        )
+        self._nmr_recovery = None
+        self._nmr_recovery_error = None
+        self._nmr_recovery_attempted = False
+        if self._nmr_recovery_required:
+            # Journal I/O failure inhibits source/burn authorization but must
+            # not prevent ABORT and safe-OFF controls from coming online.
+            try:
+                self._nmr_recovery = NMRSourceRecovery(
+                    settings.get("nmr_source_recovery_path"),
+                    fitter_uid=settings.get("nmr_source_control_fitter_uid"),
+                    fitter_pid=settings.get("nmr_source_control_fitter_pid"),
+                )
+            except Exception as exc:
+                self._nmr_recovery_error = str(exc)
 
         # Execution remains disabled by default.  Only an explicitly
         # authorized simulator or physical profile may enable it.
@@ -559,7 +579,9 @@ class Device:
                 on_update_name=self._nmr_source_command,
             )
             self.pvs["NMR_SOURCE_REQUEST"].set("", process=False)
-            self._set_nmr_source_status("IDLE", "Software selection available")
+            self._set_nmr_source_status(
+                "RECOVERY_REQUIRED", "Startup reconciliation required"
+            )
         else:
             self._set_nmr_source_status("DISABLED", "Source selection disabled")
 
@@ -672,6 +694,17 @@ class Device:
         self.pvs["NMR_SOURCE_REASON"].set(str(reason)[:39])
 
     def _nmr_source_activity(self):
+        if getattr(self, "_nmr_recovery_required", False):
+            recovery = getattr(self, "_nmr_recovery", None)
+            if recovery is None or not recovery.ready:
+                return True
+            try:
+                if recovery.record["identity"] != recovery.process_identity():
+                    recovery.ready = False
+                    return True
+            except (OSError, RuntimeError, PermissionError, ValueError):
+                recovery.ready = False
+                return True
         return (self._nmr_source_change_reserved
                 or self._nmr_source_request is not None
                 or (self._nmr_source_task is not None
@@ -700,6 +733,56 @@ class Device:
         self._nmr_source_request = requested
         self._set_nmr_source_status("PENDING", "Request awaiting verification")
 
+    async def _reconcile_nmr_snapshot(self, config):
+        """Use fresh EPICS + authenticated IPC + RF OFF; no state writes to fitter."""
+        recovery = self._nmr_recovery
+        if recovery is None:
+            raise RuntimeError("NMR recovery journal unavailable")
+        await verify_ssrf_rf_off_fresh(max_age_s=config["max_age_s"])
+        authenticated = await request_source_snapshot(
+            path=config["path"], allowed_fitter_uid=config["uid"],
+            allowed_fitter_pid=config["pid"], timeout_s=config["timeout_s"],
+        )
+        epics = await read_fitter_source_snapshot(
+            prefix=self.settings.get("nmr_source_fitter_prefix", "UNH:GEN:SSRF:FIT"),
+            max_age_s=config["max_age_s"],
+        )
+        if epics != authenticated:
+            raise RuntimeError("Authenticated IPC and fresh EPICS source disagree")
+        await verify_ssrf_rf_off_fresh(max_age_s=config["max_age_s"])
+        identity_override = self.settings.get("nmr_source_recovery_rebaseline_identity")
+        if identity_override is not None:
+            # One-time operator-controlled profile, bound to the exact /proc
+            # identity of the commissioned fitter. Remove after recovery.
+            recovery.operator_rebaseline(epics, expected_identity=identity_override)
+        elif recovery.record is None:
+            if self.settings.get("nmr_source_recovery_initial_commissioning") is not True:
+                raise RuntimeError("Initial NMR recovery commissioning required")
+            recovery.commission_initial(epics)
+        else:
+            recovery.reconcile(epics)
+        self.pvs["NMR_SOURCE_SELECTED_RBV"].set(epics["selected_source"].upper())
+        self.pvs["NMR_SOURCE_EPOCH_RBV"].set(epics["route_epoch"])
+        self._set_execution_armed(False)
+        self._set_prepared(False)
+        return epics
+
+    async def _service_nmr_recovery(self):
+        """Single startup attempt; failed reconciliation requires controlled restart."""
+        if not self._nmr_recovery_required or self._nmr_recovery_attempted:
+            return
+        self._nmr_recovery_attempted = True
+        if self._nmr_recovery is None:
+            self._set_nmr_source_status("RECOVERY_REQUIRED", "Recovery journal unavailable")
+            return
+        try:
+            config = self._validated_nmr_source_configuration()
+            await self._reconcile_nmr_snapshot(config)
+        except (Exception, asyncio.CancelledError) as exc:
+            self._set_nmr_source_status("RECOVERY_REQUIRED", str(exc))
+        else:
+            self._set_nmr_source_status("RECONCILED", "Fitter state verified")
+
     async def _run_nmr_source_request(self, source):
         """Only the IOC dispatcher starts this transaction task."""
 
@@ -726,8 +809,14 @@ class Device:
             # path as readback or IPC failures.
             config = self._validated_nmr_source_configuration()
 
-            # Independent freshness check before the reservation attempt.
+            # Update the clean baseline if a trusted physical route update
+            # advanced the fitter epoch since the previous reconciliation.
+            # This is read-only and still requires RF OFF + IPC/EPICS agreement.
             await fresh_rf()
+            if (getattr(self, "_nmr_recovery_required", False)
+                    and self._nmr_recovery is not None
+                    and self._nmr_recovery.ready):
+                await self._reconcile_nmr_snapshot(config)
             result = await execute_nmr_source_change_via_ipc(
                 requested=source,
                 sequencer=self,
@@ -742,9 +831,23 @@ class Device:
             self._set_nmr_source_status("FAULT", "Source selection interrupted")
             raise
         except Exception as exc:
-            # No automatic retry or reservation release here. The transaction
-            # decides whether dispatch began; uncertain outcomes remain held.
-            self._set_nmr_source_status("FAULT", str(exc))
+            # A lost acknowledgment is uncertain. Independently query the
+            # authenticated live fitter and cross-check fresh EPICS and RF OFF.
+            recovery = getattr(self, "_nmr_recovery", None)
+            if (recovery is not None and recovery.record is not None
+                    and recovery.record["state"] == "dispatching"
+                    and self._nmr_source_change_reserved):
+                try:
+                    confirmed = await self._reconcile_nmr_snapshot(config)
+                    if confirmed["selected_source"] != source:
+                        raise RuntimeError("Unexpected recovery source")
+                    self._complete_nmr_source_change_reservation(confirmed=True)
+                except (Exception, asyncio.CancelledError):
+                    self._set_nmr_source_status("FAULT", str(exc))
+                else:
+                    self._set_nmr_source_status("RECONCILED", "Lost IPC ack verified")
+            else:
+                self._set_nmr_source_status("FAULT", str(exc))
         else:
             self.pvs["NMR_SOURCE_SELECTED_RBV"].set(
                 result["selected_source"].upper()
@@ -783,6 +886,11 @@ class Device:
         if self._manual.state != "DISARMED" or self._manual.fault:
             raise RuntimeError("Manual RF safe baseline unverified")
 
+        if getattr(self, "_nmr_recovery_required", False):
+            recovery = self._nmr_recovery
+            if recovery is None or not recovery.ready:
+                raise RuntimeError("NMR startup reconciliation not complete")
+
         # Set before the first await. Command admission must block
         # competing operations throughout RF verification.
         self._nmr_source_change_reserved = True
@@ -795,6 +903,8 @@ class Device:
                 raise RuntimeError(
                     f"Cannot change NMR source: SMC RF readback={rf!r}"
                 )
+            if getattr(self, "_nmr_recovery_required", False):
+                self._nmr_recovery.reserve()
         except BaseException:
             # Preflight only: no fitter command was issued.
             self._nmr_source_change_reserved = False
@@ -809,6 +919,9 @@ class Device:
         if not self._nmr_source_change_reserved:
             raise RuntimeError("No NMR source-change reservation")
 
+        recovery = getattr(self, "_nmr_recovery", None)
+        if recovery is not None:
+            recovery.cancel_before_dispatch()
         self._nmr_source_change_reserved = False
 
     def _complete_nmr_source_change_reservation(
@@ -824,6 +937,9 @@ class Device:
                 "reservation remains active"
             )
 
+        if getattr(self, "_nmr_recovery_required", False):
+            if self._nmr_recovery is None or not self._nmr_recovery.ready:
+                raise RuntimeError("Durable NMR acknowledgment unverified")
         self._nmr_source_change_reserved = False
 
     def _manual_busy(self):
@@ -1707,6 +1823,11 @@ class Device:
         # Command callbacks only latch validated requests. Actual EPICS
         # forwarding/execution begins here on the IOC dispatcher loop.
         await self._service_manual()
+        await self._service_nmr_recovery()
+        if self._nmr_recovery_required and self._nmr_source_activity():
+            # Never preserve a pre-restart or pre-fault burn authorization.
+            self._set_execution_armed(False)
+            self._set_prepared(False)
         self._service_nmr_source_request()
 
         # Any queued/active NMR request inhibits burn readiness.

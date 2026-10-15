@@ -96,3 +96,48 @@ async def request_source_change(
     finally:
         writer.close()
         await writer.wait_closed()
+
+
+async def request_source_snapshot(
+    *, path, allowed_fitter_uid, allowed_fitter_pid, timeout_s=2.0,
+):
+    """Read authenticated fitter status without changing the source."""
+    if sys.platform != "linux" or not hasattr(socket, "SO_PEERCRED"):
+        raise RuntimeError("Linux SO_PEERCRED is required")
+    if type(path) is not str or not Path(path).is_absolute():
+        raise ValueError("Absolute source-control socket path required")
+    if (type(allowed_fitter_uid) is not int or allowed_fitter_uid < 0
+            or type(allowed_fitter_pid) is not int or allowed_fitter_pid <= 0):
+        raise ValueError("Explicit fitter identity required")
+    if type(timeout_s) not in (int, float) or not math.isfinite(timeout_s) or timeout_s <= 0:
+        raise ValueError("Positive IPC timeout required")
+    reader, writer = await asyncio.wait_for(
+        asyncio.open_unix_connection(path, limit=MAX_REPLY + 1), timeout_s,
+    )
+    try:
+        verify_fitter_peer(
+            writer.get_extra_info("socket"),
+            allowed_uid=allowed_fitter_uid, allowed_pid=allowed_fitter_pid,
+        )
+        writer.write(b'{"op":"snapshot"}\n')
+        await asyncio.wait_for(writer.drain(), timeout_s)
+        line = await asyncio.wait_for(reader.readline(), timeout_s)
+        if (type(line) is not bytes or not line or len(line) > MAX_REPLY
+                or not line.endswith(b"\n")):
+            raise RuntimeError("Malformed fitter status reply")
+        try:
+            reply = json.loads(line.decode("utf-8"))
+        except (UnicodeError, ValueError) as exc:
+            raise RuntimeError("Malformed fitter status reply") from exc
+        if (type(reply) is not dict or set(reply) !=
+                {"ok", "selected_source", "route_epoch"}
+                or reply.get("ok") is not True
+                or reply.get("selected_source") not in SOURCES
+                or type(reply.get("route_epoch")) is not int
+                or reply["route_epoch"] < 0):
+            raise RuntimeError("Fitter status unverified")
+        return {"selected_source": reply["selected_source"],
+                "route_epoch": reply["route_epoch"]}
+    finally:
+        writer.close()
+        await writer.wait_closed()
