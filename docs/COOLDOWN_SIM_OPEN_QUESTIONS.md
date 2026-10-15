@@ -16,7 +16,8 @@ named in each item. Numbers are stable: answered items move to *Settled*.
 - [ ] 14. Serial gateway at 192.168.1.251: make and model (possibly a Pi).
 - [ ] 15. Which target stick is in use now? Genesis's magnet calibration
       file (T1 on C2, T3 on C4) matches stick 2, which has no T2; stick 1 had
-      T2 on C4 and T3 on C3. Is stick 3 (T3 on C3) real?
+      T2 on C4 and T3 on C3. (Stick 3's all-zero entry is probably a
+      placeholder, per Ells.)
 - [ ] 29. Add T1/T3 to Genesis (live change)? Needs Cernox (CCX) Chebyshev
       support in `target_ioc/instruments/ls224.py`, the stick's coefficients
       in `calibration/magnet_thermometry.csv`, and the channels in the
