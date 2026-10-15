@@ -36,6 +36,10 @@ LOGIC_START_TIMEOUT_S = 45.0
 LEGS_AVAILABLE = {"cryo", "nmr", "mw", "ssrf"}
 #: equilibrium sweeps the fitter autopilot waits for before Update Constants
 FIT_AUTOPILOT_SWEEPS = 40
+#: ...and the polarization (%, model truth) it waits for: like an operator, it
+#: calibrates on a well-polarized line -- Update Constants takes P from the line
+#: asymmetry, which is nearly flat at a few percent (constants come out far off)
+FIT_AUTOPILOT_MIN_P = 10.0
 #: legs that are not IOC stacks in stacks.yaml (launched by the session itself)
 SESSION_LEGS = {"nmr"}
 
@@ -216,6 +220,16 @@ def controller_profile(run_path: Path, stacks: dict, offset: int) -> tuple[Path,
         yaml.safe_dump(settings, fh, sort_keys=False)
     return folder, {"prefix": ctl["prefix"], "ca": int(ctl["ca"]) + offset,
                     "pva": int(ctl["pva"]) + offset, "control_port": int(ctl["control_port"]) + offset}
+
+
+def _line_strong(engine, t: float) -> bool:
+    """True when the target is polarized enough to calibrate on (no model: True)."""
+    if not hasattr(engine.provider, "truth"):
+        return True
+    try:
+        return abs(float(engine.provider.truth(t)["P"])) >= FIT_AUTOPILOT_MIN_P
+    except Exception:  # noqa: BLE001 - never block the session on a status read
+        return True
 
 
 def model_kind(args) -> str:
@@ -498,7 +512,7 @@ async def _session(args, run, stack, stacks, timeline, cmap, t0, t1, meta, ctl_f
         while not engine.stop_requested.is_set():
             # fitter autopilot: calibrate once the fitter has seen enough equilibrium sweeps
             if (feeder is not None and engine.autopilot.get("fit") and not fit_autopilot_done
-                    and feeder.sent >= FIT_AUTOPILOT_SWEEPS):
+                    and feeder.sent >= FIT_AUTOPILOT_SWEEPS and _line_strong(engine, clock.now())):
                 await ca.caput("UNH:GEN:SSRF:FIT:UPDATE_CONSTANTS_CMD", 1)
                 fit_autopilot_done = True
             if clock.now() >= t1:
