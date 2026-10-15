@@ -11,7 +11,9 @@ treated as authoritative. Answers go into `cooldown_sim/channel_map.yaml`
    `Roots Pressure (Torr)`?
 3. **TPG 262 gauge 2 (`OVC`)**: is this the cold-cathode gauge logged as
    `ColdCathode.Pres (Torr)`? That column is empty since 2025-11. Is the OVC
-   gauge now the IONIVAC?
+   gauge now the IONIVAC? (Ells, 2026-10-15: the IONIVAC measures the vacuum
+   of the shells separating the fridge space from the magnet space. Is that
+   the volume Genesis calls OVC, which the vacuum interlock watches?)
 
 ## Siglent supplies (Ells, 2026-10-15)
 
@@ -44,6 +46,25 @@ How Genesis is configured today:
      coldboard may have been a single-channel SPD1000X then and swapped since.
      A read-only check on the lab host settles it:
      `caget UNH:GEN:CRYO:COLDBOARD:Coldboard_IDN`.
+
+## Microwave power
+
+9. **UCA voltage to microwave power.** Ells (2026-10-15): `MMwaves Power (dB)`
+   is the Vaunix setpoint (default 10 dBm, rarely changed); the UCA sets the
+   actual power. The model gets this wrong:
+   * Its drive is `RF_on * 10**((P_dB - 10)/10)`, built on the Vaunix setpoint.
+     The UCA is never used.
+   * The record has the Vaunix at -3 to -5 dB from 2022 to 2025-07, so the
+     model reads those cool-downs as about 4 % power. Two of the 13 fitted
+     thermal transitions (2022-05) carry drive steps of 0.05 for that reason.
+   * The UCA is often between 0 and 5 V with RF on (64 % of RF-on rows in
+     2022-05, 93 % in 2024-12), so intermediate power is real.
+   * The UCA column is empty from 2025-11 on.
+
+   Needed: the UCA's power-vs-voltage curve (0 V = full, 5 V = none; linear
+   in volts, in dB, or a datasheet curve?). Does the Vaunix setpoint matter
+   at all, given the multiplier chain? When the UCA was not recorded
+   (2025-11 on), was it normally at 0 V while polarizing?
 
 ## Target model (currently **assumed**)
 

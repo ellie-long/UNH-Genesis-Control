@@ -98,7 +98,7 @@ instruments:
     wire: ionivac_count
     absent: refuse       # a silent IONIVAC is how the driver detects "not present"
     channels:
-      Ion: {source: ionivac, units: Torr, valid: [1.0e-12, 1100.0], confidence: high, note: "Same instrument name in LabVIEW and Genesis"}
+      Ion: {source: ionivac, units: Torr, valid: [1.0e-12, 1100.0], confidence: high, note: "Same instrument name in LabVIEW and Genesis.  Measures the vacuum of the shells separating the fridge space from the magnet space (Ells, 2026-10-15)."}
 
   ls455:                 # UNH:GEN:CRYO:FIELD  Fringe_Field (G) / Fringe_FieldT
     wire: none           # emulator reports UNIT?=1 (gauss)
@@ -137,13 +137,13 @@ instruments:
 history:
   mw_rf_on:   {source: mw_rf_status, units: bool, valid: [0, 1], confidence: medium, note: "\"MMwaves RF Status\" / 2020 \"RF Status\" (Off -> 0)"}
   mw_freq:    {source: mw_freq_ghz, units: GHz, valid: [100.0, 200.0], confidence: medium, note: "-257.674453 GHz is the DAQ's RF-off sentinel; other out-of-range values are garbage"}
-  mw_power:   {source: mw_power_db, units: dB, valid: [-60.0, 30.0], confidence: medium, note: "\"MMwaves Power (dB)\"; occasional 1e8 garbage values are rejected by valid range.  CHECK: does this equal the Vaunix MW_PWRC setpoint?"}
+  mw_power:   {source: mw_power_db, units: dB, valid: [-60.0, 30.0], confidence: high, note: "\"MMwaves Power (dB)\" is the Vaunix power setpoint (Ells, 2026-10-15): default 10 dBm, rarely changed; the UCA sets the actual microwave power.  Record: +10 in 2020-21 and 2025-11 on, -3 to -5 in 2022 to 2025-07.  Occasional 1e8 garbage values are rejected by valid range."}
   hb_freq:    {source: hb_freq_mhz, units: MHz, valid: [1.0, 300.0], confidence: medium, note: "ssRF / holeburning SMC100A carrier"}
   hb_power:   {source: hb_power_dbm, units: dBm, valid: [-140.0, 30.0], confidence: medium, note: "2020 logged mV (not aliased)"}
   field:      {source: central_field, units: T, valid: [0.0, 6.0], confidence: high}
   magnet_i:   {source: magnet_current, units: A, valid: [0.0, 120.0], confidence: high}
   online_p:   {source: online_p, units: "%", valid: [-110.0, 110.0], confidence: high, note: "LabVIEW live area-method P; values beyond +/-110 % are display glitches"}
-  t_cup:      {source: T1, units: K, valid: [0.05, 400], confidence: medium, note: "Target-cup thermometer; no Genesis IOC reads it (CCX placeholder in magnet_thermometry.csv) -- used only as the model's lattice temperature"}
+  t_cup:      {source: T1, units: K, valid: [0.05, 400], confidence: medium, note: "Target-cup thermometer, probably on the magnet LS224 slot C2 (Ells; CCX placeholder in magnet_thermometry.csv); no Genesis IOC reads it -- used only as the model's lattice temperature"}
   he_level_fridge: {source: fridge_he_level, units: in, valid: [0.0, 60.0], confidence: high}
   he_level_magnet: {source: magnet_lhe_level, units: in, valid: [0.0, 60.0], confidence: high}
 
@@ -201,14 +201,14 @@ equipment:
     note: "Open questions 2-3: which LabVIEW columns are these two gauges?"
   - genesis: ionivac
     equipment: Leybold IONIVAC combination gauge
-    role: Vacuum gauge (streams binary telegrams; never queried)
+    role: "Vacuum of the 'shells' separating the fridge space from the magnet space (Ells 2026-10-15); streams binary telegrams, never queried"
     link: RS-232 via serial gateway 192.168.1.251:5005
     prefix: UNH:GEN:CRYO:ION
     control: read-only
     map: ionivac.Ion
     sim: IONIVAC emulator
     confidence: high
-    note: "CHECK: which volume does it measure (the OVC? see open question 3)"
+    note: "Ells 2026-10-15: the shells' vacuum. CHECK: is that the volume Genesis calls OVC (open question 3)?"
   - genesis: ls455
     equipment: Lake Shore 455 DSP gaussmeter
     role: Magnet fringe field
@@ -237,7 +237,7 @@ equipment:
     map: "-"
     sim: the emulators listen on loopback instead
     confidence: medium
-    note: "CHECK: make and model, for the record"
+    note: "Ells 2026-10-15: possibly a Raspberry Pi (uncertain). CHECK: make and model, for the record"
   # ----------------------------------------------------------- microwave
   - genesis: mw_spd1305x
     equipment: "Siglent SPD1305X single-channel DC supply (Ells: the newer 1-channel Siglent)"
@@ -366,7 +366,7 @@ record_only:
   - instrument: Target-cup thermometers T1-T3
     columns: [T1, T2, T3]
     used_by: "T1 = the target model's lattice temperature; T1-T3 are model-fit channels"
-    note: "CCX placeholders in calibration/magnet_thermometry.csv; no Genesis readout. CHECK: which instrument reads them?"
+    note: "Ells 2026-10-15: read on one of the two Lake Shore 224s, probably the magnet one (not certain). calibration/magnet_thermometry.csv agrees: T1 on slot C2 and T3 on C4 (CCX, no calibration); T2 is not listed. The Genesis ls224_magnet IOC reads only M1-M5 (slots D1-D5). CHECK: T2's slot, and the CCX calibrations."
   - instrument: Roots flow meters (left / right)
     columns: [roots_flow_l, roots_flow_r]
     used_by: "the model's boil-off (59.5 mW/slm) is reported, not replayed"

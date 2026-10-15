@@ -44,6 +44,29 @@ lab answers are in `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`.
 
 ## Log
 
+### 2026-10-15: Equipment answers; microwave drive and F1 findings
+* Ells, recorded in `channel_map.yaml` (map regenerated):
+  * IONIVAC = the vacuum of the shells between fridge and magnet spaces;
+  * `MMwaves Power (dB)` = the Vaunix setpoint, default 10 dBm, and the UCA
+    sets the actual power;
+  * serial gateway possibly a Raspberry Pi (uncertain);
+  * T1-T3 probably on the magnet LS224 (`magnet_thermometry.csv` agrees: T1
+    on C2, T3 on C4; T2 not listed). Genesis reads only M1-M5 there.
+* **Finding (model): microwave drive is built on the wrong column.** See open
+  question 9. Not fixed yet: it needs the UCA curve, then a re-fit
+  (`fit-params`).
+* **Finding (live system): the cold-board interlock watches the wrong
+  sensor.** `logic_devices/limits_unh.yaml` trips at 4.5 K on `F1_TI`. While
+  polarizing, F1 reads about 100-280 K and F11 about 1.0-2.6 K (2024-12,
+  2025-07, 2025-12, 2026-06). So F11 is the cold sensor, and with enforcement
+  on, the F1 rule latches at once. The file's comment cites a `pid_coldboard`
+  that exists nowhere in `configs/`. Since the cold board is varactor bias,
+  not a regulated heater, the rule's premise needs review too. Live fix, not
+  made here.
+* New private folders `ref_technotes/` and `ref_equipment/` (Ells's reference
+  material). Each has its own `.gitignore` of `*`, and both are in the
+  repository's `.git/info/exclude`, so they can never be committed or pushed.
+
 ### 2026-10-15: No NMR during a quench (open question 5, new question 8)
 * Ells: in a quench P and Q cannot be measured. The field crashes, the Larmor
   frequency runs away from nominal and the signal leaves the NMR window.
@@ -301,8 +324,9 @@ Tracked in `cooldown_sim/known_issues.yaml` and reported as KNOWN, not FAIL:
 Also observed:
 
 * The shipped placeholder interlock limits treat F1 as a cold sensor
-  (trip at ≥ 4.5 K). In the record F1 sits at about 200-300 K, so with
-  enforcement on the cold-board interlock would latch permanently.
+  (trip at ≥ 4.5 K). In the record F1 sits at about 100-300 K even while
+  polarizing, so with enforcement on the cold-board interlock would latch
+  permanently. F11 is the cold sensor (about 1.0-2.6 K while polarizing).
 * OVC (ColdCathode) and UCA voltage have no recorded data since 2025-11.
 * With enforcement on, the safety interlock's only actuator is
   `COLDBOARD:Coldboard_Mode`. The coldboard IOC is `write_enabled: false`, so
@@ -329,6 +353,7 @@ Also observed:
 | Bath response ~2 K/W, fridge F-sensors none | assumed / not identifiable |
 | Q healing to Q_B(P), DNP lobe shape, coldboard, quench | **assumed** |
 | Varactor-bias heating from the cold-board supply | **neglected** (none noticed; Ells 2026-10-15) |
+| Microwave drive | **wrong input**: built on the Vaunix setpoint, not the UCA (open question 9) |
 | Field collapse in a quench | **not modelled**: B held at the record, so the NMR line wrongly stays on the window (open question 8) |
 
 **Fidelity:** the model follows recorded spin-ups and plateaus to within a few
