@@ -26,6 +26,11 @@ named in each item. Numbers are stable: answered items move to *Settled*.
       the time always 1 s. Genesis has only a one-pass stepped sweep.
 
 **Target physics**
+- [ ] 33. Which target material (and radical) was in each cool-down, and
+      when were targets swapped? The fitted per-cool-down P_max and spin-up
+      times differ a lot (e.g. 2024-09 reached only ~9 % where 2025-12 reached
+      ~50 %); knowing the materials would show whether that is the material,
+      the microwave power, or the NMR calibration.
 - [ ] 5. Does Q lag Q_B(P) as P rebuilds after a quench or anneal?
 - [ ] 8. Quench field: dump time and level, re-ramp delay and rate, starting
       P after the re-ramp.

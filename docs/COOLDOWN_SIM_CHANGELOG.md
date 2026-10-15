@@ -7,6 +7,17 @@ findings are in `COOLDOWN_SIM_PROGRESS.md`; questions for the lab are in
 
 ## 2026-10-15
 
+* `9627b44` **Hindcast** (`python -m cooldown_sim hindcast`): runs the target
+  model straight through a past cool-down (no IOCs) and scores its P against
+  the record's online P, free-running and re-anchored every 6 h. Record P is
+  despiked first (isolated DAQ glitches). **Per-cool-down DNP values**
+  (`cooldown_sim/model/cooldown_dnp.yaml`, `python -m cooldown_sim fit-dnp`),
+  used by hindcasts and by real-data sim runs: P_max, spin-up and
+  relaxation times, optimum frequency offset, lobe width, and the negative
+  lobe's side and depth (new options). **Field from the supply current**
+  (x 0.10274 T/A, exactly what the DAQ used) where the record has no field
+  column (2020-21). **Fast polarization loss at low field** (assumed 2 min
+  below 0.5 T, e.g. after a ramp-down).
 * `6e466e3` UCA timeline: no microwave power in the 2024-09-18 morning RF
   period (the chain was not responding to the DAQ).
 * `13f86ce` Docs: the logbook UCA history and the UCA-step thermal fit.
