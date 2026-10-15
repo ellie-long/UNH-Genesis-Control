@@ -45,6 +45,18 @@ lab answers are in `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`.
 
 ## Log
 
+### 2026-10-15: Answers on saturation, shells alarm, instrument priority
+* Microwave chain saturated from about -5 dB on the Vaunix, so the
+  setpoint does not lower the drive in 2022 to 2025-07 (question 24 settled;
+  supports the drive fix, question 19). Newer power data are coming (9).
+* **Finding (live system): no shells-vacuum alarm.** The IONIVAC alarms at
+  800 / 900 Torr. Ells: warn on a rapid rise, particularly above the 1e-4 Torr
+  range (question 25: rate still to set).
+* Instrument priority for Genesis: magnet power supply, then the AMI level
+  meters, then the backing-pump thermocouples (question 26 settled).
+* The AFP and ssRF lines are identical, so the LZY-22+ is in the ssRF line
+  (question 10, still parked).
+
 ### 2026-10-15: UCA history, SIG, upcoming DAQ instruments
 * Ells:
   * the `UCA (V)` column has not been the real UCA for years (analog-output
@@ -407,6 +419,9 @@ Tracked in `cooldown_sim/known_issues.yaml` and reported as KNOWN, not FAIL:
 
 Also observed:
 
+* The IONIVAC (the shells' vacuum) alarms only at 800 / 900 Torr, so a loss
+  of the shells' vacuum raises no alarm. Ells: warn on a rapid rise and above
+  the 1e-4 Torr range (open question 25).
 * The vacuum interlock's "OVC" (`OVC_PI`, TPG 262 gauge 2) is the bottom
   manometer on the Roots pump, not an insulating vacuum, so its 1e-3 mbar
   trip would fire constantly with enforcement on. The shells' insulating

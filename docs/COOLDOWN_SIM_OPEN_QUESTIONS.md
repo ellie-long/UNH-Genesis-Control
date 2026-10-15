@@ -24,10 +24,7 @@ named in each item. Numbers are stable: answered items move to *Settled*.
       roughly when the manual supply replaced the analog-output drive. Can
       the newer microwave power plots (after the 2022 and 2025 repairs) be
       ported?
-- [ ] 24. Vaunix setpoint at -3 to -5 dB from 2022 to 2025-07: was the
-      microwave chain out of saturation (less power) then?
-- [ ] 10. (Parked) ssRF heat vs power at the coil. Is the LZY-22+ used for
-      ssRF burns as well as AFP?
+- [ ] 10. (Parked) ssRF heat vs power at the coil.
 
 **Target physics**
 - [ ] 5. Does Q lag Q_B(P) as P rebuilds after a quench or anneal?
@@ -39,19 +36,15 @@ named in each item. Numbers are stable: answered items move to *Settled*.
       take F1 out of the cold-board interlock rule.
 - [ ] 17. Cold-board interlock: what, if anything, should it protect now that
       the supply is varactor bias (the 120 W heater-style rule)?
-- [ ] 25. Shells-vacuum alarm: Genesis's IONIVAC alarm limits are
-      HIGH 800 / HIHI 900 Torr, so losing the shells' vacuum raises no alarm.
-      Which levels, and a rate-of-rise warning?
-- [ ] 26. Instruments behind the lab's alarms that Genesis lacks: the magnet
-      power supply, the AMI level meters, the backing-pump thermocouples.
-      Which come first? (Also limits what the sim can rehearse: field steps
-      for baselines, ramps, quench response.)
+- [ ] 25. Shells-vacuum alarm (live fix): warn on a rapid rise and above
+      the 1e-4 Torr range. How rapid counts as rapid?
 - [ ] 18. When to schedule the live fixes (findings 1-8 plus the vacuum and
       F1 interlock rules).
 
 **Sim decisions**
 - [ ] 19. Go ahead with the microwave-drive fix proposed under 9 (RF on/off
-      history, UCA-driven live, assumed curve, re-fit)?
+      history, since the chain is saturated at Vaunix >= -5 dB; UCA-driven
+      live with an assumed curve until the new data arrive; re-fit)?
 - [ ] 20. Go ahead with the vacuum rework under 3 once the interlock gauge is
       chosen (IONIVAC as the shells' vacuum, cold-cathode history as
       fallback)?
@@ -95,12 +88,18 @@ named in each item. Numbers are stable: answered items move to *Settled*.
      microwave chain's SIG output measures power (lower voltage = more
      power); once calibrated it could measure the curve directly.
    * Roughly when did the manual supply take over from the analog output?
+   * Ells (2026-10-15): newer microwave power data are coming. The chain
+     saturates from about -5 dB on the Vaunix, so the -3 to -5 dB setpoints
+     of 2022 to 2025-07 still gave full power: the setpoint can be ignored
+     except well below -5 dB (the record's -40 dB entries).
 
 ### ssRF power (come back to later)
 
 10. **ssRF heat vs power at the coil.** The ssRF line has a Mini-Circuits
     LZY-22+ amplifier (~44 dB gain, P1dB ~+43 dBm), so a generator setting of
-    -5 dBm should deliver watts to the coil, well below compression. The sim's
+    -5 dBm should deliver watts to the coil, well below compression. The
+    AFP and ssRF lines are identical (Ells, 2026-10-15), so the amplifier is
+    in the ssRF line too. The sim's
     burn heat is the measured 140 mW at -5 dBm (2.25 slm boil-off, logbook
     2024-12-18), roughly an order of magnitude less. Which is it:
     * most of the RF power is dissipated warm (cables, reflection) and never
@@ -155,22 +154,12 @@ named in each item. Numbers are stable: answered items move to *Settled*.
 
 ### Added while porting lab documents (2026-10-15)
 
-24. **Vaunix setpoint and saturation.** The microwave chain is normally run in
-    saturation with the Lab Brick at +10 dBm. The record has the setpoint at
-    -3 to -5 dB from 2022 to 2025-07 (and +10 before and after). If the chain
-    was out of saturation then, the microwave power was lower and the model's
-    drive should reflect it; if not, the setpoint can be ignored (question 9).
 25. **Shells-vacuum alarm.** Genesis's IONIVAC record alarms at 800 / 900 Torr
-    (HIGH / HIHI), which never fires on a vacuum loss in the shells. The lab's
-    own procedures define warning and action levels and a rate-of-rise
-    warning; Genesis should carry them. Which values?
-26. **Missing instruments behind lab alarms.** Genesis has no IOC for the
-    magnet power supply, the AMI helium-level meters or the backing-pump
-    thermocouples, so it cannot raise the magnet-helium-level, magnet or
-    pump-temperature alarms the LabVIEW DAQ had. The sim inherits the gap: it
-    cannot rehearse field steps (baselines), ramps or a quench response
-    through Genesis. Which instruments come first?
-
+    (HIGH / HIHI), which never fires on a vacuum loss in the shells. Ells
+    (2026-10-15): it should warn on a rapid rise, and particularly if the
+    pressure ever gets above the 1e-4 Torr range. Still to set: what rate
+    counts as rapid. Whether the vacuum interlock should also act on it is
+    question 3.
 ### Live-system fixes
 
 16. **Over-flood.** F1 at or below 4.5 K means an over-flooded fridge with
@@ -183,6 +172,17 @@ named in each item. Numbers are stable: answered items move to *Settled*.
     varactors at 0-19 V. Keep a rule, change it, or drop it?
 
 ## Settled
+
+* Microwave chain saturation (question 24; Ells, 2026-10-15): saturated from
+  about -5 dB on the Vaunix, so 2022 to 2025-07 (-3 to -5 dB) ran at full
+  power. The model should not scale drive by the setpoint there.
+* Missing instruments (question 26; Ells, 2026-10-15): Genesis has no IOC for
+  the magnet power supply, the AMI helium-level meters or the backing-pump
+  thermocouples. Priority: the magnet power supply first ("no magnet, no
+  cool-down"), then the AMI level meters; the thermocouples are low priority.
+  When each gets an IOC, the sim needs an emulator and channel-map rows; the
+  magnet supply would also let the sim rehearse field steps (baselines),
+  ramps and quench response.
 
 * The cold-cathode gauge (`ColdCathode.Pres`, logged 2021 to 2025-07) was an
   older back-up to the IONIVAC on the shells' vacuum. The device that read it
