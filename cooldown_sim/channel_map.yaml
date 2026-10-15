@@ -78,21 +78,27 @@ instruments:
         source: roots_pressure
         units: Torr
         valid: [1.0e-5, 1100.0]
-        confidence: guess
+        confidence: medium
         note: >-
-          TPG262 gauge 1 assumed to be the pumping-line gauge logged as
-          "Roots Pressure (Torr)" (0.1-30 Torr while pumping on the fridge).
-          CHECK: which LabVIEW pressure column is TPG262 channel 1?
+          TPG262 gauge 1 is the TOP manometer on the Roots pump (Ells,
+          2026-10-15).  The record has one Roots column, "Roots Pressure
+          (Torr)" (0.1-30 Torr while pumping on the fridge), assumed to be this
+          gauge.  CHECK: is LabVIEW's "Roots Pressure" the top or the bottom
+          Roots manometer?
       OVC:
         source: cold_cathode
         units: Torr
         valid: [1.0e-12, 1100.0]
         confidence: guess
         note: >-
-          TPG262 gauge 2 assumed to be the OVC cold-cathode gauge logged as
-          "ColdCathode.Pres (Torr)" (2021+).  The 2026-06 record has this
-          column entirely NaN, so OVC is invalid/absent for that cool-down.
-          CHECK: is the OVC gauge now the IONIVAC instead?
+          WRONG, kept until the vacuum rework (open question 3).  Ells
+          (2026-10-15): TPG262 gauge 2, which Genesis names "OVC", is the
+          BOTTOM manometer on the Roots pump, not an insulating vacuum.  The
+          record has no column for it (one Roots column only).  It is still
+          fed from "ColdCathode.Pres (Torr)" (2021+, NaN from 2025-11) because
+          the model's quench vacuum rise, the sim's vacuum interlock limits
+          and the vacuum-trip scenario all act on it.  The insulating (shells)
+          vacuum is the IONIVAC.
 
   ionivac:               # UNH:GEN:CRYO:ION  Ion_PI (Torr)
     wire: ionivac_count
@@ -191,14 +197,14 @@ equipment:
     note: "Ells 2026-10-15: Manometer-Hi, and the 2020 single-range Manometer. Poor near 1 K helium, hence Manometer-Lo from 2021"
   - genesis: tpg262
     equipment: Pfeiffer TPG 262 dual gauge controller
-    role: "Gauge 1 'Pump', gauge 2 'OVC'"
+    role: "Two manometers on the Roots pump: gauge 1 'Pump' = top, gauge 2 'OVC' = bottom (Ells 2026-10-15). Genesis's 'OVC' name is a misnomer"
     link: RS-232 via serial gateway 192.168.1.251:5011
     prefix: UNH:GEN:CRYO:VAC
     control: read-only
     map: tpg262.Pump, tpg262.OVC
     sim: TPG 262 emulator (ACK/ENQ handshake)
-    confidence: guess
-    note: "Open questions 2-3: which LabVIEW columns are these two gauges?"
+    confidence: high
+    note: "CHECK: which of the two is LabVIEW's 'Roots Pressure (Torr)'? The vacuum interlock watches gauge 2 as if it were the OVC (see Findings)"
   - genesis: ionivac
     equipment: Leybold IONIVAC combination gauge
     role: "Vacuum of the 'shells' separating the fridge space from the magnet space (Ells 2026-10-15); streams binary telegrams, never queried"
@@ -366,10 +372,10 @@ software_iocs:
 #   columns:    canonical column names (cooldown_sim/data/aliases.py)
 #   used_by:    what cooldown_sim does with the column, if anything
 record_only:
-  - instrument: Low-range cell manometer on a Kurt J. Lesker KJL-SPARC controller
+  - instrument: "Low-range cell manometer: KJLC XCG carbon capacitance manometer on a Kurt J. Lesker KJL-SPARC controller"
     columns: [manometer_lo]
     used_by: "nothing (the MKS 902B is Manometer-Hi)"
-    note: "Ells 2026-10-15: added from 2021 because the 902B struggled with helium near 1 K. The KJL-SPARC is connected by USB to the Raspberry Pi 'keysight' (192.168.1.24), which also hosts the Genesis Keysight WaveGen IOC. CHECK: what on the Pi reads it and how the reading reaches LabVIEW; the gauge-head model and range"
+    note: "Ells 2026-10-15: added from 2021 because the 902B struggled with helium near 1 K. The gauge head is a KJLC XCG carbon capacitance manometer, cabled to the KJL-SPARC with a black RJ45-style cable that carries the gauge's power and signals (not Ethernet). The KJL-SPARC's micro-USB output goes to a USB-A port on the Raspberry Pi 'keysight' (192.168.1.24), which also hosts the Genesis Keysight WaveGen IOC. CHECK: the XCG's full-scale range; what on the Pi reads it and how the reading reaches LabVIEW"
   - instrument: Vapor-pressure readout (LabVIEW)
     columns: [vp_range, vp_temp]
     used_by: "vp_temp is a model-fit channel (fit-params)"
@@ -385,6 +391,10 @@ record_only:
   - instrument: Separator flow meter
     columns: [separator_flow]
     used_by: nothing
+  - instrument: Cold-cathode gauge (instrument and volume unknown)
+    columns: [cold_cathode]
+    used_by: "still feeds tpg262.OVC until the vacuum rework (wrong: that gauge is the bottom Roots manometer)"
+    note: "Logged 2021 to 2025-07, empty from 2025-11. Not TPG262 gauge 2 (Ells 2026-10-15). CHECK: what it measured, and whether it still exists"
   - instrument: Pirani gauge
     columns: [pirani_v]
     used_by: nothing

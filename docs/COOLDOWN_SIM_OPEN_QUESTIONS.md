@@ -7,13 +7,16 @@ treated as authoritative. Answers go into `cooldown_sim/channel_map.yaml`
 
 ## Channel map (currently marked **guess**)
 
-2. **TPG 262 gauge 1 (`Pump`)**: is this the gauge logged as
-   `Roots Pressure (Torr)`?
-3. **TPG 262 gauge 2 (`OVC`)**: is this the cold-cathode gauge logged as
-   `ColdCathode.Pres (Torr)`? That column is empty since 2025-11. Is the OVC
-   gauge now the IONIVAC? (Ells, 2026-10-15: the IONIVAC measures the vacuum
-   of the shells separating the fridge space from the magnet space. Is that
-   the volume Genesis calls OVC, which the vacuum interlock watches?)
+3. **Vacuum: what should the interlock watch?** Ells (2026-10-15): both
+   TPG 262 gauges are manometers on the Roots pump (gauge 1 `Pump` = top,
+   gauge 2 `OVC` = bottom), and the IONIVAC measures the shells' insulating
+   vacuum. So Genesis's "OVC" is a Roots-line gauge (see Findings). Before the
+   sim's vacuum handling is reworked:
+   * Should the vacuum interlock watch the IONIVAC (`ION:Ion_PI`) instead,
+     and at what trip pressure?
+   * Is LabVIEW's `Roots Pressure (Torr)` the top or the bottom manometer?
+   * What was the cold-cathode gauge (`ColdCathode.Pres`, logged 2021 to
+     2025-07), and does it still exist?
 
 ## Microwave power
 
@@ -62,6 +65,13 @@ treated as authoritative. Answers go into `cooldown_sim/channel_map.yaml`
      equilibrium) at full field?
 
 ## Settled
+
+* TPG 262 (question 2): both gauges are manometers on the Roots pump; gauge 1
+  (`Pump`) is the top one, gauge 2 (`OVC`) the bottom one (Ells, 2026-10-15).
+* Manometer-Lo is a KJLC XCG carbon capacitance manometer. A black RJ45-style
+  cable (power and signals, not Ethernet) joins it to the KJL-SPARC. The
+  KJL-SPARC's micro-USB output goes to a USB-A port on the `keysight` Pi
+  (192.168.1.24).
 
 * Instrument IPs after the lab power outage (question 6): the lab is setting
   them static and rebooting the equipment (Ells, 2026-10-15). Not tracked

@@ -34,7 +34,7 @@ lab answers are in `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`.
 **The planned build is complete.** What is left is Ells's call:
 
 1. Answer the open questions in `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`: the
-   two TPG 262 gauges, the UCA
+   vacuum interlock's gauge, the UCA
    power curve (the model's microwave drive), the field during a quench, and
    whether Q lags Q_B(P) on a spin-up from zero.
 2. Try an interactive rehearsal (guide section 2) with the real screens in
@@ -44,6 +44,23 @@ lab answers are in `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`.
    separate change to the live system, deliberately not made here.
 
 ## Log
+
+### 2026-10-15: TPG 262 is on the Roots pump; Manometer-Lo head
+* Ells: both TPG 262 gauges are manometers on the Roots pump (gauge 1 `Pump`
+  = top, gauge 2 `OVC` = bottom). The IONIVAC is the shells' insulating
+  vacuum. Manometer-Lo is a KJLC XCG carbon capacitance manometer, cabled to
+  the KJL-SPARC by an RJ45-style (non-Ethernet) cable.
+* **Finding (live system): the vacuum interlock watches a Roots-line gauge.**
+  `limits_unh.yaml` trips at `OVC_PI` >= 1e-3 mbar, but that gauge reads
+  roughly 0.1-30 Torr while pumping, so with enforcement on it would trip
+  constantly. Nothing in the interlock watches the IONIVAC (the real
+  insulating vacuum). Live fix, not made here.
+* **Sim (not yet changed):** `tpg262.OVC` is still fed from the cold-cathode
+  column, and the model's quench vacuum rise, the sim limits and the
+  `vacuum-trip` scenario act on it. These should move to the IONIVAC
+  together, once Ells decides what the live interlock should watch (open
+  question 3). Notes in `channel_map.yaml` mark the mapping as wrong; the
+  cold-cathode gauge is now listed as record-only.
 
 ### 2026-10-15: The lab's Raspberry Pis
 * Ells: the KJL-SPARC (Manometer-Lo) is on the USB of the Pi labelled
@@ -369,6 +386,10 @@ Tracked in `cooldown_sim/known_issues.yaml` and reported as KNOWN, not FAIL:
 
 Also observed:
 
+* The vacuum interlock's "OVC" (`OVC_PI`, TPG 262 gauge 2) is the bottom
+  manometer on the Roots pump, not an insulating vacuum, so its 1e-3 mbar
+  trip would fire constantly with enforcement on. The shells' insulating
+  vacuum is on the IONIVAC, which the interlock does not watch.
 * The shipped placeholder interlock trips the cold board when F1 ≥ 4.5 K.
   The 4.5 K is right but the direction is wrong: F1 at or below 4.5 K means
   the fridge is over-flooded and liquid helium may reach the Roots pumps
