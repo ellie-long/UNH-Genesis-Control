@@ -33,7 +33,7 @@ lab answers are in `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`.
 
 **The planned build is complete.** What is left is Ells's call:
 
-1. Answer the open questions in `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`: three
+1. Answer the open questions in `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`: two
    channel-map guesses, the Siglent supply models, and whether Q lags Q_B(P)
    on a spin-up from zero.
 2. Try an interactive rehearsal (guide section 2) with the real screens in
@@ -43,6 +43,17 @@ lab answers are in `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`.
    separate change to the live system, deliberately not made here.
 
 ## Log
+
+### 2026-10-15: Coldboard supply has no record (open question 4)
+* Ells: before Genesis the cold board ran from an external DC supply, never
+  recorded. It is set between 0 and 19 V. It biases the varactors, so it moves
+  the NMR Q-curve's tune (higher voltage, higher frequency).
+* `channel_map.yaml`: `siglent_coldboard.Coldboard` is now high confidence,
+  with the role and history in its notes. The equipment row's role is now
+  "varactor bias". `COOLDOWN_SIM_CHANNEL_MAP.md` regenerated (coverage
+  unchanged).
+* Not yet modelled: the NMR source's Q-curve stays put whatever the coldboard
+  voltage is.
 
 ### 2026-10-15: Coldboard heating neglected (open question 7)
 * Ells: no noticeable heating from the varactor bias voltages and currents,

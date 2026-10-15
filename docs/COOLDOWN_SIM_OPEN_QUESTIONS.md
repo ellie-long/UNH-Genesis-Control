@@ -12,8 +12,6 @@ treated as authoritative. Answers go into `cooldown_sim/channel_map.yaml`
 3. **TPG 262 gauge 2 (`OVC`)**: is this the cold-cathode gauge logged as
    `ColdCathode.Pres (Torr)`? That column is empty since 2025-11. Is the OVC
    gauge now the IONIVAC?
-4. **Coldboard supply**: confirm no past record column exists. It is currently
-   emulated as present with output OFF.
 
 ## Siglent supplies (Ells, 2026-10-15)
 
@@ -59,6 +57,15 @@ How Genesis is configured today:
    lives in `cooldown_sim/model/fit_params.py` (`Q_heal_tau_s`).
 
 ## Settled
+
+* Coldboard supply has no past-record column (question 4; Ells, 2026-10-15).
+  * Before Genesis the cold board ran from an external DC supply, and its
+    output was never recorded.
+  * In use it is set between 0 and 19 V. It biases the cold-board varactors,
+    so changing it moves the NMR Q-curve's tune: higher voltage, higher
+    frequency.
+  * The sim still emulates the supply as present with output OFF, and its NMR
+    source does not yet move the Q-curve with this voltage.
 
 * Coldboard load (question 7; Ells, 2026-10-15): no noticeable heating has
   been seen from the varactor bias voltages and currents.

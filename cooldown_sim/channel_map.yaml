@@ -113,13 +113,18 @@ instruments:
       Coldboard:
         source: null
         units: V
-        confidence: guess
+        confidence: high
         note: >-
-          No coldboard supply column exists in any past record ("PS Current"
-          is the magnet power supply).  The emulated supply is present with
-          output OFF at 0 V / 0 A unless a scenario or Sim Control sets a
-          coldboard heat load.  Expect the stale-data watchdog to flag the
-          constant reading (known issue).
+          No coldboard supply column exists in any past record (Ells,
+          2026-10-15: the cold board was on an external DC supply whose
+          output was never recorded; "PS Current" is the magnet power
+          supply).  In use it is set between 0 and 19 V; it biases the
+          cold-board varactors, so it moves the NMR Q-curve's tune (higher
+          voltage = higher frequency) and does not noticeably heat.  The
+          emulated supply is present with output OFF at 0 V / 0 A unless a
+          scenario or Sim Control sets a coldboard heat load (a test fault).
+          The sim does not yet move the Q-curve with this voltage.  Expect
+          the stale-data watchdog to flag the constant reading (known issue).
 
   mw_spd1305x:           # UNH:GEN:MW:PS  (UCA supply for the microwave source)
     wire: none
@@ -215,14 +220,14 @@ equipment:
     confidence: high
   - genesis: siglent_coldboard
     equipment: "Siglent DC supply. Driver written for the single-channel SPD1000X (SPD1168X/SPD1305X); Ells: likely the 4-channel SPD4306X"
-    role: "Cold-board supply (Ells: possibly the varactor-diode bias); the safety interlock's only actuator"
+    role: "Cold-board varactor bias, 0-19 V; tunes the NMR Q-curve (higher V = higher frequency). Also the safety interlock's only actuator"
     link: Ethernet SCPI 192.168.1.5:5025
     prefix: UNH:GEN:CRYO:COLDBOARD
     control: "read-only in the live profile (write_enabled: false)"
     map: siglent_coldboard.Coldboard (no past-record column)
     sim: SCPI supply emulator (as SPD1168X), output OFF
     confidence: guess
-    note: "Open questions 6-7: confirm with caget UNH:GEN:CRYO:COLDBOARD:Coldboard_IDN. Genesis has no SPD4000X driver."
+    note: "Open question 6: confirm the model with caget UNH:GEN:CRYO:COLDBOARD:Coldboard_IDN. Genesis has no SPD4000X driver. Before Genesis the cold board ran from an external DC supply, never recorded (Ells 2026-10-15)."
   - genesis: (serial gateway)
     equipment: Serial-to-Ethernet gateway (model not recorded in Genesis)
     role: Carries the four RS-232 instruments
