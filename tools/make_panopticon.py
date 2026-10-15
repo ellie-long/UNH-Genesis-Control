@@ -17,6 +17,14 @@ later: each one is a widget named ``Placeholder_<key>``.
 
 Like the main Cryo screen, the overview is read-only: no PV writes, only
 links to the subsystem screens, where the controls are.
+
+Trend windows follow the DAQ screen (magnet thermometry 15 min, fridge
+thermometry 40 min, pressures 1 h, polarization 3 h, shells vacuum 2 days).
+Strip charts plot what arrives while the screen is open: Phoebus can only
+back-fill them from an archive data source it knows (e.g. an Archiver
+Appliance), and the Genesis CSV archive is not one.  Their time axis is wall
+time, so under the simulator at speed N a window spans N times as much
+simulated time.
 """
 
 from __future__ import annotations
@@ -195,7 +203,7 @@ def placeholder_plot(key, title, x, y, w, h, what):
                     tooltip=tip))
 
 
-def stripchart(key, title, x, y, w, h, traces, axes, time_range, legend=True):
+def stripchart(key, title, x, y, w, h, traces, axes, time_range):
     """traces: (name, pv, rgb, axis); axes: (title, log, minimum, maximum) (autoscaled)."""
     ax = "".join(
         f"<y_axis><title>{escape(t)}</title><autoscale>true</autoscale><log_scale>{str(log).lower()}</log_scale>"
@@ -211,25 +219,32 @@ def stripchart(key, title, x, y, w, h, traces, axes, time_range, legend=True):
             f"<title>{escape(title)}</title>"
             f'<title_font><font family="Liberation Sans" style="BOLD" size="10.0"/></title_font>'
             f"<label_font>{small}</label_font><scale_font>{small}</scale_font>"
-            f"<show_toolbar>false</show_toolbar><show_legend>{str(legend).lower()}</show_legend>"
+            f"<show_toolbar>false</show_toolbar><show_legend>false</show_legend>"
             f"<show_grid>true</show_grid><start>{time_range}</start><y_axes>{ax}</y_axes><traces>{tr}</traces></widget>")
 
 
+def key(x, y, items, wid):
+    """Colour key under a trend (the legend widget is too large for these charts)."""
+    return "".join(label(text, x + i * wid, y, wid, 14, 8, True, rgb) for i, (text, rgb) in enumerate(items))
+
+
 def nmr_plot(x, y, w, h):
-    def trace(name, pv, rgb, width):
+    # Points, not lines: Phoebus reads the fitter's waveforms at their full
+    # length, so the unused tail (zeros) would draw a line back to 0 MHz.
+    def trace(name, pv, rgb, size):
         return (f"<trace><name>{name}</name><x_pv>ca://{FIT}:FREQS_MHZ</x_pv><y_pv>ca://{FIT}:{pv}</y_pv>"
-                f"<axis>0</axis><trace_type>1</trace_type><line_width>{width}</line_width>"
-                f"<color>{col(rgb)}</color></trace>")
+                f"<axis>0</axis><trace_type>0</trace_type><color>{col(rgb)}</color>"
+                f"<point_type>1</point_type><point_size>{size}</point_size></trace>")
     return (f'<widget type="xyplot" version="3.0.0"><name>NMR_Signal</name>'
             f"<x>{x}</x><y>{y}</y><width>{w}</width><height>{h}</height>"
             f"<title>NMR signal (online fitter)</title><show_toolbar>false</show_toolbar>"
-            f"<x_axis><title>Frequency (MHz)</title><autoscale>true</autoscale><minimum>32.0</minimum>"
-            f"<maximum>33.4</maximum><log_scale>false</log_scale><show_grid>true</show_grid></x_axis>"
+            f"<x_axis><title>Frequency (MHz)</title><autoscale>false</autoscale><minimum>31.9</minimum>"
+            f"<maximum>33.1</maximum><log_scale>false</log_scale><show_grid>true</show_grid></x_axis>"
             f"<y_axes><y_axis><title>Signal (arb.)</title><autoscale>true</autoscale><minimum>0.0</minimum>"
             f"<maximum>1.0</maximum><log_scale>false</log_scale><show_grid>true</show_grid>"
             f"<on_right>false</on_right></y_axis></y_axes>"
-            f"<traces>{trace('incoming', 'RAW', (150, 150, 150), 1)}{trace('processed', 'DATA', NAVY, 2)}"
-            f"{trace('total fit', 'TOTAL_FIT', RED, 2)}</traces></widget>")
+            f"<traces>{trace('incoming', 'RAW', (150, 150, 150), 2)}{trace('processed', 'DATA', NAVY, 3)}"
+            f"{trace('total fit', 'TOTAL_FIT', RED, 3)}</traces></widget>")
 
 
 # ------------------------------------------------------------------ panels
@@ -259,9 +274,10 @@ def magnet_space():
     w = [card("Magnet Space", x, y, 710, 282, "Magnet")]
     w.append(placeholder_plot("MagnetLevelTrend", "Magnet LHe level (AMI meter), 40 min",
                               14, 82, 228, 242, "Magnet LHe level meter (AMI)"))
-    w.append(stripchart("MagnetThermometry", "Magnet thermometry (K)", 248, 82, 352, 242,
+    w.append(stripchart("MagnetThermometry", "Magnet thermometry (K)", 248, 82, 352, 226,
                         [(s, thermometer_pv(s), c, 0) for s, c in MAGNET_T.items()],
                         [("K", False, 0, 10)], "15 minutes"))
+    w.append(key(270, 310, list(MAGNET_T.items()), 60))
     # magnet LHe level bar: 0-31 inch, alarm at 20", magnet top at 16.5"
     top, h = 100, 180
     w.append(label("Level (in)", 606, 82, 104, 18, 10, True, GREY_TEXT))
@@ -294,15 +310,17 @@ def fridge_space():
     w = [card("Fridge Space", x, y, 710, 456, "Fridge")]
     w.append(placeholder_plot("FlowTrend", "Flows: separator, Roots L / R / total (1 h)",
                               14, 370, 250, 200, "Flow meters (separator, Roots L/R)"))
-    w.append(stripchart("FridgePressures", "Pressures (log)", 14, 576, 250, 210,
+    w.append(stripchart("FridgePressures", "Pressures (log)", 14, 576, 250, 194,
                         [("Mano. Hi (Torr)", f"{CRYO}:CELL:Cell_PI", (230, 110, 0), 0),
                          ("Roots top (mbar)", f"{CRYO}:VAC:Pump_PI", (220, 0, 160), 1),
                          ("Roots bottom (mbar)", f"{CRYO}:VAC:OVC_PI", (120, 40, 200), 1)],
                         [("Torr", True, 0.001, 1000), ("mbar", True, 0.001, 1000)], "1 hour"))
+    w.append(key(16, 772, [("Mano. Hi (Torr)", (230, 110, 0)), ("Roots top (mbar)", (220, 0, 160)),
+                           ("Roots bot. (mbar)", (120, 40, 200))], 83))
     w.append(stripchart("FridgeThermometry", "Fridge thermometry (K, log): colours as the insert",
                         270, 370, 300, 270,
                         [(s, thermometer_pv(s), c, 0) for s, c in FRIDGE_T.items()],
-                        [("K", True, 0.5, 300)], "40 minutes", legend=False))
+                        [("K", True, 0.5, 300)], "40 minutes"))
     w.append(placeholder_plot("FridgeLevelTrend", "Fridge LHe level (AMI meter), 6 h",
                               270, 646, 300, 140, "Fridge LHe level meter (AMI)"))
     for i, (kind, ref, caption, what) in enumerate(FRIDGE_READOUTS):
@@ -319,7 +337,7 @@ def shells_space():
     w = [card("Shells Space", x, y, 350, 294, "Shells")]
     w.append(stripchart("ShellsVacuum", "Shells (insulating) vacuum, log", 14, 832, 250, 254,
                         [("IONIVAC", f"{CRYO}:ION:Ion_PI", (110, 50, 200), 0)],
-                        [("Torr", True, 1e-8, 1e-3)], "2 days", legend=False))
+                        [("Torr", True, 1e-8, 1e-3)], "2 days"))
     w.append(field("IONIVAC", f"{CRYO}:ION:Ion_PI", 270, 832, 80, 10, prec=2, fmt=2))
     w.append(field("Gauge comm", f"{CRYO}:ION:COMM", 270, 876, 80, 9, bold=False))
     return w
@@ -419,18 +437,22 @@ def nmr():
     w.append(label("Mode", 1434, 84, 40, 20, 10, False, MUTED))
     w.append(update(f"{FIT}:MODE_RBV", 1474, 84, 160, 20, 10, True))
     w.append(nmr_plot(1130, 110, 504, 280))
-    w.append(stripchart("Polarization", "Polarization (online fitter)", 1130, 396, 504, 214,
-                        [("P (%)", f"{FIT}:P_FIT", (0, 140, 40), 0), ("Q (%)", f"{FIT}:Q_FIT", (200, 0, 160), 1)],
+    # The DAQ's "Polarization" is the area method: P_AREA is the headline,
+    # the lineshape fit's P alongside it.
+    w.append(stripchart("Polarization", "P area (green), P fit (grey), Q fit (magenta), %", 1130, 396, 504, 214,
+                        [("P area (%)", f"{FIT}:P_AREA", (0, 140, 40), 0),
+                         ("P fit (%)", f"{FIT}:P_FIT", (140, 140, 140), 0),
+                         ("Q fit (%)", f"{FIT}:Q_FIT", (200, 0, 160), 1)],
                         [("P (%)", False, -60, 60), ("Q (%)", False, -30, 30)], "3 hours"))
-    w.append(label("Polarization", 1132, 614, 150, 16, 10, True, MUTED))
-    w.append(update(f"{FIT}:P_FIT", 1132, 630, 130, 36, 20, True, prec=2, units=False, bg=GREEN_LIGHT,
+    w.append(label("Polarization (area)", 1132, 614, 150, 16, 10, True, MUTED))
+    w.append(update(f"{FIT}:P_AREA", 1132, 630, 122, 36, 20, True, prec=2, units=False, bg=GREEN_LIGHT,
                     align=2, name="NMR_P"))
-    w.append(label("%", 1264, 630, 20, 36, 16, True))
-    for i, (cap, pv) in enumerate((("Q (fit)", "Q_FIT"), ("Q (equilibrium)", "Q_EQ"))):
-        xx = 1300 + i * 168
-        w.append(label(cap, xx, 614, 140, 16, 10, True, MUTED))
-        w.append(update(f"{FIT}:{pv}", xx, 630, 120, 36, 16, True, prec=2, units=False, align=2))
-        w.append(label("%", xx + 122, 630, 20, 36, 14, True))
+    w.append(label("%", 1256, 630, 20, 36, 16, True))
+    for i, (cap, pv) in enumerate((("P (fit)", "P_FIT"), ("Q (fit)", "Q_FIT"), ("Q (equilibrium)", "Q_EQ"))):
+        xx = 1290 + i * 116
+        w.append(label(cap, xx, 614, 110, 16, 10, True, MUTED))
+        w.append(update(f"{FIT}:{pv}", xx, 630, 92, 36, 14, True, prec=2, units=False, align=2))
+        w.append(label("%", xx + 93, 630, 16, 36, 12, True))
     w.append(inline("red. chi2", f"{FIT}:RED_CHISQ", 1132, 672, 60, 90, prec=3))
     w.append(inline("Last fit", f"{FIT}:LAST_TS", 1300, 672, 60, 270))
     return w
@@ -462,7 +484,7 @@ def sc_magnet():
     w.append(placeholder("NMRFreqFromField", "NMR frequency from field (MHz)", 1132, 778, 176,
                          "Deuteron NMR frequency from the magnet field"))
     w.append(placeholder("SwitchHeater", "Switch heater", 1316, 778, 176, "Magnet persistent-switch heater"))
-    w.append(field("Fringe field (LS455)", f"{CRYO}:FIELD:Fringe_FieldT", 1132, 818, 176, 11, prec=5))
+    w.append(field("Fringe field (LS455)", f"{CRYO}:FIELD:Fringe_FieldT", 1132, 818, 176, 11, prec=6))
     w.append(field("Gaussmeter reading", f"{CRYO}:FIELD:Fringe_Field", 1316, 818, 112, 11, prec=4))
     w.append(update(f"{CRYO}:FIELD:Fringe_Unit", 1430, 833, 62, 21, 10))
     w.append(open_button("Field screen", "genesis_cryo_field.bob", 1132, 860, 176, 26))

@@ -59,7 +59,8 @@ def served_pvs() -> set[str]:
     """PV names some Genesis IOC serves: its profile's records, the standard
     instrument health PVs, the logic IOCs' records (cooldown_sim.pvlist, built
     from the IOC code) and the online fitter's records (built by its code)."""
-    served = set(pvlist.archiver_explicit_pvs(ROOT))
+    # the _Conn PVs the archiver lists are not served (known issue conn-pv-not-served)
+    served = {pv for pv in pvlist.archiver_explicit_pvs(ROOT) if not pv.endswith("_Conn")}
     for folder in CONFIG_DIRS:
         for path in sorted((ROOT / folder).glob("*/settings.yaml")):
             cfg = yaml.safe_load(path.read_text(encoding="utf-8"))
@@ -179,6 +180,11 @@ def test_trends_have_the_daq_windows_and_log_pressures():
     for w in charts.values():
         assert w.get("version") == "2.1.0"          # 'start' is the 2.1.0 time-range property
         assert w.findtext("start")
+
+
+def test_polarization_headline_is_the_area_method():
+    # the DAQ's "Polarization" readout is the area method
+    assert _by_name()["NMR_P"].findtext("pv_name") == "ca://UNH:GEN:SSRF:FIT:P_AREA"
 
 
 def test_screen_opens_from_the_simulator():
