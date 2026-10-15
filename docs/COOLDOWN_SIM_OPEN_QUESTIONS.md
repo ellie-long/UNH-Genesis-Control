@@ -22,24 +22,27 @@ treated as authoritative. Answers go into `cooldown_sim/channel_map.yaml`
 What the lab has, per Ells:
 * two Lake Shore 224 temperature monitors for the thermometry (Genesis
   `ls224_fridge` and `ls224_magnet`);
-* a Siglent **4-channel** supply that may drive the varactor diodes on the
-  cold board;
+* a Siglent **SPD4306X** (4-channel) that may drive the varactor diodes on
+  the cold board;
 * a newer **single-channel** Siglent (one +/- output) for the microwave UCA.
 
 How Genesis is configured today:
 * UCA: `microwave_ioc/spd1305x`, single channel. It refuses to connect
   unless `*IDN?` contains `SPD1305X`.
-* Coldboard: `target_ioc/instruments/spd1000x`, single channel
-  (`Coldboard`), limits of 30 V and 5 A. The interlock treats it as the one
-  supply putting energy into the insert (trip at 120 W).
+* Coldboard: `target_ioc/instruments/spd1000x`, written for a single-channel
+  SPD1000X (SPD1168X/SPD1305X), with one channel (`Coldboard`) limited to
+  30 V and 5 A. The interlock treats it as the one supply putting energy into
+  the insert (trip at 120 W).
+* Nothing in Genesis supports the SPD4306X or any SPD4000X model.
 * The sim emulates the UCA as an SPD1305X and the coldboard as an SPD1168X.
 
-6. **Exact models.** Siglent's SPD1305X is a single-channel 30 V/5 A unit
-   (SPD1000X series); its 4-channel supplies are the SPD4000X series. What
-   do the two front panels (or `*IDN?`) say?
-   * If the UCA supply is not an SPD1305X, the live UCA IOC will refuse it.
-   * If the coldboard supply is 4-channel, the single-channel coldboard
-     driver reads and drives CH1 only.
+6. **Models.**
+   * Is the new single-channel UCA supply an SPD1305X? If not, the live UCA
+     IOC refuses it.
+   * If the cold board is powered by the SPD4306X, Genesis has no driver for
+     it. The current coldboard IOC would at best reach one channel, through
+     commands written for a different model. Neither this nor the 4-channel
+     PV layout has been checked against the SPD4306X.
 7. **Coldboard load.** If the cold board's supply biases varactors, it is
    not a heater. Then the "coldboard heat" model input (assumed to heat the
    bath) and the 120 W interlock power limit would both need rethinking.
