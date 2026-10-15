@@ -119,8 +119,13 @@ def test_operator_turns_microwaves_off_early(params):
     T1 = params["dnp"]["T1_P_s"]
     s = m.advance(60.0 + T1)
     assert s.P == pytest.approx(0.40 * math.exp(-1), rel=0.03)      # relaxes toward TE ~0.1 %
-    lat = params["assumed"]["lattice"]
-    assert m.lattice_T() == pytest.approx(1.0 - lat["gain_K_per_drive"], rel=0.01)   # cooler than history
+    cup, bath = params["assumed"]["cup"], params["assumed"]["bath"]
+    q_mw = params["heat"]["mw_W_at_full_drive"]
+    # cooler than history, but never below the (cooled) bath it sits in
+    expected = max(1.0 - cup["gain_K_per_W"] * q_mw, 1.0 - bath["gain_K_per_W"] * q_mw)
+    assert m.lattice_T() == pytest.approx(expected, rel=0.01)
+    assert m.lattice_T() < 1.0
+    assert m.truth(m.state.t)["boiloff_delta_slm"] == pytest.approx(-q_mw / params["heat"]["W_per_slm"], rel=0.01)
     assert m.temperature("M2", 50.0, s.t) < 50.0                     # fitted magnet gain responds
 
 
@@ -146,11 +151,14 @@ def test_quench_and_recovery(params):
 
 def test_coldboard_heat_warms_the_lattice(params):
     m = TargetModel(record(), 60.0, params)
-    m.inputs.coldboard_heat_W = 1.0
-    cb = params["assumed"]["coldboard"]
-    m.advance(60.0 + 10 * cb["tau_s"])
-    assert m.lattice_T() == pytest.approx(1.0 + cb["gain_K_per_W"], rel=0.01)
+    m.inputs.coldboard_heat_W = 0.1
+    bath = params["assumed"]["bath"]
+    m.advance(60.0 + 10 * bath["tau_s"])
+    assert m.lattice_T() == pytest.approx(1.0 + 0.1 * bath["gain_K_per_W"], rel=0.01)
     assert m.cell_pressure(0.12, m.state.t) > 0.12                 # vapor pressure follows
+    tr = m.truth(m.state.t)
+    assert tr["heat_total_W"] == pytest.approx(0.1 + params["heat"]["mw_W_at_full_drive"])
+    assert tr["boiloff_delta_slm"] == pytest.approx(0.1 / params["heat"]["W_per_slm"], rel=0.01)
 
 
 def test_seek_reinitialises_from_the_record(params):
@@ -173,7 +181,8 @@ def test_spin_temperature_inverts_te(params):
 def test_params_mark_assumptions():
     p = load_params()
     for section in p["assumed"].values():
-        assert "ASSUMED" in section["basis"]
+        assert section["basis"].startswith(("ASSUMED", "PARTLY FITTED")), section["basis"][:40]
+    assert "MEASURED" in p["heat"]["basis"]["mw_W_at_full_drive"]
     assert "ASSUMED" in p["dnp"]["basis"]["lobe_width_GHz"]
     assert all(g["status"].startswith(("fitted", "unfitted")) for g in p["thermal"]["channels"].values())
 

@@ -210,9 +210,9 @@ def build() -> str:
     w.append(led(f"{P}:MODEL_ACTIVE", x + 15, y + 40, 18))
     w.append(update(f"{P}:MODEL_ACTIVE", x + 40, y + 37, 200, 24, 11, True))
     truth = (("P", "TRUE_P"), ("Q", "TRUE_Q"), ("Q (1 temp)", "TRUE_Q_BOLTZMANN"),
-             ("T lattice", "TRUE_T_LATTICE"), ("T spin", "TRUE_T_SPIN"), ("B", "TRUE_B"),
-             ("MW drive", "MW_DRIVE"), ("MW freq", "MW_FREQ"), ("Quench", "QUENCH_LEVEL"),
-             ("Coldboard", "HEAT_CB"), ("Fitter P", "FIT_P"), ("Fit - truth", "FIT_RESID_P"))
+             ("T cup", "TRUE_T_LATTICE"), ("T bath", "TRUE_T_BATH"), ("T spin", "TRUE_T_SPIN"),
+             ("Heat (W)", "HEAT_TOTAL"), ("Boil-off +slm", "BOILOFF_DELTA"), ("MW freq", "MW_FREQ"),
+             ("Fitter P", "FIT_P"), ("Fit - truth", "FIT_RESID_P"), ("Quench", "QUENCH_LEVEL"))
     for i, (lab, pv) in enumerate(truth):
         cx = x + 15 + (i % 3) * 215
         cy = y + 66 + (i // 3) * 28

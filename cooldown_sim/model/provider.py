@@ -67,6 +67,20 @@ class ModelProvider(ReplayProvider):
         if key == "coldboard_heat_W":
             self._show_coldboard(float(value))
 
+    def observe_mw(self, on: bool, freq_GHz: float, power_dB: float) -> bool:
+        """The Microwave leg's REAL read-backs drive the model (no event logging
+        here; the caller logs changes).  Returns True if the RF state changed."""
+        inp = self.model.inputs
+        self.model.advance(self.clock.now())
+        changed = inp.mw_mode != "operator" or inp.mw_on != bool(on)
+        inp.mw_mode = "operator"
+        inp.mw_on = bool(on)
+        if math.isfinite(freq_GHz) and 100.0 < freq_GHz < 200.0:
+            inp.mw_freq_GHz = float(freq_GHz)
+        if math.isfinite(power_dB):
+            inp.mw_power_dB = float(power_dB)
+        return changed
+
     def _show_coldboard(self, watts: float) -> None:
         """Make the emulated coldboard supply show the heat being applied (as if
         set at its front panel -- the Genesis coldboard IOC stays read-only)."""

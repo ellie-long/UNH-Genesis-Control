@@ -42,7 +42,7 @@ MIDNIGHT_GUARD_S = 600.0
 MIN_STEPS = 3
 #: folders whose files duplicate another cool-down (would double-count steps)
 DUPLICATES = {"2026-07-Cooldown"}
-CHANNELS = ["T1", "vp_temp"] + [f"F{i}" for i in range(1, 12)] + [f"M{i}" for i in range(1, 6)]
+CHANNELS = ["T1", "T2", "T3", "vp_temp"] + [f"F{i}" for i in range(1, 12)] + [f"M{i}" for i in range(1, 6)]
 COLUMNS = ["mw_rf_status", "mw_power_db"] + CHANNELS
 
 
@@ -206,18 +206,44 @@ DNP = {
     },
 }
 
+#: Heat bookkeeping (watts) -- measured, not fitted from transitions.
+HEAT = {
+    "mw_W_at_full_drive": 0.062,
+    "W_per_slm": 0.0595,
+    "flow_tau_s": 15.0,
+    "basis": {
+        "mw_W_at_full_drive": "MEASURED: 2024-12-17 23:33-23:56 logbook (UNH_Poltarg_Cooldown_Notes): "
+                              "UCA toggled 5 V <-> 0 V gave a ~1 slm Roots-flow differential, "
+                              "60-62 mW absorbed cold (Farooq: 16.06 SLPM/W). Sept 2024 with the "
+                              "old stick was higher. Automated step fits cannot see it (flows "
+                              "around logged transitions are dominated by other operations).",
+        "W_per_slm": "16.8 slpm per W at 1 K (C. Keith, PSTP 2024; Spin-1-Rates-Fit "
+                     "holeburn/dec15_thermal.py) = 59.5 mW/slm; first-principles latent heat "
+                     "62.5 mW/slm",
+        "flow_tau_s": "Roots-flow impulse response 10-15 s (Spin-1-Rates-Fit afp_holeburn_technote, "
+                      "Dec-15-2025 isolated 10-s burns)",
+    },
+}
+
 ASSUMED = {
-    "lattice": {
-        "gain_K_per_drive": 0.4, "tau_s": 730.0,
-        "basis": "ASSUMED: the record does not constrain the microwave thermal response "
-                 "(fitted T1 sign agreement ~0.6). Anchored on the two cleanest isolated "
-                 "transitions, 2026-06-17 10:41 (on, T1 +0.62 K) and 2026-06-18 18:49 "
-                 "(off, T1 -0.36 K); tau from the median T1 rise time (n=2).",
+    "cup": {
+        "gain_K_per_W": 10.2, "tau_s": 730.0,
+        "basis": "PARTLY FITTED: cup thermometers (T1/T2/T3) are much more sensitive to microwaves than the "
+                 "helium bath (lab knowledge). Gain from the FITTED T3 step response "
+                 "(+0.635 K per full-drive transition, n=7, IQR excludes zero) divided by "
+                 "the measured 62 mW; T1 steps (+0.25..+0.62 K) agree. tau = median T1 rise "
+                 "time (n=2): weakly constrained.",
+    },
+    "bath": {
+        "gain_K_per_W": 2.3, "tau_s": 730.0,
+        "basis": "ASSUMED: the bath (vapor-pressure thermometer, cell pressure) responds much "
+                 "less than the cup. Median vapor-pressure step +0.144 K per full drive "
+                 "(inconsistent sign, n=13) over 62 mW.",
     },
     "coldboard": {
-        "gain_K_per_W": 0.3, "tau_s": 300.0,
-        "basis": "ASSUMED: no coldboard heat-load record exists. Applied to the lattice "
-                 "(cup) temperature only.",
+        "to": "bath",
+        "basis": "ASSUMED: coldboard heat goes into the bath (raises bath and, through it, "
+                 "the cup) and into boil-off; no record exists.",
     },
     "quench": {
         "fridge_target_K": 25.0, "magnet_target_K": 15.0, "lattice_target_K": 4.5,
@@ -230,4 +256,4 @@ ASSUMED = {
 
 
 def build_params(fitted: dict) -> dict:
-    return {**fitted, "dnp": DNP, "assumed": ASSUMED}
+    return {**fitted, "dnp": DNP, "heat": HEAT, "assumed": ASSUMED}

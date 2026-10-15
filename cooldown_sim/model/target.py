@@ -17,10 +17,16 @@ State (all integrated with exact exponential sub-steps of <= MAX_STEP_S):
             (T1_P).  Q relaxes toward the single-spin-temperature value
             Q_B(P) with Q_heal_tau (ASSUMPTION, see model_params.yaml); ssRF
             burns move P and Q independently.
-* dT_mw     lattice deviation from microwave heat (ASSUMED gain/tau)
-* dT_cb     lattice deviation from coldboard heat (ASSUMED gain/tau)
+* dT_cup    cup (T1/T2/T3) deviation from heat deposited at the target
+            (microwave, ssRF): ~10 K/W from the fitted T3 response
+* dT_bath   helium-bath deviation from all heat (incl. coldboard): ~2 K/W
+* dflow     extra Roots-flow boil-off, heat / 59.5 mW per slm, tau ~15 s
 * dT_mag    per-magnet-thermometer microwave deviation (FITTED gains, M2-M4)
 * q         quench level in [0, 1] (ASSUMED trajectory)
+
+Heat is bookkept in watts: microwaves 62 mW at full drive (MEASURED by the
+Roots-flow differential, 2024-12-17), coldboard heat as set, ssRF burns as
+queued by the ssRF leg.  The cup temperature is the DNP lattice temperature.
 
 Units: SI-ish lab units -- s, K, T, GHz for microwaves, MHz for NMR.
 """
@@ -70,10 +76,13 @@ class State:
     t: float
     P: float
     Q: float
-    dT_mw: float = 0.0
-    dT_cb: float = 0.0
+    dT_cup: float = 0.0
+    dT_bath: float = 0.0
+    dT_cb_bath: float = 0.0
+    dflow: float = 0.0
     q: float = 0.0
     dT_mag: dict = field(default_factory=dict)
+    burn_heat_W: float = 0.0
 
 
 class TargetModel:
@@ -85,8 +94,10 @@ class TargetModel:
         self.mag_gain = {ch: g["gain_K_per_drive"] for ch, g in self.p["thermal"]["channels"].items()
                          if ch.startswith("M") and g["status"] == "fitted"}
         self.thermal_tau = float(self.p["thermal"].get("tau_s", 730.0))
+        self.heat = self.p["heat"]
         self.inputs = Inputs()
         self.burns: list = []                      # pending (t, dP, dQ), sorted by t
+        self.burn_heat: list = []                  # (t_start, t_end, watts) from the ssRF leg
         self.clamped_burns = 0                     # burns projected back into the physical region
         self._lock = threading.RLock()
         self.state = self._initial(t0)
@@ -114,11 +125,30 @@ class TargetModel:
             (f if math.isfinite(f) else self._hist_freq(t))
 
     def hist_lattice_T(self, t: float) -> float:
-        for ch in ("T1", "vp_temp"):
+        """Recorded cup temperature (T1, else T3, else the bath)."""
+        for ch in ("T1", "T3", "vp_temp"):
             v = self.tl.value_at(ch, t)
             if math.isfinite(v) and 0.05 < v < 400:
                 return v
         return float("nan")
+
+    def hist_bath_T(self, t: float) -> float:
+        for ch in ("vp_temp", "T1"):
+            v = self.tl.value_at(ch, t)
+            if math.isfinite(v) and 0.05 < v < 400:
+                return v
+        return float("nan")
+
+    def mw_heat_W(self, drive_value: float) -> float:
+        return self.heat["mw_W_at_full_drive"] * max(drive_value, 0.0)
+
+    def burn_heat_W(self, t: float) -> float:
+        return sum(w for a, b, w in self.burn_heat if a <= t < b)
+
+    def queue_burn_heat(self, t_start: float, t_end: float, watts: float) -> None:
+        with self._lock:
+            self.burn_heat.append((float(t_start), float(t_end), float(watts)))
+            self.burn_heat = [x for x in self.burn_heat if x[1] > self.state.t - 3600.0]
 
     # ------------------------------------------------------------ state
     def _initial(self, t: float) -> State:
@@ -141,7 +171,14 @@ class TargetModel:
         base = self.hist_lattice_T(s.t if t is None else t)
         if not math.isfinite(base):
             base = 1.0
-        T = max(base + s.dT_mw + s.dT_cb, 0.05)      # floor: never zero or negative kelvin
+        # the fitted cup response already includes the bath's share of target heat;
+        # coldboard heat reaches the cup only through the bath.  The cup is never
+        # colder than the (modelled) bath it sits in.
+        T = base + s.dT_cup + s.dT_cb_bath
+        bath = self.hist_bath_T(s.t if t is None else t)
+        if math.isfinite(bath):
+            T = max(T, bath + s.dT_bath)
+        T = max(T, 0.05)                              # floor: never zero or negative kelvin
         return T + s.q * (self.assumed["quench"]["lattice_target_K"] - T)
 
     def queue_burn(self, t: float, dP: float, dQ: float) -> None:
@@ -171,15 +208,21 @@ class TargetModel:
         tm = s.t + 0.5 * dt
         d_hist, _f_hist = self.hist_mw(tm)
         d_op, f_op = self.op_mw(tm)
-        lat, cb, qa = self.assumed["lattice"], self.assumed["coldboard"], self.assumed["quench"]
+        cup, bath, qa = self.assumed["cup"], self.assumed["bath"], self.assumed["quench"]
 
         def relax(x, target, tau):
             if not math.isfinite(target):          # never let a bad input poison the state
                 return x
             return target + (x - target) * math.exp(-dt / tau)
 
-        s.dT_mw = relax(s.dT_mw, lat["gain_K_per_drive"] * (d_op - d_hist), lat["tau_s"])
-        s.dT_cb = relax(s.dT_cb, cb["gain_K_per_W"] * self.inputs.coldboard_heat_W, cb["tau_s"])
+        # heat deposited at the target relative to history (W); coldboard into the bath
+        q_target = self.mw_heat_W(d_op) - self.mw_heat_W(d_hist) + self.burn_heat_W(tm)
+        q_cb = self.inputs.coldboard_heat_W
+        s.burn_heat_W = self.burn_heat_W(tm)
+        s.dT_cup = relax(s.dT_cup, cup["gain_K_per_W"] * q_target, cup["tau_s"])
+        s.dT_bath = relax(s.dT_bath, bath["gain_K_per_W"] * (q_target + q_cb), bath["tau_s"])
+        s.dT_cb_bath = relax(s.dT_cb_bath, bath["gain_K_per_W"] * q_cb, bath["tau_s"])
+        s.dflow = relax(s.dflow, (q_target + q_cb) / self.heat["W_per_slm"], self.heat["flow_tau_s"])
         for ch, gain in self.mag_gain.items():
             s.dT_mag[ch] = relax(s.dT_mag.get(ch, 0.0), gain * (d_op - d_hist), self.thermal_tau)
         s.q = relax(s.q, 1.0 if self.inputs.quench else 0.0,
@@ -215,8 +258,8 @@ class TargetModel:
         s = self.advance(t)
         if not math.isfinite(hist_torr):
             return hist_torr
-        T_hist = self.hist_lattice_T(t)
-        T_mod = (T_hist if math.isfinite(T_hist) else 1.0) + s.dT_mw + s.dT_cb
+        T_hist = self.hist_bath_T(t)
+        T_mod = max((T_hist if math.isfinite(T_hist) else 1.0) + s.dT_bath, 0.05)
         p = hist_torr * ph.he4_vapor_pressure_ratio(T_hist, T_mod) if math.isfinite(T_hist) else hist_torr
         return p + s.q * max(self.assumed["quench"]["cell_target_Torr"] - p, 0.0)
 
@@ -245,7 +288,11 @@ class TargetModel:
         s = self.advance(t)
         B = self.field_T(t)
         d_op, f_op = self.op_mw(t)
+        T_bath = self.hist_bath_T(t)
+        heat_total = (self.mw_heat_W(d_op) + self.inputs.coldboard_heat_W + s.burn_heat_W)
         return {"P": 100.0 * s.P, "Q": 100.0 * s.Q, "T_lattice": self.lattice_T(t),
+                "T_bath": (T_bath + s.dT_bath) if math.isfinite(T_bath) else float("nan"),
                 "T_spin": self.spin_temperature(s.P, B), "B": B, "mw_drive": d_op,
                 "mw_freq_GHz": f_op, "heat_cb_W": self.inputs.coldboard_heat_W,
+                "heat_total_W": heat_total, "boiloff_delta_slm": s.dflow,
                 "quench_level": s.q, "Q_boltzmann": 100.0 * ph.q_boltzmann(s.P)}

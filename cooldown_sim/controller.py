@@ -30,6 +30,8 @@ TRUTH = (("TRUE_P", "%", "P"), ("TRUE_Q", "%", "Q"), ("TRUE_T_LATTICE", "K", "T_
          ("TRUE_T_SPIN", "K", "T_spin"), ("TRUE_B", "T", "B"),
          ("MW_DRIVE", "", "mw_drive"), ("MW_FREQ", "GHz", "mw_freq_GHz"),
          ("HEAT_CB", "W", "heat_cb_W"), ("QUENCH_LEVEL", "", "quench_level"),
+         ("HEAT_TOTAL", "W", "heat_total_W"), ("BOILOFF_DELTA", "slm", "boiloff_delta_slm"),
+         ("TRUE_T_BATH", "K", "T_bath"),
          ("TRUE_Q_BOLTZMANN", "%", "Q_boltzmann"),
          ("FIT_P", "%", "fit_P"), ("FIT_RESID_P", "%", "fit_resid_P"))
 
