@@ -31,6 +31,17 @@ named in each item. Numbers are stable: answered items move to *Settled*.
       times differ a lot (e.g. 2024-09 reached only ~9 % where 2025-12 reached
       ~50 %); knowing the materials would show whether that is the material,
       the microwave power, or the NMR calibration.
+- [ ] 34. Magic - : what constant did the LabVIEW DAQ use for "Magic -" (and is
+      Magic + exactly 28.025 GHz/T)? The sim uses 28.077 GHz/T for Magic -
+      (the P-down peak of the measured lineshape).
+- [ ] 35. Slow microwave sweeps on irradiated d-butanol for an alpha/beta fit:
+      candidates in the record are 2024-09-17 11:36-16:31 (f/B 27.87-28.09),
+      2025-11-20 22:17-23:17 and 2025-02-13 19:40-20:39 (narrow). Which
+      material was in 2024-09? (The rates fit hasn't been run on these.)
+- [ ] 36. Genesis microwave controls (live, later): add Magic + / Magic -
+      buttons to the Microwave supervisor screen. They need the central field,
+      which Genesis cannot read until the magnet power supply has an IOC
+      (question 26 priority 1).
 - [ ] 5. Does Q lag Q_B(P) as P rebuilds after a quench or anneal?
 - [ ] 8. Quench field: dump time and level, re-ramp delay and rate, starting
       P after the re-ramp.
@@ -197,6 +208,15 @@ named in each item. Numbers are stable: answered items move to *Settled*.
     varactors at 0-19 V. Keep a rule, change it, or drop it?
 
 ## Settled
+
+* Q during spin-ups (question 5, mostly): the June 2026 P&Q data put Q on the
+  Boltzmann curve to < 0.006 % (Spin-1-Rates-Fit technote: fast d-d flip-flop,
+  k_delta >= 0.005 /s). The spin-1 rate model reproduces it; the
+  phenomenological fallback's assumed 240 s Q-healing remains only where the
+  rate model is not used.
+* Materials known from Spin-1-Rates-Fit: 2020-09 and 2020-12 (to 12-09)
+  trityl-doped d-propanediol; 2020-12-10/11 TEMPO-doped d-butanol; 2025-12
+  and 2026-06 irradiated d-butanol (question 33 still open for the others).
 
 * Microwave drive (question 19): done. History UCA from the logbooks; live
   UCA from the SPD1305X through the vendor curve; replay follows the
