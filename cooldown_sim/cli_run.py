@@ -233,8 +233,9 @@ def build_provider(args, timeline, cmap, clock):
         return None
     from .model.provider import ModelProvider
     from .model.target import load_params
+    name = _cooldown_name(args)
     return ModelProvider(timeline, cmap, clock, t0=clock.now(), noise_rel=args.noise_rel,
-                         seed=args.seed, params=load_params(cooldown=_cooldown_name(args)))
+                         seed=args.seed, params=load_params(cooldown=name), cooldown=name)
 
 
 def _cooldown_name(args) -> str | None:

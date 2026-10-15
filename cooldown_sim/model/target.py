@@ -58,6 +58,7 @@ import yaml
 
 from ..data.timeline import Timeline
 from . import physics as ph
+from . import spin1
 from .fit_params import PARAMS_FILE, UCA_SAFE_V, drive, freq_factor, hist_drive, hist_freq
 
 MAX_STEP_S = 30.0
@@ -139,11 +140,15 @@ class State:
     q: float = 0.0
     dT_mag: dict = field(default_factory=dict)
     burn_heat_W: float = 0.0
+    Pe: float = float("nan")          # electron polarization (spin-1 rate model only)
 
 
 class TargetModel:
-    def __init__(self, timeline: Timeline, t0: float, params: dict | None = None):
+    def __init__(self, timeline: Timeline, t0: float, params: dict | None = None,
+                 cooldown: str | None = None):
         self.tl = timeline
+        self.cooldown = cooldown          # past cool-down replayed (selects the material)
+        self._spin1: dict = {}            # material -> spin1.Spin1 (None: not available)
         self.p = params or load_params()
         self.dnp = self.p["dnp"]
         self.assumed = self.p["assumed"]
@@ -159,6 +164,20 @@ class TargetModel:
         self.state = self._initial(t0)
 
     # ----------------------------------------------------------- history
+    def material(self, t: float) -> str:
+        """Target material at t: the replayed cool-down's schedule, else the default."""
+        return spin1.material_for(self.cooldown, t)
+
+    def spin1_engine(self, t: float):
+        """The spin-1 rate model for the material at t, or None (phenomenological DNP)."""
+        if self.p["dnp"].get("engine") == "phenomenological":
+            return None
+        name = self.material(t)
+        if name not in self._spin1:
+            ok = spin1.available() and name in spin1.load_table()["materials"]
+            self._spin1[name] = spin1.Spin1(name) if ok else None
+        return self._spin1[name]
+
     def nmr_window(self, t: float) -> tuple[float, float]:
         """(centre, span) MHz of the NMR sweep: the operator's setting if any,
         else the record's, else the deuteron Larmor frequency and a default span."""
@@ -315,12 +334,26 @@ class TargetModel:
         if B <= 0.5:
             rate_off = max(rate_off, 1.0 / LOW_FIELD_T1_S)
         pump = d_op / freq_factor(f_op)                 # drive without the frequency response
-        if pump > 0.05 and B > 0.5 and math.isfinite(f_op) and s.q < 0.5:
-            target = self.p_inf(f_op, B) * min(pump, 1.0)
-            s.P = relax(s.P, target, self.dnp["tau_up_s"])
+        rates = self.spin1_engine(tm) if (B > 0.5 and s.q < 0.5) else None
+        if rates is not None:
+            # spin-1 rate equations: P, Q and the electron from the fitted rates.  Their
+            # thermal targets use the bath (vapor-pressure) temperature, as in the fits;
+            # the cup thermometer reads warmer under microwaves
+            T_bath = self.hist_bath_T(tm) + s.dT_bath
+            T_spin = T_bath if math.isfinite(T_bath) and T_bath > 0.05 else T_lat
+            if s.q > 0:
+                T_spin = T_spin + s.q * (qa["lattice_target_K"] - T_spin)
+            st = spin1.Spin1State(s.Pe, s.P, s.Q) if math.isfinite(s.Pe) else rates.initial(s.P, B, T_spin, s.Q)
+            st = rates.step(st, dt, f_GHz=f_op, B_T=B, T_K=T_spin, power=min(pump, 1.0))
+            s.P, s.Q, s.Pe = st.Pn, st.Qn, st.Pe
         else:
-            s.P = relax(s.P, ph.te_polarization(B, T_lat)[0] if B > 0.5 else 0.0, 1.0 / rate_off)
-        s.Q = relax(s.Q, ph.q_boltzmann(s.P), self.dnp["Q_heal_tau_s"])
+            s.Pe = float("nan")
+            if pump > 0.05 and B > 0.5 and math.isfinite(f_op) and s.q < 0.5:
+                target = self.p_inf(f_op, B) * min(pump, 1.0)
+                s.P = relax(s.P, target, self.dnp["tau_up_s"])
+            else:
+                s.P = relax(s.P, ph.te_polarization(B, T_lat)[0] if B > 0.5 else 0.0, 1.0 / rate_off)
+            s.Q = relax(s.Q, ph.q_boltzmann(s.P), self.dnp["Q_heal_tau_s"])
         while self.burns and self.burns[0][0] <= s.t + dt:
             _tb, dP, dQ = self.burns.pop(0)
             s.P, s.Q, clamped = ph.project_physical(s.P + dP, s.Q + dQ)

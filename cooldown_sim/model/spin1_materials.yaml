@@ -1,0 +1,84 @@
+# Spin-1 rate-equation DNP for the target model (cooldown_sim/model/spin1.py).
+#
+# The rate equations and their solver are the Spin-1-Rates-Fit package
+# (spin1fit, github.com/ellie-long/Spin-1-Rates-Fit), imported from a checkout
+# next to this repository (or $SPIN1_RATES_FIT_DIR).  This file holds only the
+# fitted numbers the sim uses, with their provenance.  Without the package the
+# model falls back to its phenomenological DNP (P relaxing to P_max).
+#
+# Rate keys are spin1fit's identifiable combinations (k_x = x * omega_1, 1/s;
+# C_n = free radicals per deuteron).
+
+# Microwave frequency dependence: the measured pump strengths of the two
+# families vs mmwave frequency / field, TEMPO-doped d-butanol, Dec 2020
+# (Spin-1-Rates-Fit analysis/scan_compare_tempo.py: two-family symmetric
+# solve over all good 12-10/12-11 sweeps, ~20 MHz binned medians, then a
+# 3-bin running median here).  Normalized to the P-up (beta) peak.
+#   B(x): P-up pump (flip-flip, beta)   A(x): P-down pump (flip-flop, alpha)
+# Measured over x = 28.014-28.114 GHz/T; outside it both taper linearly to 0
+# over TAPER_GHZ_PER_T.  Ells (2026-10-15): use these microwave parameters for
+# d-butanol until a slow-sweep fit on irradiated d-butanol exists.
+lineshape:
+  source: TEMPO-doped d-butanol, 2020-12-10/11 frequency scans
+  peak_x: 28.052          # GHz/T, centre of the beta plateau
+  taper: 0.04             # GHz/T
+  x: [28.014, 28.018, 28.022, 28.026, 28.030, 28.034, 28.038, 28.042, 28.046, 28.050,
+      28.054, 28.058, 28.062, 28.066, 28.070, 28.074, 28.078, 28.082, 28.086, 28.090,
+      28.094, 28.098, 28.102, 28.106, 28.110, 28.114]
+  B: [0.239, 0.239, 0.248, 0.248, 0.315, 0.315, 0.350, 0.685, 0.918, 1.000,
+      1.000, 0.988, 0.719, 0.281, 0.281, 0.281, 0.520, 0.520, 0.259, 0.217,
+      0.148, 0.148, 0.168, 0.182, 0.168, 0.002]
+  A: [0.115, 0.109, 0.109, 0.044, 0.075, 0.049, 0.075, 0.098, 0.117, 0.117,
+      0.134, 0.115, 0.134, 0.212, 0.281, 0.291, 0.331, 0.448, 0.513, 0.454,
+      0.655, 0.800, 0.845, 1.118, 1.118, 0.427]
+
+# Per material: the fitted rate set (the microwave-driven rates as measured at
+# the material's P-up optimum) and that optimum's f/B.  The lineshape is
+# shifted so x_opt lands on peak_x.  Off the optimum the P-up drive scales
+# with B and the mirrored drive (alpha <-> beta, spin1fit mirrored_drive) with
+# A; saturation-type terms (k_s, k_zeta) scale with A + B.  All microwave
+# rates scale with the delivered power (the UCA/saturation drive).
+materials:
+  irradiated_d_butanol:
+    basis: >-
+      Spin-1-Rates-Fit results/fit_asym_pq.json: joint P,Q fit of the Dec 2025
+      irradiated d-butanol spin-up (B 5.077 T, T 0.997 K, chi2/dof 5.2);
+      steady state P 49.8 %, Q 19.6 %, Q on the Boltzmann curve.  x_opt: the
+      record polarized to 50-54 % at f = 28.025 GHz/T x B (the DAQ's "magic"
+      frequency, 2025-12 and 2026-06) and well at 28.012-28.016 (2025-11);
+      28.021 puts both on the measured beta plateau (hindcast-checked).
+    x_opt: 28.021
+    rates: {k_e: 1.967699, k_s: 0.000136, k_zeta1: 0.000461, k_zeta2: 0.0,
+            k_phitheta1: 5.9e-05, k_phitheta2: 0.0, k_alpha1: 0.182674, k_alpha2: 1.3e-05,
+            k_beta1: 18.789418, k_beta2: 0.000821, k_sigma1: 87.411713, k_sigma2: 2.0e-05,
+            C_n: 6.7e-05, k_delta: 9.989097}
+  tempo_d_butanol:
+    basis: >-
+      Spin-1-Rates-Fit results/revision1/stage5_tempo.json: TEMPO-doped
+      d-butanol, Dec 2020 sign-flip sequence fit (B 5.0498 T, T 1.05 K); x_opt
+      is the lineshape's own beta peak.
+    x_opt: 28.052
+    rates: {k_e: 0.1, k_s: 0.0001, k_zeta1: 0.0, k_zeta2: 0.000769,
+            k_phitheta1: 6.6e-05, k_phitheta2: 0.0, k_alpha1: 3.153481, k_alpha2: 1.0e-05,
+            k_beta1: 5.498735, k_beta2: 2.678993, k_sigma1: 43.107754, k_sigma2: 65.269232,
+            C_n: 0.000258, k_delta: 1.0e-05}
+
+# Which material each past cool-down had (lab-local times; the last entry
+# whose start is <= t applies).  A material without rates (or a cool-down not
+# listed) uses the phenomenological DNP with that cool-down's fitted values
+# (cooldown_dnp.yaml).  `default` applies to synthetic runs and unlisted
+# cool-downs; empty keeps them on the phenomenological DNP (the synthetic day is
+# designed with it).
+default: ""
+cooldowns:
+  2020-09-Cooldown:
+    - {start: "2020-09-01 00:00", material: trityl_d_propanediol}
+  2020-12-Cooldown:
+    - {start: "2020-12-01 00:00", material: trityl_d_propanediol}
+    - {start: "2020-12-10 00:00", material: tempo_d_butanol}
+  2025-12-Cooldown:
+    - {start: "2025-12-01 00:00", material: irradiated_d_butanol}
+  2026-06-Cooldown:
+    - {start: "2026-06-01 00:00", material: irradiated_d_butanol}
+  2026-07-Cooldown:
+    - {start: "2026-06-01 00:00", material: irradiated_d_butanol}

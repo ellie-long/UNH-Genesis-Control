@@ -95,7 +95,7 @@ def despike(p: np.ndarray, half: int = 5, floor_pp: float = 3.0) -> np.ndarray:
 
 
 def run(tl: Timeline, params: dict | None = None, *, anchor_h: float | None = None,
-        step_s: float = STEP_S) -> Series:
+        step_s: float = STEP_S, cooldown: str | None = None) -> Series:
     """Step the model through the whole record; re-anchor every ``anchor_h`` hours."""
     ts = np.arange(tl.start, tl.end, step_s)
     probe = TargetModel(tl, tl.start, params)
@@ -105,7 +105,7 @@ def run(tl: Timeline, params: dict | None = None, *, anchor_h: float | None = No
     if not ok.any():
         return Series(ts, np.full_like(ts, np.nan), np.where(ok, pr, np.nan), np.zeros_like(ts), b)
     t0 = ts[np.argmax(ok)]
-    model = TargetModel(tl, t0, params)
+    model = TargetModel(tl, t0, params, cooldown)
     next_anchor = t0 + anchor_h * 3600.0 if anchor_h else math.inf
     pm, dr = np.full_like(ts, np.nan), np.zeros_like(ts)
     for i, t in enumerate(ts):
@@ -146,8 +146,8 @@ def evaluate(cooldown_dir: Path, params: dict | None = None, anchor_h: float = 6
     tl = tl or load(cooldown_dir)
     name = cooldown_dir.name
     params = params if params is not None else load_params(cooldown=name)
-    free = run(tl, params)
-    anch = run(tl, params, anchor_h=anchor_h)
+    free = run(tl, params, cooldown=name)
+    anch = run(tl, params, anchor_h=anchor_h, cooldown=name)
     return ([score(name, "free", free), score(name, f"anchored {anchor_h:g}h", anch, anchor_h)],
             {"free": free, "anchored": anch})
 
@@ -212,3 +212,57 @@ def fit_dnp(tl: Timeline, base: dict | None = None, *, max_evals: int = 120,
             best = (float(r.fun), to_values(r.x), side, int(r.nfev))
     cost, values, side, evals = best
     return {**values, "neg_side": side, "cost_before": before, "cost_after": cost, "evals": evals}
+
+
+# ------------------------------------------------------------- report
+def write_html(out: Path, results: list) -> Path:
+    """One page: a score table, then per cool-down the record against the model.
+
+    ``results``: [(name, [Score...], series_dict, default_scores or None)]."""
+    import datetime as _dt
+
+    import plotly.graph_objects as go
+    from plotly.subplots import make_subplots
+
+    tz = records.lab_tz()
+    rows = []
+    for name, scores, _series, default in results:
+        free = next(s for s in scores if s.view == "free")
+        anch = next(s for s in scores if s.view != "free")
+        d = next((s for s in (default or []) if s.view == "free"), None)
+        default_mae = f"{d.mae:.2f}" if d else "-"
+        rows.append(f"<tr><td>{name}</td><td>{free.n}</td><td>{default_mae}</td>"
+                    f"<td><b>{free.mae:.2f}</b></td><td>{free.median_abs:.2f}</td><td>{anch.mae:.2f}</td>"
+                    f"<td>{free.bias:+.2f}</td><td>{free.p_record_max:.1f}</td><td>{free.p_model_max:.1f}</td></tr>")
+    parts = ["<html><head><meta charset='utf-8'><title>Hindcast</title>"
+             "<style>body{font-family:sans-serif;margin:16px} table{border-collapse:collapse}"
+             "td,th{border:1px solid #bbb;padding:3px 8px;text-align:right} td:first-child{text-align:left}"
+             "</style></head><body>",
+             "<h2>SIMULATION hindcast: target model vs recorded P</h2>",
+             "<p>Model stepped through each past cool-down with the history inputs (no IOCs). "
+             "Errors in percentage points of P over samples with valid recorded P and field on. "
+             "<i>Free</i>: started from the record once; <i>anchored</i>: reset to the record every 6 h.</p>",
+             "<table><tr><th>cool-down</th><th>n</th><th>free MAE, default values</th>"
+             "<th>free MAE</th><th>free median</th><th>anchored MAE</th><th>bias</th>"
+             "<th>max P record</th><th>max P model</th></tr>", *rows, "</table>"]
+    first = True
+    for name, _scores, series, _default in results:
+        free, anch = series["free"], series["anchored"]
+        x = [_dt.datetime.fromtimestamp(t, tz) for t in free.t]
+        fig = make_subplots(rows=2, cols=1, shared_xaxes=True, row_heights=[0.75, 0.25],
+                            vertical_spacing=0.04)
+        fig.add_trace(go.Scatter(x=x, y=free.p_record, mode="markers", marker={"size": 2, "color": "black"},
+                                 name="record P"), 1, 1)
+        fig.add_trace(go.Scatter(x=x, y=free.p_model, mode="lines", line={"color": "red"},
+                                 name="model, free run"), 1, 1)
+        fig.add_trace(go.Scatter(x=x, y=anch.p_model, mode="lines", line={"color": "royalblue", "width": 1},
+                                 name="model, anchored 6 h"), 1, 1)
+        fig.add_trace(go.Scatter(x=x, y=free.drive, mode="lines", line={"color": "green"},
+                                 name="microwave drive (history)"), 2, 1)
+        fig.update_layout(title=name, height=520, template="plotly_white",
+                          yaxis_title="P (%)", yaxis2_title="drive")
+        parts.append(fig.to_html(full_html=False, include_plotlyjs="cdn" if first else False))
+        first = False
+    parts.append("</body></html>")
+    out.write_text("\n".join(parts), encoding="utf-8")
+    return out

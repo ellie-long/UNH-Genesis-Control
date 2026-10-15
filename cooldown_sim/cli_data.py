@@ -78,6 +78,7 @@ def add_model_parsers(sub) -> None:
     p.add_argument("--cooldowns", help="comma list (default: every cool-down)")
     p.add_argument("--defaults", action="store_true",
                    help="ignore the per-cool-down fitted DNP values (cooldown_dnp.yaml)")
+    p.add_argument("--html", help="also write an HTML report with plots to this file")
     p.set_defaults(func=_hindcast)
 
     p = sub.add_parser("fit-dnp", help="fit per-cool-down DNP values from the record (slow)")
@@ -134,11 +135,19 @@ def _hindcast(args) -> int:
     if not args.data:
         print(f"set {DATA_ENV} or pass --data")
         return EXIT_SETUP
+    results = []
     for cd in _hindcast_dirs(args):
         params = load_params() if args.defaults else None
-        scores, _series = hindcast.evaluate(cd, params)
+        tl = hindcast.load(cd)
+        scores, series = hindcast.evaluate(cd, params, tl=tl)
         for s in scores:
             print(s.line(), flush=True)
+        default = None
+        if args.html and not args.defaults:
+            default = hindcast.evaluate(cd, load_params(), tl=tl)[0]
+        results.append((cd.name, scores, series, default))
+    if args.html:
+        print(f"wrote {hindcast.write_html(Path(args.html), results)}")
     return EXIT_OK
 
 

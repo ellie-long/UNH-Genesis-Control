@@ -25,9 +25,10 @@ INPUT_KEYS = {
 
 
 class ModelProvider(ReplayProvider):
-    def __init__(self, timeline, cmap, clock, *, t0: float, params: dict | None = None, **kw):
+    def __init__(self, timeline, cmap, clock, *, t0: float, params: dict | None = None,
+                 cooldown: str | None = None, **kw):
         super().__init__(timeline, cmap, clock, **kw)
-        self.model = TargetModel(timeline, t0, params)
+        self.model = TargetModel(timeline, t0, params, cooldown)
         self.host = None                 # set by the engine: lets inputs drive emulators
         self.fit_P = float("nan")        # online fitter's latest P (%), set by the NMR leg
 
