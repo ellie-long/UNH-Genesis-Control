@@ -20,10 +20,8 @@ named in each item. Numbers are stable: answered items move to *Settled*.
       the tune at 0 V and 19 V.
 
 **Microwave and ssRF power**
-- [ ] 9. The UCA's power-vs-voltage curve; the SIG monitor's calibration;
-      roughly when the manual supply replaced the analog-output drive. Can
-      the newer microwave power plots (after the 2022 and 2025 repairs) be
-      ported?
+- [ ] 9. SIG's calibration (reflected power); roughly when the manual supply
+      replaced the analog-output drive. (UCA curve: settled, see below.)
 - [ ] 10. (Parked) ssRF heat vs power at the coil.
 
 **Target physics**
@@ -36,15 +34,20 @@ named in each item. Numbers are stable: answered items move to *Settled*.
       take F1 out of the cold-board interlock rule.
 - [ ] 17. Cold-board interlock: what, if anything, should it protect now that
       the supply is varactor bias (the 120 W heater-style rule)?
+- [ ] 27. UCA cable check (live fix): the AMC's UCA input defaults to FULL
+      power when nothing is connected, but Genesis's RF permissive checks
+      only the SPD1305X's own 5 V read-back. An unplugged or broken UCA cable
+      would pass the check and give full power. Can it be detected (e.g. SIG
+      response, a sense line, or a procedural check)?
 - [ ] 25. Shells-vacuum alarm (live fix): warn on a rapid rise and above
       the 1e-4 Torr range. How rapid counts as rapid?
 - [ ] 18. When to schedule the live fixes (findings 1-8 plus the vacuum and
       F1 interlock rules).
 
 **Sim decisions**
-- [ ] 19. Go ahead with the microwave-drive fix proposed under 9 (RF on/off
-      history, since the chain is saturated at Vaunix >= -5 dB; UCA-driven
-      live with an assumed curve until the new data arrive; re-fit)?
+- [ ] 19. Microwave-drive fix: IN PROGRESS (vendor UCA curve for the current
+      chain; history = full power; replay autopilot lowers the UCA after RF
+      ON, as an operator does; re-fit).
 - [ ] 20. Go ahead with the vacuum rework under 3 once the interlock gauge is
       chosen (IONIVAC as the shells' vacuum, cold-cathode history as
       fallback)?
@@ -168,6 +171,16 @@ named in each item. Numbers are stable: answered items move to *Settled*.
     varactors at 0-19 V. Keep a rule, change it, or drop it?
 
 ## Settled
+
+* UCA power curve (question 9; Ells, 2026-10-15): vendor test data for the
+  chain after its 2025-10 repair give output vs UCA voltage at 138/140/142 GHz
+  (about 100 % to 2 V, 74 % at 2.5 V, 26-36 % at 3 V, a few % at 3.5 V, zero
+  above about 3.8 V) and maximum output vs frequency (about 250-335 mW). The
+  curve's shape changed with the repairs (the 2018 calibration fell much
+  earlier), so only the current curve is used, for live runs; history has no
+  usable UCA and is treated as full power. The measured 62 mW reaching the
+  helium at full drive already includes the ~6 ft overmodal waveguide and
+  mirror between the source and the target.
 
 * Private lab documents (question 21; Ells, 2026-10-15): the documents stay
   private, but facts from them may be made public as part of the code where

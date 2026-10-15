@@ -45,6 +45,20 @@ lab answers are in `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`.
 
 ## Log
 
+### 2026-10-15: UCA power curve; drive fix started
+* Vendor test data for the current microwave chain (after its 2025-10
+  repair) give the UCA curve and output vs frequency (question 9). The
+  older (2018) calibration has a very different shape, so only the current
+  curve is used. Absolute scale stays the measured 62 mW at the helium,
+  which already includes the waveguide and mirror losses.
+* Drive fix (question 19) under way on a side branch: history = RF on/off
+  (saturated at Vaunix >= -5 dB, full power); live = also the UCA read-back
+  through the vendor curve; the replay autopilot lowers the UCA after RF ON
+  and restores 5 V before RF OFF; then a re-fit.
+* **Finding (live system): an unplugged UCA cable means full power.** The
+  chain's UCA input defaults to full power when unconnected, but the RF
+  permissive checks only the SPD1305X's 5 V read-back (question 27).
+
 ### 2026-10-15: Answers on saturation, shells alarm, instrument priority
 * Microwave chain saturated from about -5 dB on the Vaunix, so the
   setpoint does not lower the drive in 2022 to 2025-07 (question 24 settled;
