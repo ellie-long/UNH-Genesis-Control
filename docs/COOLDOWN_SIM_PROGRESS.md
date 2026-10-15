@@ -45,6 +45,24 @@ lab answers are in `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`.
 
 ## Log
 
+### 2026-10-15: T1/T3 read by Genesis (dev-sim)
+* **Genesis change on dev-sim (Ells's choice; elong untouched):**
+  `target_ioc/instruments/ls224.py` evaluates Lake Shore Cernox Chebyshev
+  curves (four ranges, resistance boundaries); `calibration/magnet_thermometry.csv`
+  now uses the lab's full column layout and carries stick 2's T1 (C2) and T3
+  (C4); `ls224_magnet` reads T1/T3; the archiver and viewer filters include
+  them. M1-M5 and F1-F11 unchanged.
+* **Found:** the lab's calibration list has T1's range-2 ZU/ZL transposed.
+  Corrected in the CSV; the loader also swaps a reversed pair (with a
+  warning). Verified: boundaries continuous within 0.3-7 mK, T falls
+  monotonically 0.26-330 K. Question 30: did LabVIEW use the bad values?
+* Sim: T1/T3 are `ls224_magnet` channels fed from the record; the emulator
+  inverts the Cernox curves. Follow-up after the drive-fix merge: T1/T3
+  readings should follow the model's cup temperature (now they follow the
+  record plus the quench warm-up).
+* Tests: 170 passed, 8 skipped (cooldown_sim); 45 passed (LS224/archiver
+  tests elsewhere). Phoebus screens not yet updated for T1/T3.
+
 ### 2026-10-15: Target thermometer calibrations
 * The lab has Cernox (CCX) calibrations for the target thermometers of each
   target-stick version (Ells). Genesis's Lake Shore driver supports only the

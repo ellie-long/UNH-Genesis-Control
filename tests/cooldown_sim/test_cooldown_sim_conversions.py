@@ -36,7 +36,7 @@ def entries():
 
 
 def test_every_calibrated_slot_inverts_through_the_driver_curve(entries):
-    assert len(entries) == 16           # F1-F11 + M1-M5 (CCX placeholders skipped)
+    assert len(entries) == 18           # F1-F11 + M1-M5 + T1, T3 (Cernox, stick 2)
     for cal, slot, entry, forward in entries:
         inv = conversions.InverseCalibration(functools.partial(forward, entry))
         lo, hi = inv.t_range
@@ -46,6 +46,45 @@ def test_every_calibrated_slot_inverts_through_the_driver_curve(entries):
             assert not clamped
             wire = float(f"{ohms:.6E}")                 # what the emulator sends
             assert forward(entry, wire) == pytest.approx(kelvin, rel=1e-5), (entry[2], kelvin)
+
+
+def test_cernox_curves_are_continuous_and_monotonic(entries):
+    """Lake Shore's piecewise Chebyshev ranges meet within a few mK and the
+    curve falls steadily with R over the whole fitted span."""
+    ccx = [e for e in entries if e[2][0] == "CCX"]
+    assert sorted(e[2][2] for e in ccx) == ["T1", "T3"]
+    for _cal, _slot, entry, forward in ccx:
+        curve = entry[1]
+        assert len(curve["ranges"]) == 4 and len(curve["bounds"]) == 3
+        assert all(zu > zl for zu, zl, _a in curve["ranges"])
+        for b in curve["bounds"]:
+            assert forward(entry, b * 1.000001) == pytest.approx(forward(entry, b * 0.999999), abs=0.01)
+        r = np.geomspace(45.0, 30000.0, 4000)
+        t = np.array([forward(entry, x) for x in r])
+        assert np.all(np.isfinite(t)) and np.all(np.diff(t) < 0), entry[2]
+        assert 0.9 < forward(entry, float(conversions.InverseCalibration(
+            functools.partial(forward, entry)).ohms(1.0)[0])) < 1.1
+
+
+def test_cernox_transposed_range_limits_are_corrected(tmp_path):
+    """A row with ZU < ZL in one range (a transcription slip) reads as if the
+    pair were the right way round."""
+    with softioc_stub.installed():
+        from target_ioc.instruments import ls224
+    path = ROOT / "calibration/magnet_thermometry.csv"
+    lines = path.read_text(encoding="utf-8").splitlines()
+    head = lines[0].split(",")
+    i2 = head.index("ZU2")
+    row = next(line for line in lines if line.startswith("T1,")).split(",")
+    swapped = list(row)
+    swapped[i2], swapped[i2 + 1] = row[i2 + 1], row[i2]
+    bad = tmp_path / "cal.csv"
+    bad.write_text("\n".join([lines[0], ",".join(swapped)]) + "\n", encoding="utf-8")
+    good = ls224.load_calibration(path)["C2"]
+    fixed = ls224.load_calibration(bad)["C2"]
+    for ohms in (2000.0, 1002.0, 700.0, 300.0, 100.0):
+        assert ls224.resistance_to_kelvin(fixed, ohms) == pytest.approx(
+            ls224.resistance_to_kelvin(good, ohms), rel=1e-12)
 
 
 def test_inverse_is_on_the_cold_ntc_branch(entries):

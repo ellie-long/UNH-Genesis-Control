@@ -50,6 +50,8 @@ instruments:
       M3: {source: M3, units: K, valid: [0.01, 400], confidence: high}
       M4: {source: M4, units: K, valid: [0.01, 400], confidence: high}
       M5: {source: M5, units: K, valid: [0.01, 400], confidence: high}
+      T1: {source: T1, units: K, valid: [0.05, 400], confidence: high, note: "Target-cup Cernox on slot C2, stick 2 (Ells, 2026-10-15); CCX curve in calibration/magnet_thermometry.csv.  The record's T1 came from whichever stick was in at the time."}
+      T3: {source: T3, units: K, valid: [0.05, 400], confidence: high, note: "Target-cup Cernox on slot C4, stick 2 (Ells, 2026-10-15)"}
 
   mks902b:               # UNH:GEN:CRYO:CELL  Cell_PI (Torr)
     wire: none
@@ -150,7 +152,7 @@ history:
   field:      {source: central_field, units: T, valid: [0.0, 6.0], confidence: high}
   magnet_i:   {source: magnet_current, units: A, valid: [0.0, 120.0], confidence: high}
   online_p:   {source: online_p, units: "%", valid: [-110.0, 110.0], confidence: high, note: "LabVIEW live area-method P; values beyond +/-110 % are display glitches"}
-  t_cup:      {source: T1, units: K, valid: [0.05, 400], confidence: medium, note: "Target-cup thermometer, probably on the magnet LS224 slot C2 (Ells; CCX placeholder in magnet_thermometry.csv); no Genesis IOC reads it -- used only as the model's lattice temperature"}
+  t_cup:      {source: T1, units: K, valid: [0.05, 400], confidence: medium, note: "Target-cup thermometer T1 (magnet LS224 slot C2); the model's lattice temperature"}
   he_level_fridge: {source: fridge_he_level, units: in, valid: [0.0, 60.0], confidence: high}
   he_level_magnet: {source: magnet_lhe_level, units: in, valid: [0.0, 60.0], confidence: high}
 
@@ -391,10 +393,10 @@ record_only:
     columns: [vp_range, vp_temp]
     used_by: "vp_temp is a model-fit channel (fit-params)"
     note: "CHECK: is this computed in LabVIEW from the manometers (range picks Hi or Lo)?"
-  - instrument: Target-cup thermometers T1-T3
-    columns: [T1, T2, T3]
-    used_by: "T1 = the target model's lattice temperature; T1-T3 are model-fit channels"
-    note: "Ells 2026-10-15: read on one of the two Lake Shore 224s, probably the magnet one (not certain). calibration/magnet_thermometry.csv agrees: T1 on slot C2 and T3 on C4 (CCX, no calibration); T2 is not listed. The Genesis ls224_magnet IOC reads only M1-M5 (slots D1-D5). CHECK: T2's slot, and the CCX calibrations."
+  - instrument: Target-cup thermometer T2 (target stick 1 only)
+    columns: [T2]
+    used_by: "model-fit channel"
+    note: "Ells 2026-10-15: stick 2 is in, with T1 (C2) and T3 (C4) only; stick 1 had T2. T1 and T3 are now ls224_magnet channels (dev-sim)"
   - instrument: Roots flow meters (left / right)
     columns: [roots_flow_l, roots_flow_r]
     used_by: "the model's boil-off (59.5 mW/slm) is reported, not replayed"

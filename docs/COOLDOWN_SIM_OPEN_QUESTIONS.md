@@ -14,10 +14,6 @@ named in each item. Numbers are stable: answered items move to *Settled*.
       manometer?
 - [ ] 13. Manometer-Lo: the XCG gauge's full-scale range.
 - [ ] 14. Serial gateway at 192.168.1.251: make and model (possibly a Pi).
-- [ ] 29. Add T1/T3 to Genesis (live change)? Needs Cernox (CCX) Chebyshev
-      support in `target_ioc/instruments/ls224.py`, stick 2's coefficients
-      in `calibration/magnet_thermometry.csv`, and the channels in the
-      `ls224_magnet` config. T1 is the target (lattice) temperature.
 - [ ] 12. (Optional) cold-board voltage to Q-curve tune: MHz per volt, or
       the tune at 0 V and 19 V.
 
@@ -56,6 +52,9 @@ named in each item. Numbers are stable: answered items move to *Settled*.
 - [ ] 20. Go ahead with the vacuum rework under 3 once the interlock gauge is
       chosen (IONIVAC as the shells' vacuum, cold-cathode history as
       fallback)?
+- [ ] 30. Did LabVIEW read T1 with the transposed range-2 limits (stick 2)?
+      If so, recorded T1 between about 3 and 19 K is wrong; at 1 K it is
+      unaffected (range 1).
 - [ ] 22. Try an interactive rehearsal (guide section 2) in Phoebus.
 - [ ] 23. Push `dev-sim` and merge into `elong`? Before any push: squash
       `642e0f3` into `d6a9045` (an early wording of question 10).
@@ -187,6 +186,14 @@ named in each item. Numbers are stable: answered items move to *Settled*.
     varactors at 0-19 V. Keep a rule, change it, or drop it?
 
 ## Settled
+
+* T1/T3 in Genesis (question 29; Ells chose dev-sim, 2026-10-15): the LS224
+  driver now evaluates Cernox (CCX) Chebyshev curves; the magnet calibration
+  file carries stick 2's T1 (C2) and T3 (C4) curves; `ls224_magnet` reads
+  them and the archiver records them. On dev-sim only (elong untouched).
+  The lab's list had T1's range-2 ZU/ZL transposed (a 3-19 K jump of up to
+  14 K); corrected here, and the loader now swaps any reversed pair with a
+  warning. Question 30 asks whether LabVIEW used the transposed values.
 
 * Target stick (question 15; Ells, 2026-10-15): stick 2 is believed to be in
   (T1 on C2, T3 on C4, both Cernox; no T2), matching Genesis's magnet

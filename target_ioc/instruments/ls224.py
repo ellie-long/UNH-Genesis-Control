@@ -37,11 +37,19 @@ Two sources, and the difference matters:
     CCS   T(K) = 1 / (a + b*ln(R) + c*ln(R)^3)
     CCS2  T(K) = a + b*exp(c * 1000/R)
     CCCS  T(K) = a + b*x + c*x^2 + d*x^3 + e*x^4 + f*x^5 + g*x^6,  x = 1000/R
+    CCX   Lake Shore Chebyshev (calibrated Cernox), piecewise in R:
+          Z = log10(R),  k = ((Z - ZL) - (ZU - Z)) / (ZU - ZL),
+          T(K) = sum_i A_i cos(i * arccos(k))
 
-  The two calibration CSVs spell their headers differently (the fridge file uses
-  "Lakeshore Slot" / "A (ZU1)", the magnet file "Lakeshore_Slot" / "a"), so the
-  loader accepts both.  A row with no coefficients - the CCX placeholders in the
-  magnet file - is skipped, exactly as magnet_temp_reader.py skips them.
+  A CCX row holds up to four ranges - "ZU1"/"ZL1" (the A (ZU1) / B (ZL1)
+  columns) then the coefficients, likewise from "ZU2", "ZU3", "ZU4" - followed
+  by the resistance boundaries between ranges in the "Htemp", "Mtemp" and
+  "Ltemp" columns (ohms, despite the names): R above Htemp uses range 1, above
+  Mtemp range 2, and so on.  Outside the fitted span the reading is NaN.
+
+  The calibration CSVs spell some headers differently ("Lakeshore Slot" /
+  "Lakeshore_Slot", "A (ZU1)" / "a"), so the loader accepts both.  A row with
+  no usable coefficients (blank, or an all-zero CCX placeholder) is skipped.
 
 A reading the instrument flags as invalid, over- or under-range is published as
 NaN with the reason in _Status - never as a number, because on a temperature
@@ -85,8 +93,12 @@ HEADERS = {
 }
 COEFF_COLUMNS = [("A (ZU1)", "a", "A"), ("B (ZL1)", "b", "B"), ("C", "c"),
                  ("D", "d"), ("E", "e"), ("F", "f"), ("G", "g")]
-#: how many coefficients each curve form needs
+#: how many coefficients each curve form needs (CCX is piecewise; see _ccx_curve)
 N_COEFFS = {"CCS": 3, "CCS2": 3, "CCCS": 7}
+CCX = "CCX"
+#: header labels that start each CCX range, and the range boundaries (ohms)
+CCX_RANGE_HEADERS = ("ZU1", "ZU2", "ZU3", "ZU4")
+CCX_BOUND_HEADERS = ("Htemp", "Mtemp", "Ltemp")
 
 
 def _pick(row, keys):
@@ -96,20 +108,76 @@ def _pick(row, keys):
     return ""
 
 
+def _float(text):
+    try:
+        value = float(text)
+    except (TypeError, ValueError):
+        return None
+    return value if math.isfinite(value) else None
+
+
+def _ccx_curve(header, cells):
+    """{"ranges": [(ZU, ZL, [A0..An]), ...], "bounds": [ohms, ...]} or None.
+
+    Positional within the row: each range starts at the column whose header
+    contains "ZU1".."ZU4" and runs to the next range (or the boundary columns).
+    """
+    def col(label):
+        return next((i for i, h in enumerate(header) if label in h), None)
+
+    starts = [col(label) for label in CCX_RANGE_HEADERS]
+    bounds_at = [col(label) for label in CCX_BOUND_HEADERS]
+    if starts[0] is None or any(b is None for b in bounds_at):
+        return None
+    ends = [s for s in starts[1:] if s is not None] + [min(bounds_at)]
+    ranges = []
+    for start, end in zip([s for s in starts if s is not None], ends):
+        values = [_float(c) for c in cells[start:end]]
+        zu, zl = (values + [None, None])[:2]
+        coeffs = [v for v in values[2:] if v is not None]
+        if zu is None or zl is None or zu == zl or not any(coeffs):
+            break
+        if zu < zl:                       # Lake Shore always has ZU > ZL: a transposed pair
+            log.warning("CCX range %d has ZU < ZL (%g, %g) - treating them as swapped",
+                        len(ranges) + 1, zu, zl)
+            zu, zl = zl, zu
+        ranges.append((zu, zl, coeffs))
+    bounds = [_float(cells[i]) if i < len(cells) else None for i in bounds_at]
+    bounds = [b for b in bounds if b][:max(len(ranges) - 1, 0)]
+    if not ranges or len(bounds) != len(ranges) - 1:
+        return None
+    return {"ranges": ranges, "bounds": bounds}
+
+
 def load_calibration(path):
     """{slot: (type, coefficients, name)} from a thermometry CSV.
 
     Accepts either header style, and skips rows whose coefficients are blank -
-    the CCX placeholders in magnet_thermometry.csv have a slot but no curve, and
-    publishing a temperature for those would be inventing one.
+    an uncalibrated placeholder has a slot but no curve, and publishing a
+    temperature for it would be inventing one.  For CCX the "coefficients" are
+    the piecewise Chebyshev curve from _ccx_curve.
     """
     import csv
     table = {}
     with open(path, newline="", encoding="utf-8-sig") as fh:
-        for row in csv.DictReader(fh):
+        reader = csv.reader(fh)
+        header = [h.strip() for h in next(reader, [])]
+        for cells in reader:
+            row = {}
+            for h, c in zip(header, cells):
+                if h and h not in row:
+                    row[h] = c
             name = _pick(row, HEADERS["name"])
             slot = _pick(row, HEADERS["slot"])
             ttype = _pick(row, HEADERS["type"]).upper()
+            if ttype == CCX and name and slot:
+                curve = _ccx_curve(header, cells)
+                if curve is None:
+                    log.warning("calibration row %s (slot %s, CCX) has no usable "
+                                "Chebyshev ranges - skipped", name, slot)
+                    continue
+                table[slot] = (ttype, curve, name)
+                continue
             if not (name and slot and ttype in N_COEFFS):
                 continue
             coeffs = []
@@ -128,8 +196,20 @@ def load_calibration(path):
     return table
 
 
+def _ccx_kelvin(curve, ohms):
+    """Lake Shore Chebyshev, range chosen by the resistance boundaries."""
+    index = sum(1 for b in curve["bounds"] if ohms <= b)
+    zu, zl, coeffs = curve["ranges"][index]
+    z = math.log10(ohms)
+    k = ((z - zl) - (zu - z)) / (zu - zl)
+    if not -1.0 <= k <= 1.0:              # outside the fitted span: no number
+        return float("nan")
+    theta = math.acos(k)
+    return sum(a * math.cos(i * theta) for i, a in enumerate(coeffs))
+
+
 def resistance_to_kelvin(entry, ohms):
-    """The two curve forms this lab's sensors use.  NaN on anything unphysical."""
+    """The curve forms this lab's sensors use.  NaN on anything unphysical."""
     if entry is None or not math.isfinite(ohms) or ohms <= 0:
         return float("nan")
     ttype, c, _name = entry
@@ -143,6 +223,8 @@ def resistance_to_kelvin(entry, ohms):
         if ttype == "CCCS":
             x = 1000.0 / ohms
             return sum(coef * x ** i for i, coef in enumerate(c))
+        if ttype == CCX:
+            return _ccx_kelvin(c, ohms)
     except (ValueError, OverflowError, ZeroDivisionError):
         return float("nan")
     return float("nan")

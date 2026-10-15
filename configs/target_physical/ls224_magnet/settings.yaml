@@ -23,12 +23,16 @@ ls224_magnet:
   - M3
   - M4
   - M5
+  - T1
+  - T3
   slots:
   - D3
   - D1
   - D2
   - D4
   - D5
+  - C2
+  - C4
   records:
     M1_TI:
       DESC: Magnet M1 temperature (CCS2 sensor)
@@ -68,6 +72,18 @@ ls224_magnet:
       PREC: 4
       HIHI: 8.0
       HIGH: 6.0
+      LOW: 0.05
+      LOLO: 0.0
+    T1_TI:
+      DESC: Target cup T1 (Cernox, stick 2)
+      EGU: K
+      PREC: 4
+      LOW: 0.05
+      LOLO: 0.0
+    T3_TI:
+      DESC: Target cup T3 (Cernox, stick 2)
+      EGU: K
+      PREC: 4
       LOW: 0.05
       LOLO: 0.0
   write_enabled: false

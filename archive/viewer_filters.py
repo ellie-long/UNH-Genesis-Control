@@ -147,6 +147,11 @@ CRYO_PRESETS = {
         "UNH_GEN_CRYO_MAG_M5_TI",
     ),
 
+    "Cryo - Target cup": (
+        "UNH_GEN_CRYO_MAG_T1_TI",
+        "UNH_GEN_CRYO_MAG_T3_TI",
+    ),
+
     "Cryo - Vacuum pressures": (
         "UNH_GEN_CRYO_CELL_Cell_PI",
         "UNH_GEN_CRYO_VAC_Pump_PI",
