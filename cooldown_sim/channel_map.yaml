@@ -227,7 +227,7 @@ equipment:
     map: siglent_coldboard.Coldboard (no past-record column)
     sim: SCPI supply emulator (as SPD1305X), output OFF
     confidence: high
-    note: "Ells 2026-10-15: an SPD1305X with a sticker reading IP 192.168.1.5, the IOC's address. CHECK after the power outage that the IP is unchanged (caget UNH:GEN:CRYO:COLDBOARD:Coldboard_IDN). Before Genesis the cold board ran from an external DC supply, never recorded."
+    note: "Ells 2026-10-15: an SPD1305X with a sticker reading IP 192.168.1.5, the IOC's address. Before Genesis the cold board ran from an external DC supply, never recorded."
   - genesis: (serial gateway)
     equipment: Serial-to-Ethernet gateway (model not recorded in Genesis)
     role: Carries the four RS-232 instruments

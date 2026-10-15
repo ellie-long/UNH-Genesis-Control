@@ -15,15 +15,6 @@ treated as authoritative. Answers go into `cooldown_sim/channel_map.yaml`
    of the shells separating the fridge space from the magnet space. Is that
    the volume Genesis calls OVC, which the vacuum interlock watches?)
 
-## Lab network
-
-6. **IP addresses after the power outage.** Ells (2026-10-15): there was a
-   power outage, so the instrument IPs may have changed. The channel map and
-   Genesis configs use the addresses from before it (cold-board SPD1305X
-   sticker: 192.168.1.5, as configured). A read-only check per IOC on the lab
-   host confirms each, e.g. `caget UNH:GEN:CRYO:COLDBOARD:Coldboard_IDN`.
-   Instruments set by DHCP rather than static IPs are the ones at risk.
-
 ## Microwave power
 
 9. **UCA voltage to microwave power.** Ells (2026-10-15): `MMwaves Power (dB)`
@@ -71,6 +62,10 @@ treated as authoritative. Answers go into `cooldown_sim/channel_map.yaml`
      equilibrium) at full field?
 
 ## Settled
+
+* Instrument IPs after the lab power outage (question 6): the lab is setting
+  them static and rebooting the equipment (Ells, 2026-10-15). Not tracked
+  here; the channel map keeps the configured addresses.
 
 * The cold-board varactors are powered by a Siglent **SPD1305X** (single
   channel), with a sticker reading IP 192.168.1.5 (Ells, 2026-10-15). That is

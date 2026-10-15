@@ -34,7 +34,7 @@ lab answers are in `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`.
 **The planned build is complete.** What is left is Ells's call:
 
 1. Answer the open questions in `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`: the
-   two TPG 262 gauges, the instrument IPs after the power outage, the UCA
+   two TPG 262 gauges, the UCA
    power curve (the model's microwave drive), the field during a quench, and
    whether Q lags Q_B(P) on a spin-up from zero.
 2. Try an interactive rehearsal (guide section 2) with the real screens in
@@ -44,6 +44,10 @@ lab answers are in `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`.
    separate change to the live system, deliberately not made here.
 
 ## Log
+
+### 2026-10-15: Instrument IPs handled in the lab
+* Ells: the lab is fixing the post-outage IPs (static addresses, then reboot
+  the equipment). Question 6 closed here; nothing to track in the sim.
 
 ### 2026-10-15: Manometer-Lo readout
 * Ells: the KJL-SPARC controller for Manometer-Lo is connected by USB to a
