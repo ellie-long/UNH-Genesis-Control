@@ -1,11 +1,59 @@
 # Simulated cool-down: open questions
 
-Deferred questions for the lab, to be answered before the channel map is
-treated as authoritative. Answers go into `cooldown_sim/channel_map.yaml`
-(then regenerate `docs/COOLDOWN_SIM_CHANNEL_MAP.md` with
-`python -m cooldown_sim channel-map-report --coverage`).
+Everything the sim work is waiting on from the lab. The checklist is the
+index; details follow. Answers go into `cooldown_sim/channel_map.yaml` (then
+regenerate `docs/COOLDOWN_SIM_CHANNEL_MAP.md` with
+`python -m cooldown_sim channel-map-report --coverage`) or the model files
+named in each item. Numbers are stable: answered items move to *Settled*.
 
-## Channel map (currently marked **guess**)
+## Checklist (all open items)
+
+**Equipment and wiring**
+- [ ] 3. Vacuum: should the interlock watch the IONIVAC, at what trip
+      pressure? Is LabVIEW's `Roots Pressure` the top or bottom Roots
+      manometer?
+- [ ] 13. Manometer-Lo: the XCG gauge's full-scale range.
+- [ ] 14. Serial gateway at 192.168.1.251: make and model (possibly a Pi).
+- [ ] 15. T2 (target cup): is it wired to a Lake Shore input at all? T1 and
+      T3 are on the magnet Lake Shore (C2, C4).
+- [ ] 12. (Optional) cold-board voltage to Q-curve tune: MHz per volt, or
+      the tune at 0 V and 19 V.
+
+**Microwave and ssRF power**
+- [ ] 9. The UCA's power-vs-voltage curve; the SIG monitor's calibration;
+      roughly when the manual supply replaced the analog-output drive.
+- [ ] 10. (Parked) ssRF heat vs power at the coil.
+
+**Target physics**
+- [ ] 5. Does Q lag Q_B(P) as P rebuilds after a quench or anneal?
+- [ ] 8. Quench field: dump time and level, re-ramp delay and rate, starting
+      P after the re-ramp.
+
+**Live-system fixes (Genesis itself; listed in COOLDOWN_SIM_PROGRESS.md)**
+- [ ] 16. Over-flood alarm: F1_TI LOW/LOLO values (about 5 K / 4.5 K?), and
+      take F1 out of the cold-board interlock rule.
+- [ ] 17. Cold-board interlock: what, if anything, should it protect now that
+      the supply is varactor bias (the 120 W heater-style rule)?
+- [ ] 18. When to schedule the live fixes (findings 1-8 plus the vacuum and
+      F1 interlock rules).
+
+**Sim decisions**
+- [ ] 19. Go ahead with the microwave-drive fix proposed under 9 (RF on/off
+      history, UCA-driven live, assumed curve, re-fit)?
+- [ ] 20. Go ahead with the vacuum rework under 3 once the interlock gauge is
+      chosen (IONIVAC as the shells' vacuum, cold-cathode history as
+      fallback)?
+- [ ] 21. May facts from the private lab notes (`ref_technotes/`) be
+      paraphrased into tracked files, item by item? (E.g. the fridge
+      sensor order and liquid-coverage rule, for a level and over-fill
+      indicator.)
+- [ ] 22. Try an interactive rehearsal (guide section 2) in Phoebus.
+- [ ] 23. Push `dev-sim` and merge into `elong`? Before any push: squash
+      `642e0f3` into `d6a9045` (an early wording of question 10).
+
+## Details
+
+### Channel map
 
 3. **Vacuum: what should the interlock watch?** Ells (2026-10-15): both
    TPG 262 gauges are manometers on the Roots pump (gauge 1 `Pump` = top,
@@ -16,7 +64,7 @@ treated as authoritative. Answers go into `cooldown_sim/channel_map.yaml`
      and at what trip pressure?
    * Is LabVIEW's `Roots Pressure (Torr)` the top or the bottom manometer?
 
-## Microwave power
+### Microwave power
 
 9. **Microwave power for the model.** Ells (2026-10-15): `MMwaves Power (dB)`
    is the Vaunix setpoint (default 10 dBm, rarely changed) and the UCA sets
@@ -36,7 +84,7 @@ treated as authoritative. Answers go into `cooldown_sim/channel_map.yaml`
      power); once calibrated it could measure the curve directly.
    * Roughly when did the manual supply take over from the analog output?
 
-## ssRF power (come back to later)
+### ssRF power (come back to later)
 
 10. **ssRF heat vs power at the coil.** The ssRF line has a Mini-Circuits
     LZY-22+ amplifier (~44 dB gain, P1dB ~+43 dBm), so a generator setting of
@@ -54,7 +102,7 @@ treated as authoritative. Answers go into `cooldown_sim/channel_map.yaml`
     currently assumes. Ells has the details in a private lab note; keep them
     out of this repository.
 
-## Target model (currently **assumed**)
+### Target model (currently **assumed**)
 
 5. **Q during a spin-up from zero.** After a quench or anneal, does the
    tensor polarization Q follow Q_B(P) = 2 - sqrt(4 - 3P^2) as P rebuilds, or
@@ -80,6 +128,29 @@ treated as authoritative. Answers go into `cooldown_sim/channel_map.yaml`
      how long after a quench before ramping starts?
    * After the re-ramp, does the target start from P = 0 (or thermal
      equilibrium) at full field?
+
+### Smaller items
+
+13. **XCG full-scale range.** Sets the valid range for `Manometer-Lo` and
+    when the vapor-pressure readout should switch gauges.
+14. **Serial gateway.** The box at 192.168.1.251 carrying the four RS-232
+    instruments (TCP ports 5004/5005/5007/5011). Ells thinks it may be a
+    Raspberry Pi; it is neither the `keysight` Pi nor `mmWaveRobot.local`.
+15. **T2.** No Genesis config or calibration file lists T2. Is it wired?
+12. **Cold-board tune.** Higher cold-board voltage moves the Q-curve's tune
+    to higher frequency. With MHz per volt the sim's NMR source could move
+    the Q-curve, and rehearse retuning without a fresh baseline.
+
+### Live-system fixes
+
+16. **Over-flood.** F1 at or below 4.5 K means an over-flooded fridge with
+    liquid helium heading for the Roots pumps. Genesis has no protection: the
+    interlock compares F1 >= 4.5 K (inverted), acts on the cold board, and
+    F1's alarm limits are 0.05 K / 0 K. Proposed: F1_TI LOW/LOLO near
+    5 K / 4.5 K. Which values?
+17. **Cold-board rule.** The interlock's cold-board rule (F1 temperature and
+    a 120 W power limit) was written for a heater. The supply biases
+    varactors at 0-19 V. Keep a rule, change it, or drop it?
 
 ## Settled
 
@@ -117,6 +188,14 @@ treated as authoritative. Answers go into `cooldown_sim/channel_map.yaml`
   * The sim still emulates the supply as present with output OFF, and its NMR
     source does not yet move the Q-curve with this voltage.
 
+* The `UCA (V)` column has not been the real UCA for years (analog-output
+  drive had problems; a manual DC supply drove it; the SPD1305X took over in
+  the last few weeks). SIG is the microwave chain's power monitor (lower
+  voltage = more power). The KJL-SPARC speaks a TPG-style serial protocol.
+  The AMI level meters and the flow meters are wanted on the Genesis DAQ
+  soon; the SMT03 and VME crate are being retired for the JLab NMR (Ells,
+  2026-10-15).
+
 * Coldboard load (question 7; Ells, 2026-10-15): no noticeable heating has
   been seen from the varactor bias voltages and currents.
   * **The model neglects it.** `coldboard_heat_W` stays 0 W unless a scenario
@@ -127,8 +206,7 @@ treated as authoritative. Answers go into `cooldown_sim/channel_map.yaml`
     read-backs. You would need which channels drive the varactors and at
     roughly what voltages and currents.
   * Still open for the live system: the interlock treats the supply as a
-    heater (trip at 120 W). Whether that rule suits varactor bias depends on
-    question 6.
+    heater (trip at 120 W): question 17.
 
 * MKS 902B `Cell` = `Manometer-Hi (Torr)`, and the 2020 single-range
   `Manometer (Torr)` (Ells, 2026-10-15).
