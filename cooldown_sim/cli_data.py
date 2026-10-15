@@ -73,6 +73,21 @@ def add_model_parsers(sub) -> None:
     p.add_argument("--dry-run", action="store_true", help="print the fit, do not write it")
     p.set_defaults(func=_fit_params)
 
+    p = sub.add_parser("hindcast", help="score the target model against past cool-downs' recorded P")
+    p.add_argument("--data", default=os.environ.get(DATA_ENV))
+    p.add_argument("--cooldowns", help="comma list (default: every cool-down)")
+    p.add_argument("--defaults", action="store_true",
+                   help="ignore the per-cool-down fitted DNP values (cooldown_dnp.yaml)")
+    p.set_defaults(func=_hindcast)
+
+    p = sub.add_parser("fit-dnp", help="fit per-cool-down DNP values from the record (slow)")
+    p.add_argument("--data", default=os.environ.get(DATA_ENV))
+    p.add_argument("--cooldowns", help="comma list (default: every cool-down with valid P)")
+    p.add_argument("--max-evals", type=int, default=120)
+    p.add_argument("--jobs", type=int, default=1, help="fit this many cool-downs in parallel")
+    p.add_argument("--write", action="store_true", help="write cooldown_dnp.yaml (else print only)")
+    p.set_defaults(func=_fit_dnp)
+
 
 def _fit_params(args) -> int:
     from .__main__ import EXIT_OK, EXIT_SETUP
@@ -93,3 +108,87 @@ def _fit_params(args) -> int:
     path = fit_params.write(fit_params.build_params(fitted))
     print(f"wrote {path}")
     return EXIT_OK
+
+
+#: cool-down folders that duplicate another (skip in hindcasts and fits)
+_HINDCAST_SKIP = {"2026-07-Cooldown", "2025-12-Cooldown-Subset-001"}
+_DNP_KEYS = ("P_max", "tau_up_s", "T1_P_s", "optimum_offset_GHz", "lobe_width_GHz",
+             "neg_scale", "neg_side")
+
+
+def _hindcast_dirs(args):
+    root = Path(args.data)
+    want = [c.strip() for c in args.cooldowns.split(",")] if args.cooldowns else None
+    for cd in records.list_cooldowns(root):
+        if want is None and cd.name in _HINDCAST_SKIP:
+            continue
+        if want and not any(cd.name.startswith(w) for w in want):
+            continue
+        yield cd
+
+
+def _hindcast(args) -> int:
+    from .__main__ import EXIT_OK, EXIT_SETUP
+    from .model import hindcast
+    from .model.target import load_params
+    if not args.data:
+        print(f"set {DATA_ENV} or pass --data")
+        return EXIT_SETUP
+    for cd in _hindcast_dirs(args):
+        params = load_params() if args.defaults else None
+        scores, _series = hindcast.evaluate(cd, params)
+        for s in scores:
+            print(s.line(), flush=True)
+    return EXIT_OK
+
+
+def _fit_dnp(args) -> int:
+    import datetime as _dt
+    import math
+
+    import yaml
+
+    from .__main__ import EXIT_OK, EXIT_SETUP
+    from .model import hindcast
+    from .model.target import COOLDOWN_DNP_FILE, load_params
+    if not args.data:
+        print(f"set {DATA_ENV} or pass --data")
+        return EXIT_SETUP
+    table = {}
+    if COOLDOWN_DNP_FILE.exists():
+        table = (yaml.safe_load(COOLDOWN_DNP_FILE.read_text(encoding="utf-8")) or {}).get("cooldowns") or {}
+    dirs = list(_hindcast_dirs(args))
+    if args.jobs > 1:
+        from concurrent.futures import ProcessPoolExecutor
+        with ProcessPoolExecutor(max_workers=args.jobs) as pool:
+            results = list(pool.map(_fit_one, dirs, [args.max_evals] * len(dirs)))
+    else:
+        results = [_fit_one(cd, args.max_evals) for cd in dirs]
+    for cd, r in zip(dirs, results):
+        if not math.isfinite(r["cost_before"]):
+            print(f"{cd.name}: no valid recorded P -- skipped", flush=True)
+            continue
+        print(f"{cd.name}: cost {r['cost_before']:.2f} -> {r['cost_after']:.2f} pp  "
+              + "  ".join(f"{k} {r[k]:.4g}" for k in _DNP_KEYS), flush=True)
+        entry = {k: (int(r[k]) if k == "neg_side" else round(float(r[k]), 4)) for k in _DNP_KEYS}
+        entry["fit"] = {"cost_before_pp": round(r["cost_before"], 2),
+                        "cost_after_pp": round(r["cost_after"], 2), "evals": r["evals"],
+                        "date": _dt.date.today().isoformat()}
+        table[cd.name] = entry
+    if args.write:
+        head = ("# Per cool-down DNP values, fitted to the record's online P by\n"
+                "#   python -m cooldown_sim fit-dnp --write\n"
+                "# (Nelder-Mead on the mean of the free-run and 6 h-anchored mean absolute\n"
+                "# errors; bounds in model/hindcast.py FIT_BOUNDS).  Target materials,\n"
+                "# radicals and field calibrations differ between cool-downs, so these do.\n"
+                "# load_params(cooldown=...) applies them.  Derived numbers only.\n")
+        COOLDOWN_DNP_FILE.write_text(head + yaml.safe_dump({"cooldowns": table}, sort_keys=True),
+                                     encoding="utf-8")
+        print(f"wrote {COOLDOWN_DNP_FILE}")
+    return EXIT_OK
+
+
+def _fit_one(cd, max_evals):
+    from .model import hindcast
+    from .model.target import load_params
+    return hindcast.fit_dnp(hindcast.load(cd), load_params(), max_evals=max_evals)

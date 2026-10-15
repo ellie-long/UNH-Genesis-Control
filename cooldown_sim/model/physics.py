@@ -88,7 +88,7 @@ def physical(P: float, Q: float) -> bool:
     return all(-1e-9 <= p <= 1 + 1e-9 for p in populations(P, Q))
 
 
-def dnp_lobe(delta_GHz: float, width_GHz: float) -> float:
+def dnp_lobe(delta_GHz: float, width_GHz: float, neg_scale: float = 1.0, neg_side: int = 1) -> float:
     """Normalised DNP enhancement vs microwave detuning from the positive optimum.
 
     Derivative-of-Gaussian with its positive extremum (+1) at delta = 0 and its
@@ -99,11 +99,16 @@ def dnp_lobe(delta_GHz: float, width_GHz: float) -> float:
     small POSITIVE P a few hundred MHz below the optimum (138.0 GHz at
     4.94 T: +2 % to +11 %, 2025-11 and 2026-06), never a negative lobe there.
     The negative lobe's side and the width are not resolved by the record.
+
+    Per cool-down (fitted, ``cooldown_dnp.yaml``): ``neg_side`` -1 puts the
+    negative lobe on the low-frequency side instead, and ``neg_scale`` sets its
+    depth relative to the positive lobe (materials and radicals differ).
     """
     if not math.isfinite(delta_GHz) or width_GHz <= 0:
         return 0.0
-    x = delta_GHz - width_GHz
-    return -(x / width_GHz) * math.exp(0.5 - x * x / (2.0 * width_GHz * width_GHz))
+    x = (delta_GHz if neg_side >= 0 else -delta_GHz) - width_GHz
+    g = -(x / width_GHz) * math.exp(0.5 - x * x / (2.0 * width_GHz * width_GHz))
+    return g * neg_scale if g < 0 else g
 
 
 def he4_vapor_pressure_ratio(T_ref_K: float, T_K: float, b_K: float = 10.6) -> float:

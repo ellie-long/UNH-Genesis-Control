@@ -63,10 +63,44 @@ from .fit_params import PARAMS_FILE, UCA_SAFE_V, drive, freq_factor, hist_drive,
 MAX_STEP_S = 30.0
 
 
-def load_params(path: Path = PARAMS_FILE) -> dict:
-    with open(path, encoding="utf-8") as fh:
-        return yaml.safe_load(fh)
+#: per cool-down DNP parameters (material, radical, field calibration differ)
+COOLDOWN_DNP_FILE = Path(__file__).with_name("cooldown_dnp.yaml")
+#: dnp keys a cool-down entry may override
+DNP_KEYS = ("P_max", "tau_up_s", "T1_P_s", "optimum_offset_GHz", "lobe_width_GHz",
+            "neg_scale", "neg_side")
 
+
+def cooldown_dnp(name: str | None, path: Path | None = None) -> dict | None:
+    """The fitted DNP entry for a cool-down ('2026-06' or '2026-06-Cooldown'), or None."""
+    path = path or COOLDOWN_DNP_FILE
+    if not name or not path.exists():
+        return None
+    with open(path, encoding="utf-8") as fh:
+        table = (yaml.safe_load(fh) or {}).get("cooldowns") or {}
+    for key, entry in table.items():
+        if key == name or key.split("-Cooldown")[0] == name.split("-Cooldown")[0]:
+            return entry
+    return None
+
+
+def load_params(path: Path = PARAMS_FILE, cooldown: str | None = None) -> dict:
+    """Model parameters; with ``cooldown``, its fitted DNP values replace the defaults."""
+    with open(path, encoding="utf-8") as fh:
+        p = yaml.safe_load(fh)
+    entry = cooldown_dnp(cooldown)
+    if entry:
+        p["dnp"].update({k: entry[k] for k in DNP_KEYS if k in entry})
+        p["dnp"]["source"] = f"cooldown_dnp.yaml: {cooldown}"
+    return p
+
+
+#: ASSUMED: polarization lifetime once the field is (nearly) gone, e.g. after a
+#: ramp-down -- the deuteron T1 collapses at low field; minutes, not hours
+LOW_FIELD_T1_S = 120.0
+
+#: central field per magnet supply amp, as the DAQ computed it (0.10274 T/A in
+#: every cool-down that logs both; ~48.7 A for 5.0 T)
+FIELD_T_PER_A = 0.10274113
 
 #: NMR sweep span (MHz) when neither the operator nor the record gives one
 NMR_DEFAULT_SPAN_MHZ = 0.4
@@ -141,7 +175,14 @@ class TargetModel:
         return cf, span
 
     def field_T(self, t: float) -> float:
+        """Central field (T): the record's, else from the magnet supply current.
+
+        The DAQ computed "Central Mag Field" from the supply current (exactly
+        FIELD_T_PER_A in every cool-down that logs both); 2020-21 log only the
+        current."""
         b = self.tl.value_at("central_field", t)
+        if not math.isfinite(b):
+            b = self.tl.value_at("magnet_current", t) * FIELD_T_PER_A
         return b if math.isfinite(b) and b > 0.5 else 0.0
 
     def _hist_freq(self, t: float) -> float:
@@ -228,7 +269,8 @@ class TargetModel:
         if B_T <= 0.5 or not math.isfinite(f_GHz):
             return 0.0
         delta = f_GHz - (ph.electron_larmor_GHz(B_T) + self.dnp["optimum_offset_GHz"])
-        return self.dnp["P_max"] * ph.dnp_lobe(delta, self.dnp["lobe_width_GHz"])
+        return self.dnp["P_max"] * ph.dnp_lobe(delta, self.dnp["lobe_width_GHz"],
+                                               self.dnp.get("neg_scale", 1.0), self.dnp.get("neg_side", 1))
 
     # ---------------------------------------------------------- advance
     def advance(self, t: float) -> State:
@@ -270,6 +312,8 @@ class TargetModel:
         T_lat = self.lattice_T(tm)
         # a quench destroys polarization fast (ASSUMED rate), not with the 3 h T1
         rate_off = (1.0 - s.q) / self.dnp["T1_P_s"] + s.q / qa["T1_quenched_s"]
+        if B <= 0.5:
+            rate_off = max(rate_off, 1.0 / LOW_FIELD_T1_S)
         pump = d_op / freq_factor(f_op)                 # drive without the frequency response
         if pump > 0.05 and B > 0.5 and math.isfinite(f_op) and s.q < 0.5:
             target = self.p_inf(f_op, B) * min(pump, 1.0)

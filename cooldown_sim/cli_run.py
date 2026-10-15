@@ -232,8 +232,20 @@ def build_provider(args, timeline, cmap, clock):
     if model_kind(args) != "closed-loop":
         return None
     from .model.provider import ModelProvider
+    from .model.target import load_params
     return ModelProvider(timeline, cmap, clock, t0=clock.now(), noise_rel=args.noise_rel,
-                         seed=args.seed)
+                         seed=args.seed, params=load_params(cooldown=_cooldown_name(args)))
+
+
+def _cooldown_name(args) -> str | None:
+    """Directory name of the replayed past cool-down (selects its fitted DNP values)."""
+    if getattr(args, "source", "real") != "real" or not getattr(args, "cooldown", None):
+        return None
+    try:
+        root = args.data or os.environ.get("GENESIS_REPLAY_DATA")
+        return records.resolve_cooldown(args.cooldown, Path(root) if root else None).name
+    except Exception:  # noqa: BLE001 - fall back to the default parameters
+        return None
 
 
 # ----------------------------------------------------------------------- run
