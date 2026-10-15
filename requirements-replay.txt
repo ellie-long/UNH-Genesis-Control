@@ -1,0 +1,5 @@
+# Extra packages for cooldown_sim's protected-NMR leg (online_fitter's
+# --nmr-protected mode reads the NMR switch through pyepics, which the core
+# runtime requirements do not include).
+-r requirements-dev.txt
+pyepics==3.5.7

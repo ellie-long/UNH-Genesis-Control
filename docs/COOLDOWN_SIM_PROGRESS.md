@@ -28,10 +28,25 @@ lab answers are in `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`.
 | C1 | Microwave leg: physical MW IOCs on the real Vaunix shim + simulated brick, UCA emulator, MW observer + autopilot | done |
 | C2 | ssRF leg: sim-active IOCs + simulators, blast-log burn autopilot through the real sequencer, burn heat/hole model | done |
 | D1 | Synthetic (data-free) cool-downs (seeded generator in memory, faults) | done |
-| D2 | Protected PyNMR leg (Linux) | next |
-| D3 | Scenario library, fault scenarios, after-action report | planned |
+| D2 | Protected PyNMR mode: admission/protection rehearsal (Linux) | done |
+| D3 | Scenario library, fault scenarios, after-action report | next |
 
 ## Log
+
+### 2026-10-15: Phase D2 (protected PyNMR mode)
+* `--nmr-protected` runs the unchanged fitter in protected PyNMR mode:
+  `--nmr-protected --nmr-source pynmr`, with the NMR-switch read-back from the
+  ssRF leg.
+* The simulated DAQ streams spectra to the PyNMR port.
+* Protected fitting is only possible for an armed, PINNED PyNMR producer. The
+  pin is hardcoded to `/home/utsav/jlab_pynmr` and a specific interpreter, so
+  a simulation must not, and cannot, impersonate it.
+* What is rehearsed is therefore **the protection itself**. Verified on WSL:
+  of 40 unattested spectra, 0 were fitted (`NMR_PROTECTED=1`,
+  `NMR_SOURCE_RBV=pynmr`).
+* Full protected fitting is reported KNOWN (`pynmr-producer-paths-hardcoded`).
+  Also noted: protected mode needs pyepics, which `requirements.txt` omits.
+  Added `requirements-replay.txt`.
 
 ### 2026-10-15: Phase D1 (synthetic cool-downs)
 * `--source synthetic` runs a seeded, designed day with no data files at all:
@@ -166,6 +181,9 @@ Tracked in `cooldown_sim/known_issues.yaml` and reported as KNOWN, not FAIL:
    IOC is restarted.
 7. **`archiver-stamps-processing-time`:** archive rows carry the archiver's
    processing time, not the PV timestamp. Under load this lags by seconds.
+8. **`pynmr-producer-paths-hardcoded`:** the protected-mode PyNMR producer pin
+   is hardcoded to `/home/utsav` paths, so protected fitting can arm on one
+   account only. pyepics is also missing from `requirements.txt`.
 
 Also observed:
 

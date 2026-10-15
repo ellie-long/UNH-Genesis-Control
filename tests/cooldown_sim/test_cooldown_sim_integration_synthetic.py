@@ -36,3 +36,22 @@ def test_synthetic_cooldown_needs_no_data():
     assert names["model vs record P"]["verdict"] == "PASS"
     assert names["nmr fitter vs model truth"]["verdict"] == "PASS"
     assert names["microwave RF ON requests"]["verdict"] == "PASS"
+
+
+@pytest.mark.skipif(os.name == "nt", reason="the ssRF sequencer (NMR-switch path) is POSIX-only")
+def test_protected_nmr_refuses_unattested_spectra():
+    """Protected PyNMR mode with no pinned producer must fit nothing."""
+    import importlib.util
+    if importlib.util.find_spec("epics") is None:
+        pytest.skip("pyepics not installed (requirements-replay.txt)")
+    env = {k: v for k, v in os.environ.items() if k != "GENESIS_REPLAY_DATA"}
+    proc = subprocess.run([sys.executable, "-m", "cooldown_sim", "run", "--source", "synthetic",
+                           "--start", "2000-01-01 02:00", "--duration", "15", "--speed", "60",
+                           "--legs", "cryo,ssrf,nmr", "--nmr-protected", "--scenario", "protected-test"],
+                          cwd=ROOT, env=env, capture_output=True, text=True, timeout=900)
+    assert proc.returncode == 0, proc.stdout[-4000:] + proc.stderr[-4000:]
+    runs = sorted(p for p in (ROOT / "logs" / "cooldown_sim").glob("*protected-test*")
+                  if (p / "report.json").exists())
+    names = {c["name"]: c for c in json.loads((runs[-1] / "report.json").read_text())["checks"]}
+    assert names["protected NMR admission"]["verdict"] == "PASS"
+    assert names["protected NMR end-to-end fitting"]["verdict"] == "KNOWN"

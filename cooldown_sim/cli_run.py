@@ -66,6 +66,9 @@ def add_parsers(sub) -> None:
     p.add_argument("--model", choices=["closed-loop", "replay"], default=None,
                    help="closed-loop target model (interactive default) or plain replay "
                         "(regression default)")
+    p.add_argument("--nmr-protected", action="store_true",
+                   help="run the online fitter in protected PyNMR mode (needs the ssrf leg for the "
+                        "NMR-switch read-back, and pyepics: requirements-replay.txt)")
     p.add_argument("--port-offset", type=int, default=0)
     p.add_argument("--noise-rel", type=float, default=2e-5)
     p.add_argument("--seed", type=int, default=0)
@@ -245,6 +248,14 @@ def _run(args) -> int:
     duration = args.duration if args.duration is not None else (
         60.0 if args.mode == "regression" else 24 * 60.0)
     burns = None
+    if args.nmr_protected:
+        import importlib.util
+        if "nmr" not in legs or "ssrf" not in legs:
+            print("--nmr-protected needs the nmr and ssrf legs (NMR-switch read-back)")
+            return EXIT_SETUP
+        if importlib.util.find_spec("epics") is None:
+            print("--nmr-protected needs pyepics: pip install -r requirements-replay.txt")
+            return EXIT_SETUP
     if args.source == "synthetic":
         from .synth import cooldown as synth
         faults = tuple(f.strip() for f in args.faults.split(",") if f.strip())
@@ -384,10 +395,15 @@ async def _session(args, run, stack, stacks, timeline, cmap, t0, t1, meta, ctl_f
                 return EXIT_SETUP
             print(f"[ok] {len(started)} {phase} IOC(s) up")
         if "nmr" in legs:
-            group.start("online_fitter", ["-m", "online_fitter.epics_run",
-                                          "--port", str(fitter["fit_port"]),
-                                          "--publish-port", str(fitter["publish_port"]),
-                                          "--material", "d-butanol", "--mode", "equilibrium"],
+            fitter_args = ["-m", "online_fitter.epics_run", "--port", str(fitter["fit_port"]),
+                           "--publish-port", str(fitter["publish_port"]),
+                           "--material", "d-butanol", "--mode", "equilibrium"]
+            if args.nmr_protected:
+                # the live protected path, unchanged: spectra on the PyNMR port are
+                # fitted only for an armed, pinned PyNMR producer (none exists here)
+                fitter_args += ["--nmr-protected", "--nmr-source", "pynmr",
+                                "--pynmr-port", str(fitter["pynmr_port"])]
+            group.start("online_fitter", fitter_args,
                         server_env(fitter["ca"], fitter["pva"], ca_ports, stacks), role="fitter")
             missing = await _wait_connected(["UNH:GEN:SSRF:FIT:FITTER_UP"], 60.0)
             if missing:
@@ -424,7 +440,8 @@ async def _session(args, run, stack, stacks, timeline, cmap, t0, t1, meta, ctl_f
             from .nmr.feeder import NMRFeeder
             from .nmr.source import NMRSource
             source = NMRSource(engine.provider.model, timeline, seed=args.seed)
-            feeder = NMRFeeder(source, clock, fitter["fit_port"], run.path / "nmr.csv",
+            feed_port = fitter["pynmr_port"] if args.nmr_protected else fitter["fit_port"]
+            feeder = NMRFeeder(source, clock, feed_port, run.path / "nmr.csv",
                                provider=engine.provider, events=engine.events).start()
         if any(s.leg == "cryo" and s.ioc == "archiver" for s in stack.iocs):
             await ca.caput("UNH:GEN:CRYO:ARCH:Archive_Enable", 1)
@@ -500,6 +517,7 @@ async def _session(args, run, stack, stacks, timeline, cmap, t0, t1, meta, ctl_f
                        "ssrf_skipped": ssrf_skipped} if "ssrf" in legs else {}),
                    "mw_rf_on_refused": mw_leg.refusals if mw_leg else None,
                    "nmr_sweeps": feeder.sent if feeder else 0,
+                   "nmr_protected": bool(args.nmr_protected),
                    "nmr_errors": feeder.errors if feeder else 0}
         engine.stop()
         (run.sub("state") / "runtime.json").write_text(json.dumps(runtime, indent=2), encoding="utf-8")

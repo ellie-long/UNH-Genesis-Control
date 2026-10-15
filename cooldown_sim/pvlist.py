@@ -39,6 +39,10 @@ FITTER_PVS = ("FITTER_UP", "PUBLISHER_CONNECTED", "CALIBRATED", "UPDATE_BUSY", "
               "P_AREA", "P_FIT", "Q_EQ", "Q_FIT", "R", "PHASE_DEG", "RED_CHISQ", "CC", "SCALE")
 
 
+PROTECTED_PVS = ("NMR_PROTECTED", "NMR_SOURCE_RBV", "NMR_MASK_RBV", "NMR_ROUTE_OK",
+                 "NMR_STREAM_OK", "NMR_EVENT_READY", "NMR_FIT_ELIGIBLE", "NMR_STATUS")
+
+
 def archiver_explicit_pvs(root: Path = REPO_ROOT) -> list[str]:
     path = root / "configs/target_physical/archiver/settings.yaml"
     with open(path, encoding="utf-8") as fh:
@@ -75,6 +79,8 @@ def for_stack(stack: GeneratedStack, root: Path = REPO_ROOT, legs: set | None = 
     pvs: set[str] = set()
     if legs and "nmr" in legs:
         pvs.update(f"{FITTER_PREFIX}:{n}" for n in FITTER_PVS)
+        if "ssrf" in legs:      # protected-mode status (served in every mode)
+            pvs.update(f"{FITTER_PREFIX}:{n}" for n in PROTECTED_PVS)
     stack_legs = {s.leg for s in stack.iocs}
     is_posix = (os.name != "nt") if posix is None else posix
     if "mw" in stack_legs:

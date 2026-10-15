@@ -191,9 +191,8 @@ such as AFP, anneals or burns not in the blast log.
 | Cryo, target model, Sim Control, NMR (LabVIEW-protocol path), Phoebus | yes | yes |
 | ssRF devices, simulators, interlock | yes | yes |
 | ssRF sequencer + burn replay | skipped (POSIX-only imports) | yes |
-| protected PyNMR path | skipped | planned |
+| protected PyNMR mode (`--nmr-protected`, needs `requirements-replay.txt`) | skipped | yes: rehearses that unattested spectra are refused |
 | Microwave leg (physical MW IOCs, real shim on a simulated brick) | yes | yes |
 
-Not built yet: the
-protected-PyNMR leg, and the scripted fault scenarios with after-action reports. Open questions about the channel mapping
+Not built yet: the scripted fault scenarios with after-action reports. Open questions about the channel mapping
 are in `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`.

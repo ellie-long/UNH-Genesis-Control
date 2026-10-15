@@ -35,6 +35,37 @@ def model_vs_record(df, timeline, synthetic: bool) -> Check | None:
                  "(the record includes operator actions the model does not see)")
 
 
+def protected_checks(df, run: Path) -> list[Check]:
+    """Protected PyNMR mode: spectra arriving on the PyNMR port without an
+    armed, pinned PyNMR producer must never be fitted."""
+    from . import loaders
+    fitted = pd.to_numeric(df["P_fit"], errors="coerce").notna().sum()
+    probe = loaders.probe(run)
+    p = probe[probe["connected"] == 1]
+
+    def last(pv):
+        s = p[p["pv"] == f"UNH:GEN:SSRF:FIT:{pv}"]["value"]
+        return s.iloc[-1] if len(s) else "?"
+    detail = [f"NMR_PROTECTED={last('NMR_PROTECTED')}", f"NMR_SOURCE_RBV={last('NMR_SOURCE_RBV')}",
+              f"NMR_ROUTE_OK={last('NMR_ROUTE_OK')}", f"NMR_FIT_ELIGIBLE={last('NMR_FIT_ELIGIBLE')}",
+              f"NMR_STATUS={last('NMR_STATUS')}"]
+    out = []
+    if fitted:
+        out.append(Check("protected NMR admission", "FAIL",
+                         f"{fitted} of {len(df)} unattested spectra were FITTED in protected mode",
+                         detail))
+    else:
+        out.append(Check("protected NMR admission", "PASS",
+                         f"protected mode fitted none of {len(df)} unattested spectra on the "
+                         "PyNMR port (no armed, pinned PyNMR producer)", detail))
+    out.append(Check("protected NMR end-to-end fitting", "KNOWN",
+                     "fitting in protected mode needs the real PyNMR as a pinned producer; the "
+                     "pin is hardcoded to /home/utsav paths (known issue "
+                     "pynmr-producer-paths-hardcoded), so it cannot be rehearsed elsewhere",
+                     data={"issue": "pynmr-producer-paths-hardcoded"}))
+    return out
+
+
 def checks(run: Path, runtime: dict, timeline=None, synthetic: bool = False) -> list[Check]:
     path = Path(run) / "nmr.csv"
     if not path.exists():
@@ -48,6 +79,8 @@ def checks(run: Path, runtime: dict, timeline=None, synthetic: bool = False) -> 
     verdict = "PASS" if errors <= max(2, 0.01 * sent) else "FAIL"
     out.append(Check("nmr feeder", verdict, f"{sent} sweeps exchanged with the online fitter, "
                                             f"{errors} exchange error(s)"))
+    if runtime.get("nmr_protected"):
+        return out + protected_checks(df, run)
     for col in ("P_fit", "P_area", "true_P", "Q_fit", "true_Q"):
         df[col] = pd.to_numeric(df[col], errors="coerce")
     # sweeps right after a baseline change are excluded (and a baseline taken

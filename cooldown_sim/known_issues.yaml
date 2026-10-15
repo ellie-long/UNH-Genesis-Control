@@ -75,3 +75,14 @@ ssrf-safe-off-lockup:
     serious part: it should not depend on a connect permit.
   where: [logic_devices/ssrf_sequencer.py, logic_devices/ssrf_manual_rf.py, logic_devices/ssrf_sequence_plan.py]
   match: {ssrf_outcome: [CLEANUP_FAILED]}
+
+pynmr-producer-paths-hardcoded:
+  summary: >-
+    online_fitter/pynmr_producer_session.py pins the protected-mode PyNMR
+    producer to EXPECTED_CWD /home/utsav/jlab_pynmr and EXPECTED_EXE
+    /home/utsav/miniforge3/envs/pynmr/bin/python. Protected fitting can only
+    ever arm on that one account and layout; on any other host (production
+    included) it silently never fits. The paths belong in configuration.
+    (Protected mode also imports pyepics, which requirements.txt omits.)
+  where: [online_fitter/pynmr_producer_session.py, requirements.txt]
+  match: {protected_nmr: true}
