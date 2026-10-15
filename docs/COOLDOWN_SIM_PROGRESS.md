@@ -55,14 +55,25 @@ lab answers are in `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`.
 * **Finding (model): microwave drive is built on the wrong column.** See open
   question 9. Not fixed yet: it needs the UCA curve, then a re-fit
   (`fit-params`).
-* **Finding (live system): the cold-board interlock watches the wrong
-  sensor.** `logic_devices/limits_unh.yaml` trips at 4.5 K on `F1_TI`. While
-  polarizing, F1 reads about 100-280 K and F11 about 1.0-2.6 K (2024-12,
-  2025-07, 2025-12, 2026-06). So F11 is the cold sensor, and with enforcement
-  on, the F1 rule latches at once. The file's comment cites a `pid_coldboard`
-  that exists nowhere in `configs/`. Since the cold board is varactor bias,
-  not a regulated heater, the rule's premise needs review too. Live fix, not
-  made here.
+* **Finding (live system): no protection against over-flooding the fridge.**
+  Ells: F1 reaching 4.5 K means the fridge is over-flooded and liquid helium,
+  not gas, may go into the Roots pumps. (While polarizing F1 normally reads
+  about 100-280 K; F11, about 1.0-2.6 K, is the cold sensor.) In Genesis:
+  * the interlock rule on `F1_TI` uses the right number (4.5 K) the wrong
+    way round. `judge_band` trips only when a value is >= the limit, so it
+    would trip on every normal F1 reading and latch at once with enforcement
+    on, and never on an actual over-flood. The interlock has no low-trip
+    rule at all;
+  * the rule acts on the cold board, which has nothing to do with flooding
+    (and `pid_coldboard`, cited in the file's comment, exists nowhere in
+    `configs/`);
+  * F1's own alarm limits (`ls224_fridge`: LOW 0.05 K, LOLO 0 K) never fire
+    on an over-flood either;
+  * Genesis has no fill-valve actuator, so the realistic protection is an
+    operator alarm: F1_TI LOW/LOLO near 5 K / 4.5 K (values Ells's call), and
+    F1 taken out of the cold-board rule.
+
+  Live fix, not made here.
 * New private folders `ref_technotes/` and `ref_equipment/` (Ells's reference
   material). Each has its own `.gitignore` of `*`, and both are in the
   repository's `.git/info/exclude`, so they can never be committed or pushed.
@@ -323,10 +334,12 @@ Tracked in `cooldown_sim/known_issues.yaml` and reported as KNOWN, not FAIL:
 
 Also observed:
 
-* The shipped placeholder interlock limits treat F1 as a cold sensor
-  (trip at ≥ 4.5 K). In the record F1 sits at about 100-300 K even while
-  polarizing, so with enforcement on the cold-board interlock would latch
-  permanently. F11 is the cold sensor (about 1.0-2.6 K while polarizing).
+* The shipped placeholder interlock trips the cold board when F1 ≥ 4.5 K.
+  The 4.5 K is right but the direction is wrong: F1 at or below 4.5 K means
+  the fridge is over-flooded and liquid helium may reach the Roots pumps
+  (Ells). F1 normally sits at about 100-300 K, so with enforcement on the
+  rule latches permanently, and nothing in Genesis (interlock or F1's alarm
+  limits) catches an over-flood. See the 2026-10-15 log entry.
 * OVC (ColdCathode) and UCA voltage have no recorded data since 2025-11.
 * With enforcement on, the safety interlock's only actuator is
   `COLDBOARD:Coldboard_Mode`. The coldboard IOC is `write_enabled: false`, so
