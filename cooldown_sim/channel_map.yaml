@@ -406,7 +406,7 @@ record_only:
   - instrument: Microwave power monitor (SIG output of the microwave chain)
     columns: [sig_v]
     used_by: nothing
-    note: "Ells 2026-10-15: measures microwave power; LOWER voltage = MORE power. Calibration to come. Not in EPICS. A possible drive measure for the model (open question 9); in the record it does not obviously track the UCA column, which was not the real UCA for years"
+    note: "Ells 2026-10-15: measures reflected microwave power; LOWER (more negative) voltage = MORE power. Not in EPICS: a dedicated voltage-reading device is on order, so not this week. Calibration to come. Also a candidate check for an unplugged UCA cable (open question 27); in the record it does not obviously track the UCA column, which was not the real UCA for years"
   - instrument: Cold-cathode gauge (older back-up to the IONIVAC on the shells' vacuum)
     columns: [cold_cathode]
     used_by: "still feeds tpg262.OVC until the vacuum rework (wrong: that gauge is the bottom Roots manometer)"
@@ -418,11 +418,27 @@ record_only:
   - instrument: Helium level meters (fridge, magnet)
     columns: [fridge_he_level, magnet_lhe_level]
     used_by: "history inputs only"
-    note: "Two AMI level meters. Ells 2026-10-15: needed on the Genesis DAQ soon (no IOC yet)"
+    note: "Two AMI level meters (fridge, magnet). Ells 2026-10-15: needed on the Genesis DAQ soon (no IOC yet); priority 2 after the magnet supply"
   - instrument: Magnet power supply
     columns: [ps_current, magnet_current, central_field]
     used_by: "central field = the model's B (DNP optimum, NMR line)"
-    note: "\"PS Current\" is the magnet supply, not the cold board"
+    note: "Oxford IPS supply; no Genesis IOC. Ells 2026-10-15: HIGHEST priority of the missing instruments (no magnet, no cool-down). \"PS Current\" is the magnet supply, not the cold board"
+  - instrument: Lab thermocouples (backing pumps L/R, separator heater)
+    columns: [backing_pump_l_temp, backing_pump_r_temp, sep_heater_temp]
+    used_by: nothing
+    note: "No Genesis IOC. Ells 2026-10-15: low priority (backing pumps should stay below 70 C)"
+  - instrument: Microwave sweep / hop settings (LabVIEW)
+    columns: [mw_freq_set2, mw_sweep_span, mw_sweep_time]
+    used_by: nothing
+    note: "LabVIEW could FM-sweep or hop between the main and a second frequency. Not logged whether either was ON; span is always 0 and the time always 1 s with RF on, so probably unused. Genesis has a supervised one-pass stepped software sweep (SUP:Sweep*); the Vaunix IOC exposes hardware repeat/triangle sweep settings but deliberately does not authorize starting one; nothing in Genesis hops. CHECK: were Sweep or Hop ever used for DNP?"
+  - instrument: EPR coil waveform generator (Agilent 33220A)
+    columns: [epr_freq, epr_amplitude]
+    used_by: nothing
+    note: "No Genesis IOC. Ells 2026-10-15: extremely low priority (EPR only, not planned soon)"
+  - instrument: Lock-in amplifier (SRS, EPR)
+    columns: [lockin_ch1, lockin_ch2]
+    used_by: nothing
+    note: "No Genesis IOC (other settings columns not listed). Ells 2026-10-15: extremely low priority (EPR only)"
   - instrument: Reliquefier PLC
     columns: []
     used_by: nothing

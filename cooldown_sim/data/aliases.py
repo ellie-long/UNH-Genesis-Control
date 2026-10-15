@@ -57,6 +57,18 @@ CHANNELS: dict[str, tuple[str, ...]] = {
     "mw_freq_set1": ("mmWave Freq Setting 1 (GHz)",),
     "uca_v": ("UCA (V)", "UCA Voltage (V)"),
     "sig_v": ("SIG (V)",),
+    "mw_freq_set2": ("mmWave Freq Setting 2 (GHz)",),
+    "mw_sweep_span": ("mmWaves Span (GHz)",),
+    "mw_sweep_time": ("Sweep/Hop Time (s)",),
+    # lab thermocouples
+    "backing_pump_l_temp": ("Backing Pump L Temp (C)", "Backing Pump Temp (C)"),
+    "backing_pump_r_temp": ("Backing Pump R Temp (C)",),
+    "sep_heater_temp": ("SepHeater Temp (C)",),
+    # EPR (coil waveform generator, lock-in)
+    "epr_freq": ("EPR Freq (Hz)",),
+    "epr_amplitude": ("EPR Amplitude (V)",),
+    "lockin_ch1": ("Ch 1",),
+    "lockin_ch2": ("Ch 2",),
     # ssRF / holeburning
     "hb_freq_mhz": ("Holeburning Frequency (MHz)", "Holeburn Freq (MHz)"),
     "hb_power_dbm": ("Holeburning Power (dBm)",),

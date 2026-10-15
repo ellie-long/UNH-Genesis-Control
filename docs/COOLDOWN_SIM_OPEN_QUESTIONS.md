@@ -23,6 +23,9 @@ named in each item. Numbers are stable: answered items move to *Settled*.
 - [ ] 9. SIG's calibration (reflected power); roughly when the manual supply
       replaced the analog-output drive. (UCA curve: settled, see below.)
 - [ ] 10. (Parked) ssRF heat vs power at the coil.
+- [ ] 28. Were LabVIEW's microwave Sweep (FM between two frequencies) or Hop
+      ever used for DNP? The record has no on/off flag; span is always 0 and
+      the time always 1 s. Genesis has only a one-pass stepped sweep.
 
 **Target physics**
 - [ ] 5. Does Q lag Q_B(P) as P rebuilds after a quench or anneal?

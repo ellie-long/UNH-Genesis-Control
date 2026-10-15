@@ -45,6 +45,18 @@ lab answers are in `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`.
 
 ## Log
 
+### 2026-10-15: Record instruments Genesis lacks
+* Listed every record column with no Genesis IOC. Added to the channel map's
+  "In the past record, not in Genesis": lab thermocouples, microwave
+  sweep/hop settings, EPR waveform generator, lock-in (new aliases in
+  `data/aliases.py`). Priorities from Ells: magnet supply, then AMI level
+  meters; SIG readout waits for a voltage-reading device on order;
+  thermocouples low; EPR generator and lock-in extremely low.
+* Genesis microwave sweeping: the supervisor has a one-pass stepped software
+  sweep; the Vaunix IOC exposes hardware repeat/triangle sweep settings but
+  does not authorize starting one; no hop. Whether LabVIEW's Sweep/Hop were
+  ever used is question 28.
+
 ### 2026-10-15: UCA power curve; drive fix started
 * Vendor test data for the current microwave chain (after its 2025-10
   repair) give the UCA curve and output vs frequency (question 9). The
