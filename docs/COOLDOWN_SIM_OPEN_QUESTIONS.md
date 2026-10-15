@@ -14,8 +14,13 @@ named in each item. Numbers are stable: answered items move to *Settled*.
       manometer?
 - [ ] 13. Manometer-Lo: the XCG gauge's full-scale range.
 - [ ] 14. Serial gateway at 192.168.1.251: make and model (possibly a Pi).
-- [ ] 15. T2 (target cup): is it wired to a Lake Shore input at all? T1 and
-      T3 are on the magnet Lake Shore (C2, C4).
+- [ ] 15. Which target stick is in use now? Genesis's magnet calibration
+      file (T1 on C2, T3 on C4) matches stick 2, which has no T2; stick 1 had
+      T2 on C4 and T3 on C3. Is stick 3 (T3 on C3) real?
+- [ ] 29. Add T1/T3 to Genesis (live change)? Needs Cernox (CCX) Chebyshev
+      support in `target_ioc/instruments/ls224.py`, the stick's coefficients
+      in `calibration/magnet_thermometry.csv`, and the channels in the
+      `ls224_magnet` config. T1 is the target (lattice) temperature.
 - [ ] 12. (Optional) cold-board voltage to Q-curve tune: MHz per volt, or
       the tune at 0 V and 19 V.
 
@@ -149,7 +154,9 @@ named in each item. Numbers are stable: answered items move to *Settled*.
 14. **Serial gateway.** The box at 192.168.1.251 carrying the four RS-232
     instruments (TCP ports 5004/5005/5007/5011). Ells thinks it may be a
     Raspberry Pi; it is neither the `keysight` Pi nor `mmWaveRobot.local`.
-15. **T2.** No Genesis config or calibration file lists T2. Is it wired?
+15. **Target stick and T2.** Thermometer names carry the stick version in
+    the lab's calibration list (1-T#, 2-T#). Genesis's calibration file
+    matches stick 2 (T1 C2, T3 C4, no T2).
 12. **Cold-board tune.** Higher cold-board voltage moves the Q-curve's tune
     to higher frequency. With MHz per volt the sim's NMR source could move
     the Q-curve, and rehearse retuning without a fresh baseline.
@@ -174,6 +181,10 @@ named in each item. Numbers are stable: answered items move to *Settled*.
     varactors at 0-19 V. Keep a rule, change it, or drop it?
 
 ## Settled
+
+* Thermometer types (Ells, 2026-10-15): CCS = ceramic carbon sensor, CCCS =
+  calibrated CCS, CCX = calibrated Cernox. The lab has Cernox calibrations
+  for the target thermometers of each stick version (question 29).
 
 * UCA power curve (question 9; Ells, 2026-10-15): vendor test data for the
   chain after its 2025-10 repair give output vs UCA voltage at 138/140/142 GHz

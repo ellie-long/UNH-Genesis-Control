@@ -45,6 +45,13 @@ lab answers are in `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`.
 
 ## Log
 
+### 2026-10-15: Target thermometer calibrations
+* The lab has Cernox (CCX) calibrations for the target thermometers of each
+  target-stick version (Ells). Genesis's Lake Shore driver supports only the
+  CCS/CCCS equations and treats CCX rows as placeholders, so T1/T3 cannot be
+  read yet (question 29). Genesis's calibration file matches stick 2 (no T2);
+  which stick is in use is question 15.
+
 ### 2026-10-15: Record instruments Genesis lacks
 * Listed every record column with no Genesis IOC. Added to the channel map's
   "In the past record, not in Genesis": lab thermocouples, microwave
