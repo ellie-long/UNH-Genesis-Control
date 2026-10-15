@@ -45,6 +45,22 @@ lab answers are in `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`.
 
 ## Log
 
+### 2026-10-15: Panopticon checked against the 2026-06-17 23:00 screenshot
+* Built on `dev-visualizer`; replay values match the screenshot (see the
+  changelog). Flags from that work, for the sim:
+  * **Online fitter at 600x:** P_FIT/Q_FIT stuck at 0 (fits running, chi2
+    frozen) for hours of sim time, after swinging -62..+36 %; fine at 10x.
+    To investigate (sweep pacing or a fitter state problem at high speed).
+  * **UCA at 23:00:** the sim shows 0 V (logbook timeline: power on since
+    14:57); the LabVIEW screenshot shows "5.0" in the DAQ's UCA box, but that
+    control was not the real UCA then (manual supply), and P was 50 %, so the
+    sim is right. "RF permissive: Blocked" with RF ON is Genesis's meaning:
+    permission to turn RF ON needs the UCA at 5 V.
+  * Target material reads "Empty" and the dopant "UNCONFIGURED": the sim
+    could set Genesis's `CRYO:STATE:material` / `MW:SUP:Dopant` from the
+    replayed cool-down's material (to do).
+  * `OVC_PI` (bottom Roots manometer) NaN: the vacuum rework (question 20).
+
 ### 2026-10-15: NMR window on Sim Control; drive fix merged; first live demo
 * Sim Control: **NMR centre** and **NMR span** inputs (MHz; 0 = follow the
   record) and readbacks of the window in use; the window logic moved into

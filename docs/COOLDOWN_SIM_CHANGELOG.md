@@ -7,6 +7,14 @@ findings are in `COOLDOWN_SIM_PROGRESS.md`; questions for the lab are in
 
 ## 2026-10-15
 
+* Branch `dev-visualizer` (`128271f`, `4eb198a`; worktree
+  `../UNH-Genesis-Control-dev-visualizer`): **Panopticon** overview screen
+  (`gui/genesis_panopticon.bob`, generator `tools/make_panopticon.py`,
+  `python -m cooldown_sim phoebus --screens panopticon`), modelled on the
+  LabVIEW overview. 73 live PVs, 31 "not in Genesis yet" placeholders.
+  Replayed to 2026-06-17 23:00 it matches the LabVIEW screenshot within the
+  record's own noise (F, T, M thermometry, IONIVAC, manometer Hi, Roots,
+  microwaves, fringe field, P/Q). Not merged into dev-sim.
 * `ac09735` **ssRF burn effect calibrated** to the 2026-06 blast logs against
   the record's P: a resonant burn removes 0.12 x (1 - exp(-0.14 x scale x s))
   of P (and that fraction of Q), scale = 10^((dBm+5)/10) -- e.g. ~7 % of P for
