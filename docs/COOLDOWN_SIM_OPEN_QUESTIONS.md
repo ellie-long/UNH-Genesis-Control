@@ -46,9 +46,15 @@ named in each item. Numbers are stable: answered items move to *Settled*.
       F1 interlock rules).
 
 **Sim decisions**
-- [ ] 19. Microwave-drive fix: IN PROGRESS (vendor UCA curve for the current
-      chain; history = full power; replay autopilot lowers the UCA after RF
-      ON, as an operator does; re-fit).
+- [ ] 31. Review the logbook UCA timeline's 18 ambiguous entries. They are
+      listed, with the logbook text, in the private file
+      `ref_technotes/uca_logbook_review.md` (section "Ambiguous - needs
+      Ells"). Examples: 2026-06-16 21:01-21:27 (record says RF off, logbook has
+      the UCA at 3.66 then 2.9 V and P rises); 2024-08 (record never shows RF
+      ON); partial settings during alignment/EPR tests.
+- [ ] 32. The 62 mW microwave heat (2024-12-17 UCA toggles): the first toggle
+      shows ~0.85 slm of extra Roots flow, the later 4-6 min toggles only
+      0.22-0.51 slm. Was the boil-off still settling, or is 62 mW high?
 - [ ] 20. Go ahead with the vacuum rework under 3 once the interlock gauge is
       chosen (IONIVAC as the shells' vacuum, cold-cathode history as
       fallback)?
@@ -186,6 +192,10 @@ named in each item. Numbers are stable: answered items move to *Settled*.
     varactors at 0-19 V. Keep a rule, change it, or drop it?
 
 ## Settled
+
+* Microwave drive (question 19): done. History UCA from the logbooks; live
+  UCA from the SPD1305X through the vendor curve; replay follows the
+  procedure; re-fit at logbook UCA steps (see the changelog).
 
 * T1/T3 in Genesis (question 29; Ells chose dev-sim, 2026-10-15): the LS224
   driver now evaluates Cernox (CCX) Chebyshev curves; the magnet calibration
