@@ -303,6 +303,16 @@ equipment:
     map: history hb_freq, hb_power; blast_log burns
     sim: tools/sim_smc100a.py
     confidence: medium
+  - genesis: (not instrumented)
+    equipment: Mini-Circuits LZY-22+ RF power amplifier
+    role: "Amplifies the SMC100A output for the ssRF / AFP coil (Ells 2026-10-15)"
+    link: in the RF line, SMC100A -> amplifier -> coil
+    prefix: "-"
+    control: none (not in EPICS)
+    map: "-"
+    sim: "not modelled: ssRF burn heat is the measured 140 mW at -5 dBm (logbook 2024-12-18)"
+    confidence: high
+    note: "Datasheet: ~43.8 dB gain at 30-50 MHz, P1dB ~+43 dBm, ~30 W saturated, 24 V / 5.5 A. CHECK: with ~44 dB of gain, a -5 dBm generator setting should put watts into the line, far more than the 140 mW of heat measured (open question 10)"
   - genesis: ssrf_keysight_wavegen
     equipment: Keysight DSOX3024T oscilloscope WaveGen (s/n MY57252012)
     role: External-FM waveform for the SMC100A

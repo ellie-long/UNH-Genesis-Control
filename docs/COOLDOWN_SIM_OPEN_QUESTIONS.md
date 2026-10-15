@@ -37,6 +37,24 @@ treated as authoritative. Answers go into `cooldown_sim/channel_map.yaml`
    at all, given the multiplier chain? When the UCA was not recorded
    (2025-11 on), was it normally at 0 V while polarizing?
 
+## ssRF power (come back to later)
+
+10. **ssRF heat vs power at the coil.** The ssRF line has a Mini-Circuits
+    LZY-22+ amplifier (~44 dB gain, P1dB ~+43 dBm), so a generator setting of
+    -5 dBm should deliver watts to the coil, well below compression. The sim's
+    burn heat is the measured 140 mW at -5 dBm (2.25 slm boil-off, logbook
+    2024-12-18), roughly an order of magnitude less. Which is it:
+    * most of the RF power is dissipated warm (cables, reflection) and never
+      reaches the helium;
+    * the burn was short against the ~15 s Roots-flow response, so the
+      boil-off caught only part of it;
+    * the line was different in December 2024?
+
+    The measured heat stays right for boil-off and temperatures. The power at
+    the coil (B1) is what should set the hole-burning rate, which the sim
+    currently assumes. Ells has the details in a private lab note; keep them
+    out of this repository.
+
 ## Target model (currently **assumed**)
 
 5. **Q during a spin-up from zero.** After a quench or anneal, does the
