@@ -90,6 +90,7 @@ cooldowns:
     uca_source: logbook
     entries:
       - {t: "2024-09-17 11:50", uca_V: 0.0, basis: inferred, note: "microwaves on to polarize"}
+      - {t: "2024-09-18 07:27", uca_V: 5.0, basis: inferred, note: "chain not responding to the DAQ (noted 08:16)"}
       - {t: "2024-09-18 09:06", uca_V: 2.5, basis: stated, note: "test outside the DAQ (record RF off)"}
       - {t: "2024-09-18 09:11", uca_V: 5.0, basis: stated, note: "record RF off"}
       - {t: "2024-09-18 09:39", uca_V: 0.0, basis: inferred, note: "SIG check, then polarizing; level during the check not stated"}
