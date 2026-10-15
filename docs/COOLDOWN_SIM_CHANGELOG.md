@@ -7,6 +7,13 @@ findings are in `COOLDOWN_SIM_PROGRESS.md`; questions for the lab are in
 
 ## 2026-10-15
 
+* `ac09735` **ssRF burn effect calibrated** to the 2026-06 blast logs against
+  the record's P: a resonant burn removes 0.12 x (1 - exp(-0.14 x scale x s))
+  of P (and that fraction of Q), scale = 10^((dBm+5)/10) -- e.g. ~7 % of P for
+  a 1 s +3 dBm burn (was ~2.7 %). The hindcast now applies the logged burns
+  through the same function as the sim's ssRF leg. 2026-06 hindcast: MAE
+  5.66 -> 4.77 pp, median 2.55 -> 2.14, bias ~0. Scenario library: 11/11 PASS
+  in WSL (before this change).
 * `15d4f3c` **Trityl d-propanediol** (2020-09; 2020-12 until 12-09): its own
   phenomenological DNP values (narrow line: P-up below f/B ~ 28.034, P-down
   above), read off the trityl scan in Spin-1-Rates-Fit. Hindcast: 2020-09
