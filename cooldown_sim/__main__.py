@@ -20,6 +20,7 @@ _COMMAND_MODULES = (
     "cooldown_sim.cli_guard",
     "cooldown_sim.cli_data",
     "cooldown_sim.cli_run",
+    "cooldown_sim.phoebus",
 )
 
 

@@ -61,6 +61,11 @@ class SimEngine:
             provider.served = self.served
         self.host = EmulatorHost(stack, self.provider, cmap, timeline, supply_initial)
         self.events = EventLog(run.path / "events.csv")
+        #: session facts shown on Sim Control (mode, source, window, scenario)
+        self.info: dict = {}
+        self.last_event = ""
+        self.autopilot = {"mw": False, "ssrf": False, "fit": False}
+        self.stop_requested = threading.Event()
 
     # ----------------------------------------------------------- lifecycle
     def start(self) -> None:
@@ -99,6 +104,75 @@ class SimEngine:
     def set_fault(self, instrument: str, mode: str) -> None:
         self.host.set_fault(instrument, mode)
         self.events.write(self.clock.now(), "fault", f"{instrument} {mode}")
+        self.last_event = f"fault {instrument} {mode}"
 
     def note(self, text: str) -> None:
         self.events.write(self.clock.now(), "note", text)
+        self.last_event = f"note: {text[:60]}"
+
+    # -------------------------------------------------------- control channel
+    def status(self) -> dict:
+        now = self.clock.now()
+        truth = {}
+        if hasattr(self.provider, "truth"):
+            try:
+                truth = self.provider.truth(now)
+            except Exception:      # noqa: BLE001 - status must always answer
+                truth = {}
+        return {
+            "sim_time": now, "sim_local": format_epoch(now), "running": self.clock.running,
+            "speed": self.clock.speed, **self.info,
+            "record_start": format_epoch(self.timeline.start), "record_end": format_epoch(self.timeline.end),
+            "faults": {n: h.emulator.fault.get() for n, h in self.host.hosted.items()},
+            "autopilot": dict(self.autopilot), "truth": truth, "last_event": self.last_event,
+            "stop_requested": self.stop_requested.is_set(),
+        }
+
+    def handle(self, request: dict) -> dict:
+        """Dispatch one control-channel request (see cooldown_sim/control.py)."""
+        cmd = request.get("cmd")
+        if cmd == "status":
+            pass
+        elif cmd == "play":
+            self.play()
+            self.last_event = "play"
+        elif cmd == "pause":
+            self.pause()
+            self.last_event = "pause"
+        elif cmd == "speed":
+            self.set_speed(float(request["value"]))
+            self.last_event = f"speed {float(request['value']):g}x"
+        elif cmd == "seek":
+            self.seek(float(request["value"]))
+            self.last_event = f"seek {format_epoch(float(request['value']))}"
+        elif cmd == "jump":
+            target = self.clock.now() + 60.0 * float(request["minutes"])
+            self.seek(target)
+            self.last_event = f"jump {float(request['minutes']):+g} min"
+        elif cmd == "fault":
+            self.set_fault(request["instrument"], request["mode"])
+        elif cmd == "autopilot":
+            leg, on = request["leg"], bool(request["on"])
+            if leg not in self.autopilot:
+                raise ValueError(f"unknown autopilot leg {leg!r}")
+            self.autopilot[leg] = on
+            self.events.write(self.clock.now(), "autopilot", f"{leg} {'on' if on else 'off'}")
+            self.last_event = f"autopilot {leg} {'on' if on else 'off'}"
+        elif cmd == "note":
+            self.note(str(request.get("text", "")))
+        elif cmd == "mark":
+            self.events.write(self.clock.now(), "mark", str(request.get("text", "")))
+            self.last_event = "mark"
+        elif cmd == "model":
+            if not hasattr(self.provider, "set_input"):
+                raise ValueError("this session has no target model")
+            self.provider.set_input(request["key"], request["value"])
+            self.events.write(self.clock.now(), "model", f"{request['key']} = {request['value']}")
+            self.last_event = f"model {request['key']} = {request['value']}"
+        elif cmd == "stop":
+            self.stop_requested.set()
+            self.events.write(self.clock.now(), "session", "end requested")
+            self.last_event = "session end requested"
+        else:
+            raise ValueError(f"unknown command {cmd!r}")
+        return {"ok": True, "status": self.status()}
