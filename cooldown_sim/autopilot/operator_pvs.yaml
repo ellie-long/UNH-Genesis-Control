@@ -17,13 +17,28 @@ allow:
   - UNH:GEN:SSRF:FIT:MODE_CMD
   - UNH:GEN:SSRF:FIT:UPDATE_CONSTANTS_CMD
   # microwave supervisor (operator-level commands)
-  - UNH:GEN:MW:SUP:*_CMD
   - UNH:GEN:MW:SUP:OutputFrequency
   - UNH:GEN:MW:SUP:RFEnable
-  # ssRF sequencer (operator-level commands and recipe parameters)
-  - UNH:GEN:SSRF:SEQ:*_CMD
-  - UNH:GEN:SSRF:SEQ:*_SP
-  - UNH:GEN:SSRF:FIT:WAVEFORM_STAGE_REQ
+  - UNH:GEN:MW:SUP:RFAbort
+  # Vaunix output power: set by the operator on the Vaunix screen (exact entry,
+  # overrides the MW:SRC deny below; RF and frequency stay supervisor-only)
+  - UNH:GEN:MW:SRC:MW_PWRC
+  # ssRF sequencer: the adaptive-burn recipe, waveform staging, PREPARE/ARM/START.
+  # Manual RF/FM commands are an operator commissioning path, not burn replay.
+  # ABORT/DISARM are excluded: in the current code their safe-off cleanup locks
+  # the sequencer (known issue ssrf-safe-off-lockup).
+  - UNH:GEN:SSRF:SEQ:CARRIER_MHZ
+  - UNH:GEN:SSRF:SEQ:START_LEVEL_DBM
+  - UNH:GEN:SSRF:SEQ:TARGET_LEVEL_DBM
+  - UNH:GEN:SSRF:SEQ:FM_DEV_KHZ
+  - UNH:GEN:SSRF:SEQ:FM_PERIOD_S
+  - UNH:GEN:SSRF:SEQ:FM_REPEATS
+  - UNH:GEN:SSRF:SEQ:VHIGH_V
+  - UNH:GEN:SSRF:SEQ:VLOW_V
+  - UNH:GEN:SSRF:SEQ:WAVEFORM_STAGE_REQ
+  - UNH:GEN:SSRF:SEQ:PREPARE_CMD
+  - UNH:GEN:SSRF:SEQ:ARM_CMD
+  - UNH:GEN:SSRF:SEQ:START_CMD
 
 # Explicitly refused even if a pattern above would match (belt and braces).
 deny:

@@ -33,7 +33,7 @@ log = logging.getLogger("cooldown_sim")
 
 DEVICE_START_TIMEOUT_S = 45.0
 LOGIC_START_TIMEOUT_S = 45.0
-LEGS_AVAILABLE = {"cryo", "nmr"}
+LEGS_AVAILABLE = {"cryo", "nmr", "mw", "ssrf"}
 #: equilibrium sweeps the fitter autopilot waits for before Update Constants
 FIT_AUTOPILOT_SWEEPS = 40
 #: legs that are not IOC stacks in stacks.yaml (launched by the session itself)
@@ -147,8 +147,44 @@ def _route_native_stderr(path: Path) -> None:
 
 
 def _settings_port(spec) -> int:
+    """The (generated, offset) endpoint port of an emulated/simulated instrument."""
     with open(Path(spec.folder) / "settings.yaml", encoding="utf-8") as fh:
-        return yaml.safe_load(fh)[spec.ioc]["port"]
+        block = yaml.safe_load(fh)[spec.ioc]
+    if "resource" in block:                      # TCPIP0::127.0.0.1::<port>::SOCKET
+        return int(str(block["resource"]).split("::")[2])
+    return int(block["port"])
+
+
+def simulator_command(spec) -> list[str]:
+    sim, port = spec.simulator, str(_settings_port(spec))
+    if "module" in sim:
+        return ["-m", sim["module"], "--port", port]
+    return [sim["tool"], "--host", "127.0.0.1", "--port", port]
+
+
+async def _wait_ports(ports: list[int], timeout: float) -> list[int]:
+    import socket
+    deadline = time.time() + timeout
+    pending = list(ports)
+    while pending and time.time() < deadline:
+        still = []
+        for p in pending:
+            try:
+                socket.create_connection(("127.0.0.1", p), timeout=0.5).close()
+            except OSError:
+                still.append(p)
+        pending = still
+        if pending:
+            await asyncio.sleep(0.3)
+    return pending
+
+
+#: start-up state of emulated supplies (out-of-band, as if set before the window)
+SUPPLY_INITIAL = {
+    # the operator brings the UCA to 5 V before any microwave work
+    # (docs/MICROWAVE_RF_OPERATION.md); the replay starts from there
+    "mw_spd1305x": {"voltage": 5.0, "current": 0.1, "output": True, "load_ohms": 1.0e4},
+}
 
 
 def controller_profile(run_path: Path, stacks: dict, offset: int) -> tuple[Path, dict]:
@@ -171,8 +207,9 @@ def model_kind(args) -> str:
     if args.model:
         return args.model
     legs = {x.strip() for x in args.legs.split(",")}
-    # the live NMR source needs the target model's P and Q
-    return "closed-loop" if args.mode == "interactive" or "nmr" in legs else "replay"
+    # the live NMR source needs the target model's P and Q; the microwave leg
+    # exists to drive it
+    return "closed-loop" if args.mode == "interactive" or legs & {"nmr", "mw", "ssrf"} else "replay"
 
 
 def build_provider(args, timeline, cmap, clock):
@@ -224,7 +261,7 @@ def _run(args) -> int:
     save_stack(stack)
     ctl_folder, ctl = controller_profile(run.path, stacks, args.port_offset)
     needed = {s.ca for s in stack.iocs} | {s.pva for s in stack.iocs}
-    needed |= {int(_settings_port(s)) for s in stack.iocs if s.emulator}
+    needed |= {int(_settings_port(s)) for s in stack.iocs if s.emulator or s.simulator}
     needed |= {ctl["ca"], ctl["pva"], ctl["control_port"]}
     fitter = {k: int(v) + args.port_offset for k, v in stacks["legs"]["nmr"]["fitter"].items()}
     if "nmr" in legs:
@@ -248,11 +285,11 @@ def _run(args) -> int:
     print(f"run directory: {run.path}")
     _route_native_stderr(run.sub("logs") / "runner.log")
     return asyncio.run(_session(args, run, stack, stacks, timeline, cmap, t0, t1, meta,
-                                ctl_folder, ctl, set(legs), fitter))
+                                ctl_folder, ctl, set(legs), fitter, cd))
 
 
 async def _session(args, run, stack, stacks, timeline, cmap, t0, t1, meta, ctl_folder, ctl,
-                   legs, fitter) -> int:
+                   legs, fitter, cooldown_dir=None) -> int:
     from .__main__ import EXIT_FAIL, EXIT_OK, EXIT_SETUP
     from .control import ControlServer
     from .engine import SimEngine
@@ -261,11 +298,16 @@ async def _session(args, run, stack, stacks, timeline, cmap, t0, t1, meta, ctl_f
     interactive = args.mode == "interactive"
     clock = SimClock(t0, args.speed, running=False)
     engine = SimEngine(run, stack, timeline, cmap, clock, noise_rel=args.noise_rel, seed=args.seed,
-                       provider=build_provider(args, timeline, cmap, clock))
+                       provider=build_provider(args, timeline, cmap, clock),
+                       supply_initial=SUPPLY_INITIAL)
     if args.autopilot is not None:
         start_on = {x.strip() for x in args.autopilot.split(",") if x.strip()}
     else:
-        start_on = {"fit"} if (not interactive and "nmr" in legs) else set()
+        start_on = set()
+        if not interactive:
+            start_on |= {"fit"} if "nmr" in legs else set()
+            start_on |= {"mw"} if "mw" in legs else set()
+            start_on |= {"ssrf"} if "ssrf" in legs else set()
     for leg in start_on & set(engine.autopilot):
         engine.autopilot[leg] = True
     engine.info.update({"mode": f"{args.mode} ({model_kind(args)})", "scenario": args.scenario,
@@ -283,9 +325,26 @@ async def _session(args, run, stack, stacks, timeline, cmap, t0, t1, meta, ctl_f
     deaths: list[str] = []
     probe = None
     feeder = None
+    mw_leg = None
+    ssrf_leg = None
+    ssrf_skipped = ""
+    leg_stop = asyncio.Event()
+    leg_tasks = []
     interrupted = False
     try:
         engine.start()
+        sims = [s for s in stack.iocs if s.simulator and not (s.posix_only and IS_WINDOWS)]
+        for s in sims:
+            group.start(f"sim_{s.name}", simulator_command(s),
+                        server_env(0, 0, ca_ports, stacks), role="simulator")
+        missing_ports = await _wait_ports([_settings_port(s) for s in sims], 30.0)
+        if missing_ports:
+            print(f"[FAIL] simulators not listening on {missing_ports}")
+            for s in sims:
+                print(_tail(run.sub("logs") / f"sim_{s.name}.log"))
+            return EXIT_SETUP
+        if sims:
+            print(f"[ok] {len(sims)} instrument simulator(s) up")
         devices = [s for s in stack.iocs if s.emulator or s.simulator]
         logic_iocs = [s for s in stack.iocs if not (s.emulator or s.simulator)]
         for phase, specs, timeout in (("device", devices, DEVICE_START_TIMEOUT_S),
@@ -328,13 +387,27 @@ async def _session(args, run, stack, stacks, timeline, cmap, t0, t1, meta, ctl_f
 
         probe = Probe(pvlist.for_stack(stack, legs=legs), run.path / "probe.csv")
         probe.start()
+        ca = RestrictedCA(engine.events, clock)
+        if "mw" in legs:
+            from .autopilot.mw import MicrowaveLeg
+            mw_leg = MicrowaveLeg(engine, ca)
+            mw_leg.start()
+            leg_tasks.append(asyncio.create_task(mw_leg.run(leg_stop)))
+        if "ssrf" in legs:
+            if IS_WINDOWS:
+                ssrf_skipped = ("the ssRF sequencer imports fcntl/pwd and cannot run on native "
+                                "Windows; burn replay needs Linux/WSL")
+            else:
+                from .autopilot.ssrf import SSRFLeg
+                ssrf_leg = SSRFLeg(engine, ca, cooldown_dir)
+                ssrf_leg.start()
+                leg_tasks.append(asyncio.create_task(ssrf_leg.run(leg_stop)))
         if "nmr" in legs:
             from .nmr.feeder import NMRFeeder
             from .nmr.source import NMRSource
             source = NMRSource(engine.provider.model, timeline, seed=args.seed)
             feeder = NMRFeeder(source, clock, fitter["fit_port"], run.path / "nmr.csv",
                                provider=engine.provider, events=engine.events).start()
-        ca = RestrictedCA(engine.events, clock)
         if any(s.leg == "cryo" and s.ioc == "archiver" for s in stack.iocs):
             await ca.caput("UNH:GEN:CRYO:ARCH:Archive_Enable", 1)
         await asyncio.sleep(3.0)                     # first polls at the start time
@@ -385,6 +458,16 @@ async def _session(args, run, stack, stacks, timeline, cmap, t0, t1, meta, ctl_f
         print("\n[interrupted] stopping the session")
     finally:
         never = probe.never_connected() if probe else []
+        leg_stop.set()
+        for task in leg_tasks:
+            try:
+                await asyncio.wait_for(task, timeout=15)
+            except (asyncio.TimeoutError, asyncio.CancelledError, Exception):  # noqa: BLE001
+                task.cancel()
+        if mw_leg is not None:
+            mw_leg.stop()
+        if ssrf_leg is not None:
+            ssrf_leg.stop()
         if feeder is not None:
             feeder.stop()
         if probe:
@@ -394,6 +477,10 @@ async def _session(args, run, stack, stacks, timeline, cmap, t0, t1, meta, ctl_f
         runtime = {"deaths": deaths, "skipped": skipped, "never_connected": never,
                    "read_only_violations": engine.host.read_only_violations(),
                    "clamps": engine.host.clamp_counts(), "interrupted": interrupted,
+                   "mw_rf_on_accepted": mw_leg.accepted if mw_leg else None,
+                   **({"ssrf_burns": ssrf_leg.results if ssrf_leg else [],
+                       "ssrf_skipped": ssrf_skipped} if "ssrf" in legs else {}),
+                   "mw_rf_on_refused": mw_leg.refusals if mw_leg else None,
                    "nmr_sweeps": feeder.sent if feeder else 0,
                    "nmr_errors": feeder.errors if feeder else 0}
         engine.stop()
@@ -482,7 +569,11 @@ def _validate(args) -> int:
     src = manifest.get("source", {})
     timeline = None
     if src.get("kind") == "real":
-        timeline, _cd = load_timeline(src["cooldown"], None, src["t0"], src["t1"], channel_map.load())
+        cooldown = src["cooldown"]
+        if not Path(cooldown).is_dir():           # recorded on another OS/mount: find it by name
+            cooldown = Path(cooldown.replace("\\", "/")).name
+        timeline, _cd = load_timeline(cooldown, os.environ.get(DATA_ENV), src["t0"], src["t1"],
+                                      channel_map.load())
     verdict, md, _html, _checks = run_all(run, stack, runtime=runtime, timeline=timeline,
                                           t0=src.get("t0"), t1=src.get("t1"),
                                           meta=manifest.get("meta", {}))

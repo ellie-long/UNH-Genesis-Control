@@ -146,7 +146,9 @@ with `python -m cooldown_sim fit-params`.
 | P∞ = 49.8 %, τ_up = 2450 s, T1_P = 11 600 s | Spin-1-Rates-Fit (Dec 2025 d-butanol) |
 | Q follows Q_B(P) = 2 − √(4 − 3P²), heals in 4 min | **assumed**; keeps TE-start spin-ups on the Boltzmann curve |
 | DNP lobe width / negative lobe | **assumed**; the record shows only small positive P below the optimum |
-| Microwave thermal response of the cup | **assumed** (0.4 K per unit drive); the record does not constrain it |
+| Microwave heat 62 mW at full drive | **measured**: logbook 2024-12-17, Roots-flow differential |
+| Boil-off 59.5 mW/slm | Keith (PSTP 2024); Spin-1-Rates-Fit dec15 thermal audit |
+| Cup (T1/T2/T3) ~10 K/W; bath ~2 K/W | cup partly fitted (T3); bath **assumed** |
 | Magnet thermometers M2-M4 | fitted from 13 isolated microwave transitions |
 | Coldboard heat, quench | **assumed**, for exercising interlocks |
 | NMR line, noise, drift | ported from the McClellan test-cooldown generator (real 2026-06 amplitudes) |
@@ -173,10 +175,12 @@ such as AFP, anneals or burns not in the blast log.
 | Leg | Windows | Linux/WSL |
 |---|---|---|
 | Cryo, target model, Sim Control, NMR (LabVIEW-protocol path), Phoebus | yes | yes |
-| ssRF sequencer / burns, protected PyNMR path | skipped (POSIX-only imports) | planned |
-| Microwave leg (UCA emulator + MW IOCs) | planned | planned |
+| ssRF devices, simulators, interlock | yes | yes |
+| ssRF sequencer + burn replay | skipped (POSIX-only imports) | yes |
+| protected PyNMR path | skipped | planned |
+| Microwave leg (physical MW IOCs, real shim on a simulated brick) | yes | yes |
 
-Not built yet: the microwave and ssRF legs with their autopilots, the
+Not built yet: the
 protected-PyNMR leg, synthetic (data-free) cool-downs, and the scripted fault
 scenarios with after-action reports. Open questions about the channel mapping
 are in `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`.

@@ -40,3 +40,38 @@ comm-flag-tracks-gateway:
     stops advancing.  Operators watching COMM alone will miss it.
   where: [genesis_common/scpi_base.py, genesis_common/base_device.py]
   match: {fault_modes: [silent, garbage, nak], pv_suffix: COMM}
+
+archiver-stamps-processing-time:
+  summary: >-
+    logic_devices/archiver.py stamps each CSV row with datetime.now() when its
+    monitor callback task runs, not with the PV's own EPICS timestamp. Under
+    load the row can be seconds late (observed ~4 s on a slow filesystem), and
+    changes that happened seconds apart can appear milliseconds apart in the
+    archive. Fine for trends; misleading for timing analysis (e.g. ordering
+    an interlock trip against the reading that caused it).
+  where: [logic_devices/archiver.py]
+  match: {informational: true}
+
+ssrf-interlock-permits-withheld:
+  summary: >-
+    logic_devices/ssrf_interlock.py evaluate_interlock never grants
+    NMR_CONNECT_PERMIT, SSRF_CONNECT_PERMIT or RF_ENABLE_PERMIT (best state
+    NMR_LIVE, "ssRF RF inhibited pending RF-isolation validation"; deliberate
+    since commit 0051c98, 2026-10-12, asserted by tests/test_ssrf_interlock.py).
+    Every BURN ONCE stops at require_ssrf_connect_permit after configuring the
+    SMC100A/WaveGen and loading the waveform; RF never turns on.
+  where: [logic_devices/ssrf_interlock.py, logic_devices/ssrf_sequence_plan.py]
+  match: {ssrf_outcome: [CLEANUP_FAILED, FAILED]}
+
+ssrf-safe-off-lockup:
+  summary: >-
+    The burn cleanup and the ABORT / DISARM / RF_OFF / MANUAL_DISARM safe-off
+    path all require NMR_CONNECT_PERMIT, which the interlock never grants, so
+    they end in CLEANUP_FAILED. After a failed BURN cleanup the sequencer
+    returns to IDLE and can be re-armed (observed in replay). After a failed
+    MANUAL safe-off (ABORT/DISARM/RF_OFF) MANUAL_STATE stays CLEANUP_FAILED:
+    the sequencer reports MANUAL_OPERATION, refuses ARM/START/PREPARE/staging,
+    and only an IOC restart clears it. A safe-off that cannot complete is the
+    serious part: it should not depend on a connect permit.
+  where: [logic_devices/ssrf_sequencer.py, logic_devices/ssrf_manual_rf.py, logic_devices/ssrf_sequence_plan.py]
+  match: {ssrf_outcome: [CLEANUP_FAILED]}

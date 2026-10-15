@@ -77,3 +77,30 @@ def test_cryo_and_nmr_regression_calibrates_and_matches_truth():
     assert names["nmr fitter vs model truth"]["data"]["median_abs_pp"] < 1.0
     events = (run / "events.csv").read_text()
     assert "UPDATE_CONSTANTS_CMD <- 1" in events
+
+
+def test_microwave_autopilot_drives_the_physical_rf_chain():
+    """At 10:41 on 2026-06-17 the record turns the microwaves on; the autopilot
+    must get RF ON through the unchanged physical supervisor and Vaunix IOC
+    (real shim code on a simulated brick)."""
+    proc = _run("run", "--cooldown", "2026-06", "--start", "2026-06-17 10:35",
+                "--duration", "15", "--speed", "60", "--legs", "cryo,mw")
+    assert proc.returncode == 0, proc.stdout[-4000:] + proc.stderr[-4000:]
+    report, run = _latest_report()
+    names = {c["name"]: c for c in report["checks"]}
+    assert names["microwave RF ON requests"]["verdict"] == "PASS", names["microwave RF ON requests"]
+    events = (run / "events.csv").read_text()
+    assert "RF ON observed" in events
+
+
+@pytest.mark.skipif(os.name == "nt", reason="the ssRF sequencer is POSIX-only (fcntl/pwd imports)")
+def test_ssrf_burn_replay_through_the_real_sequencer():
+    """Logged burns of 2026-06-17 ~09:21 are replayed through the unchanged
+    sequencer; with today's interlock they must stop at the connect permit."""
+    proc = _run("run", "--cooldown", "2026-06", "--start", "2026-06-17 09:19",
+                "--duration", "5", "--speed", "10", "--legs", "cryo,ssrf")
+    assert proc.returncode == 0, proc.stdout[-4000:] + proc.stderr[-4000:]
+    report, run = _latest_report()
+    names = {c["name"]: c for c in report["checks"]}
+    assert names["ssrf burn replay"]["verdict"] == "KNOWN", names["ssrf burn replay"]
+    assert "ssrf-burn" in (run / "events.csv").read_text()

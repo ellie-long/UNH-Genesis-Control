@@ -33,6 +33,8 @@ TOLERANCE = {
 
 #: how far back (wall s) a probe sample may look for the served value
 WINDOW_S = 8.0
+#: how late an archiver row may be stamped relative to the PV change it records
+ARCHIVE_LAG_S = 10.0
 MIN_MATCH_FRACTION = 0.99
 
 
@@ -114,8 +116,17 @@ def archive(run: Path, expected_pvs: list[str]) -> list[Check]:
         a = loaders.archive_series(paths)
         pw, pv_str, pnum = p["wall"].to_numpy(), p["value"].to_numpy(), p["num"].to_numpy()
         bad = []
+        unverifiable = 0
         for wall, val, num in zip(a["wall"], a["value"], a["num"]):
-            lo, hi = np.searchsorted(pw, wall - 3.0), np.searchsorted(pw, wall + 3.0)
+            # the archiver may record a value before the probe has subscribed;
+            # if it changed before the probe's first sample, nothing can check it
+            if len(pw) and wall < pw[0] - 3.0 and not any(s == val for s in pv_str[:1]):
+                unverifiable += 1
+                continue
+            # the live archiver stamps rows with its own processing time
+            # (datetime.now() in a callback task), which can lag the PV change
+            # by seconds under load (known issue archiver-stamps-processing-time)
+            lo, hi = np.searchsorted(pw, wall - ARCHIVE_LAG_S), np.searchsorted(pw, wall + 3.0)
             # also the value the PV held at that moment: the last update at or
             # before it, or -- if the archiver subscribed before the probe did --
             # the first value the probe saw (a monitor's initial value is the
@@ -132,8 +143,10 @@ def archive(run: Path, expected_pvs: list[str]) -> list[Check]:
             elif not ok:
                 bad.append("")
         n_bad = len(bad)
+        n_checked = len(a) - unverifiable
+        note = f" ({unverifiable} recorded before the probe subscribed)" if unverifiable else ""
         checks.append(Check(f"archive {pv}", "PASS" if n_bad == 0 else "FAIL",
-                            f"{len(a) - n_bad}/{len(a)} archived rows match the PV",
+                            f"{n_checked - n_bad}/{n_checked} archived rows match the PV{note}",
                             [b for b in bad if b]))
     checks.insert(0, Check("archive coverage", "INFO",
                            f"{archived_pvs} of {len(expected_pvs)} expected PVs archived"))

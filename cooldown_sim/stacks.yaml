@@ -42,20 +42,23 @@ legs:
       ssrf_sequencer:        {ca: 6135, pva: 6235, posix_only: true}
 
   mw:
-    manager: configs/commissioning/microwave_sim/ioc_manager/settings.yaml
+    # The PHYSICAL Microwave profile: the microwave_sim supervisor fakes every
+    # safety readback internally, so it cannot exercise the real RF chain.
+    # Here the unchanged physical supervisor, Vaunix IOC and UCA IOC run; the
+    # Vaunix IOC talks to the REAL Raspberry-Pi shim code on loopback with a
+    # simulated vendor library (cooldown_sim/emulators/vaunix_brick.py), and
+    # the UCA supply is the SCPI emulator.
+    manager: configs/commissioning/microwave_physical/ioc_manager/settings.yaml
     iocs:
-      mw_vaunix_lms: {ca: 6141, pva: 6241}     # simulation: true -> LocalSimulationConnection
-      mw_supervisor: {ca: 6142, pva: 6242}     # simulation: true
-      mw_pcl602:     {ca: 6143, pva: 6243}     # simulation: true
-    # The UCA supply has no sim variant; rf_safety needs its readbacks to
-    # permit RF ON.  Borrow the PHYSICAL spd1305x IOC, pointed at a loopback
-    # emulator.  Its write_enabled/initialize flags are carried unchanged.
+      mw_spd1305x:   {ca: 6140, pva: 6240, emulator: {kind: scpi_supply, port: 16026, model: SPD1305X}}
+      mw_vaunix_lms: {ca: 6141, pva: 6241, simulator: {module: cooldown_sim.emulators.vaunix_brick, port: 16030}}
+      mw_supervisor: {ca: 6142, pva: 6242}
     borrowed:
-      mw_spd1305x:
-        manager: configs/commissioning/microwave_physical/ioc_manager/settings.yaml
-        ca: 6140
-        pva: 6240
-        emulator: {kind: scpi_supply, port: 16026, model: SPD1305X}
+      # robot motion is not part of the rehearsal: the robot sim profile
+      mw_pcl602:
+        manager: configs/commissioning/microwave_sim/ioc_manager/settings.yaml
+        ca: 6143
+        pva: 6243
 
   nmr:
     # online_fitter.epics_run (not a master_ioc IOC).
@@ -75,7 +78,8 @@ epics:
 # launched above nor listed here.
 excluded:
   configs/commissioning/microwave_physical/ioc_manager/settings.yaml:
-    mw_vaunix_lms: physical Vaunix; the microwave_sim variant is launched instead
-    mw_supervisor: physical supervisor; the microwave_sim variant is launched instead
-    mw_pcl602: physical robot; the microwave_sim variant is launched instead
+    mw_pcl602: physical robot; the microwave_sim robot is launched instead
     archiver: Microwave CSV archiver; cooldown_sim.probe records all MW PVs
+  configs/commissioning/microwave_sim/ioc_manager/settings.yaml:
+    mw_vaunix_lms: sim Vaunix; the physical IOC runs against the real shim on a simulated brick
+    mw_supervisor: sim supervisor fakes its safety readbacks; the physical supervisor is launched

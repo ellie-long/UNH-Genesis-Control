@@ -236,8 +236,9 @@ _HOSTISH_KEYS = ("ip", "host", "ssh_host", "resource", "url", "address_list")
 def non_loopback_endpoints(settings: dict, path: str = "") -> list[str]:
     """Every non-loopback IPv4 or host-like value in a generated profile.
 
-    Exempt: ``shim.ssh_host`` when the device runs ``simulation: true`` with
-    ``shim.start_with_ioc: false`` (the Vaunix shim is never contacted then).
+    Exempt: a ``shim`` block with ``start_with_ioc: false`` -- the IOC never
+    SSHes to that host to start the shim; it only connects to ``ip``/``port``,
+    which are rewritten to loopback.
     """
     found: list[str] = []
 
@@ -246,8 +247,7 @@ def non_loopback_endpoints(settings: dict, path: str = "") -> list[str]:
             sim = node.get("simulation") is True
             for k, v in node.items():
                 child_ctx = ctx | ({"simulation"} if sim else set())
-                if k == "shim" and isinstance(v, dict) and "simulation" in child_ctx \
-                        and v.get("start_with_ioc") is False:
+                if k == "shim" and isinstance(v, dict) and v.get("start_with_ioc") is False:
                     continue
                 walk(v, f"{where}.{k}" if where else str(k), child_ctx)
                 if isinstance(v, str) and k in _HOSTISH_KEYS and v not in (LOOPBACK, "None") \

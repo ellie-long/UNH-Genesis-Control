@@ -22,6 +22,9 @@ class OperatorAllowlist:
         self.deny = list(data.get("deny", []))
 
     def permits(self, pv: str) -> bool:
+        # an exact (non-wildcard) allow entry is a deliberate, reviewed exception
+        if pv in self.allow:
+            return True
         if any(fnmatch.fnmatchcase(pv, pat) for pat in self.deny):
             return False
         return any(fnmatch.fnmatchcase(pv, pat) for pat in self.allow)

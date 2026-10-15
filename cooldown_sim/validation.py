@@ -9,7 +9,7 @@ from pathlib import Path
 from . import channel_map as cmap_mod
 from .profile import GeneratedStack, LaunchSpec, Rewrite
 from .pvlist import archiver_explicit_pvs
-from .validate import Check, logic, mapcheck, nmr, report, roundtrip
+from .validate import Check, logic, mapcheck, mw, nmr, report, roundtrip, ssrf
 
 
 def save_stack(stack: GeneratedStack) -> Path:
@@ -24,6 +24,8 @@ def load_stack(run: Path) -> GeneratedStack:
     data = json.loads((Path(run) / "state" / "stack.json").read_text(encoding="utf-8"))
     stack = GeneratedStack(Path(run))
     stack.iocs = [LaunchSpec(**s) for s in data["iocs"]]
+    for spec in stack.iocs:                      # portable across OS/mounts: rebuild from the run dir
+        spec.folder = str(Path(run) / "profiles" / spec.leg / spec.name)
     stack.overrides = [Rewrite(**r) for r in data.get("overrides", [])]
     return stack
 
@@ -45,6 +47,8 @@ def run_all(run: Path, stack: GeneratedStack, *, runtime: dict, timeline=None,
         checks.append(Check(f"leg {name}", "SKIPPED", reason))
     checks += roundtrip.device_channels(stack, run)
     checks += nmr.checks(run, runtime)
+    checks += mw.checks(run, runtime)
+    checks += ssrf.checks(run, runtime)
     if "cryo" in legs:
         checks += logic.cryo_safety(run)
         checks += roundtrip.archive(run, archiver_explicit_pvs())

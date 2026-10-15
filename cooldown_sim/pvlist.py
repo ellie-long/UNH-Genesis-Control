@@ -8,6 +8,7 @@ operator-visible state.
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
 import yaml
@@ -44,14 +45,51 @@ def archiver_explicit_pvs(root: Path = REPO_ROOT) -> list[str]:
         return list(yaml.safe_load(fh)["archiver"].get("explicit_pvs", []))
 
 
-def for_stack(stack: GeneratedStack, root: Path = REPO_ROOT, legs: set | None = None) -> list[str]:
+#: Microwave read-backs (physical supervisor, Vaunix IOC, UCA IOC)
+MW_PVS = {
+    "UNH:GEN:MW:SUP": ("RFEnable", "RFState", "RFActual", "RFValid", "RFPermissive",
+                       "InterlockMessage", "OutputFrequency", "OutputFrequencyRBV", "UCAVoltage",
+                       "ControlOwned", "SystemConnected", "UCAConnected", "VaunixConnected",
+                       "LastError"),
+    "UNH:GEN:MW:SRC": ("MW_Connected", "MW_RF_RBV", "MW_RF_VALID", "MW_RF_STATE", "MW_RF_READY",
+                       "MW_RF_ERROR", "MW_OutFI", "MW_FI", "MW_PWRI", "MW_PWRC", "MW_Lock",
+                       "MW_CONTROL_OWNED", "MW_TestMode", "MW_Simulation"),
+    "UNH:GEN:MW:PS": ("COMM", "ERROR", "VMEAS", "IMEAS", "VSET_RBV", "OUTPUT_RBV"),
+}
+
+
+#: ssRF read-backs (sim-active IOCs; the sequencer exists only on POSIX)
+SSRF_PVS = {
+    "UNH:GEN:SSRF:GEN": ("COMM", "RF_RBV", "LEVEL_RBV", "FREQ_RBV", "FM_RBV", "SWEEP_ARM_RBV"),
+    "UNH:GEN:SSRF:WGEN": ("COMM", "OUTPUT_RBV", "WAVEFORM_ID", "WAVEFORM_POINTS", "LAST_EVENT"),
+    "UNH:GEN:SSRF:NMR_SW": ("COMM", "MASK_RBV"),
+    "UNH:GEN:SSRF:RF_SW": ("COMM", "MASK_RBV"),
+    "UNH:GEN:SSRF:ILK": ("STATE", "REASON"),
+}
+SSRF_SEQ_PVS = ("READY", "STATE", "REASON", "EXECUTION_ARMED", "EXECUTION_STATE", "EXECUTION_REASON",
+                "WAVEFORM_STAGE_STATE", "WAVEFORM_STAGE_ID", "MANUAL_STATE")
+
+
+def for_stack(stack: GeneratedStack, root: Path = REPO_ROOT, legs: set | None = None,
+              posix: bool | None = None) -> list[str]:
     pvs: set[str] = set()
     if legs and "nmr" in legs:
         pvs.update(f"{FITTER_PREFIX}:{n}" for n in FITTER_PVS)
     stack_legs = {s.leg for s in stack.iocs}
+    is_posix = (os.name != "nt") if posix is None else posix
+    if "mw" in stack_legs:
+        for prefix, names in MW_PVS.items():
+            pvs.update(f"{prefix}:{n}" for n in names)
+    if "ssrf" in stack_legs:
+        for prefix, names in SSRF_PVS.items():
+            pvs.update(f"{prefix}:{n}" for n in names)
+        if is_posix:
+            pvs.update(f"UNH:GEN:SSRF:SEQ:{n}" for n in SSRF_SEQ_PVS)
     for spec in stack.iocs:
+        if spec.posix_only and not is_posix:
+            continue                              # not launched on this platform
         pvs.add(f"{spec.prefix}:MAN:{spec.ioc}_time")
-        if spec.emulator or spec.simulator:
+        if spec.leg == "cryo" and (spec.emulator or spec.simulator):
             pvs.update(f"{spec.prefix}:{h}" for h in HEALTH)
     if "cryo" in stack_legs:
         pvs.update(archiver_explicit_pvs(root))

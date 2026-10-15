@@ -41,7 +41,8 @@ def client_env(ca_ports: list[int], stacks: dict, base: dict | None = None) -> d
 
 def server_env(ca: int, pva: int, ca_ports: list[int], stacks: dict,
                base: dict | None = None) -> dict:
-    """Environment for one replay IOC (server and, for logic IOCs, client)."""
+    """Environment for one replay IOC (server and, for logic IOCs, client).
+    ``ca``/``pva`` of 0 means the process serves no EPICS (a simulator)."""
     env = client_env(ca_ports, stacks, base)
     env.update({
         "EPICS_CAS_SERVER_PORT": str(ca),
