@@ -149,6 +149,7 @@ class TargetModel:
         self.tl = timeline
         self.cooldown = cooldown          # past cool-down replayed (selects the material)
         self._spin1: dict = {}            # material -> spin1.Spin1 (None: not available)
+        self._dnp_by_material: dict = {}  # material -> phenomenological DNP values
         self.p = params or load_params(cooldown=cooldown)
         self.dnp = self.p["dnp"]
         self.assumed = self.p["assumed"]
@@ -179,7 +180,8 @@ class TargetModel:
             return None
         name = self.material(t)
         if name not in self._spin1:
-            ok = spin1.available() and name in spin1.load_table()["materials"]
+            spec = spin1.load_table()["materials"].get(name) or {}
+            ok = spin1.available() and "rates" in spec
             self._spin1[name] = spin1.Spin1(name) if ok else None
         return self._spin1[name]
 
@@ -289,12 +291,22 @@ class TargetModel:
         with self._lock:
             bisect.insort(self.burns, (float(t), float(dP), float(dQ)))
 
-    def p_inf(self, f_GHz: float, B_T: float) -> float:
+    def dnp_at(self, t: float) -> dict:
+        """Phenomenological DNP values at t: the material's own block if it has one
+        (spin1_materials.yaml), else the defaults / this cool-down's fitted values."""
+        name = self.material(t)
+        if name not in self._dnp_by_material:
+            spec = (spin1.load_table().get("materials") or {}).get(name) or {}
+            self._dnp_by_material[name] = {**self.dnp, **(spec.get("phenomenological") or {})}
+        return self._dnp_by_material[name]
+
+    def p_inf(self, f_GHz: float, B_T: float, dnp: dict | None = None) -> float:
+        dnp = dnp or self.dnp
         if B_T <= 0.5 or not math.isfinite(f_GHz):
             return 0.0
-        delta = f_GHz - (ph.electron_larmor_GHz(B_T) + self.dnp["optimum_offset_GHz"])
-        return self.dnp["P_max"] * ph.dnp_lobe(delta, self.dnp["lobe_width_GHz"],
-                                               self.dnp.get("neg_scale", 1.0), self.dnp.get("neg_side", 1))
+        delta = f_GHz - (ph.electron_larmor_GHz(B_T) + dnp["optimum_offset_GHz"])
+        return dnp["P_max"] * ph.dnp_lobe(delta, dnp["lobe_width_GHz"],
+                                          dnp.get("neg_scale", 1.0), dnp.get("neg_side", 1))
 
     # ---------------------------------------------------------- advance
     def advance(self, t: float) -> State:
@@ -335,7 +347,8 @@ class TargetModel:
         B = self.field_T(tm)
         T_lat = self.lattice_T(tm)
         # a quench destroys polarization fast (ASSUMED rate), not with the 3 h T1
-        rate_off = (1.0 - s.q) / self.dnp["T1_P_s"] + s.q / qa["T1_quenched_s"]
+        dnp = self.dnp_at(tm)
+        rate_off = (1.0 - s.q) / dnp["T1_P_s"] + s.q / qa["T1_quenched_s"]
         if B <= 0.5:
             rate_off = max(rate_off, 1.0 / LOW_FIELD_T1_S)
         pump = d_op / freq_factor(f_op)                 # drive without the frequency response
@@ -354,11 +367,11 @@ class TargetModel:
         else:
             s.Pe = float("nan")
             if pump > 0.05 and B > 0.5 and math.isfinite(f_op) and s.q < 0.5:
-                target = self.p_inf(f_op, B) * min(pump, 1.0)
-                s.P = relax(s.P, target, self.dnp["tau_up_s"])
+                target = self.p_inf(f_op, B, dnp) * min(pump, 1.0)
+                s.P = relax(s.P, target, dnp["tau_up_s"])
             else:
                 s.P = relax(s.P, ph.te_polarization(B, T_lat)[0] if B > 0.5 else 0.0, 1.0 / rate_off)
-            s.Q = relax(s.Q, ph.q_boltzmann(s.P), self.dnp["Q_heal_tau_s"])
+            s.Q = relax(s.Q, ph.q_boltzmann(s.P), dnp["Q_heal_tau_s"])
         while self.burns and self.burns[0][0] <= s.t + dt:
             _tb, dP, dQ = self.burns.pop(0)
             s.P, s.Q, clamped = ph.project_physical(s.P + dP, s.Q + dQ)

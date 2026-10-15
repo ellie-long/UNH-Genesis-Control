@@ -78,3 +78,12 @@ def test_target_model_uses_the_rate_equations_for_a_known_material():
     assert math.isfinite(m.state.Pe) and m.state.P > 0.05
     synth = TargetModel(record(p_pct=0.0), 60.0, load_params())
     assert synth.spin1_engine(600.0) is None                       # synthetic: phenomenological
+
+
+def test_material_without_rates_uses_its_phenomenological_values():
+    m = TargetModel(record(p_pct=0.0), 60.0, load_params(), cooldown="2020-09")
+    assert m.material(600.0) == "trityl_d_propanediol"
+    assert m.spin1_engine(600.0) is None                           # no fitted rates for trityl
+    d = m.dnp_at(600.0)
+    assert d["P_max"] == pytest.approx(0.25) and d["lobe_width_GHz"] == pytest.approx(0.04)
+    assert m.dnp["P_max"] != d["P_max"]                             # defaults untouched
