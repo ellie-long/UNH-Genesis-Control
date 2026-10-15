@@ -1,0 +1,24 @@
+description: Operator runs the microwaves by hand through Genesis on the real 2026-06 record (spin-1 rate model) -- RF ON at UCA 5 V, UCA to 0 V, P builds; UCA back to 5 V, P holds; frequency moved to the P-down side, P falls
+source: real
+cooldown: 2026-06
+start: "2026-06-17 10:30"
+duration_min: 100
+speed: 30
+legs: [cryo, mw, nmr]
+deviates_from_record: true
+autopilot: []
+# 138.40 GHz at 4.939 T = 28.022 GHz/T (the irradiated d-butanol optimum);
+# 138.69 GHz = 28.081 GHz/T (the P-down, alpha side of the measured lineshape)
+actions:
+  - {at: 1, do: caput, pv: "UNH:GEN:MW:SUP:OutputFrequency", value: 138.40}
+  - {at: 1.5, do: caput, pv: "UNH:GEN:MW:SUP:RFEnable", value: 1}
+  - {at: 3, do: caput, pv: "UNH:GEN:MW:PS:VSET_CMD", value: 0.0}
+  - {at: 45, do: caput, pv: "UNH:GEN:MW:PS:VSET_CMD", value: 5.0}
+  - {at: 55, do: caput, pv: "UNH:GEN:MW:SUP:OutputFrequency", value: 138.69}
+  - {at: 56, do: caput, pv: "UNH:GEN:MW:PS:VSET_CMD", value: 0.0}
+expect:
+  - {label: "UCA at 5 V: no pumping yet", truth: true_P, from: 2, to: 2.9, op: lt, value: 3}
+  - {label: "full power at the optimum: P builds", truth: true_P, from: 40, to: 45, op: gt, value: 25}
+  - {label: "UCA back to 5 V: P holds", truth: true_P, from: 50, to: 55, op: gt, value: 30}
+  - {label: "P-down side at full power: P reverses", truth: true_P, from: 95, to: 100, op: lt, value: -15}
+  - {check: "read-only proof", verdict: PASS}

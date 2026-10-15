@@ -1,0 +1,131 @@
+# Per cool-down DNP values, fitted to the record's online P by
+#   python -m cooldown_sim fit-dnp --write
+# (Nelder-Mead on the mean of the free-run and 6 h-anchored mean absolute
+# errors; bounds in model/hindcast.py FIT_BOUNDS).  Target materials,
+# radicals and field calibrations differ between cool-downs, so these do.
+# load_params(cooldown=...) applies them.  Derived numbers only.
+# Dropped as uninformative (the defaults apply):
+#   2020-09-Cooldown: P_max at its lower bound (record P ~0, noise, or opposite-sign material)
+#   2020-12-Cooldown: P_max at its lower bound (record P ~0, noise, or opposite-sign material)
+#   2022-05-Cooldown: P_max at its lower bound (record P ~0, noise, or opposite-sign material)
+#   2024-08-Cooldown: no real improvement (3.44 -> 3.39 pp)
+# Cool-downs with a spin-1 material (spin1_materials.yaml) use the rate
+# equations instead; their entries here are the fallback without spin1fit.
+cooldowns:
+  2021-09-Cooldown:
+    P_max: 0.2547
+    T1_P_s: 13527.5417
+    fit:
+      cost_after_pp: 1.65
+      cost_before_pp: 13.5
+      date: '2026-10-15'
+      evals: 120
+    lobe_width_GHz: 0.1075
+    neg_scale: 1.5
+    neg_side: 1
+    optimum_offset_GHz: 0.2652
+    tau_up_s: 2057.6891
+  2024-09-Cooldown:
+    P_max: 0.1201
+    T1_P_s: 5792.1967
+    fit:
+      cost_after_pp: 1.65
+      cost_before_pp: 22.62
+      date: '2026-10-15'
+      evals: 120
+    lobe_width_GHz: 0.1878
+    neg_scale: 1.5
+    neg_side: -1
+    optimum_offset_GHz: 0.1093
+    tau_up_s: 17691.2653
+  2024-11-Cooldown:
+    P_max: 0.322
+    T1_P_s: 13064.6804
+    fit:
+      cost_after_pp: 2.81
+      cost_before_pp: 11.52
+      date: '2026-10-15'
+      evals: 120
+    lobe_width_GHz: 0.1007
+    neg_scale: 1.4796
+    neg_side: 1
+    optimum_offset_GHz: -0.0466
+    tau_up_s: 3077.7611
+  2024-12-Cooldown:
+    P_max: 0.2518
+    T1_P_s: 17968.8076
+    fit:
+      cost_after_pp: 0.79
+      cost_before_pp: 20.26
+      date: '2026-10-15'
+      evals: 120
+    lobe_width_GHz: 0.068
+    neg_scale: 1.0457
+    neg_side: 1
+    optimum_offset_GHz: 0.1909
+    tau_up_s: 7713.2305
+  2025-02-Cooldown:
+    P_max: 0.5315
+    T1_P_s: 1800.0
+    fit:
+      cost_after_pp: 4.95
+      cost_before_pp: 16.64
+      date: '2026-10-15'
+      evals: 120
+    lobe_width_GHz: 0.6
+    neg_scale: 1.5
+    neg_side: 1
+    optimum_offset_GHz: 0.5399
+    tau_up_s: 485.1889
+  2025-07-Cooldown:
+    P_max: 0.4333
+    T1_P_s: 5141.0204
+    fit:
+      cost_after_pp: 0.06
+      cost_before_pp: 3.13
+      date: '2026-10-15'
+      evals: 120
+    lobe_width_GHz: 0.2138
+    neg_scale: 1.3318
+    neg_side: -1
+    optimum_offset_GHz: 0.1877
+    tau_up_s: 5989.9318
+  2025-11-Cooldown:
+    P_max: 0.3872
+    T1_P_s: 17480.5809
+    fit:
+      cost_after_pp: 6.5
+      cost_before_pp: 9.21
+      date: '2026-10-15'
+      evals: 120
+    lobe_width_GHz: 0.1088
+    neg_scale: 0.8666
+    neg_side: 1
+    optimum_offset_GHz: 0.0032
+    tau_up_s: 1268.3463
+  2025-12-Cooldown:
+    P_max: 0.5141
+    T1_P_s: 3477.5345
+    fit:
+      cost_after_pp: 6.08
+      cost_before_pp: 6.68
+      date: '2026-10-15'
+      evals: 120
+    lobe_width_GHz: 0.1848
+    neg_scale: 0.3246
+    neg_side: -1
+    optimum_offset_GHz: 0.0055
+    tau_up_s: 1810.3934
+  2026-06-Cooldown:
+    P_max: 0.4558
+    T1_P_s: 10081.9007
+    fit:
+      cost_after_pp: 4.52
+      cost_before_pp: 6.8
+      date: '2026-10-15'
+      evals: 120
+    lobe_width_GHz: 0.5092
+    neg_scale: 0.4821
+    neg_side: 1
+    optimum_offset_GHz: 0.0604
+    tau_up_s: 350.5773
