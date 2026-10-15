@@ -45,6 +45,12 @@ lab answers are in `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`.
 
 ## Log
 
+### 2026-10-15: Manometer-Lo readout
+* Ells: the KJL-SPARC controller for Manometer-Lo is connected by USB to a
+  Raspberry Pi. Recorded in `channel_map.yaml` (map regenerated). Still to
+  find out: which Pi, and how the reading reaches LabVIEW. Genesis has no IOC
+  for it.
+
 ### 2026-10-15: Cold-board supply is an SPD1305X
 * Ells: the varactors are powered by an SPD1305X with a sticker reading IP
   192.168.1.5, the `siglent_coldboard` IOC's address. The existing

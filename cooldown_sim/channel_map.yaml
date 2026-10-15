@@ -358,7 +358,7 @@ record_only:
   - instrument: Low-range cell manometer on a Kurt J. Lesker KJL-SPARC controller
     columns: [manometer_lo]
     used_by: "nothing (the MKS 902B is Manometer-Hi)"
-    note: "Ells 2026-10-15: added from 2021 because the 902B struggled with helium near 1 K. CHECK: gauge-head model and range; how LabVIEW reads the KJL-SPARC"
+    note: "Ells 2026-10-15: added from 2021 because the 902B struggled with helium near 1 K. The KJL-SPARC is connected by USB to a Raspberry Pi. CHECK: which Pi (the serial gateway, mmWaveRobot.local, or a third), how its reading reaches LabVIEW, and the gauge-head model and range"
   - instrument: Vapor-pressure readout (LabVIEW)
     columns: [vp_range, vp_temp]
     used_by: "vp_temp is a model-fit channel (fit-params)"
