@@ -139,3 +139,205 @@ history:
   t_cup:      {source: T1, units: K, valid: [0.05, 400], confidence: medium, note: "Target-cup thermometer; no Genesis IOC reads it (CCX placeholder in magnet_thermometry.csv) -- used only as the model's lattice temperature"}
   he_level_fridge: {source: fridge_he_level, units: in, valid: [0.0, 60.0], confidence: high}
   he_level_magnet: {source: magnet_lhe_level, units: in, valid: [0.0, 60.0], confidence: high}
+
+# Every piece of equipment the Genesis control software talks to -- read-only
+# monitors as well as the things it drives -- by its Genesis name (the
+# ioc_manager key, or a bracketed description for hardware with no IOC of its
+# own).  Rendered as the first table of docs/COOLDOWN_SIM_CHANNEL_MAP.md.  A
+# unit test checks that every IOC in the canonical ioc_manager files appears
+# here or under software_iocs.
+#   genesis:   Genesis IOC name          prefix:  EPICS PV prefix
+#   equipment: make / model              link:    how Genesis reaches it
+#   role:      what it does in the lab   control: what Genesis may do to it
+#   map:       channel-map rows / history inputs fed from the past record
+#   sim:       what stands in for it in cooldown_sim
+#   confidence: high | medium | guess    note:    what to check
+equipment:
+  # ---------------------------------------------------------------- cryo
+  - genesis: ls224_fridge
+    equipment: Lake Shore 224 temperature monitor (#1)
+    role: Fridge thermometry F1-F11
+    link: Ethernet TCP 192.168.1.12:7777
+    prefix: UNH:GEN:CRYO:FRIDGE
+    control: read-only (monitor)
+    map: ls224_fridge.F1-F11
+    sim: LS224 emulator
+    confidence: high
+  - genesis: ls224_magnet
+    equipment: Lake Shore 224 temperature monitor (#2)
+    role: Magnet thermometry M1-M5
+    link: Ethernet TCP 192.168.1.13:7777
+    prefix: UNH:GEN:CRYO:MAG
+    control: read-only (monitor)
+    map: ls224_magnet.M1-M5
+    sim: LS224 emulator
+    confidence: high
+  - genesis: mks902b
+    equipment: MKS 902B absolute piezo transducer
+    role: Target cell (helium vapour) pressure
+    link: RS-232 via serial gateway 192.168.1.251:5004, address 253
+    prefix: UNH:GEN:CRYO:CELL
+    control: read-only
+    map: mks902b.Cell
+    sim: MKS 900-series emulator
+    confidence: guess
+    note: "Open question 1: is this the LabVIEW manometer (Hi/Lo)?"
+  - genesis: tpg262
+    equipment: Pfeiffer TPG 262 dual gauge controller
+    role: "Gauge 1 'Pump', gauge 2 'OVC'"
+    link: RS-232 via serial gateway 192.168.1.251:5011
+    prefix: UNH:GEN:CRYO:VAC
+    control: read-only
+    map: tpg262.Pump, tpg262.OVC
+    sim: TPG 262 emulator (ACK/ENQ handshake)
+    confidence: guess
+    note: "Open questions 2-3: which LabVIEW columns are these two gauges?"
+  - genesis: ionivac
+    equipment: Leybold IONIVAC combination gauge
+    role: Vacuum gauge (streams binary telegrams; never queried)
+    link: RS-232 via serial gateway 192.168.1.251:5005
+    prefix: UNH:GEN:CRYO:ION
+    control: read-only
+    map: ionivac.Ion
+    sim: IONIVAC emulator
+    confidence: high
+    note: "CHECK: which volume does it measure (the OVC? see open question 3)"
+  - genesis: ls455
+    equipment: Lake Shore 455 DSP gaussmeter
+    role: Magnet fringe field
+    link: RS-232 via serial gateway 192.168.1.251:5007
+    prefix: UNH:GEN:CRYO:FIELD
+    control: read-only
+    map: ls455.Fringe
+    sim: LS455 emulator
+    confidence: high
+  - genesis: siglent_coldboard
+    equipment: "Siglent DC supply. Driver written for the single-channel SPD1000X (SPD1168X/SPD1305X); Ells: likely the 4-channel SPD4306X"
+    role: "Cold-board supply (Ells: possibly the varactor-diode bias); the safety interlock's only actuator"
+    link: Ethernet SCPI 192.168.1.5:5025
+    prefix: UNH:GEN:CRYO:COLDBOARD
+    control: "read-only in the live profile (write_enabled: false)"
+    map: siglent_coldboard.Coldboard (no past-record column)
+    sim: SCPI supply emulator (as SPD1168X), output OFF
+    confidence: guess
+    note: "Open questions 6-7: confirm with caget UNH:GEN:CRYO:COLDBOARD:Coldboard_IDN. Genesis has no SPD4000X driver."
+  - genesis: (serial gateway)
+    equipment: Serial-to-Ethernet gateway (model not recorded in Genesis)
+    role: Carries the four RS-232 instruments
+    link: 192.168.1.251, TCP ports 5004 / 5005 / 5007 / 5011
+    prefix: "-"
+    control: transport only
+    map: "-"
+    sim: the emulators listen on loopback instead
+    confidence: medium
+    note: "CHECK: make and model, for the record"
+  # ----------------------------------------------------------- microwave
+  - genesis: mw_spd1305x
+    equipment: "Siglent SPD1305X single-channel DC supply (Ells: the newer 1-channel Siglent)"
+    role: UCA control voltage for the VDI chain (5 V = no microwave output, 0 V = full)
+    link: Ethernet SCPI 192.168.1.19:5025
+    prefix: UNH:GEN:MW:PS
+    control: "write-enabled; source ceiling 5 V / 0.1 A; the IOC refuses a supply whose *IDN? is not SPD1305X"
+    map: mw_spd1305x.CH1 (UCA V)
+    sim: SCPI supply emulator (SPD1305X), 5 V, output ON
+    confidence: medium
+    note: "Open question 6: confirm the model is an SPD1305X"
+  - genesis: mw_vaunix_lms
+    equipment: Vaunix LabBrick LMS-123 synthesizer (s/n 15033)
+    role: Microwave source, ~11.67 GHz into the x12 multiplier -> ~140 GHz
+    link: USB to Raspberry Pi mmWaveRobot.local (tools/vaunix_shim), TCP 1701
+    prefix: UNH:GEN:MW:SRC
+    control: RF on/off, frequency, power (through the Microwave Supervisor)
+    map: history mw_rf_on, mw_freq, mw_power
+    sim: the real shim code on a simulated vendor library (LMS-SIM-COOLDOWN)
+    confidence: medium
+    note: "CHECK: does 'MMwaves Power (dB)' equal the Vaunix power setpoint?"
+  - genesis: mw_pcl602
+    equipment: PCL602USB stepper-motor controller ('robot', X/Y) with a USB joystick
+    role: Positions the microwave stand; move only with the UCA at 5 V
+    link: USB to Raspberry Pi mmWaveRobot.local (tools/pcl602_shim), TCP 1702
+    prefix: UNH:GEN:MW:ROBOT
+    control: motion (left Disabled at startup)
+    map: "-"
+    sim: microwave_sim robot profile (no motion modelled)
+    confidence: high
+  - genesis: (mmWaveRobot.local)
+    equipment: Raspberry Pi
+    role: Hosts the Vaunix and PCL602 shims
+    link: LAN, TCP 1701 / 1702
+    prefix: "-"
+    control: transport only
+    map: "-"
+    sim: the shims run on loopback
+    confidence: high
+  - genesis: (not instrumented)
+    equipment: VDI amplifier / x12 multiplier / diode chain
+    role: Turns the LabBrick output into ~140 GHz
+    link: "none: the green light and SIG are NOT in EPICS"
+    prefix: "-"
+    control: none (the operator confirms by eye)
+    map: "-"
+    sim: the UCA and RF read-backs drive the target model's microwave heat and DNP
+    confidence: high
+  # ---------------------------------------------------------------- ssRF
+  - genesis: ssrf_smc100a
+    equipment: Rohde & Schwarz SMC100A signal generator
+    role: ssRF (hole-burning) carrier, FM and power sweep
+    link: Ethernet SCPI 192.168.1.16:5025
+    prefix: UNH:GEN:SSRF:GEN
+    control: write-enabled (RF only through the sequencer and interlock)
+    map: history hb_freq, hb_power; blast_log burns
+    sim: tools/sim_smc100a.py
+    confidence: medium
+  - genesis: ssrf_keysight_wavegen
+    equipment: Keysight DSOX3024T oscilloscope WaveGen (s/n MY57252012)
+    role: External-FM waveform for the SMC100A
+    link: USB-VISA on host genesis-keysight (the IOC runs there)
+    prefix: UNH:GEN:SSRF:WGEN
+    control: write-enabled (waveform staging)
+    map: "-"
+    sim: tools/sim_keysight_wavegen.py
+    confidence: high
+  - genesis: ssrf_nmr_switch
+    equipment: Mini-Circuits RC-2SPDT-A18 dual SPDT switch
+    role: Routes the NMR signal path
+    link: HTTP 192.168.1.8:80
+    prefix: UNH:GEN:SSRF:NMR_SW
+    control: write-enabled
+    map: "-"
+    sim: tools/sim_minicircuits_switch.py
+    confidence: medium
+    note: Model from the ssRF commissioning doc
+  - genesis: ssrf_rf_switch
+    equipment: Mini-Circuits RC-2SPDT-A18 dual SPDT switch
+    role: Routes the ssRF signal path
+    link: HTTP 192.168.1.11:80
+    prefix: UNH:GEN:SSRF:RF_SW
+    control: write-enabled
+    map: "-"
+    sim: tools/sim_minicircuits_switch.py
+    confidence: medium
+    note: Model from the ssRF commissioning doc
+  # ----------------------------------------------------------------- NMR
+  - genesis: (online fitter input)
+    equipment: NMR DAQ / Q-meter, read out by LabVIEW or PyNMR
+    role: Deuteron NMR sweeps for the online fitter
+    link: "TCP into the fitter: LabVIEW protocol port 8777 (the PyNMR port in protected mode); results published on 8778"
+    prefix: UNH:GEN:SSRF:FIT (the fitter)
+    control: "none: Genesis only receives sweeps; TE and baselines are taken at the DAQ"
+    map: history online_p (LabVIEW area-method P)
+    sim: cooldown_sim NMR source (line computed from the target model)
+    confidence: high
+
+# Genesis IOCs with no hardware of their own (logic, supervision, archiving).
+software_iocs:
+  - {genesis: alarm_summary, prefix: "UNH:GEN:CRYO:ALARM", role: "Cryo alarm roll-up (Alarm_Count, Alarm_Worst)"}
+  - {genesis: safety_interlock, prefix: "UNH:GEN:CRYO:SAFE", role: "Cold-board and vacuum permits, trip latch; drives Coldboard_Mode off when enforced"}
+  - {genesis: target_status, prefix: "UNH:GEN:CRYO:STATE", role: "Target state machine (Cooldown / Cold / Polarizing ...)"}
+  - {genesis: save_restore, prefix: "UNH:GEN:CRYO:SAVE", role: "Setpoint snapshots"}
+  - {genesis: archiver, prefix: "UNH:GEN:CRYO:ARCH (cryo); one per subsystem", role: "CSV archive of the monitored PVs"}
+  - {genesis: mw_supervisor, prefix: "UNH:GEN:MW:SUP", role: "Supervised microwave RF on/off; UCA permissive"}
+  - {genesis: ssrf_interlock, prefix: "UNH:GEN:SSRF:ILK", role: "ssRF connect and RF permits"}
+  - {genesis: ssrf_sequencer, prefix: "UNH:GEN:SSRF:SEQ", role: "Burn execution (prepare / arm / start)"}
+  - {genesis: burn_recipe, prefix: "UNH:GEN:SSRF:RECIPE", role: "Burn recipes (ssrf_analysis.burn_recipe_ioc)"}
+  - {genesis: online fitter, prefix: "UNH:GEN:SSRF:FIT", role: "Deuteron NMR line fitter (online_fitter.epics_run)"}

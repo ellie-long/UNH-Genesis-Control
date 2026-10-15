@@ -93,6 +93,26 @@ def test_channel_map_covers_every_cryo_profile_channel():
         assert set(chans) == set(cmap.instruments[inst]), inst
 
 
+def test_equipment_inventory_lists_every_genesis_ioc():
+    """Every IOC the live IOC managers launch is in the equipment inventory
+    (hardware) or the software-IOC list, so the review doc stays complete."""
+    import yaml
+    cmap = channel_map.load()
+    listed = {e["genesis"] for e in cmap.equipment} | {s["genesis"] for s in cmap.software_iocs}
+    for manager in ("configs/target_physical/ioc_manager/settings.yaml",
+                    "configs/commissioning/microwave_physical/ioc_manager/settings.yaml",
+                    "configs/commissioning/ssrf_sim_active/ioc_manager/settings.yaml"):
+        iocs = yaml.safe_load((ROOT / manager).read_text())
+        missing = sorted(k for k in iocs if k != "general" and k not in listed)
+        assert not missing, f"{manager}: {missing} not in channel_map.yaml equipment/software_iocs"
+    # every channel-map instrument is a listed piece of equipment
+    hardware = {e["genesis"] for e in cmap.equipment}
+    assert set(cmap.instruments) <= hardware
+    for e in cmap.equipment:
+        if e["confidence"] == "guess":
+            assert e.get("note"), e["genesis"]
+
+
 def test_select_and_validity_rules():
     t = np.array([0.0, 10.0, 20.0, 30.0])
     table = records.SlowTable(

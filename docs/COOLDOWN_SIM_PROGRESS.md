@@ -43,6 +43,25 @@ lab answers are in `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`.
 
 ## Log
 
+### 2026-10-15: Equipment inventory in the channel map
+* `docs/COOLDOWN_SIM_CHANNEL_MAP.md` now opens with **Equipment Genesis talks
+  to**: every instrument Genesis reads or drives, by its Genesis name, with:
+  * make and model, role and link (address/port);
+  * PV prefix, and what Genesis may do to it;
+  * which channel-map rows feed it, and its sim stand-in;
+  * what to check.
+* It also lists the hardware with no IOC of its own (the serial gateway, the
+  Raspberry Pi, the un-instrumented VDI chain) and the software-only IOCs.
+* Source: the `equipment:` and `software_iocs:` sections of
+  `cooldown_sim/channel_map.yaml`. A test fails if an IOC in the live IOC
+  managers is missing from it.
+* From Ells:
+  * two Lake Shore 224s for the thermometry;
+  * an SPD4306X (4-channel) that may be the cold-board / varactor supply
+    (Genesis has no driver for it);
+  * a newer single-channel Siglent for the UCA.
+  * Open questions 6-7.
+
 ### 2026-10-15: Phase D3 (scenarios and after-action reports)
 * `python -m cooldown_sim scenario list | NAME ... | all` runs scripted
   scenarios. `all` runs each one in its own process, then prints a summary.

@@ -21,6 +21,7 @@ from .data.timeline import Timeline
 
 MAP_FILE = Path(__file__).with_name("channel_map.yaml")
 CONFIDENCE = ("high", "medium", "guess")
+EQUIPMENT_KEYS = ("genesis", "equipment", "role", "link", "control", "sim", "confidence")
 ABSENT_POLICIES = ("invalid", "refuse", "output_off")
 WIRE = ("none", "torr_to_mbar", "ionivac_count", "ls224_ohms")
 
@@ -85,6 +86,8 @@ class ChannelSpec:
 class ChannelMap:
     instruments: dict[str, dict[str, ChannelSpec]] = field(default_factory=dict)
     history: dict[str, ChannelSpec] = field(default_factory=dict)
+    equipment: list[dict] = field(default_factory=list)       # everything Genesis talks to
+    software_iocs: list[dict] = field(default_factory=list)   # Genesis IOCs with no hardware
 
     def channel(self, instrument: str, name: str) -> ChannelSpec:
         return self.instruments[instrument][name]
@@ -107,6 +110,8 @@ def load(path: Path = MAP_FILE) -> ChannelMap:
             for name, spec in block["channels"].items()}
     for name, spec in raw.get("history", {}).items():
         cmap.history[name] = _spec("history", name, spec, "none", "invalid")
+    cmap.equipment = list(raw.get("equipment") or [])
+    cmap.software_iocs = list(raw.get("software_iocs") or [])
     return cmap
 
 
@@ -136,6 +141,12 @@ def validate(cmap: ChannelMap) -> list[str]:
                 problems.append(f"{where}: unknown source column {col!r}")
         if spec.valid and not spec.valid[0] < spec.valid[1]:
             problems.append(f"{where}: empty valid range")
+    for item in cmap.equipment:
+        for key in EQUIPMENT_KEYS:
+            if not item.get(key):
+                problems.append(f"equipment {item.get('genesis', '?')}: missing {key}")
+        if item.get("confidence") not in CONFIDENCE:
+            problems.append(f"equipment {item.get('genesis', '?')}: confidence {item.get('confidence')!r}")
     return problems
 
 
@@ -155,6 +166,28 @@ def report_markdown(cmap: ChannelMap, coverage: dict[str, dict[str, float]] | No
         "Genesis instrument channels. Rows marked **guess** need a lab cross-check. After a "
         "real-data run, `<run>/channel_map_check.html` overlays each recorded column on the "
         "value Genesis actually archived, so a wrong mapping shows up as a mismatch.",
+        "",
+        "## Equipment Genesis talks to",
+        "",
+        "Every instrument the Genesis control software reads or drives, by its Genesis "
+        "name, plus the hardware between them that has no IOC of its own. "
+        "*Map* names the channel-map rows below that are fed from the past record.",
+        "",
+        "| Genesis name | Equipment | Role | Link | PV prefix | What Genesis may do | Map | Sim stand-in | Confidence | Check |",
+        "|---|---|---|---|---|---|---|---|---|---|",
+    ]
+    for item in cmap.equipment:
+        lines.append(_equipment_row(item))
+    lines += [
+        "",
+        "### Genesis IOCs without hardware",
+        "",
+        "| Genesis name | PV prefix | Role |",
+        "|---|---|---|",
+    ]
+    for item in cmap.software_iocs:
+        lines.append(f"| `{item['genesis']}` | {_cell(item.get('prefix'))} | {_cell(item.get('role'))} |")
+    lines += [
         "",
         "## Instrument channels",
         "",
@@ -183,9 +216,22 @@ def report_markdown(cmap: ChannelMap, coverage: dict[str, dict[str, float]] | No
               "`calibration/magnet_thermometry.csv`, not read by any Genesis IOC. "
               "`T1` feeds only the target model's lattice temperature.",
               "* Reliquefier PLC channels (`reliquefierAnalysis/data`): no Genesis IOC yet.",
-              "* Flows, helium levels, pump temperatures: no Genesis IOC yet; kept in the record "
-              "for future legs.", ""]
+              "* Flows (including the Roots flow meters, used for boil-off), helium levels, the "
+              "magnet power supply and pump temperatures: in the LabVIEW record but no Genesis "
+              "IOC yet; kept in the record for future legs.", ""]
     return "\n".join(lines)
+
+
+def _cell(value) -> str:
+    return " ".join(str(value or "").split()).replace("|", "\\|")
+
+
+def _equipment_row(item: dict) -> str:
+    conf = item.get("confidence", "")
+    conf = f"**{conf}**" if conf == "guess" else conf
+    return (f"| `{item['genesis']}` | {_cell(item.get('equipment'))} | {_cell(item.get('role'))} | "
+            f"{_cell(item.get('link'))} | {_cell(item.get('prefix'))} | {_cell(item.get('control'))} | "
+            f"{_cell(item.get('map'))} | {_cell(item.get('sim'))} | {conf} | {_cell(item.get('note'))} |")
 
 
 def _row(spec: ChannelSpec) -> str:
