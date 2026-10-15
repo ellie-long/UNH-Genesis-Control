@@ -62,12 +62,13 @@ instruments:
         valid: [0.0, 1000.0]
         confidence: high
         note: >-
-          Ells (2026-10-15): the MKS 902B (absolute piezo, 0.1-1000 Torr, on
-          the target cell) is "Manometer-Hi (Torr)", whatever range the
-          LabVIEW display was on, and the 2020 single-range "Manometer (Torr)".
-          It struggled with helium near 1 K, so a lower-range manometer
-          ("Manometer-Lo", on a KJL-SPARC controller, no Genesis IOC) was
-          added from 2021.
+          Ells (2026-10-15): the MKS 902B (absolute piezo on the target cell)
+          is "Manometer-Hi (Torr)", whatever range the LabVIEW display was on,
+          and the 2020 single-range "Manometer (Torr)".  It reports down to
+          0.1 Torr (driver docstring) but is rated only to ~1 Torr (Ells), while
+          4He near 1 K is ~0.12 Torr; hence a lower-range manometer
+          ("Manometer-Lo", on a KJL-SPARC controller, no Genesis IOC) from 2021.
+          Replayed values below ~1 Torr carry the real gauge's poor accuracy.
 
   tpg262:                # UNH:GEN:CRYO:VAC  Pump_PI / OVC_PI (mbar)
     wire: torr_to_mbar   # TPG answers in its display unit; emulator reports UNI=0 (mbar)
