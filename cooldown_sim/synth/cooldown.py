@@ -3,7 +3,10 @@
 A designed, seeded day in the 2026-06 layout, sampled every ``CADENCE_S``:
 
     0:00  cold and steady at 4.939 T, microwaves off, thermal equilibrium
-    1:00  microwaves ON at the DNP optimum (free-electron frequency), +10 dB
+    1:00  microwave RF ON at the DNP optimum (free-electron frequency), +10 dB,
+          UCA at 5 V (no power)
+    1:05  UCA lowered to 0 V (full power) -- the history rule for an RF-on
+          period no logbook covers (``uca_history.UNLOGGED_DELAY_S``)
           -> P spins up with the target model's own DNP parameters
     4:00  three logged ssRF burns (blast_log) at the deuteron Larmor frequency
     5:00  microwaves OFF -> relaxation
@@ -35,12 +38,15 @@ from ..data.timeline import Timeline
 from ..model import physics as ph
 from ..model.fit_params import drive
 from ..model.target import load_params
+from ..model.uca_history import UNLOGGED_DELAY_S
 from ..timeparse import parse_lab_time
 
 T0 = parse_lab_time("2000-01-01 00:00")
 CADENCE_S = 20.0
 B_T = 4.939
 MW_ON_H, MW_OFF_H, END_H = 1.0, 5.0, 7.0
+#: full power from here: RF ON + the unlogged-period UCA delay (the history rule)
+MW_POWER_H = MW_ON_H + UNLOGGED_DELAY_S / 3600.0
 BURN_H = (4.0, 4.1, 4.2)
 
 #: channel -> (typical value, random-walk step per row, lower clip, upper clip)
@@ -94,9 +100,10 @@ def make(seed: int = 0, t0: float = T0, faults: tuple[str, ...] = (), params: di
     num["central_field"] = np.full(n, B_T)
     num["magnet_current"] = np.full(n, B_T / 0.1027405)
     num["ps_current"] = num["magnet_current"].copy()
-    # microwave heat on the cup and bath (the model's own gains and drive at f_opt),
-    # so history is self-consistent
-    q_mw = p["heat"]["mw_W_at_full_drive"] * drive(1.0, 10.0, f_opt) * mw_on
+    # microwave heat on the cup and bath (the model's own gains and drive at f_opt)
+    # once the UCA is down, so history is self-consistent
+    mw_power = (h >= MW_POWER_H) & (h < MW_OFF_H)
+    q_mw = p["heat"]["mw_W_at_full_drive"] * drive(1.0, 10.0, f_opt) * mw_power
     num["T1"] = num["T1"] + p["assumed"]["cup"]["gain_K_per_W"] * q_mw
     num["T3"] = num["T3"] + p["assumed"]["cup"]["gain_K_per_W"] * q_mw
     num["vp_temp"] = num["vp_temp"] + p["assumed"]["bath"]["gain_K_per_W"] * q_mw
@@ -110,10 +117,10 @@ def make(seed: int = 0, t0: float = T0, faults: tuple[str, ...] = (), params: di
     P = np.empty(n)
     P_on_end = None
     for i, hh in enumerate(h):
-        if hh < MW_ON_H:
+        if hh < MW_POWER_H:
             P[i] = P_te
         elif hh < MW_OFF_H:
-            P[i] = dnp["P_max"] + (P_te - dnp["P_max"]) * math.exp(-(hh - MW_ON_H) * 3600 / dnp["tau_up_s"])
+            P[i] = dnp["P_max"] + (P_te - dnp["P_max"]) * math.exp(-(hh - MW_POWER_H) * 3600 / dnp["tau_up_s"])
         else:
             if P_on_end is None:
                 P_on_end = P[i - 1]
@@ -128,7 +135,8 @@ def make(seed: int = 0, t0: float = T0, faults: tuple[str, ...] = (), params: di
         "nmr_status": np.array(["Polarization"] * n, dtype=object),
     }
     keep = np.ones(n, bool)
-    events = [(t0 + MW_ON_H * 3600, "microwaves ON (optimum)"), (t0 + MW_OFF_H * 3600, "microwaves OFF")]
+    events = [(t0 + MW_ON_H * 3600, "microwave RF ON (optimum), UCA 5 V"),
+              (t0 + MW_POWER_H * 3600, "UCA 0 V: full power"), (t0 + MW_OFF_H * 3600, "microwaves OFF")]
     if "data_gap" in faults:
         gap = (h >= 3.0) & (h < 3.0 + 10 / 60)
         keep &= ~gap

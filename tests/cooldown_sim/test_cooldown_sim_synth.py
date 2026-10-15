@@ -31,6 +31,20 @@ def test_designed_schedule():
     assert s.burns[0].centre_mhz == pytest.approx(ph.deuteron_larmor_MHz(sc.B_T), abs=1e-3)
 
 
+def test_history_replay_reproduces_the_designed_spin_up():
+    # RF ON at 1:00 with the UCA at 5 V, full power 5 min later: the same rule the
+    # history drive applies to an RF-on period no logbook covers
+    from cooldown_sim.model.target import TargetModel
+    s = sc.make(seed=0)
+    m = TargetModel(s.timeline, s.t0 + 0.5 * 3600)
+    assert m.hist_mw(s.t0 + 3600 + 120)[0] == 0.0
+    assert m.hist_mw(s.t0 + 3600 + 600)[0] > 0.8
+    for h in (1.5, 2.0, 3.0, 4.5, 6.0):
+        t = s.t0 + h * 3600
+        m.advance(t)
+        assert 100 * m.state.P == pytest.approx(s.timeline.value_at("online_p", t), abs=0.5), h
+
+
 def test_every_instrument_channel_has_a_value():
     s = sc.make(seed=0)
     cmap = channel_map.load()
