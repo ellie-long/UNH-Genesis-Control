@@ -12,10 +12,13 @@ import pytest
 from cooldown_sim.data.records import SlowTable
 from cooldown_sim.data.timeline import Timeline
 from cooldown_sim.model import physics as ph
+from cooldown_sim.model.fit_params import drive
 from cooldown_sim.model.target import TargetModel, load_params
 
 B = 4.939
 F_OPT = ph.electron_larmor_GHz(B)
+#: history drive of the synthetic record: RF on at +10 dB (saturated), UCA 0 V, at F_OPT
+D_HIST = drive(1.0, 10.0, F_OPT)
 
 
 # ------------------------------------------------------------------ physics
@@ -120,7 +123,7 @@ def test_operator_turns_microwaves_off_early(params):
     s = m.advance(60.0 + T1)
     assert s.P == pytest.approx(0.40 * math.exp(-1), rel=0.03)      # relaxes toward TE ~0.1 %
     cup, bath = params["assumed"]["cup"], params["assumed"]["bath"]
-    q_mw = params["heat"]["mw_W_at_full_drive"]
+    q_mw = params["heat"]["mw_W_at_full_drive"] * D_HIST
     # cooler than history, but never below the (cooled) bath it sits in
     expected = max(1.0 - cup["gain_K_per_W"] * q_mw, 1.0 - bath["gain_K_per_W"] * q_mw)
     assert m.lattice_T() == pytest.approx(expected, rel=0.01)
@@ -132,6 +135,7 @@ def test_operator_turns_microwaves_off_early(params):
 def test_wrong_frequency_gives_no_dnp(params):
     m = TargetModel(record(hours=10.0, p_pct=0.0), 60.0, params)
     m.inputs.mw_mode, m.inputs.mw_on, m.inputs.mw_freq_GHz = "operator", True, F_OPT + 1.6
+    m.inputs.mw_uca_V = 0.0                                   # UCA lowered: full power
     assert abs(m.advance(60.0 + 4 * params["dnp"]["tau_up_s"]).P) < 0.01
     m.inputs.mw_freq_GHz = F_OPT + 2 * params["dnp"]["lobe_width_GHz"]   # negative lobe
     assert m.advance(60.0 + 12 * params["dnp"]["tau_up_s"]).P < -0.3
@@ -157,7 +161,7 @@ def test_coldboard_heat_warms_the_lattice(params):
     assert m.lattice_T() == pytest.approx(1.0 + 0.1 * bath["gain_K_per_W"], rel=0.01)
     assert m.cell_pressure(0.12, m.state.t) > 0.12                 # vapor pressure follows
     tr = m.truth(m.state.t)
-    assert tr["heat_total_W"] == pytest.approx(0.1 + params["heat"]["mw_W_at_full_drive"])
+    assert tr["heat_total_W"] == pytest.approx(0.1 + params["heat"]["mw_W_at_full_drive"] * D_HIST)
     assert tr["boiloff_delta_slm"] == pytest.approx(0.1 / params["heat"]["W_per_slm"], rel=0.01)
 
 
@@ -211,3 +215,93 @@ def test_quench_collapses_polarization_quickly(params):
 
 def test_te_polarization_never_overflows():
     assert ph.te_polarization(5.0, 1e-9) == pytest.approx((1.0, 1.0))
+
+
+# ------------------------------------------------------------ microwave drive
+def test_vaunix_setpoints_from_minus_5_db_up_give_full_power():
+    from cooldown_sim.model.fit_params import saturation
+    for p in (10.0, 0.0, -3.0, -4.5, -5.0):           # every era of the record: saturated chain
+        assert saturation(p) == 1.0
+        assert drive(1.0, p, 140.0) == pytest.approx(1.0)
+    assert saturation(-15.0) == pytest.approx(0.1)     # ASSUMED roll-off below saturation
+    assert drive(1.0, -40.0, 140.0) < 1e-3              # the record's genuinely-low entries
+    for junk in (float("nan"), 99.0, -99.0):           # missing / garbage -> the usual saturated setting
+        assert saturation(junk) == 1.0
+    assert drive(0.0, 10.0, 140.0) == 0.0 and drive(float("nan"), 10.0) == 0.0
+
+
+def test_uca_table_endpoints_and_monotonic():
+    from cooldown_sim.model.fit_params import uca_fraction
+    for f in (138.0, 139.0, 140.0, 141.3, 142.0, float("nan"), 130.0, 150.0):
+        assert uca_fraction(0.0, f) == pytest.approx(1.0)      # 0 V: full power
+        assert uca_fraction(5.0, f) == 0.0                     # 5 V: none
+        assert uca_fraction(4.0, f) == 0.0
+        vals = [uca_fraction(v, f) for v in np.linspace(0.0, 5.0, 501)]
+        assert all(b <= a + 1e-12 for a, b in zip(vals, vals[1:]))
+    assert uca_fraction(3.0, 139.0) == pytest.approx((0.17 + 0.26) / 2)   # linear in frequency
+    assert uca_fraction(2.75, 140.0) == pytest.approx((0.55 + 0.435) / 2)  # linear in voltage
+    assert uca_fraction(3.0, 137.0) == uca_fraction(3.0, 138.0)            # clamped to the band
+    assert uca_fraction(-1.0) == 1.0 and uca_fraction(7.0) == 0.0
+    assert uca_fraction(float("nan")) == 0.0          # no attenuation information: no power
+
+
+def test_frequency_factor_is_relative_to_140_ghz():
+    from cooldown_sim.model.fit_params import freq_factor
+    assert freq_factor(140.0) == pytest.approx(1.0)
+    assert freq_factor(float("nan")) == 1.0
+    assert freq_factor(138.0) == pytest.approx(282 / 325)
+    assert freq_factor(139.8) == pytest.approx(333 / 325)            # the chain's peak
+    assert freq_factor(139.9) == pytest.approx((333 + 325) / 2 / 325)
+    assert freq_factor(145.0) == freq_factor(142.0) == pytest.approx(252 / 325)
+
+
+def test_history_drive_ignores_the_record_uca_column(params):
+    # the record's UCA column has not been the real UCA for years: history is
+    # full power whenever RF is on, whatever that column says
+    tl = record()
+    n = len(tl.table.t)
+    tl_uca = Timeline(SlowTable(t=tl.table.t, numeric={**tl.table.numeric, "uca_v": np.full(n, 5.0)}),
+                      max_hold_s=60)
+    m, m_uca = TargetModel(tl, 60.0, params), TargetModel(tl_uca, 60.0, params)
+    for t in (600.0, 3600.0):
+        assert m_uca.hist_mw(t) == m.hist_mw(t)
+        assert m_uca.hist_mw(t)[0] == pytest.approx(D_HIST)
+    assert 138.4 < F_OPT < 138.6                       # vendor points 289 / 290 mW; 325 mW at 140 GHz
+    assert D_HIST == pytest.approx((289 + (290 - 289) * (F_OPT - 138.4) / 0.2) / 325)
+
+
+def test_operator_drive_follows_the_observed_uca(params):
+    m = TargetModel(record(), 60.0, params)
+    assert m.inputs.mw_uca_V == 5.0                    # safe start, like the emulated supply
+    m.inputs.mw_mode, m.inputs.mw_on, m.inputs.mw_freq_GHz = "operator", True, 140.0
+    assert m.op_mw(600.0)[0] == 0.0                    # RF on at the 5 V enable voltage: no power
+    m.inputs.mw_uca_V = 0.0
+    assert m.op_mw(600.0)[0] == pytest.approx(1.0)     # UCA lowered: full power
+    m.inputs.mw_uca_V = 2.8
+    assert m.op_mw(600.0)[0] == pytest.approx(0.435)
+    m.inputs.mw_on = False
+    assert m.op_mw(600.0)[0] == 0.0
+
+
+def test_dnp_strength_excludes_the_chain_frequency_response(params):
+    # P_max comes from spin-ups at the operating frequencies, where the chain's
+    # output already is what it is: full UCA power pumps to P_max anywhere in band
+    m = TargetModel(record(p_pct=0.0), 60.0, params)
+    m.inputs.mw_mode, m.inputs.mw_on, m.inputs.mw_uca_V = "operator", True, 0.0
+    s = m.advance(60.0 + 8 * params["dnp"]["tau_up_s"])
+    assert s.P == pytest.approx(params["dnp"]["P_max"], rel=0.01)
+
+
+def test_minus_5_db_era_transitions_are_full_drive_steps():
+    import datetime as dt
+
+    from cooldown_sim.data import records
+    from cooldown_sim.model.fit_params import transitions
+    t0 = dt.datetime(2023, 3, 1, 12, 0, tzinfo=records.lab_tz()).timestamp()
+    t = t0 + np.arange(0.0, 7200.0, 30.0)
+    n = len(t)
+    tl = Timeline(SlowTable(t=t, numeric={"mw_rf_status": (t >= t0 + 3600.0).astype(float),
+                                          "mw_power_db": np.full(n, -4.0),
+                                          "mw_freq_ghz": np.full(n, 140.0)}), max_hold_s=60)
+    (ts, dd), = transitions(tl)
+    assert ts == pytest.approx(t0 + 3600.0) and dd == pytest.approx(1.0)   # was 10**-1.4 ~ 0.04

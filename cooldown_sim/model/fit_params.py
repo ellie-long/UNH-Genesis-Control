@@ -16,9 +16,28 @@ For each channel:
   70 % of the time AND their interquartile range excludes zero; otherwise its
   gain is 0 and it is flagged ``unfitted``.
 
-Microwave drive is a dimensionless, *uncalibrated* proxy:
-``drive = RF_on * 10**((P_dB - 10)/10)`` (1.0 = RF on at the usual 10 dB
-setting).  Gains are therefore K per unit drive, not K/W.
+Microwave drive is the dimensionless fraction of the chain's full output
+power (1.0 = full power at 140 GHz; the heat at full drive is the measured
+62 mW reaching the helium, waveguide and mirror losses included):
+
+    drive = RF_on x saturation(P_dB) x uca_fraction(V_UCA, f) x freq_factor(f)
+
+* ``saturation``: the Vaunix setpoint drives the VDI amplifier/multiplier
+  chain (AMC, x12, 138-142 GHz), which is SATURATED from about -5 dB on the
+  Vaunix upward: every setpoint >= -5 dB gives full power (the record's +10 dB
+  and -3 to -5 dB eras alike).  Below -5 dB an ASSUMED roll-off
+  10**((P_dB + 5)/10) (not measured); missing or garbage power -> saturated.
+* ``uca_fraction``: the actual power is set by the UCA (user-controlled
+  attenuator) voltage, 0 V = full, 5 V = none; vendor test data for the
+  repaired AMC (2025-10), interpolated linearly in V and frequency.
+* ``freq_factor``: the chain's maximum output vs frequency (same vendor data),
+  relative to its value at 140.0 GHz.
+
+The record's ``UCA (V)`` column has not been the real UCA for years (a manual
+supply drove it), so history is taken at full power whenever RF is on
+(``HIST_UCA_V`` = 0 V).  The vendor curves describe the chain as repaired in
+2025-10; earlier cool-downs are assumed to share its frequency response.
+Gains are K per unit drive.
 
 Output: ``cooldown_sim/model/model_params.yaml`` (derived numbers only,
 with provenance -- never raw data).
@@ -43,14 +62,98 @@ MIN_STEPS = 3
 #: folders whose files duplicate another cool-down (would double-count steps)
 DUPLICATES = {"2026-07-Cooldown"}
 CHANNELS = ["T1", "T2", "T3", "vp_temp"] + [f"F{i}" for i in range(1, 12)] + [f"M{i}" for i in range(1, 6)]
-COLUMNS = ["mw_rf_status", "mw_power_db"] + CHANNELS
+COLUMNS = ["mw_rf_status", "mw_power_db", "mw_freq_ghz"] + CHANNELS
 
 
-def drive(rf_on: float, power_db: float) -> float:
+DRIVE_DEFINITION = ("RF_on x saturation(P_dB) x uca_fraction(V_UCA, f) x freq_factor(f); "
+                    "saturation 1 for P_dB >= -5 (ASSUMED 10**((P_dB+5)/10) below); UCA and "
+                    "frequency response from vendor test data for the repaired AMC (2025-10), "
+                    "freq_factor 1 at 140 GHz; history at UCA 0 V (full power) when RF is on")
+
+#: Vaunix setpoint (dB) from which the AMC chain is saturated (full power)
+SATURATION_DB = -5.0
+#: UCA voltage assumed for the record (its UCA column is not the real UCA)
+HIST_UCA_V = 0.0
+#: UCA voltage with no microwave output (also the RF-enable transition value)
+UCA_SAFE_V = 5.0
+FREQ_RANGE_GHZ = (138.0, 142.0)
+REF_FREQ_GHZ = 140.0
+#: hold the last logged microwave frequency this long
+FREQ_HOLD_S = 6 * 3600.0
+
+#: Output vs UCA voltage, % of maximum at ~10 dBm input, at 138 / 140 / 142 GHz --
+#: vendor test data for the repaired AMC (2025-10), digitized from the vendor's
+#: curve.  Approximate (the shape varies with conditions).
+UCA_V = np.array([0.0, 0.5, 1.0, 1.5, 2.0, 2.2, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9, 3.0, 3.1,
+                  3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 3.8, 4.0, 5.0])
+UCA_FREQ_GHZ = np.array([138.0, 140.0, 142.0])
+UCA_PCT = np.array([
+    [100.0, 100.0, 100.0], [99.5, 98.5, 98.5], [96.5, 96.0, 95.5], [92.0, 92.0, 92.0],
+    [86.5, 87.5, 88.0], [83.0, 83.5, 85.5], [77.5, 78.0, 81.0], [73.0, 74.0, 77.0],
+    [66.5, 66.0, 71.0], [58.0, 55.0, 63.5], [48.5, 43.5, 55.5], [33.0, 34.0, 46.0],
+    [17.0, 26.0, 36.0], [7.0, 18.0, 26.0], [2.5, 12.5, 18.0], [1.0, 7.5, 11.0],
+    [0.5, 3.5, 6.0], [0.2, 1.5, 3.0], [0.0, 0.5, 1.5], [0.0, 0.2, 0.8],
+    [0.0, 0.1, 0.5], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]])
+
+#: Maximum output vs frequency (mW) -- vendor test data for the repaired AMC
+#: (2025-10).  Used only relative to its value at REF_FREQ_GHZ.
+MAX_POWER_GHZ = np.round(np.arange(138.0, 142.01, 0.2), 1)
+MAX_POWER_MW = np.array([282, 277, 289, 290, 281, 304, 317, 326, 331, 333, 325,
+                         322, 305, 312, 309, 302, 294, 283, 262, 261, 252], dtype=float)
+
+
+def _band(freq_GHz: float) -> float:
+    """Frequency clamped to the chain's band; unknown -> the 140 GHz reference."""
+    if not math.isfinite(freq_GHz):
+        return REF_FREQ_GHZ
+    return min(max(freq_GHz, FREQ_RANGE_GHZ[0]), FREQ_RANGE_GHZ[1])
+
+
+def saturation(power_db: float) -> float:
+    """Fraction of full chain output for a Vaunix setpoint (dB): 1 from
+    SATURATION_DB up; below it an ASSUMED roll-off (not measured)."""
+    if not (math.isfinite(power_db) and -60 <= power_db <= 30):
+        return 1.0                     # missing / garbage: the usual (saturated) setting
+    if power_db >= SATURATION_DB:
+        return 1.0
+    return 10.0 ** ((power_db - SATURATION_DB) / 10.0)
+
+
+def uca_fraction(uca_V: float, freq_GHz: float = float("nan")) -> float:
+    """Fraction of the chain's maximum output at UCA voltage uca_V (0 V full,
+    >= 4 V none).  Non-finite voltage -> 0 (no attenuation information: no power)."""
+    if not math.isfinite(uca_V):
+        return 0.0
+    v = min(max(uca_V, UCA_V[0]), UCA_V[-1])
+    pct = [np.interp(v, UCA_V, UCA_PCT[:, j]) for j in range(len(UCA_FREQ_GHZ))]
+    return float(np.interp(_band(freq_GHz), UCA_FREQ_GHZ, pct)) / 100.0
+
+
+def freq_factor(freq_GHz: float) -> float:
+    """Chain's maximum output at freq_GHz relative to REF_FREQ_GHZ (1 if unknown)."""
+    ref = np.interp(REF_FREQ_GHZ, MAX_POWER_GHZ, MAX_POWER_MW)
+    return float(np.interp(_band(freq_GHz), MAX_POWER_GHZ, MAX_POWER_MW) / ref)
+
+
+def drive(rf_on: float, power_db: float, freq_GHz: float = float("nan"),
+          uca_V: float = HIST_UCA_V) -> float:
+    """Microwave power as a fraction of full output at 140 GHz (see module doc)."""
     if not (math.isfinite(rf_on) and rf_on > 0.5):
         return 0.0
-    p = power_db if math.isfinite(power_db) and -60 <= power_db <= 30 else 10.0
-    return 10.0 ** ((p - 10.0) / 10.0)
+    return saturation(power_db) * uca_fraction(uca_V, freq_GHz) * freq_factor(freq_GHz)
+
+
+def hist_freq(tl: Timeline, t: float) -> float:
+    """Last logged in-band microwave frequency within FREQ_HOLD_S before t (GHz), or NaN."""
+    _ts, vs = tl.samples("mw_freq_ghz", t - FREQ_HOLD_S, t)
+    good = (vs > 100) & (vs < 200)
+    return float(vs[good][-1]) if good.any() else float("nan")
+
+
+def hist_drive(tl: Timeline, t: float) -> float:
+    """Drive the record says the microwaves had at t (UCA taken as HIST_UCA_V:
+    the record's UCA column is ignored)."""
+    return drive(tl.value_at("mw_rf_status", t), tl.value_at("mw_power_db", t), hist_freq(tl, t))
 
 
 def _near_midnight(t: float) -> bool:
@@ -73,8 +176,9 @@ def transitions(tl: Timeline) -> list[tuple[float, float]]:
             continue
         if not (np.all(rf[before] == rf[i]) and np.all(rf[after] == rf[i + 1])):
             continue
-        d_before = drive(rf[i], tl.value_at("mw_power_db", ts - 60))
-        d_after = drive(rf[i + 1], tl.value_at("mw_power_db", ts + 60))
+        f = hist_freq(tl, ts + 60)                  # one frequency for both sides
+        d_before = drive(rf[i], tl.value_at("mw_power_db", ts - 60), f)
+        d_after = drive(rf[i + 1], tl.value_at("mw_power_db", ts + 60), f)
         if abs(d_after - d_before) < 0.05:
             continue
         out.append((ts, d_after - d_before))
@@ -151,7 +255,7 @@ def fit(data_root: Path, cooldowns: list[str] | None = None) -> dict:
             "method": "median sign-aligned, pre-step-detrended response to isolated microwave RF transitions",
             "cooldowns": [c.name for c in cds], "transitions_used": len(used),
             "transitions": used[:200],
-            "drive_definition": "RF_on * 10**((P_dB - 10)/10); uncalibrated, 1.0 = RF on at 10 dB",
+            "drive_definition": DRIVE_DEFINITION,
         },
         "thermal": {
             "tau_s": round(tau, 1), "tau_n": len(taus),

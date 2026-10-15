@@ -24,6 +24,15 @@ State (all integrated with exact exponential sub-steps of <= MAX_STEP_S):
 * dT_mag    per-magnet-thermometer microwave deviation (FITTED gains, M2-M4)
 * q         quench level in [0, 1] (ASSUMED trajectory)
 
+Microwave drive (``fit_params.drive``) is the fraction of the chain's full
+output at 140 GHz: RF on x Vaunix saturation (full power from -5 dB up) x UCA
+attenuation (0 V full, 5 V none; vendor curve) x the chain's frequency
+response.  History is taken at full power whenever RF is on (the record has
+no usable UCA voltage); the operator side uses the OBSERVED UCA voltage.  The
+DNP pumping strength is the drive without the frequency response: P_max and
+the lobe come from spin-ups at the operating frequencies, so the chain's
+output there is already inside them.
+
 Heat is bookkept in watts: microwaves 62 mW at full drive (MEASURED by the
 Roots-flow differential, 2024-12-17), coldboard heat as set, ssRF burns as
 queued by the ssRF leg.  Varactor-bias heating from the cold-board supply is
@@ -47,10 +56,9 @@ import yaml
 
 from ..data.timeline import Timeline
 from . import physics as ph
-from .fit_params import PARAMS_FILE, drive
+from .fit_params import PARAMS_FILE, UCA_SAFE_V, drive, freq_factor, hist_drive, hist_freq
 
 MAX_STEP_S = 30.0
-FREQ_HOLD_S = 6 * 3600.0          # hold the last logged microwave frequency this long
 
 
 def load_params(path: Path = PARAMS_FILE) -> dict:
@@ -66,6 +74,9 @@ class Inputs:
     mw_on: bool = False
     mw_freq_GHz: float = float("nan")
     mw_power_dB: float = 10.0
+    #: UCA voltage (V): 0 full power, 5 none.  Starts at the safe 5 V, like the
+    #: emulated UCA supply (cli_run.SUPPLY_INITIAL)
+    mw_uca_V: float = UCA_SAFE_V
     coldboard_heat_W: float = 0.0
     quench: bool = False
     nmr_noise_x: float = 1.0
@@ -111,21 +122,22 @@ class TargetModel:
         return b if math.isfinite(b) and b > 0.5 else 0.0
 
     def _hist_freq(self, t: float) -> float:
-        ts, vs = self.tl.samples("mw_freq_ghz", t - FREQ_HOLD_S, t)
-        good = (vs > 100) & (vs < 200)
-        return float(vs[good][-1]) if good.any() else float("nan")
+        return hist_freq(self.tl, t)
 
     def hist_mw(self, t: float) -> tuple[float, float]:
-        """(drive, frequency GHz) the record says the microwaves had at t."""
-        return drive(self.tl.value_at("mw_rf_status", t), self.tl.value_at("mw_power_db", t)), \
-            self._hist_freq(t)
+        """(drive, frequency GHz) the record says the microwaves had at t
+        (full power when RF is on: the record's UCA column is not used)."""
+        return hist_drive(self.tl, t), self._hist_freq(t)
 
     def op_mw(self, t: float) -> tuple[float, float]:
+        """(drive, frequency GHz) the operator's microwaves have at t, from RF
+        on/off, the Vaunix power, the frequency and the observed UCA voltage."""
         if self.inputs.mw_mode != "operator":
             return self.hist_mw(t)
         f = self.inputs.mw_freq_GHz
-        return drive(1.0 if self.inputs.mw_on else 0.0, self.inputs.mw_power_dB), \
-            (f if math.isfinite(f) else self._hist_freq(t))
+        f = f if math.isfinite(f) else self._hist_freq(t)
+        return drive(1.0 if self.inputs.mw_on else 0.0, self.inputs.mw_power_dB, f,
+                     self.inputs.mw_uca_V), f
 
     def hist_lattice_T(self, t: float) -> float:
         """Recorded cup temperature (T1, else T3, else the bath)."""
@@ -235,8 +247,9 @@ class TargetModel:
         T_lat = self.lattice_T(tm)
         # a quench destroys polarization fast (ASSUMED rate), not with the 3 h T1
         rate_off = (1.0 - s.q) / self.dnp["T1_P_s"] + s.q / qa["T1_quenched_s"]
-        if d_op > 0.05 and B > 0.5 and math.isfinite(f_op) and s.q < 0.5:
-            target = self.p_inf(f_op, B) * min(d_op, 1.0)
+        pump = d_op / freq_factor(f_op)                 # drive without the frequency response
+        if pump > 0.05 and B > 0.5 and math.isfinite(f_op) and s.q < 0.5:
+            target = self.p_inf(f_op, B) * min(pump, 1.0)
             s.P = relax(s.P, target, self.dnp["tau_up_s"])
         else:
             s.P = relax(s.P, ph.te_polarization(B, T_lat)[0] if B > 0.5 else 0.0, 1.0 / rate_off)

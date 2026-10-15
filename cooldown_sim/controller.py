@@ -44,7 +44,8 @@ MODEL_INPUTS = (("CB_HEAT_W_CMD", "coldboard_heat_W", "W", 0.0, 5.0),
                 ("FIELD_OFFSET_MHZ_CMD", "line_offset_MHz", "MHz", -5.0, 5.0),
                 ("MW_ON_CMD", "mw_on", "", 0, 1),
                 ("MW_FREQ_GHZ_CMD", "mw_freq_GHz", "GHz", 100.0, 200.0),
-                ("MW_POWER_DB_CMD", "mw_power_dB", "dB", -60.0, 30.0))
+                ("MW_POWER_DB_CMD", "mw_power_dB", "dB", -60.0, 30.0),
+                ("MW_UCA_V_CMD", "mw_uca_V", "V", 0.0, 5.0))
 
 
 class Device:

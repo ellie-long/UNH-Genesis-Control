@@ -63,7 +63,9 @@ The session starts **paused** at the chosen moment. Then:
 * **Target model:** the true P and Q (and the single-temperature Q), lattice and
   spin temperatures, field, microwave drive, the fitter's P and its error.
   Inputs:
-  * microwave on/off, frequency and power;
+  * microwave on/off, frequency, power and UCA voltage (`MW_UCA_V_CMD`, a PV
+    and `ctl model mw_uca_V`; not on the screen). With the Microwave leg
+    running, the real Vaunix and UCA read-backs overwrite these;
   * coldboard heat;
   * NMR noise and phase;
   * line offset;
@@ -71,7 +73,10 @@ The session starts **paused** at the chosen moment. Then:
   * **QUENCH** / Clear quench.
 * **Autopilot** for Microwave, ssRF and Fitter. The autopilot replays the
   operator actions logged in the record. Switching a leg to **Human** hands it
-  to you at once.
+  to you at once. The Microwave autopilot follows the real procedure: RF ON
+  with the UCA at 5 V, then, once ON is confirmed, the UCA lowered to the
+  history value; the UCA back to 5 V before RF OFF. The record has no usable
+  UCA voltage, so the history value is 0 V (full power).
 * **Session:**
   * Logbook notes and Mark, stamped with sim and wall time.
   * **End session** stops everything and writes the report.
@@ -106,7 +111,10 @@ faults, notes and state changes. With the NMR leg it also writes
   real mistake, reproduced.
 * **Microwaves.** Switching microwaves off early relaxes P with
   T1 ≈ 3.2 h. Moving the frequency away from 28.025 GHz/T × B loses the
-  enhancement.
+  enhancement. The power comes from the UCA, not the Vaunix setting: RF ON at
+  the 5 V enable voltage delivers nothing until you lower the UCA (0 V is full
+  power; most of the change is between about 2 and 3.5 V). A UCA supply with
+  its output OFF counts as no power.
 * **Comm faults.** A `silent` gauge flickers COMM: each timed-out poll drops
   it, and the reconnect that follows succeeds, so it reads "Connected" again
   about 30 s later. Watch the channel alarms and LAST_OK instead (known issue

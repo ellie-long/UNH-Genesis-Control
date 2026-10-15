@@ -33,6 +33,7 @@ from ..data.blast_log import Burn
 from ..data.records import SlowTable
 from ..data.timeline import Timeline
 from ..model import physics as ph
+from ..model.fit_params import drive
 from ..model.target import load_params
 from ..timeparse import parse_lab_time
 
@@ -93,8 +94,9 @@ def make(seed: int = 0, t0: float = T0, faults: tuple[str, ...] = (), params: di
     num["central_field"] = np.full(n, B_T)
     num["magnet_current"] = np.full(n, B_T / 0.1027405)
     num["ps_current"] = num["magnet_current"].copy()
-    # microwave heat on the cup and bath (the model's own gains), so history is self-consistent
-    q_mw = p["heat"]["mw_W_at_full_drive"] * mw_on
+    # microwave heat on the cup and bath (the model's own gains and drive at f_opt),
+    # so history is self-consistent
+    q_mw = p["heat"]["mw_W_at_full_drive"] * drive(1.0, 10.0, f_opt) * mw_on
     num["T1"] = num["T1"] + p["assumed"]["cup"]["gain_K_per_W"] * q_mw
     num["T3"] = num["T3"] + p["assumed"]["cup"]["gain_K_per_W"] * q_mw
     num["vp_temp"] = num["vp_temp"] + p["assumed"]["bath"]["gain_K_per_W"] * q_mw

@@ -23,6 +23,10 @@ allow:
   # Vaunix output power: set by the operator on the Vaunix screen (exact entry,
   # overrides the MW:SRC deny below; RF and frequency stay supervisor-only)
   - UNH:GEN:MW:SRC:MW_PWRC
+  # UCA voltage: set by the operator on the UCA screen -- 5 V for RF ON and
+  # before RF OFF, lowered for power after a confirmed ON (exact entry,
+  # overrides the MW:PS deny below; output on/off and OVP/OCP stay off-limits)
+  - UNH:GEN:MW:PS:VSET_CMD
   # ssRF sequencer: the adaptive-burn recipe, waveform staging, PREPARE/ARM/START.
   # Manual RF/FM commands are an operator commissioning path, not burn replay.
   # ABORT/DISARM are excluded: in the current code their safe-off cleanup locks

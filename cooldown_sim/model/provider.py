@@ -19,7 +19,7 @@ THERMO_INSTRUMENTS = ("ls224_fridge", "ls224_magnet")
 INPUT_KEYS = {
     "coldboard_heat_W": float, "quench": bool, "nmr_noise_x": float,
     "nmr_phase_offset_deg": float, "line_offset_MHz": float,
-    "mw_on": bool, "mw_freq_GHz": float, "mw_power_dB": float,
+    "mw_on": bool, "mw_freq_GHz": float, "mw_power_dB": float, "mw_uca_V": float,
 }
 
 
@@ -67,9 +67,12 @@ class ModelProvider(ReplayProvider):
         if key == "coldboard_heat_W":
             self._show_coldboard(float(value))
 
-    def observe_mw(self, on: bool, freq_GHz: float, power_dB: float) -> bool:
+    def observe_mw(self, on: bool, freq_GHz: float, power_dB: float,
+                   uca_V: float = float("nan")) -> bool:
         """The Microwave leg's REAL read-backs drive the model (no event logging
-        here; the caller logs changes).  Returns True if the RF state changed."""
+        here; the caller logs changes).  ``uca_V`` is the UCA voltage the chain
+        sees (the caller maps output OFF to 5 V); NaN keeps the last value.
+        Returns True if the RF state changed."""
         inp = self.model.inputs
         self.model.advance(self.clock.now())
         changed = inp.mw_mode != "operator" or inp.mw_on != bool(on)
@@ -79,6 +82,8 @@ class ModelProvider(ReplayProvider):
             inp.mw_freq_GHz = float(freq_GHz)
         if math.isfinite(power_dB):
             inp.mw_power_dB = float(power_dB)
+        if math.isfinite(uca_V):
+            inp.mw_uca_V = float(uca_V)
         return changed
 
     def _show_coldboard(self, watts: float) -> None:
