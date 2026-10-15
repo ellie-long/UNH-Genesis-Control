@@ -1,0 +1,539 @@
+#!/usr/bin/env python3
+"""Generate gui/genesis_panopticon.bob, the Genesis "Panopticon" overview.
+
+Run:  python tools/make_panopticon.py
+
+One wide, read-only screen modelled on the LabVIEW DAQ's overview: Magnet,
+Fridge, Shells and Lab space trends on the left, the target insert drawn in
+the centre with every thermometer's reading at its sensor's position, and
+NMR, holeburning (ssRF), superconducting magnet, microwaves, EPR and slow
+sweep on the right.
+
+Only PVs that Genesis serves appear on the screen (checked by
+tests/cooldown_sim/test_cooldown_sim_panopticon.py).  Instruments Genesis
+does not read yet are drawn as grey placeholders labelled "not in Genesis
+yet", with no PV, in the place the DAQ shows them, so they can be wired
+later: each one is a widget named ``Placeholder_<key>``.
+
+Like the main Cryo screen, the overview is read-only: no PV writes, only
+links to the subsystem screens, where the controls are.
+"""
+
+from __future__ import annotations
+
+from pathlib import Path
+from xml.sax.saxutils import escape
+
+ROOT = Path(__file__).resolve().parents[1]
+OUT = ROOT / "gui" / "genesis_panopticon.bob"
+W, H = 1900, 1100
+
+CRYO = "UNH:GEN:CRYO"
+FIT = "UNH:GEN:SSRF:FIT"
+SSRF = "UNH:GEN:SSRF"
+MW = "UNH:GEN:MW"
+
+# Genesis palette (tools/make_cryo_screens.py)
+NAVY = (0, 53, 145)
+NAVY_DARK = (0, 36, 92)
+CARD = (245, 248, 252)
+CARD_HEADER = (220, 231, 243)
+WHITE = (255, 255, 255)
+TEXT = (28, 38, 48)
+MUTED = (85, 96, 108)
+RED = (200, 30, 30)
+AMBER = (225, 135, 0)
+GREEN_LIGHT = (220, 243, 222)
+# placeholders: instruments not read by Genesis yet
+GREY_FILL = (230, 230, 230)
+GREY_LINE = (165, 165, 165)
+GREY_TEXT = (120, 120, 120)
+# the insert drawing
+DEWAR = (204, 226, 246)
+STEEL = (64, 70, 80)
+INSERT = (246, 248, 251)
+BAFFLE = (240, 140, 30)
+FRIDGE = (250, 218, 241)
+FRIDGE_LINE = (200, 0, 150)
+CUP = (215, 192, 245)
+CUP_LINE = (110, 50, 180)
+COIL = (250, 205, 40)
+COIL_LINE = (170, 130, 0)
+
+NOT_YET = "not in Genesis yet"
+
+#: Trace colour of every thermometer: its readout box in the insert drawing
+#: has the same colour.  T1 and T3 (target cup, served by the magnet LS224)
+#: are drawn with the fridge, where they sit.
+FRIDGE_T = {
+    "F1": (178, 34, 34), "F2": (230, 120, 0), "F3": (205, 170, 0), "F4": (0, 128, 0),
+    "F5": (0, 70, 200), "F6": (220, 0, 160), "F7": (120, 40, 200), "F8": (90, 90, 90),
+    "F9": (140, 70, 20), "F10": (0, 160, 170), "F11": (0, 90, 60),
+    "T1": (200, 0, 70), "T3": (40, 40, 140),
+}
+MAGNET_T = {"M1": (200, 30, 30), "M2": (0, 90, 200), "M3": (0, 140, 60), "M4": (210, 120, 0),
+            "M5": (110, 50, 170)}
+
+
+def thermometer_pv(sensor: str) -> str:
+    sub = "FRIDGE" if sensor.startswith("F") else "MAG"
+    return f"{CRYO}:{sub}:{sensor}_TI"
+
+
+def col(rgb):
+    r, g, b = rgb
+    return f'<color red="{r}" green="{g}" blue="{b}" alpha="255"/>'
+
+
+def font(size, bold=False, italic=False):
+    style = "BOLD_ITALIC" if bold and italic else "BOLD" if bold else "ITALIC" if italic else "REGULAR"
+    return f'<font><font family="Liberation Sans" style="{style}" size="{size}.0"/></font>'
+
+
+def ink(rgb):
+    """Readable text colour on a coloured background."""
+    r, g, b = rgb
+    return TEXT if 0.299 * r + 0.587 * g + 0.114 * b > 150 else WHITE
+
+
+_n = [0]
+
+
+def _name(prefix):
+    _n[0] += 1
+    return f"{prefix}{_n[0]}"
+
+
+def rect(x, y, w, h, bg, line=None, line_width=1, corner=0, name=None, transparent=False):
+    border = (f"<line_width>{line_width}</line_width><line_color>{col(line)}</line_color>" if line
+              else "<line_width>0</line_width>")
+    corners = f"<corner_width>{corner}</corner_width><corner_height>{corner}</corner_height>" if corner else ""
+    fill = "<transparent>true</transparent>" if transparent else f"<background_color>{col(bg)}</background_color>"
+    return (f'<widget type="rectangle" version="2.0.0"><name>{name or _name("Rect")}</name>'
+            f"<x>{x}</x><y>{y}</y><width>{w}</width><height>{h}</height>{border}{corners}{fill}</widget>")
+
+
+def dashed(x, y, w, rgb, name=None):
+    """Horizontal dashed line."""
+    return (f'<widget type="polyline" version="2.0.0"><name>{name or _name("Line")}</name>'
+            f"<x>{x}</x><y>{y - 1}</y><width>{w}</width><height>3</height>"
+            f'<points><point x="0.0" y="1.0"/><point x="{w}.0" y="1.0"/></points>'
+            f"<line_width>2</line_width><line_color>{col(rgb)}</line_color><line_style>1</line_style></widget>")
+
+
+def label(text, x, y, w, h, size=10, bold=False, fg=TEXT, bg=None, align=0, italic=False,
+          tooltip=None, name=None, valign=1, wrap=False):
+    back = (f"<background_color>{col(bg)}</background_color><transparent>false</transparent>" if bg
+            else "<transparent>true</transparent>")
+    tip = f"<tooltip>{escape(tooltip)}</tooltip>" if tooltip else ""
+    wrapping = "<wrap_words>true</wrap_words>" if wrap else ""
+    return (f'<widget type="label" version="2.0.0"><name>{name or _name("Label")}</name>'
+            f"<text>{escape(text)}</text><x>{x}</x><y>{y}</y><width>{w}</width><height>{h}</height>"
+            f"{font(size, bold, italic)}<foreground_color>{col(fg)}</foreground_color>{back}"
+            f"<horizontal_alignment>{align}</horizontal_alignment>"
+            f"<vertical_alignment>{valign}</vertical_alignment>{wrapping}{tip}</widget>")
+
+
+def update(pv, x, y, w, h, size=11, bold=False, fmt=None, prec=None, units=True, bg=WHITE, fg=TEXT,
+           align=0, name=None):
+    extra = f"<format>{fmt}</format>" if fmt is not None else ""
+    extra += f"<precision>{prec}</precision>" if prec is not None else ""
+    extra += "" if units else "<show_units>false</show_units>"
+    return (f'<widget type="textupdate" version="2.0.0"><name>{name or _name("Upd")}</name>'
+            f"<pv_name>ca://{pv}</pv_name><x>{x}</x><y>{y}</y><width>{w}</width><height>{h}</height>"
+            f"{font(size, bold)}<background_color>{col(bg)}</background_color>"
+            f"<foreground_color>{col(fg)}</foreground_color>"
+            f"<horizontal_alignment>{align}</horizontal_alignment>{extra}</widget>")
+
+
+def led(pv, x, y, size=16):
+    return (f'<widget type="led" version="2.0.0"><name>{_name("Led")}</name>'
+            f"<pv_name>ca://{pv}</pv_name><x>{x}</x><y>{y}</y><width>{size}</width>"
+            f"<height>{size}</height></widget>")
+
+
+def open_button(text, bob, x, y, w=110, h=28):
+    return (f'<widget type="action_button" version="3.0.0"><name>{_name("Open")}</name>'
+            f"<x>{x}</x><y>{y}</y><width>{w}</width><height>{h}</height>"
+            f'<actions><action type="open_display"><file>{escape(bob)}</file><target>tab</target>'
+            f"<description>{escape(text)}</description></action></actions>"
+            f"<text>{escape(text)}</text></widget>")
+
+
+def card(title, x, y, w, h, key):
+    return (rect(x, y, w, h, CARD, CARD_HEADER, name=f"Card_{key}")
+            + rect(x, y, w, 26, CARD_HEADER, name=f"Card_{key}_Header")
+            + label(title, x + 8, y + 1, w - 16, 24, 13, True, NAVY, name=f"Card_{key}_Title"))
+
+
+def field(caption, pv, x, y, w, size=11, prec=None, fmt=None, units=True, bold=True):
+    """Caption above a read-back."""
+    return label(caption, x, y, w, 15, 9, False, MUTED) + \
+        update(pv, x, y + 15, w, 21, size, bold, fmt=fmt, prec=prec, units=units)
+
+
+def inline(caption, pv, x, y, wl, wv, prec=None, fmt=None):
+    """Caption left of a read-back, one line."""
+    return label(caption, x, y, wl, 21, 9, False, MUTED) + \
+        update(pv, x + wl, y, wv, 21, 10, True, fmt=fmt, prec=prec)
+
+
+def placeholder(key, caption, x, y, w, what):
+    """A read-back Genesis does not have yet: caption above a grey box, no PV."""
+    tip = f"{what}: {NOT_YET}"
+    return label(caption, x, y, w, 15, 9, False, GREY_TEXT, tooltip=tip) + \
+        label(NOT_YET, x, y + 15, w, 21, 9, False, GREY_TEXT, GREY_FILL, align=1, italic=True,
+              tooltip=tip, name=f"Placeholder_{key}")
+
+
+def placeholder_plot(key, title, x, y, w, h, what):
+    """A trend or plot of an instrument Genesis does not read yet."""
+    tip = f"{what}: {NOT_YET}"
+    return (rect(x, y, w, h, GREY_FILL, GREY_LINE, name=f"Placeholder_{key}")
+            + label(title, x + 6, y + 6, w - 12, 34, 10, True, GREY_TEXT, align=1, tooltip=tip, wrap=True)
+            + label(NOT_YET, x + 6, y + h // 2 - 12, w - 12, 24, 12, False, GREY_TEXT, align=1, italic=True,
+                    tooltip=tip))
+
+
+def stripchart(key, title, x, y, w, h, traces, axes, time_range, legend=True):
+    """traces: (name, pv, rgb, axis); axes: (title, log, minimum, maximum) (autoscaled)."""
+    ax = "".join(
+        f"<y_axis><title>{escape(t)}</title><autoscale>true</autoscale><log_scale>{str(log).lower()}</log_scale>"
+        f"<minimum>{lo}</minimum><maximum>{hi}</maximum><show_grid>true</show_grid><visible>true</visible>"
+        f"</y_axis>" for t, log, lo, hi in axes)
+    tr = "".join(
+        f"<trace><name>{escape(n)}</name><y_pv>ca://{pv}</y_pv><axis>{a}</axis><trace_type>1</trace_type>"
+        f"<color>{col(rgb)}</color><line_width>2</line_width><point_type>0</point_type>"
+        f"<point_size>4</point_size><visible>true</visible></trace>" for n, pv, rgb, a in traces)
+    small = '<font family="Liberation Sans" style="REGULAR" size="9.0"/>'
+    return (f'<widget type="stripchart" version="2.1.0"><name>Trend_{key}</name>'
+            f"<x>{x}</x><y>{y}</y><width>{w}</width><height>{h}</height>"
+            f"<title>{escape(title)}</title>"
+            f'<title_font><font family="Liberation Sans" style="BOLD" size="10.0"/></title_font>'
+            f"<label_font>{small}</label_font><scale_font>{small}</scale_font>"
+            f"<show_toolbar>false</show_toolbar><show_legend>{str(legend).lower()}</show_legend>"
+            f"<show_grid>true</show_grid><start>{time_range}</start><y_axes>{ax}</y_axes><traces>{tr}</traces></widget>")
+
+
+def nmr_plot(x, y, w, h):
+    def trace(name, pv, rgb, width):
+        return (f"<trace><name>{name}</name><x_pv>ca://{FIT}:FREQS_MHZ</x_pv><y_pv>ca://{FIT}:{pv}</y_pv>"
+                f"<axis>0</axis><trace_type>1</trace_type><line_width>{width}</line_width>"
+                f"<color>{col(rgb)}</color></trace>")
+    return (f'<widget type="xyplot" version="3.0.0"><name>NMR_Signal</name>'
+            f"<x>{x}</x><y>{y}</y><width>{w}</width><height>{h}</height>"
+            f"<title>NMR signal (online fitter)</title><show_toolbar>false</show_toolbar>"
+            f"<x_axis><title>Frequency (MHz)</title><autoscale>true</autoscale><minimum>32.0</minimum>"
+            f"<maximum>33.4</maximum><log_scale>false</log_scale><show_grid>true</show_grid></x_axis>"
+            f"<y_axes><y_axis><title>Signal (arb.)</title><autoscale>true</autoscale><minimum>0.0</minimum>"
+            f"<maximum>1.0</maximum><log_scale>false</log_scale><show_grid>true</show_grid>"
+            f"<on_right>false</on_right></y_axis></y_axes>"
+            f"<traces>{trace('incoming', 'RAW', (150, 150, 150), 1)}{trace('processed', 'DATA', NAVY, 2)}"
+            f"{trace('total fit', 'TOTAL_FIT', RED, 2)}</traces></widget>")
+
+
+# ------------------------------------------------------------------ panels
+def header():
+    w = [rect(0, 0, W, 44, NAVY_DARK, name="Header"),
+         label("UNH Genesis - Panopticon", 14, 2, 340, 26, 18, True, WHITE, name="Title"),
+         label("Polarized-target overview (read-only)", 15, 26, 340, 16, 9, False, WHITE)]
+    for i, (cap, pv, wv) in enumerate((("Target state", f"{CRYO}:STATE:production", 120),
+                                       ("Safety", f"{CRYO}:SAFE:Safe_State", 120),
+                                       ("Alarms", f"{CRYO}:ALARM:Alarm_Count", 60),
+                                       ("Worst", f"{CRYO}:ALARM:Alarm_Worst", 100),
+                                       ("First alarm", f"{CRYO}:ALARM:Alarm_First", 300))):
+        x = 380 + sum((130, 150, 70, 110)[:i])
+        if cap == "Safety":
+            w.append(led(f"{CRYO}:SAFE:Safe_Permit", x, 21, 18))
+            x += 22
+        w.append(label(cap, x, 2, wv, 16, 9, False, WHITE))
+        w.append(update(pv, x, 19, wv, 22, 10, True))
+    for i, (text, bob) in enumerate((("Cryo", "genesis_cryo.bob"), ("Microwave", "genesis_microwave.bob"),
+                                     ("ssRF", "genesis_ssrf.bob"), ("NMR fitter", "genesis_ssrf_fitter.bob"))):
+        w.append(open_button(text, bob, 1426 + i * 117, 8, 110, 28))
+    return w
+
+
+def magnet_space():
+    x, y = 6, 50
+    w = [card("Magnet Space", x, y, 710, 282, "Magnet")]
+    w.append(placeholder_plot("MagnetLevelTrend", "Magnet LHe level (AMI meter), 40 min",
+                              14, 82, 228, 242, "Magnet LHe level meter (AMI)"))
+    w.append(stripchart("MagnetThermometry", "Magnet thermometry (K)", 248, 82, 352, 242,
+                        [(s, thermometer_pv(s), c, 0) for s, c in MAGNET_T.items()],
+                        [("K", False, 0, 10)], "15 minutes"))
+    # magnet LHe level bar: 0-31 inch, alarm at 20", magnet top at 16.5"
+    top, h = 100, 180
+    w.append(label("Level (in)", 606, 82, 104, 18, 10, True, GREY_TEXT))
+    w.append(rect(620, top, 34, h, GREY_FILL, GREY_LINE, name="Placeholder_MagnetLevelBar"))
+    for inch, rgb, text in ((20.0, RED, '20" alarm'), (16.5, AMBER, '16.5" top')):
+        yy = top + h - round(inch / 31.0 * h)
+        w.append(rect(616, yy, 42, 2, rgb))
+        w.append(label(text, 660, yy - 8, 52, 16, 8, True, rgb))
+    w.append(placeholder("MagnetLevel", "Magnet LHe level", 606, 286, 104, "Magnet LHe level meter (AMI)"))
+    return w
+
+
+FRIDGE_READOUTS = (
+    ("placeholder", "FridgeLevel", "Fridge LHe level (in)", "Fridge LHe level meter (AMI)"),
+    ("placeholder", "VaporTemp", "Vapor-pressure T (K)", "Vapor-pressure temperature"),
+    ("live", f"{CRYO}:CELL:Cell_PI", "Mano. Hi (MKS 902B)", None),
+    ("placeholder", "ManometerLo", "Mano. Lo", "Manometer Lo"),
+    ("live", f"{CRYO}:VAC:Pump_PI", "Roots top (TPG 262 g1)", None),
+    ("live", f"{CRYO}:VAC:OVC_PI", "Roots bottom (TPG 262 g2)", None),
+    ("placeholder", "Pirani", "Pirani", "Pirani gauge"),
+    ("placeholder", "SeparatorFlow", "Separator flow (slm)", "Separator flow meter"),
+    ("placeholder", "RootsTotalFlow", "Roots total flow", "Roots flow meters"),
+    ("placeholder", "BackingLFlow", "Backing L flow", "Roots L flow meter"),
+    ("placeholder", "BackingRFlow", "Backing R flow", "Roots R flow meter"),
+)
+
+
+def fridge_space():
+    x, y = 6, 338
+    w = [card("Fridge Space", x, y, 710, 456, "Fridge")]
+    w.append(placeholder_plot("FlowTrend", "Flows: separator, Roots L / R / total (1 h)",
+                              14, 370, 250, 200, "Flow meters (separator, Roots L/R)"))
+    w.append(stripchart("FridgePressures", "Pressures (log)", 14, 576, 250, 210,
+                        [("Mano. Hi (Torr)", f"{CRYO}:CELL:Cell_PI", (230, 110, 0), 0),
+                         ("Roots top (mbar)", f"{CRYO}:VAC:Pump_PI", (220, 0, 160), 1),
+                         ("Roots bottom (mbar)", f"{CRYO}:VAC:OVC_PI", (120, 40, 200), 1)],
+                        [("Torr", True, 0.001, 1000), ("mbar", True, 0.001, 1000)], "1 hour"))
+    w.append(stripchart("FridgeThermometry", "Fridge thermometry (K, log): colours as the insert",
+                        270, 370, 300, 270,
+                        [(s, thermometer_pv(s), c, 0) for s, c in FRIDGE_T.items()],
+                        [("K", True, 0.5, 300)], "40 minutes", legend=False))
+    w.append(placeholder_plot("FridgeLevelTrend", "Fridge LHe level (AMI meter), 6 h",
+                              270, 646, 300, 140, "Fridge LHe level meter (AMI)"))
+    for i, (kind, ref, caption, what) in enumerate(FRIDGE_READOUTS):
+        yy = 370 + i * 37
+        if kind == "live":
+            w.append(field(caption, ref, 576, yy, 132, 10, prec=3, fmt=2))
+        else:
+            w.append(placeholder(ref, caption, 576, yy, 132, what))
+    return w
+
+
+def shells_space():
+    x, y = 6, 800
+    w = [card("Shells Space", x, y, 350, 294, "Shells")]
+    w.append(stripchart("ShellsVacuum", "Shells (insulating) vacuum, log", 14, 832, 250, 254,
+                        [("IONIVAC", f"{CRYO}:ION:Ion_PI", (110, 50, 200), 0)],
+                        [("Torr", True, 1e-8, 1e-3)], "2 days", legend=False))
+    w.append(field("IONIVAC", f"{CRYO}:ION:Ion_PI", 270, 832, 80, 10, prec=2, fmt=2))
+    w.append(field("Gauge comm", f"{CRYO}:ION:COMM", 270, 876, 80, 9, bold=False))
+    return w
+
+
+def lab_space():
+    x, y = 362, 800
+    w = [card("Lab Space", x, y, 354, 294, "Lab")]
+    w.append(placeholder_plot("LabTrend", "Lab thermocouples (1 day)", 370, 832, 220, 254,
+                              "Lab thermocouples"))
+    for i, (key, caption) in enumerate((("BackingPumpL", "Backing pump L"), ("BackingPumpR", "Backing pump R"),
+                                        ("VMETemp", "VME temp"), ("SeparatorHeater", "Separator heater"))):
+        w.append(placeholder(key, caption, 596, 832 + i * 42, 112, f"Lab thermocouple: {caption}"))
+    return w
+
+
+#: Insert drawing: (sensor, column, top of the readout box).  The vertical
+#: order is the physical order of the sensors, top to bottom: F1 by the
+#: pump-out line, F2, F3 and F4, F5, F6, F8 above F7, F9, F10, F11 at the
+#: bottom of the fridge, then the target cup's T1 and T3; M1-M5 run down
+#: alongside the magnet.
+CARTOON_SENSORS = (
+    ("F1", "right", 232), ("F2", "left", 250), ("F3", "left", 304), ("F4", "right", 326),
+    ("F5", "left", 372), ("F6", "left", 430), ("F8", "left", 486), ("F7", "right", 512),
+    ("F9", "right", 600), ("F10", "left", 650), ("F11", "right", 770),
+    ("T1", "left", 885), ("T3", "left", 960),
+    ("M1", "magnet", 470), ("M2", "magnet", 600), ("M3", "magnet", 830), ("M4", "magnet", 900),
+    ("M5", "magnet", 1030),
+)
+CARTOON_X = {"left": (798, 68), "right": (974, 68), "magnet": (1046, 64)}
+
+# depth scale for the magnet LHe level: 0" at y=1060, 15 px per inch
+LEVEL_Y0, PX_PER_INCH = 1060, 15
+
+
+def insert_cartoon():
+    x, y = 722, 50
+    w = [card("Target insert", x, y, 394, 1044, "Insert")]
+    # target selectors
+    w.append(field("Target material", f"{CRYO}:STATE:material", 730, 80, 186, 11))
+    w.append(field("Fitter material", f"{FIT}:MATERIAL_RBV", 922, 80, 186, 11))
+    w.append(field("Dopant (MW supervisor)", f"{MW}:SUP:Dopant", 730, 120, 186, 11))
+    w.append(placeholder("TargetStick", "Target stick", 922, 120, 186, "Target stick selection"))
+    # magnet cryostat and its LHe depth scale
+    w.append(rect(760, 300, 320, 768, DEWAR, NAVY, 2, name="Dewar"))
+    w.append(label("magnet cryostat", 764, 302, 120, 14, 8, False, NAVY))
+    for inch in range(0, 31, 5):
+        yy = LEVEL_Y0 - inch * PX_PER_INCH
+        w.append(rect(762, yy, 9, 1, NAVY))
+        if inch != 20:
+            w.append(label(str(inch), 772, yy - 6, 22, 12, 8, False, NAVY))
+    w.append(label(f"magnet LHe (in): {NOT_YET}", 762, 548, 104, 30, 8, False, GREY_TEXT, italic=True,
+                   wrap=True, name="Placeholder_MagnetLevelScale"))
+    alarm_y = LEVEL_Y0 - 20 * PX_PER_INCH
+    top_y = round(LEVEL_Y0 - 16.5 * PX_PER_INCH)
+    # the coils reach the magnet top
+    w.append(rect(808, top_y, 58, LEVEL_Y0 - top_y - 6, COIL, COIL_LINE, corner=10, name="Coil_L"))
+    w.append(rect(974, top_y, 58, LEVEL_Y0 - top_y - 6, COIL, COIL_LINE, corner=10, name="Coil_R"))
+    # insert: tail, pump-out head, fridge, pumping tube, baffles, separator, cup
+    w.append(rect(870, 262, 100, 790, INSERT, MUTED, name="Insert_Tail"))
+    w.append(rect(878, 470, 84, 356, FRIDGE, FRIDGE_LINE, 2, name="Fridge"))
+    w.append(rect(898, 166, 44, 100, STEEL, name="Insert_Head"))
+    w.append(rect(790, 186, 260, 24, STEEL, name="PumpOut_Line"))
+    w.append(label("pump-out (Roots)", 794, 190, 100, 16, 8, False, WHITE))
+    w.append(rect(904, 262, 32, 600, STEEL, name="Pumping_Tube"))
+    for yy in list(range(280, 461, 30)) + list(range(500, 811, 40)):
+        w.append(rect(880, yy, 80, 5, BAFFLE))
+    w.append(rect(938, 360, 30, 30, (170, 176, 186), MUTED, name="Separator"))
+    w.append(label("sep.", 938, 368, 30, 14, 8, False, TEXT, align=1))
+    w.append(label("fridge", 880, 806, 40, 14, 8, True, FRIDGE_LINE))
+    w.append(rect(902, 866, 36, 170, CUP, CUP_LINE, 2, name="Target_Cup"))
+    w.append(label("cup", 902, 1038, 36, 12, 8, True, CUP_LINE, align=1))
+    # the alarm and magnet-top lines go over the coils
+    w.append(rect(760, alarm_y, 320, 2, RED, name="Level_Alarm_Line"))
+    w.append(label('20" alarm', 762, alarm_y - 14, 60, 13, 8, True, RED))
+    w.append(dashed(760, top_y, 320, AMBER, name="Magnet_Top_Line"))
+    w.append(label('16.5" top', 762, top_y - 14, 60, 13, 8, True, AMBER))
+    # thermometer readouts
+    for sensor, column, top in CARTOON_SENSORS:
+        x0, wid = CARTOON_X[column]
+        rgb = FRIDGE_T.get(sensor) or MAGNET_T[sensor]
+        w.append(label(sensor, x0, top - 15, wid, 15, 9, True, TEXT))
+        w.append(update(thermometer_pv(sensor), x0, top, wid, 20, 10, True, prec=2, bg=rgb, fg=ink(rgb),
+                        align=1, name=f"Insert_{sensor}"))
+    w.append(label("Readouts sit in the physical order of the sensors; box colours match the trend traces.",
+                   728, 1070, 382, 22, 8, False, MUTED, wrap=True))
+    return w
+
+
+def nmr():
+    x, y = 1122, 50
+    w = [card("NMR", x, y, 520, 650, "NMR")]
+    for i, (cap, pv) in enumerate((("Fitter", "FITTER_UP"), ("Publisher", "PUBLISHER_CONNECTED"),
+                                   ("Calibrated", "CALIBRATED"))):
+        w.append(led(f"{FIT}:{pv}", 1132 + i * 100, 86, 16))
+        w.append(label(cap, 1152 + i * 100, 84, 76, 20, 10))
+    w.append(label("Mode", 1434, 84, 40, 20, 10, False, MUTED))
+    w.append(update(f"{FIT}:MODE_RBV", 1474, 84, 160, 20, 10, True))
+    w.append(nmr_plot(1130, 110, 504, 280))
+    w.append(stripchart("Polarization", "Polarization (online fitter)", 1130, 396, 504, 214,
+                        [("P (%)", f"{FIT}:P_FIT", (0, 140, 40), 0), ("Q (%)", f"{FIT}:Q_FIT", (200, 0, 160), 1)],
+                        [("P (%)", False, -60, 60), ("Q (%)", False, -30, 30)], "3 hours"))
+    w.append(label("Polarization", 1132, 614, 150, 16, 10, True, MUTED))
+    w.append(update(f"{FIT}:P_FIT", 1132, 630, 130, 36, 20, True, prec=2, units=False, bg=GREEN_LIGHT,
+                    align=2, name="NMR_P"))
+    w.append(label("%", 1264, 630, 20, 36, 16, True))
+    for i, (cap, pv) in enumerate((("Q (fit)", "Q_FIT"), ("Q (equilibrium)", "Q_EQ"))):
+        xx = 1300 + i * 168
+        w.append(label(cap, xx, 614, 140, 16, 10, True, MUTED))
+        w.append(update(f"{FIT}:{pv}", xx, 630, 120, 36, 16, True, prec=2, units=False, align=2))
+        w.append(label("%", xx + 122, 630, 20, 36, 14, True))
+    w.append(inline("red. chi2", f"{FIT}:RED_CHISQ", 1132, 672, 60, 90, prec=3))
+    w.append(inline("Last fit", f"{FIT}:LAST_TS", 1300, 672, 60, 270))
+    return w
+
+
+def holeburning():
+    x, y = 1648, 50
+    w = [card("Holeburning (ssRF)", x, y, 246, 650, "Holeburning")]
+    rows = (("HB frequency", f"{SSRF}:GEN:FREQ_RBV", 4), ("HB level", f"{SSRF}:GEN:LEVEL_RBV", 2),
+            ("Generator RF", f"{SSRF}:GEN:RF_RBV", None), ("FM", f"{SSRF}:GEN:FM_RBV", None),
+            ("Power sweep armed", f"{SSRF}:GEN:SWEEP_ARM_RBV", None),
+            ("WaveGen output", f"{SSRF}:WGEN:OUTPUT_RBV", None),
+            ("NMR switch", f"{SSRF}:NMR_SW:STATE_RBV", None), ("HB (RF) switch", f"{SSRF}:RF_SW:STATE_RBV", None),
+            ("Interlock", f"{SSRF}:ILK:STATE", None), ("Interlock reason", f"{SSRF}:ILK:REASON", None),
+            ("Sequencer", f"{SSRF}:SEQ:STATE", None), ("Generator comm", f"{SSRF}:GEN:COMM", None))
+    for i, (cap, pv, prec) in enumerate(rows):
+        w.append(field(cap, pv, 1658, 84 + i * 40, 226, 10, prec=prec))
+    w.append(open_button("ssRF screen", "genesis_ssrf.bob", 1658, 580, 226, 28))
+    w.append(open_button("NMR fitter screen", "genesis_ssrf_fitter.bob", 1658, 616, 226, 28))
+    w.append(label("Burns are run from the ssRF screen.", 1658, 652, 226, 36, 9, False, MUTED, wrap=True))
+    return w
+
+
+def sc_magnet():
+    x, y = 1122, 706
+    w = [card("Superconducting Magnet", x, y, 380, 190, "SCMagnet")]
+    w.append(placeholder("MagnetCurrent", "Current (A)", 1132, 738, 176, "Magnet power supply current"))
+    w.append(placeholder("MagnetField", "Field (T)", 1316, 738, 176, "Magnet power supply field"))
+    w.append(placeholder("NMRFreqFromField", "NMR frequency from field (MHz)", 1132, 778, 176,
+                         "Deuteron NMR frequency from the magnet field"))
+    w.append(placeholder("SwitchHeater", "Switch heater", 1316, 778, 176, "Magnet persistent-switch heater"))
+    w.append(field("Fringe field (LS455)", f"{CRYO}:FIELD:Fringe_FieldT", 1132, 818, 176, 11, prec=5))
+    w.append(field("Gaussmeter reading", f"{CRYO}:FIELD:Fringe_Field", 1316, 818, 112, 11, prec=4))
+    w.append(update(f"{CRYO}:FIELD:Fringe_Unit", 1430, 833, 62, 21, 10))
+    w.append(open_button("Field screen", "genesis_cryo_field.bob", 1132, 860, 176, 26))
+    return w
+
+
+def microwaves():
+    x, y = 1508, 706
+    w = [card("Microwaves", x, y, 386, 190, "Microwaves")]
+    w.append(field("Output frequency", f"{MW}:SUP:OutputFrequencyRBV", 1518, 738, 176, 11, prec=4))
+    w.append(field("Source power", f"{MW}:SRC:MW_PWRI", 1704, 738, 176, 11, prec=1))
+    w.append(field("UCA voltage", f"{MW}:PS:VMEAS", 1518, 778, 176, 11, prec=3))
+    w.append(field("UCA output", f"{MW}:PS:OUTPUT_RBV", 1704, 778, 176, 11))
+    w.append(label("RF on", 1518, 818, 80, 15, 9, False, MUTED))
+    w.append(led(f"{MW}:SUP:RFActual", 1518, 836, 18))
+    w.append(update(f"{MW}:SUP:RFState", 1540, 833, 154, 21, 11, True))
+    w.append(label("RF permissive", 1704, 818, 120, 15, 9, False, MUTED))
+    w.append(led(f"{MW}:SUP:RFPermissive", 1704, 836, 18))
+    w.append(update(f"{MW}:SUP:RFPermissive", 1726, 833, 154, 21, 11, True))
+    w.append(placeholder("SIG", "SIG (V)", 1518, 858, 176, "SIG signal"))
+    w.append(label("Magic +/-: on the Microwave screen once the constants are certified", 1704, 858, 180, 36, 8,
+                   False, GREY_TEXT, GREY_FILL, italic=True, wrap=True, name="Placeholder_Magic",
+                   tooltip="Magic +/- microwave frequencies: not on the read-only overview"))
+    return w
+
+
+def epr():
+    x, y = 1122, 902
+    w = [card("EPR", x, y, 380, 192, "EPR")]
+    w.append(placeholder_plot("EPRSignal", "EPR signal vs field", 1132, 934, 236, 152, "EPR lock-in"))
+    for i, (key, cap, what) in enumerate((("EPRLockIn", "Lock-in", "EPR lock-in amplifier"),
+                                          ("EPRCoils", "EPR coils", "EPR sweep coils"),
+                                          ("EPRFieldSweep", "Field sweep", "EPR field sweep"))):
+        w.append(placeholder(key, cap, 1376, 934 + i * 50, 118, what))
+    return w
+
+
+def slowsweep():
+    x, y = 1508, 902
+    w = [card("Slowsweep", x, y, 386, 192, "Slowsweep")]
+    w.append(label(f"DAQ slow sweep (step time, frequency step): {NOT_YET}", 1518, 932, 366, 36, 9, False,
+                   GREY_TEXT, GREY_FILL, align=1, italic=True, wrap=True, name="Placeholder_SlowSweep",
+                   tooltip=f"DAQ slow sweep: {NOT_YET}"))
+    w.append(label("Microwave supervisor software sweep:", 1518, 970, 366, 16, 9, True, MUTED))
+    w.append(inline("State", f"{MW}:SUP:SweepState", 1518, 990, 70, 110))
+    w.append(inline("Progress", f"{MW}:SUP:SweepProgress", 1518, 1014, 70, 110, prec=1))
+    w.append(inline("Frequency", f"{MW}:SUP:SweepCurrentFrequency", 1518, 1038, 70, 110, prec=4))
+    w.append(inline("Step", f"{MW}:SUP:SweepStep", 1704, 990, 60, 120, prec=4))
+    w.append(inline("Dwell", f"{MW}:SUP:SweepDwell", 1704, 1014, 60, 120, prec=1))
+    w.append(open_button("Microwave screen", "genesis_microwave.bob", 1704, 1040, 180, 26))
+    return w
+
+
+def build() -> str:
+    _n[0] = 0
+    w = [rect(0, 0, W, H, WHITE, name="Page")]
+    for part in (header, magnet_space, fridge_space, shells_space, lab_space, insert_cartoon, nmr,
+                 holeburning, sc_magnet, microwaves, epr, slowsweep):
+        w.extend(part())
+    body = "\n  ".join(w)
+    return (f'<?xml version="1.0" encoding="UTF-8"?>\n'
+            f"<!-- Generated by tools/make_panopticon.py: edit the generator, not this file. -->\n"
+            f'<display version="2.0.0">\n'
+            f"  <name>Genesis Panopticon</name>\n  <width>{W}</width>\n  <height>{H}</height>\n"
+            f"  <background_color>{col(WHITE)}</background_color>\n  {body}\n</display>\n")
+
+
+def main():
+    OUT.write_text(build(), encoding="utf-8", newline="\n")
+    print(f"wrote {OUT}")
+
+
+if __name__ == "__main__":
+    main()
