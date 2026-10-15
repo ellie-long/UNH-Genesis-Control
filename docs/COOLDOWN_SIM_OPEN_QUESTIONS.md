@@ -46,10 +46,6 @@ How Genesis is configured today:
      coldboard may have been a single-channel SPD1000X then and swapped since.
      A read-only check on the lab host settles it:
      `caget UNH:GEN:CRYO:COLDBOARD:Coldboard_IDN`.
-7. **Coldboard load.** If the cold board's supply biases varactors, it is
-   not a heater. Then the "coldboard heat" model input (assumed to heat the
-   bath) and the 120 W interlock power limit would both need rethinking.
-   Which channels are used, and at roughly what voltages and currents?
 
 ## Target model (currently **assumed**)
 
@@ -63,6 +59,19 @@ How Genesis is configured today:
    lives in `cooldown_sim/model/fit_params.py` (`Q_heal_tau_s`).
 
 ## Settled
+
+* Coldboard load (question 7; Ells, 2026-10-15): no noticeable heating has
+  been seen from the varactor bias voltages and currents.
+  * **The model neglects it.** `coldboard_heat_W` stays 0 W unless a scenario
+    or Sim Control injects heat as a test fault. This is noted in
+    `cooldown_sim/model/fit_params.py` (and `model_params.yaml`) and the
+    `target.py` docstring.
+  * **To add it later:** set `coldboard_heat_W` from the supply's V x I
+    read-backs. You would need which channels drive the varactors and at
+    roughly what voltages and currents.
+  * Still open for the live system: the interlock treats the supply as a
+    heater (trip at 120 W). Whether that rule suits varactor bias depends on
+    question 6.
 
 * MKS 902B `Cell` = `Manometer-Hi (Torr)`, and the 2020 single-range
   `Manometer (Torr)` (Ells, 2026-10-15).

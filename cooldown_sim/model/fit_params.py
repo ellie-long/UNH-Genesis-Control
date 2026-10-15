@@ -243,7 +243,10 @@ ASSUMED = {
     "coldboard": {
         "to": "bath",
         "basis": "ASSUMED: coldboard heat goes into the bath (raises bath and, through it, "
-                 "the cup) and into boil-off; no record exists.",
+                 "the cup) and into boil-off; no record exists. NEGLECTED in normal running: "
+                 "the cold-board supply biases the varactors and no heating from it has been "
+                 "noticed (Ells, 2026-10-15), so coldboard_heat_W stays 0 W unless a scenario "
+                 "or Sim Control injects heat as a test fault.",
     },
     "quench": {
         "fridge_target_K": 25.0, "magnet_target_K": 15.0, "lattice_target_K": 4.5,

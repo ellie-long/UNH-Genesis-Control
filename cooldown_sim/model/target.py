@@ -26,7 +26,10 @@ State (all integrated with exact exponential sub-steps of <= MAX_STEP_S):
 
 Heat is bookkept in watts: microwaves 62 mW at full drive (MEASURED by the
 Roots-flow differential, 2024-12-17), coldboard heat as set, ssRF burns as
-queued by the ssRF leg.  The cup temperature is the DNP lattice temperature.
+queued by the ssRF leg.  Varactor-bias heating from the cold-board supply is
+deliberately neglected (none noticed in practice; Ells, 2026-10-15):
+``coldboard_heat_W`` is 0 W unless a scenario or Sim Control injects heat as a
+test fault.  To model it later, set it from the supply's V x I read-backs.  The cup temperature is the DNP lattice temperature.
 
 Units: SI-ish lab units -- s, K, T, GHz for microwaves, MHz for NMR.
 """

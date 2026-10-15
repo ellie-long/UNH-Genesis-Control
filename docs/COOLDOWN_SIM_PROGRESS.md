@@ -34,8 +34,8 @@ lab answers are in `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`.
 **The planned build is complete.** What is left is Ells's call:
 
 1. Answer the open questions in `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`: three
-   channel-map guesses, the Siglent supply models and the coldboard load, and
-   whether Q lags Q_B(P) on a spin-up from zero.
+   channel-map guesses, the Siglent supply models, and whether Q lags Q_B(P)
+   on a spin-up from zero.
 2. Try an interactive rehearsal (guide section 2) with the real screens in
    Phoebus.
 3. Decide whether to push `dev-sim` and merge it into `elong`.
@@ -43,6 +43,19 @@ lab answers are in `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`.
    separate change to the live system, deliberately not made here.
 
 ## Log
+
+### 2026-10-15: Coldboard heating neglected (open question 7)
+* Ells: no noticeable heating from the varactor bias voltages and currents,
+  so the model ignores it for now.
+* The model already defaulted `coldboard_heat_W` to 0 W, so behaviour is
+  unchanged. The decision is now recorded where a later change would start:
+  * the coldboard `basis` in `fit_params.py` / `model_params.yaml`;
+  * the `target.py` docstring;
+  * the model table in `docs/COOLDOWN_SIM.md`.
+* To add it later: drive `coldboard_heat_W` from the supply's V x I
+  read-backs.
+* Question 7 moved to *Settled*. The 120 W heater-style interlock rule is still
+  a question for the live system, tied to question 6.
 
 ### 2026-10-15: Equipment inventory in the channel map
 * `docs/COOLDOWN_SIM_CHANNEL_MAP.md` now opens with **Equipment Genesis talks
@@ -293,6 +306,7 @@ Also observed:
 | Cup (T1/T2/T3) response ~10 K/W | partly fitted (T3 step responses) |
 | Bath response ~2 K/W, fridge F-sensors none | assumed / not identifiable |
 | Q healing to Q_B(P), DNP lobe shape, coldboard, quench | **assumed** |
+| Varactor-bias heating from the cold-board supply | **neglected** (none noticed; Ells 2026-10-15) |
 
 **Fidelity:** the model follows recorded spin-ups and plateaus to within a few
 points. It does not reproduce deliberate fast depolarisations (AFP, anneals,

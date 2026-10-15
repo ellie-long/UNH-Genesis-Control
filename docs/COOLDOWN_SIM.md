@@ -211,7 +211,7 @@ with `python -m cooldown_sim fit-params`.
 | Boil-off 59.5 mW/slm | Keith (PSTP 2024); Spin-1-Rates-Fit dec15 thermal audit |
 | Cup (T1/T2/T3) ~10 K/W; bath ~2 K/W | cup partly fitted (T3); bath **assumed** |
 | Magnet thermometers M2-M4 | fitted from 13 isolated microwave transitions |
-| Coldboard heat, quench | **assumed**, for exercising interlocks |
+| Coldboard heat, quench | **assumed**, for exercising interlocks. Varactor-bias heating from the cold-board supply is **neglected** (none noticed; Ells, 2026-10-15): 0 W unless injected as a test fault |
 | NMR line, noise, drift | ported from the McClellan test-cooldown generator (real 2026-06 amplitudes) |
 
 **Fidelity.** Over real days, the model tracks recorded spin-ups and plateaus
