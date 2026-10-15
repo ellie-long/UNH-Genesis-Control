@@ -95,7 +95,8 @@ instruments:
           (2026-10-15): TPG262 gauge 2, which Genesis names "OVC", is the
           BOTTOM manometer on the Roots pump, not an insulating vacuum.  The
           record has no column for it (one Roots column only).  It is still
-          fed from "ColdCathode.Pres (Torr)" (2021+, NaN from 2025-11) because
+          fed from "ColdCathode.Pres (Torr)" (2021+, NaN from 2025-11; an
+          older back-up gauge to the IONIVAC, now disconnected) because
           the model's quench vacuum rise, the sim's vacuum interlock limits
           and the vacuum-trip scenario all act on it.  The insulating (shells)
           vacuum is the IONIVAC.
@@ -401,10 +402,10 @@ record_only:
   - instrument: Separator flow meter
     columns: [separator_flow]
     used_by: nothing
-  - instrument: Cold-cathode gauge (instrument and volume unknown)
+  - instrument: Cold-cathode gauge (older back-up to the IONIVAC on the shells' vacuum)
     columns: [cold_cathode]
     used_by: "still feeds tpg262.OVC until the vacuum rework (wrong: that gauge is the bottom Roots manometer)"
-    note: "Logged 2021 to 2025-07, empty from 2025-11. Not TPG262 gauge 2 (Ells 2026-10-15). CHECK: what it measured, and whether it still exists"
+    note: "Ells 2026-10-15: an older gauge backing up the IONIVAC; the device that read it is broken and disconnected, hence the empty column from 2025-11 (logged 2021 to 2025-07). Not TPG262 gauge 2. In the vacuum rework it can serve as a fallback for the shells' vacuum history"
   - instrument: Pirani gauge
     columns: [pirani_v]
     used_by: nothing

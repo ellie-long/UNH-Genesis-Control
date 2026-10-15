@@ -45,6 +45,12 @@ lab answers are in `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`.
 
 ## Log
 
+### 2026-10-15: Cold-cathode gauge identified
+* Ells: the cold-cathode gauge was an older back-up to the IONIVAC (shells'
+  vacuum). The device that read it is broken and disconnected, which is why
+  its column is empty from 2025-11. Channel map and question 3 updated; for
+  the vacuum rework, its history is a fallback for the IONIVAC's.
+
 ### 2026-10-15: TPG 262 is on the Roots pump; Manometer-Lo head
 * Ells: both TPG 262 gauges are manometers on the Roots pump (gauge 1 `Pump`
   = top, gauge 2 `OVC` = bottom). The IONIVAC is the shells' insulating

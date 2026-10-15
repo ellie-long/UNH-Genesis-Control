@@ -15,8 +15,6 @@ treated as authoritative. Answers go into `cooldown_sim/channel_map.yaml`
    * Should the vacuum interlock watch the IONIVAC (`ION:Ion_PI`) instead,
      and at what trip pressure?
    * Is LabVIEW's `Roots Pressure (Torr)` the top or the bottom manometer?
-   * What was the cold-cathode gauge (`ColdCathode.Pres`, logged 2021 to
-     2025-07), and does it still exist?
 
 ## Microwave power
 
@@ -83,6 +81,11 @@ treated as authoritative. Answers go into `cooldown_sim/channel_map.yaml`
      equilibrium) at full field?
 
 ## Settled
+
+* The cold-cathode gauge (`ColdCathode.Pres`, logged 2021 to 2025-07) was an
+  older back-up to the IONIVAC on the shells' vacuum. The device that read it
+  is broken and disconnected, hence the empty column from 2025-11 (Ells,
+  2026-10-15). In the vacuum rework its history can back up the IONIVAC's.
 
 * TPG 262 (question 2): both gauges are manometers on the Roots pump; gauge 1
   (`Pump`) is the top one, gauge 2 (`OVC`) the bottom one (Ells, 2026-10-15).
