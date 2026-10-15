@@ -21,8 +21,13 @@ named in each item. Numbers are stable: answered items move to *Settled*.
 
 **Microwave and ssRF power**
 - [ ] 9. The UCA's power-vs-voltage curve; the SIG monitor's calibration;
-      roughly when the manual supply replaced the analog-output drive.
-- [ ] 10. (Parked) ssRF heat vs power at the coil.
+      roughly when the manual supply replaced the analog-output drive. Can
+      the newer microwave power plots (after the 2022 and 2025 repairs) be
+      ported?
+- [ ] 24. Vaunix setpoint at -3 to -5 dB from 2022 to 2025-07: was the
+      microwave chain out of saturation (less power) then?
+- [ ] 10. (Parked) ssRF heat vs power at the coil. Is the LZY-22+ used for
+      ssRF burns as well as AFP?
 
 **Target physics**
 - [ ] 5. Does Q lag Q_B(P) as P rebuilds after a quench or anneal?
@@ -34,6 +39,13 @@ named in each item. Numbers are stable: answered items move to *Settled*.
       take F1 out of the cold-board interlock rule.
 - [ ] 17. Cold-board interlock: what, if anything, should it protect now that
       the supply is varactor bias (the 120 W heater-style rule)?
+- [ ] 25. Shells-vacuum alarm: Genesis's IONIVAC alarm limits are
+      HIGH 800 / HIHI 900 Torr, so losing the shells' vacuum raises no alarm.
+      Which levels, and a rate-of-rise warning?
+- [ ] 26. Instruments behind the lab's alarms that Genesis lacks: the magnet
+      power supply, the AMI level meters, the backing-pump thermocouples.
+      Which come first? (Also limits what the sim can rehearse: field steps
+      for baselines, ramps, quench response.)
 - [ ] 18. When to schedule the live fixes (findings 1-8 plus the vacuum and
       F1 interlock rules).
 
@@ -124,8 +136,8 @@ named in each item. Numbers are stable: answered items move to *Settled*.
    line, as on the real system. To model it:
    * How fast does the field fall in a quench (dump time constant), and to
      roughly what?
-   * How is it brought back: re-ramp rate or time to full field, and roughly
-     how long after a quench before ramping starts?
+   * How is it brought back: roughly how long after a quench before ramping
+     starts? (The ramp-rate limit is in Ells's lab notes.)
    * After the re-ramp, does the target start from P = 0 (or thermal
      equilibrium) at full field?
 
@@ -140,6 +152,24 @@ named in each item. Numbers are stable: answered items move to *Settled*.
 12. **Cold-board tune.** Higher cold-board voltage moves the Q-curve's tune
     to higher frequency. With MHz per volt the sim's NMR source could move
     the Q-curve, and rehearse retuning without a fresh baseline.
+
+### Added while porting lab documents (2026-10-15)
+
+24. **Vaunix setpoint and saturation.** The microwave chain is normally run in
+    saturation with the Lab Brick at +10 dBm. The record has the setpoint at
+    -3 to -5 dB from 2022 to 2025-07 (and +10 before and after). If the chain
+    was out of saturation then, the microwave power was lower and the model's
+    drive should reflect it; if not, the setpoint can be ignored (question 9).
+25. **Shells-vacuum alarm.** Genesis's IONIVAC record alarms at 800 / 900 Torr
+    (HIGH / HIHI), which never fires on a vacuum loss in the shells. The lab's
+    own procedures define warning and action levels and a rate-of-rise
+    warning; Genesis should carry them. Which values?
+26. **Missing instruments behind lab alarms.** Genesis has no IOC for the
+    magnet power supply, the AMI helium-level meters or the backing-pump
+    thermocouples, so it cannot raise the magnet-helium-level, magnet or
+    pump-temperature alarms the LabVIEW DAQ had. The sim inherits the gap: it
+    cannot rehearse field steps (baselines), ramps or a quench response
+    through Genesis. Which instruments come first?
 
 ### Live-system fixes
 
