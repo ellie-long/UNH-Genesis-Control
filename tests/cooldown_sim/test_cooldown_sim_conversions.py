@@ -123,8 +123,15 @@ def test_select_and_validity_rules():
         text={"vp_range": np.array(["Hi", "Lo", "Lo", "OVER"], dtype=object)})
     tl = Timeline(table)
     cmap = channel_map.load()
+    # the 902B is Manometer-Hi whatever range the LabVIEW display was on (Ells, 2026-10-15)
     cell = cmap.channel("mks902b", "Cell")
-    assert [cell.recorded(tl, x) for x in (0, 10, 20, 30)] == [9.0, 0.6, 0.7, 9.3]
+    # (one missing row holds the previous reading: the timeline is sample-and-hold)
+    assert [cell.recorded(tl, x) for x in (0, 10, 20, 30)] == [9.0, 9.1, 9.1, 9.3]
+    # the generic row-by-row select still works
+    pick = channel_map._spec("x", "y", {"select": {"by": "vp_range", "Hi": "manometer_hi",
+                                                   "Lo": "manometer_lo", "default": "manometer_hi"}},
+                             "none", "invalid")
+    assert [pick.recorded(tl, x) for x in (0, 10, 20, 30)] == [9.0, 0.6, 0.7, 9.3]
     power = cmap.history["mw_power"]
     assert power.recorded(tl, 0) == 10.0
     assert math.isnan(power.recorded(tl, 10))          # 1e8 garbage -> absent, not clipped
@@ -140,9 +147,9 @@ def test_report_lists_every_channel_and_flags_guesses():
 
 
 def _mapping_tables(text):
-    for marker in ("## Column coverage", "## Not mapped"):
-        text = text.split(marker)[0]
-    return text.rstrip()
+    """Everything except the coverage section (that one needs the real data)."""
+    import re
+    return re.sub(r"## Column coverage.*?(?=^## )", "", text, flags=re.S | re.M).rstrip()
 
 
 def test_committed_report_is_current():

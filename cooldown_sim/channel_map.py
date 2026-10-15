@@ -88,6 +88,7 @@ class ChannelMap:
     history: dict[str, ChannelSpec] = field(default_factory=dict)
     equipment: list[dict] = field(default_factory=list)       # everything Genesis talks to
     software_iocs: list[dict] = field(default_factory=list)   # Genesis IOCs with no hardware
+    record_only: list[dict] = field(default_factory=list)     # in the record, no Genesis IOC
 
     def channel(self, instrument: str, name: str) -> ChannelSpec:
         return self.instruments[instrument][name]
@@ -112,6 +113,7 @@ def load(path: Path = MAP_FILE) -> ChannelMap:
         cmap.history[name] = _spec("history", name, spec, "none", "invalid")
     cmap.equipment = list(raw.get("equipment") or [])
     cmap.software_iocs = list(raw.get("software_iocs") or [])
+    cmap.record_only = list(raw.get("record_only") or [])
     return cmap
 
 
@@ -147,6 +149,10 @@ def validate(cmap: ChannelMap) -> list[str]:
                 problems.append(f"equipment {item.get('genesis', '?')}: missing {key}")
         if item.get("confidence") not in CONFIDENCE:
             problems.append(f"equipment {item.get('genesis', '?')}: confidence {item.get('confidence')!r}")
+    for item in cmap.record_only:
+        for col in item.get("columns") or []:
+            if col not in aliases.CHANNELS:
+                problems.append(f"record_only {item.get('instrument', '?')}: unknown column {col!r}")
     return problems
 
 
@@ -211,14 +217,15 @@ def report_markdown(cmap: ChannelMap, coverage: dict[str, dict[str, float]] | No
         for cd, cov in coverage.items():
             cells = [("-" if c not in cov else f"{cov[c]:.2f}") for c in cols]
             lines.append(f"| {cd} | " + " | ".join(cells) + " |")
-    lines += ["", "## Not mapped", "",
-              "* `T1`/`T3` target-cup thermometers: CCX placeholders in "
-              "`calibration/magnet_thermometry.csv`, not read by any Genesis IOC. "
-              "`T1` feeds only the target model's lattice temperature.",
-              "* Reliquefier PLC channels (`reliquefierAnalysis/data`): no Genesis IOC yet.",
-              "* Flows (including the Roots flow meters, used for boil-off), helium levels, the "
-              "magnet power supply and pump temperatures: in the LabVIEW record but no Genesis "
-              "IOC yet; kept in the record for future legs.", ""]
+    lines += ["", "## In the past record, not in Genesis", "",
+              "Instruments logged in the LabVIEW `data_record` that no Genesis IOC reads (yet).",
+              "", "| Instrument | Record column(s) | Used by cooldown_sim | Check |", "|---|---|---|---|"]
+    for item in cmap.record_only:
+        cols = ", ".join(" / ".join(f"`{t}`" for t in aliases.CHANNELS.get(c, (c,)))
+                         for c in item.get("columns") or []) or "(separate data)"
+        lines.append(f"| {_cell(item.get('instrument'))} | {cols} | {_cell(item.get('used_by'))} | "
+                     f"{_cell(item.get('note'))} |")
+    lines.append("")
     return "\n".join(lines)
 
 
@@ -245,6 +252,8 @@ def _row(spec: ChannelSpec) -> str:
             src += f"; else {titles(spec.fallback)}"
     elif spec.source:
         src = titles(spec.source)
+        if spec.fallback:
+            src += f"; else {titles(spec.fallback)}"
     else:
         src = "(none in any era)"
     valid = f"{spec.valid[0]:g} to {spec.valid[1]:g}" if spec.valid else ""

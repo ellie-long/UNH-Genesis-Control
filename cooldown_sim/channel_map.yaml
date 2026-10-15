@@ -56,17 +56,17 @@ instruments:
     absent: invalid
     channels:
       Cell:
-        select: {by: vp_range, Hi: manometer_hi, Lo: manometer_lo, OVER: manometer_hi, default: manometer_hi}
+        source: manometer_hi
         fallback: manometer           # 2020 single-range column
         units: Torr
         valid: [0.0, 1000.0]
-        confidence: guess
+        confidence: medium
         note: >-
-          The MKS 902B is an absolute piezo transducer (0.1-1000 Torr) on the
-          target cell.  Assumed to correspond to the LabVIEW "Manometer"
-          (vapor-pressure) readout, choosing the Hi or Lo range column by
-          "Vapor Pressure Range".  CHECK: is the 902B the same gauge as the
-          LabVIEW manometer, and which range column does it correspond to?
+          Ells (2026-10-15): the MKS 902B (absolute piezo, 0.1-1000 Torr, on
+          the target cell) is "Manometer-Hi (Torr)", whatever range the
+          LabVIEW display was on.  "Manometer-Lo" is a different gauge with no
+          Genesis IOC.  CHECK: is the 2020 single-range "Manometer (Torr)"
+          the same 902B?
 
   tpg262:                # UNH:GEN:CRYO:VAC  Pump_PI / OVC_PI (mbar)
     wire: torr_to_mbar   # TPG answers in its display unit; emulator reports UNI=0 (mbar)
@@ -178,10 +178,10 @@ equipment:
     link: RS-232 via serial gateway 192.168.1.251:5004, address 253
     prefix: UNH:GEN:CRYO:CELL
     control: read-only
-    map: mks902b.Cell
+    map: mks902b.Cell (Manometer-Hi)
     sim: MKS 900-series emulator
-    confidence: guess
-    note: "Open question 1: is this the LabVIEW manometer (Hi/Lo)?"
+    confidence: medium
+    note: "Ells 2026-10-15: it is Manometer-Hi. CHECK: is the 2020 'Manometer (Torr)' the same gauge?"
   - genesis: tpg262
     equipment: Pfeiffer TPG 262 dual gauge controller
     role: "Gauge 1 'Pump', gauge 2 'OVC'"
@@ -341,3 +341,44 @@ software_iocs:
   - {genesis: ssrf_sequencer, prefix: "UNH:GEN:SSRF:SEQ", role: "Burn execution (prepare / arm / start)"}
   - {genesis: burn_recipe, prefix: "UNH:GEN:SSRF:RECIPE", role: "Burn recipes (ssrf_analysis.burn_recipe_ioc)"}
   - {genesis: online fitter, prefix: "UNH:GEN:SSRF:FIT", role: "Deuteron NMR line fitter (online_fitter.epics_run)"}
+
+# Equipment that appears in the LabVIEW data_record but that Genesis has no
+# IOC for (yet).  Rendered as "In the past record, not in Genesis".
+#   instrument: what it is (make/model where known)
+#   columns:    canonical column names (cooldown_sim/data/aliases.py)
+#   used_by:    what cooldown_sim does with the column, if anything
+record_only:
+  - instrument: Low-range cell manometer on a Kurt J. Lesker KJL-SPARC controller
+    columns: [manometer_lo]
+    used_by: "nothing (the MKS 902B is Manometer-Hi)"
+    note: "Ells 2026-10-15. CHECK: gauge-head model and range; how LabVIEW reads the KJL-SPARC"
+  - instrument: Vapor-pressure readout (LabVIEW)
+    columns: [vp_range, vp_temp]
+    used_by: "vp_temp is a model-fit channel (fit-params)"
+    note: "CHECK: is this computed in LabVIEW from the manometers (range picks Hi or Lo)?"
+  - instrument: Target-cup thermometers T1-T3
+    columns: [T1, T2, T3]
+    used_by: "T1 = the target model's lattice temperature; T1-T3 are model-fit channels"
+    note: "CCX placeholders in calibration/magnet_thermometry.csv; no Genesis readout. CHECK: which instrument reads them?"
+  - instrument: Roots flow meters (left / right)
+    columns: [roots_flow_l, roots_flow_r]
+    used_by: "the model's boil-off (59.5 mW/slm) is reported, not replayed"
+    note: "Helium pumped out of the fridge"
+  - instrument: Separator flow meter
+    columns: [separator_flow]
+    used_by: nothing
+  - instrument: Pirani gauge
+    columns: [pirani_v]
+    used_by: nothing
+    note: "Logged as a voltage"
+  - instrument: Helium level meters (fridge, magnet)
+    columns: [fridge_he_level, magnet_lhe_level]
+    used_by: "history inputs only"
+  - instrument: Magnet power supply
+    columns: [ps_current, magnet_current, central_field]
+    used_by: "central field = the model's B (DNP optimum, NMR line)"
+    note: "\"PS Current\" is the magnet supply, not the cold board"
+  - instrument: Reliquefier PLC
+    columns: []
+    used_by: nothing
+    note: "Separate data (reliquefierAnalysis/data), not in data_record"
