@@ -149,7 +149,7 @@ class TargetModel:
         self.tl = timeline
         self.cooldown = cooldown          # past cool-down replayed (selects the material)
         self._spin1: dict = {}            # material -> spin1.Spin1 (None: not available)
-        self.p = params or load_params()
+        self.p = params or load_params(cooldown=cooldown)
         self.dnp = self.p["dnp"]
         self.assumed = self.p["assumed"]
         self.mag_gain = {ch: g["gain_K_per_drive"] for ch, g in self.p["thermal"]["channels"].items()
