@@ -7,6 +7,10 @@ findings are in `COOLDOWN_SIM_PROGRESS.md`; questions for the lab are in
 
 ## 2026-10-15
 
+* `3091ac7` Fitter autopilot presses Update Constants only once the target is
+  polarized (true P >= 10 %) as well as after 40 sweeps -- at high speed from
+  a cold start it had calibrated on a near-zero line and the fitted P stuck at
+  0 (found by the Panopticon check). Scenario library 11/11 PASS in WSL.
 * Branch `dev-visualizer` (`128271f`, `4eb198a`; worktree
   `../UNH-Genesis-Control-dev-visualizer`): **Panopticon** overview screen
   (`gui/genesis_panopticon.bob`, generator `tools/make_panopticon.py`,
