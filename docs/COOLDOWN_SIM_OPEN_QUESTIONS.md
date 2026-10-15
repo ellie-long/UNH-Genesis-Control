@@ -38,10 +38,17 @@ named in each item. Numbers are stable: answered items move to *Settled*.
       candidates in the record are 2024-09-17 11:36-16:31 (f/B 27.87-28.09),
       2025-11-20 22:17-23:17 and 2025-02-13 19:40-20:39 (narrow). Which
       material was in 2024-09? (The rates fit hasn't been run on these.)
-- [ ] 36. Genesis microwave controls (live, later): add Magic + / Magic -
-      buttons to the Microwave supervisor screen. They need the central field,
-      which Genesis cannot read until the magnet power supply has an IOC
-      (question 26 priority 1).
+- [ ] 36. Genesis Magic +/- (live): the microwave supervisor ALREADY has
+      Magic +/- (`SUP:MagicPlus`/`MagicMinus`), disabled because its dopant
+      list is empty (`dopants: []` -> Dopant "UNCONFIGURED"). It computes
+      f = CentralFrequency / gamma_d_over_2pi x magic factor per dopant, i.e.
+      field x factor, with the field from the NMR centre frequency (no magnet
+      IOC needed). But `CentralFrequency` is declared in GHz and defaults to
+      140 GHz (the OUTPUT band's middle), which only fits the formula if it
+      is meant to be the NMR centre in MHz. Which is intended? To certify:
+      per dopant, gamma_d/2pi = 6.53566 MHz/T and the +/- factors (sim
+      values: irradiated d-butanol 28.025 / 28.077, TEMPO d-butanol
+      28.052 / 28.108, trityl d-propanediol 28.026 / 28.041 GHz/T).
 - [ ] 5. Does Q lag Q_B(P) as P rebuilds after a quench or anneal?
 - [ ] 8. Quench field: dump time and level, re-ramp delay and rate, starting
       P after the re-ramp.
