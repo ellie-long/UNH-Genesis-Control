@@ -69,6 +69,8 @@ The session starts **paused** at the chosen moment. Then:
   * coldboard heat;
   * NMR noise and phase;
   * line offset;
+  * NMR window: centre and span (MHz), as the DAQ operator would set them.
+    0 follows the record; the window in use is shown beside the truth values;
   * Take baseline;
   * **QUENCH** / Clear quench.
 * **Autopilot** for Microwave, ssRF and Fitter. The autopilot replays the

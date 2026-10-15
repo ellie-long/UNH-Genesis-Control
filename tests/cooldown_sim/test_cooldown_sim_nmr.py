@@ -70,3 +70,27 @@ def test_noise_multiplier():
     m.inputs.nmr_noise_x = 10.0
     diff = src.sweep(61.0)["raw"] - src.sweep(61.0)["raw"]
     assert np.std(diff) / np.sqrt(2) == pytest.approx(10 * nmr_source.NOISE_V, rel=0.15)
+
+
+def test_operator_sets_the_nmr_window_and_zero_returns_to_the_record():
+    m, src = make(50.0)
+    larmor = ph.deuteron_larmor_MHz(B)
+    assert src.window(61.0) == pytest.approx((larmor, nmr_source.DEFAULT_SPAN_MHZ))
+    m.inputs.nmr_center_MHz, m.inputs.nmr_span_MHz = larmor + 0.3, 0.8
+    sw = src.sweep(61.0)
+    assert sw["centfreq_mhz"] == pytest.approx(larmor + 0.3)
+    assert sw["span_mhz"] == pytest.approx(0.8)
+    t = m.truth(61.0)
+    assert (t["nmr_window_center_MHz"], t["nmr_window_span_MHz"]) == pytest.approx((larmor + 0.3, 0.8))
+    m.inputs.nmr_center_MHz, m.inputs.nmr_span_MHz = 0.0, 0.0          # 0 = follow the record
+    assert src.window(61.0) == pytest.approx((larmor, nmr_source.DEFAULT_SPAN_MHZ))
+    m.inputs.nmr_center_MHz, m.inputs.nmr_span_MHz = 1.0, 9.0          # out of range: ignored
+    assert src.window(61.0) == pytest.approx((larmor, nmr_source.DEFAULT_SPAN_MHZ))
+
+
+def test_moving_the_window_off_the_line_loses_the_signal():
+    m, src = make(50.0)
+    on = np.max(np.abs(src.sweep(61.0)["baseline_sub"]))
+    m.inputs.nmr_center_MHz = ph.deuteron_larmor_MHz(B) + 2.0
+    off = np.max(np.abs(src.sweep(61.0)["baseline_sub"]))
+    assert off < 0.1 * on

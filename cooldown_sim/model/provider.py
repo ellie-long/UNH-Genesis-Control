@@ -19,6 +19,7 @@ THERMO_INSTRUMENTS = ("ls224_fridge", "ls224_magnet")
 INPUT_KEYS = {
     "coldboard_heat_W": float, "quench": bool, "nmr_noise_x": float,
     "nmr_phase_offset_deg": float, "line_offset_MHz": float,
+    "nmr_center_MHz": float, "nmr_span_MHz": float,
     "mw_on": bool, "mw_freq_GHz": float, "mw_power_dB": float, "mw_uca_V": float,
 }
 

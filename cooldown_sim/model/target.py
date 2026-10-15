@@ -66,6 +66,9 @@ def load_params(path: Path = PARAMS_FILE) -> dict:
         return yaml.safe_load(fh)
 
 
+#: NMR sweep span (MHz) when neither the operator nor the record gives one
+NMR_DEFAULT_SPAN_MHZ = 0.4
+
 @dataclass
 class Inputs:
     """Operator-side inputs (Sim Control, scenarios, or the MW leg in phase C)."""
@@ -82,6 +85,9 @@ class Inputs:
     nmr_noise_x: float = 1.0
     nmr_phase_offset_deg: float = 0.0
     line_offset_MHz: float = 0.0
+    #: NMR sweep window set by the operator (MHz); 0 = follow the record
+    nmr_center_MHz: float = 0.0
+    nmr_span_MHz: float = 0.0
     baseline_requests: int = 0
 
 
@@ -117,6 +123,21 @@ class TargetModel:
         self.state = self._initial(t0)
 
     # ----------------------------------------------------------- history
+    def nmr_window(self, t: float) -> tuple[float, float]:
+        """(centre, span) MHz of the NMR sweep: the operator's setting if any,
+        else the record's, else the deuteron Larmor frequency and a default span."""
+        cf, span = self.inputs.nmr_center_MHz, self.inputs.nmr_span_MHz
+        if not (math.isfinite(cf) and 5.0 < cf < 300.0):
+            cf = self.tl.value_at("nmr_centfreq", t)
+        if not (math.isfinite(span) and 0.05 < span < 5.0):
+            span = self.tl.value_at("nmr_span", t)
+        if not (math.isfinite(cf) and 5.0 < cf < 300.0):
+            B = self.field_T(t)
+            cf = ph.deuteron_larmor_MHz(B) if B > 0.5 else 32.283
+        if not (math.isfinite(span) and 0.05 < span < 5.0):
+            span = NMR_DEFAULT_SPAN_MHZ
+        return cf, span
+
     def field_T(self, t: float) -> float:
         b = self.tl.value_at("central_field", t)
         return b if math.isfinite(b) and b > 0.5 else 0.0
@@ -311,4 +332,6 @@ class TargetModel:
                 "T_spin": self.spin_temperature(s.P, B), "B": B, "mw_drive": d_op,
                 "mw_freq_GHz": f_op, "heat_cb_W": self.inputs.coldboard_heat_W,
                 "heat_total_W": heat_total, "boiloff_delta_slm": s.dflow,
-                "quench_level": s.q, "Q_boltzmann": 100.0 * ph.q_boltzmann(s.P)}
+                "quench_level": s.q, "Q_boltzmann": 100.0 * ph.q_boltzmann(s.P),
+                "nmr_window_center_MHz": self.nmr_window(t)[0],
+                "nmr_window_span_MHz": self.nmr_window(t)[1]}

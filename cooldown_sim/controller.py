@@ -33,7 +33,8 @@ TRUTH = (("TRUE_P", "%", "P"), ("TRUE_Q", "%", "Q"), ("TRUE_T_LATTICE", "K", "T_
          ("HEAT_TOTAL", "W", "heat_total_W"), ("BOILOFF_DELTA", "slm", "boiloff_delta_slm"),
          ("TRUE_T_BATH", "K", "T_bath"),
          ("TRUE_Q_BOLTZMANN", "%", "Q_boltzmann"),
-         ("FIT_P", "%", "fit_P"), ("FIT_RESID_P", "%", "fit_resid_P"))
+         ("FIT_P", "%", "fit_P"), ("FIT_RESID_P", "%", "fit_resid_P"),
+         ("NMR_CENTER", "MHz", "nmr_window_center_MHz"), ("NMR_SPAN", "MHz", "nmr_window_span_MHz"))
 
 #: model inputs settable from Sim Control: (PV, model key, units, DRVL, DRVH)
 MODEL_INPUTS = (("CB_HEAT_W_CMD", "coldboard_heat_W", "W", 0.0, 5.0),
@@ -45,7 +46,9 @@ MODEL_INPUTS = (("CB_HEAT_W_CMD", "coldboard_heat_W", "W", 0.0, 5.0),
                 ("MW_ON_CMD", "mw_on", "", 0, 1),
                 ("MW_FREQ_GHZ_CMD", "mw_freq_GHz", "GHz", 100.0, 200.0),
                 ("MW_POWER_DB_CMD", "mw_power_dB", "dB", -60.0, 30.0),
-                ("MW_UCA_V_CMD", "mw_uca_V", "V", 0.0, 5.0))
+                ("MW_UCA_V_CMD", "mw_uca_V", "V", 0.0, 5.0),
+                ("NMR_CENTER_MHZ_CMD", "nmr_center_MHz", "MHz", 0.0, 300.0),
+                ("NMR_SPAN_MHZ_CMD", "nmr_span_MHz", "MHz", 0.0, 5.0))
 
 
 class Device:

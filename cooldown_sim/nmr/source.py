@@ -27,11 +27,12 @@ import threading
 import numpy as np
 
 from ..model import physics as ph
+from ..model.target import NMR_DEFAULT_SPAN_MHZ
 
 # instrument constants (2026-06; see the generator's header)
 PRESET = "irradiated d-butanol (Dec 2025, 13th/15th)"
 W = 451                        # points per sweep (NMR Number)
-DEFAULT_SPAN_MHZ = 0.4
+DEFAULT_SPAN_MHZ = NMR_DEFAULT_SPAN_MHZ
 PEAK_AT_50_V = 0.68            # Operating-mode peak of a P = 50 % line
 NOISE_V = 8e-4                 # white noise per bin, Operating mode
 DRIFT_V = 4e-4                 # cubic drift coefficient scale
@@ -66,14 +67,8 @@ class NMRSource:
 
     # ------------------------------------------------------------ geometry
     def window(self, t: float) -> tuple[float, float]:
-        cf = self.tl.value_at("nmr_centfreq", t)
-        span = self.tl.value_at("nmr_span", t)
-        B = self.model.field_T(t)
-        if not (math.isfinite(cf) and 5.0 < cf < 300.0):
-            cf = ph.deuteron_larmor_MHz(B) if B > 0.5 else 32.283
-        if not (math.isfinite(span) and 0.05 < span < 5.0):
-            span = DEFAULT_SPAN_MHZ
-        return cf, span
+        """Sweep (centre, span) MHz: Sim Control's setting, else the record's."""
+        return self.model.nmr_window(t)
 
     def _line(self, freqs, larmor, rN, rP, amp, phase_rad):
         c = self.c

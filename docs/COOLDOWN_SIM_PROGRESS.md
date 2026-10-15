@@ -45,6 +45,21 @@ lab answers are in `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`.
 
 ## Log
 
+### 2026-10-15: NMR window on Sim Control; drive fix merged; first live demo
+* Sim Control: **NMR centre** and **NMR span** inputs (MHz; 0 = follow the
+  record) and readbacks of the window in use; the window logic moved into
+  the target model (`nmr_window`). The input panel is now three columns and
+  also shows the UCA voltage input. Asked for by Ells while watching a run.
+* Merged the drive fix (`ab300e9`): UCA-based drive, replay autopilot follows
+  the UCA procedure. Its RF-flip re-fit was NOT merged: Ells says RF goes on
+  at UCA 5 V and power goes to 0 V by hand later, recorded only in the
+  logbooks, so RF flips are not power steps. A logbook-based UCA timeline and
+  re-fit are being built separately; current thermal parameters kept.
+* `quench` scenario: quench moved to 18 min (was 15) so the fitter calibrates
+  first; passes in WSL.
+* First visible sessions for Ells: Windows (Phoebus already installed), then
+  WSL with Java 21 + GTK3 + Linux Phoebus 5.0.5 (WSLg).
+
 ### 2026-10-15: T1/T3 read by Genesis (dev-sim)
 * **Genesis change on dev-sim (Ells's choice; elong untouched):**
   `target_ioc/instruments/ls224.py` evaluates Lake Shore Cernox Chebyshev

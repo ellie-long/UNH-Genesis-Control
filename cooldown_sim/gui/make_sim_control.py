@@ -212,21 +212,26 @@ def build() -> str:
     truth = (("P", "TRUE_P"), ("Q", "TRUE_Q"), ("Q (1 temp)", "TRUE_Q_BOLTZMANN"),
              ("T cup", "TRUE_T_LATTICE"), ("T bath", "TRUE_T_BATH"), ("T spin", "TRUE_T_SPIN"),
              ("Heat (W)", "HEAT_TOTAL"), ("Boil-off +slm", "BOILOFF_DELTA"), ("MW freq", "MW_FREQ"),
-             ("Fitter P", "FIT_P"), ("Fit - truth", "FIT_RESID_P"), ("Quench", "QUENCH_LEVEL"))
+             ("Fitter P", "FIT_P"), ("Fit - truth", "FIT_RESID_P"), ("Quench", "QUENCH_LEVEL"),
+             ("NMR centre", "NMR_CENTER"), ("NMR span", "NMR_SPAN"), ("MW drive", "MW_DRIVE"))
     for i, (lab, pv) in enumerate(truth):
         cx = x + 15 + (i % 3) * 215
-        cy = y + 66 + (i // 3) * 28
+        cy = y + 64 + (i // 3) * 23
         w.append(label(lab, cx, cy, 95, 26, 10, False, MUTED))
         w.append(update(f"{P}:{pv}", cx + 95, cy, 110, 26, 11, True, prec=3))
-    yy = y + 182
-    inputs = (("Coldboard heat (W)", "CB_HEAT_W_CMD"), ("NMR noise (x)", "NMR_NOISE_X_CMD"),
-              ("NMR phase (deg)", "NMR_PHASE_DEG_CMD"), ("Line offset (MHz)", "FIELD_OFFSET_MHZ_CMD"),
-              ("MW freq (GHz)", "MW_FREQ_GHZ_CMD"), ("MW power (dB)", "MW_POWER_DB_CMD"))
+    yy = y + 186
+    # NMR centre / span: 0 = follow the record
+    inputs = (("NMR centre MHz", "NMR_CENTER_MHZ_CMD"), ("NMR span MHz", "NMR_SPAN_MHZ_CMD"),
+              ("Line offset MHz", "FIELD_OFFSET_MHZ_CMD"),
+              ("NMR noise (x)", "NMR_NOISE_X_CMD"), ("NMR phase deg", "NMR_PHASE_DEG_CMD"),
+              ("Coldboard W", "CB_HEAT_W_CMD"),
+              ("MW freq GHz", "MW_FREQ_GHZ_CMD"), ("MW power dB", "MW_POWER_DB_CMD"),
+              ("MW UCA V", "MW_UCA_V_CMD"))
     for i, (lab, pv) in enumerate(inputs):
-        cx = x + 15 + (i % 2) * 320
-        cy = yy + (i // 2) * 30
-        w.append(label(lab, cx, cy, 160, 26, 10, False, MUTED))
-        w.append(entry(f"{P}:{pv}", cx + 160, cy, 110, 26))
+        cx = x + 15 + (i % 3) * 215
+        cy = yy + (i // 3) * 29
+        w.append(label(lab, cx, cy, 112, 26, 10, False, MUTED))
+        w.append(entry(f"{P}:{pv}", cx + 112, cy, 93, 26))
     yb = y + 278
     w.append(button("MW on", f"{P}:MW_ON_CMD", 1, x + 15, yb, 80, 30))
     w.append(button("MW off", f"{P}:MW_ON_CMD", 0, x + 100, yb, 80, 30))
