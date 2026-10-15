@@ -209,26 +209,31 @@ def build() -> str:
     w.append(card("Target model (truth, closed loop)", x, y, 660, 330))
     w.append(led(f"{P}:MODEL_ACTIVE", x + 15, y + 40, 18))
     w.append(update(f"{P}:MODEL_ACTIVE", x + 40, y + 37, 200, 24, 11, True))
-    truth = (("P", "TRUE_P"), ("Q", "TRUE_Q"), ("T lattice", "TRUE_T_LATTICE"),
-             ("T spin", "TRUE_T_SPIN"), ("B", "TRUE_B"), ("MW heat", "HEAT_MW"),
-             ("Coldboard heat", "HEAT_CB"), ("Fitter P", "FIT_P"), ("Fit - truth", "FIT_RESID_P"))
+    truth = (("P", "TRUE_P"), ("Q", "TRUE_Q"), ("Q (1 temp)", "TRUE_Q_BOLTZMANN"),
+             ("T lattice", "TRUE_T_LATTICE"), ("T spin", "TRUE_T_SPIN"), ("B", "TRUE_B"),
+             ("MW drive", "MW_DRIVE"), ("MW freq", "MW_FREQ"), ("Quench", "QUENCH_LEVEL"),
+             ("Coldboard", "HEAT_CB"), ("Fitter P", "FIT_P"), ("Fit - truth", "FIT_RESID_P"))
     for i, (lab, pv) in enumerate(truth):
         cx = x + 15 + (i % 3) * 215
-        cy = y + 72 + (i // 3) * 34
+        cy = y + 66 + (i // 3) * 28
         w.append(label(lab, cx, cy, 95, 26, 10, False, MUTED))
         w.append(update(f"{P}:{pv}", cx + 95, cy, 110, 26, 11, True, prec=3))
-    yy = y + 180
+    yy = y + 182
     inputs = (("Coldboard heat (W)", "CB_HEAT_W_CMD"), ("NMR noise (x)", "NMR_NOISE_X_CMD"),
-              ("NMR phase offset (deg)", "NMR_PHASE_DEG_CMD"), ("Line offset (MHz)", "FIELD_OFFSET_MHZ_CMD"))
+              ("NMR phase (deg)", "NMR_PHASE_DEG_CMD"), ("Line offset (MHz)", "FIELD_OFFSET_MHZ_CMD"),
+              ("MW freq (GHz)", "MW_FREQ_GHZ_CMD"), ("MW power (dB)", "MW_POWER_DB_CMD"))
     for i, (lab, pv) in enumerate(inputs):
         cx = x + 15 + (i % 2) * 320
-        cy = yy + (i // 2) * 34
-        w.append(label(lab, cx, cy, 170, 28, 10, False, MUTED))
-        w.append(entry(f"{P}:{pv}", cx + 170, cy, 110, 28))
-    w.append(button("Take baseline", f"{P}:TAKE_BASELINE_CMD", 1, x + 15, y + 255, 150, 32))
-    w.append(button("QUENCH", f"{P}:QUENCH_CMD", 1, x + 180, y + 255, 120, 32,
+        cy = yy + (i // 2) * 30
+        w.append(label(lab, cx, cy, 160, 26, 10, False, MUTED))
+        w.append(entry(f"{P}:{pv}", cx + 160, cy, 110, 26))
+    yb = y + 278
+    w.append(button("MW on", f"{P}:MW_ON_CMD", 1, x + 15, yb, 80, 30))
+    w.append(button("MW off", f"{P}:MW_ON_CMD", 0, x + 100, yb, 80, 30))
+    w.append(button("Take baseline", f"{P}:TAKE_BASELINE_CMD", 1, x + 190, yb, 130, 30))
+    w.append(button("QUENCH", f"{P}:QUENCH_CMD", 1, x + 330, yb, 100, 30,
                     confirm="Inject a quench-like warm-up into the simulated target?", bg=(245, 205, 205)))
-    w.append(button("Clear quench", f"{P}:QUENCH_CMD", 0, x + 310, y + 255, 130, 32))
+    w.append(button("Clear quench", f"{P}:QUENCH_CMD", 0, x + 440, yb, 120, 30))
 
     # autopilot + navigation card
     x, y = 20, 690

@@ -60,6 +60,8 @@ class SimEngine:
         if provider is not None:
             provider.served = self.served
         self.host = EmulatorHost(stack, self.provider, cmap, timeline, supply_initial)
+        if hasattr(self.provider, "host"):
+            self.provider.host = self.host
         self.events = EventLog(run.path / "events.csv")
         #: session facts shown on Sim Control (mode, source, window, scenario)
         self.info: dict = {}
@@ -100,6 +102,8 @@ class SimEngine:
 
     def seek(self, sim_time: float):
         self.events.write(self.clock.seek(sim_time), "clock", f"seek {format_epoch(sim_time)}")
+        if hasattr(self.provider, "reset"):           # target model re-initialised from the record
+            self.provider.reset(sim_time)
 
     def set_fault(self, instrument: str, mode: str) -> None:
         self.host.set_fault(instrument, mode)

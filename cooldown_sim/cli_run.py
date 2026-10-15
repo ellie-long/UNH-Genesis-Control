@@ -51,6 +51,9 @@ def add_parsers(sub) -> None:
     p.add_argument("--legs", default="cryo", help="comma list")
     p.add_argument("--scenario", default="nominal")
     p.add_argument("--autostart", action="store_true", help="interactive: start running immediately")
+    p.add_argument("--model", choices=["closed-loop", "replay"], default=None,
+                   help="closed-loop target model (interactive default) or plain replay "
+                        "(regression default)")
     p.add_argument("--port-offset", type=int, default=0)
     p.add_argument("--noise-rel", type=float, default=2e-5)
     p.add_argument("--seed", type=int, default=0)
@@ -84,9 +87,14 @@ def parse_start(start: str, day: str | None) -> float:
     raise SystemExit(f"cannot parse start time {text!r} (use 'YYYY-MM-DD HH:MM')")
 
 
+#: record columns the closed-loop target model reads besides the channel map's
+MODEL_COLUMNS = ("T1", "vp_temp", "central_field", "mw_rf_status", "mw_power_db", "mw_freq_ghz",
+                 "online_p", "nmr_centfreq", "nmr_span", "nmr_status", "vme_mode")
+
+
 def load_timeline(cooldown: str, data_root, t0: float, t1: float, cmap) -> tuple[Timeline, Path]:
     cd = records.resolve_cooldown(cooldown, data_root)
-    cols = sorted({c for spec in cmap.all_specs() for c in spec.source_columns})
+    cols = sorted({c for spec in cmap.all_specs() for c in spec.source_columns} | set(MODEL_COLUMNS))
     table = records.read_cooldown(cd, cols, start=t0 - 3600.0, stop=t1 + 600.0)
     if not len(table):
         raise SystemExit(f"{cd.name} has no rows between {records.format_epoch(t0)} "
@@ -152,9 +160,17 @@ def controller_profile(run_path: Path, stacks: dict, offset: int) -> tuple[Path,
                     "pva": int(ctl["pva"]) + offset, "control_port": int(ctl["control_port"]) + offset}
 
 
+def model_kind(args) -> str:
+    return args.model or ("closed-loop" if args.mode == "interactive" else "replay")
+
+
 def build_provider(args, timeline, cmap, clock):
-    """Value provider for this session (closed-loop model added in phase B2)."""
-    return None
+    """Value provider: the closed-loop target model, or None for plain replay."""
+    if model_kind(args) != "closed-loop":
+        return None
+    from .model.provider import ModelProvider
+    return ModelProvider(timeline, cmap, clock, t0=clock.now(), noise_rel=args.noise_rel,
+                         seed=args.seed)
 
 
 # ----------------------------------------------------------------------- run
@@ -207,7 +223,7 @@ def _run(args) -> int:
 
     meta = {"mode": args.mode, "scenario": args.scenario, "source": f"real {cd.name}",
             "window": f"{records.format_epoch(t0)} -> {records.format_epoch(t1)}",
-            "speed": args.speed, "legs": ",".join(legs),
+            "speed": args.speed, "legs": ",".join(legs), "model": model_kind(args),
             "platform": f"{platform.system()} {platform.release()}",
             "git": run.meta.get("git", {}).get("head", "")[:12]}
     run.write_manifest(source={"kind": "real", "cooldown": str(cd), "t0": t0, "t1": t1},
@@ -229,7 +245,8 @@ async def _session(args, run, stack, stacks, timeline, cmap, t0, t1, meta, ctl_f
     clock = SimClock(t0, args.speed, running=False)
     engine = SimEngine(run, stack, timeline, cmap, clock, noise_rel=args.noise_rel, seed=args.seed,
                        provider=build_provider(args, timeline, cmap, clock))
-    engine.info.update({"mode": args.mode, "scenario": args.scenario, "source": meta["source"],
+    engine.info.update({"mode": f"{args.mode} ({model_kind(args)})", "scenario": args.scenario,
+                        "source": meta["source"],
                         "window": meta["window"], "run_dir": str(run.path)})
     ca_ports = sorted({s.ca for s in stack.iocs} | {ctl["ca"]})
     apply_client_env_here(ca_ports, stacks)          # before aioca is imported

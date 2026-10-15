@@ -25,6 +25,8 @@ def add_parsers(sub) -> None:
     p.add_argument("--data", default=os.environ.get(DATA_ENV))
     p.set_defaults(func=_report)
 
+    add_model_parsers(sub)
+
 
 def _cooldowns(args) -> int:
     from .__main__ import EXIT_OK, EXIT_SETUP
@@ -58,4 +60,26 @@ def _report(args) -> int:
                                  if c in tl.table.numeric or c in tl.table.text}
     Path(args.out).write_text(channel_map.report_markdown(cmap, coverage), encoding="utf-8")
     print(f"wrote {args.out}")
+    return EXIT_OK
+
+
+def add_model_parsers(sub) -> None:
+    p = sub.add_parser("fit-params", help="fit target-model parameters from past cool-downs")
+    p.add_argument("--data", default=os.environ.get(DATA_ENV))
+    p.add_argument("--cooldowns", help="comma list (default: every cool-down from 2021)")
+    p.set_defaults(func=_fit_params)
+
+
+def _fit_params(args) -> int:
+    from .__main__ import EXIT_OK, EXIT_SETUP
+    from .model import fit_params
+    if not args.data:
+        print(f"set {DATA_ENV} or pass --data")
+        return EXIT_SETUP
+    cds = [c.strip() for c in args.cooldowns.split(",")] if args.cooldowns else None
+    params = fit_params.build_params(fit_params.fit(Path(args.data), cds))
+    path = fit_params.write(params)
+    th = params["thermal"]["channels"]
+    print(f"wrote {path}: {params['provenance']['transitions_used']} transitions; fitted channels: "
+          + ", ".join(c for c, g in th.items() if g["status"] == "fitted"))
     return EXIT_OK

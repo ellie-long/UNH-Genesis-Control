@@ -1,0 +1,230 @@
+# Target-model parameters fitted from past cool-downs by
+#   python -m cooldown_sim fit-params
+# Derived numbers only (no raw data).  'assumed' sections are NOT fitted:
+# no record exists for them; they make the closed loop respond plausibly
+# and are reported as assumptions in every session report.
+provenance:
+  generated: '2026-10-15T11:04:58+00:00'
+  method: median sign-aligned, pre-step-detrended response to isolated microwave RF transitions
+  cooldowns:
+  - 2021-09-Cooldown
+  - 2022-05-Cooldown
+  - 2024-08-Cooldown
+  - 2024-09-Cooldown
+  - 2024-11-Cooldown
+  - 2024-12-Cooldown
+  - 2025-02-Cooldown
+  - 2025-07-Cooldown
+  - 2025-11-Cooldown
+  - 2025-12-Cooldown
+  - 2026-06-Cooldown
+  transitions_used: 13
+  transitions:
+  - 2021-09-Cooldown 2021-10-01 01:16:57 drive +1.00
+  - 2021-09-Cooldown 2021-10-01 04:51:17 drive -1.00
+  - 2021-09-Cooldown 2021-10-01 15:21:57 drive +1.00
+  - 2022-05-Cooldown 2022-05-06 08:02:59 drive -0.05
+  - 2022-05-Cooldown 2022-05-06 09:26:19 drive +0.05
+  - 2024-09-Cooldown 2024-09-17 18:09:23 drive -1.00
+  - 2025-11-Cooldown 2025-11-20 20:40:58 drive +1.00
+  - 2025-11-Cooldown 2025-11-21 03:13:13 drive -1.00
+  - 2025-11-Cooldown 2025-11-21 20:18:08 drive -1.00
+  - 2025-12-Cooldown 2025-12-13 01:17:28 drive -1.00
+  - 2025-12-Cooldown 2025-12-16 18:15:08 drive -1.00
+  - 2026-06-Cooldown 2026-06-17 10:41:04 drive +1.00
+  - 2026-06-Cooldown 2026-06-18 18:49:18 drive -1.00
+  drive_definition: RF_on * 10**((P_dB - 10)/10); uncalibrated, 1.0 = RF on at 10 dB
+thermal:
+  tau_s: 730.5
+  tau_n: 2
+  channels:
+    T1:
+      gain_K_per_drive: 0.0
+      iqr:
+      - -0.35869
+      - 0.52199
+      n: 5
+      sign_agreement: 0.6
+      status: 'unfitted: inconsistent sign'
+    vp_temp:
+      gain_K_per_drive: 0.0
+      iqr:
+      - -0.46758
+      - 0.6477
+      n: 13
+      sign_agreement: 0.54
+      status: 'unfitted: inconsistent sign'
+    F1:
+      gain_K_per_drive: 0.0
+      iqr:
+      - -0.22284
+      - 42.53071
+      n: 13
+      sign_agreement: 0.69
+      status: 'unfitted: inconsistent sign'
+    F2:
+      gain_K_per_drive: 0.0
+      iqr:
+      - -4.05714
+      - 61.33887
+      n: 13
+      sign_agreement: 0.62
+      status: 'unfitted: inconsistent sign'
+    F3:
+      gain_K_per_drive: 0.0
+      iqr:
+      - -9.70456
+      - 9.05695
+      n: 13
+      sign_agreement: 0.54
+      status: 'unfitted: inconsistent sign'
+    F4:
+      gain_K_per_drive: 0.0
+      iqr:
+      - -6.76868
+      - 5.18318
+      n: 13
+      sign_agreement: 0.54
+      status: 'unfitted: inconsistent sign'
+    F5:
+      gain_K_per_drive: 0.0
+      iqr:
+      - -2.90264
+      - 5.05902
+      n: 13
+      sign_agreement: 0.54
+      status: 'unfitted: inconsistent sign'
+    F6:
+      gain_K_per_drive: 0.0
+      iqr:
+      - -3.24278
+      - 4.61551
+      n: 13
+      sign_agreement: 0.54
+      status: 'unfitted: inconsistent sign'
+    F7:
+      gain_K_per_drive: 0.0
+      iqr:
+      - -1.67444
+      - 0.27806
+      n: 11
+      sign_agreement: 0.55
+      status: 'unfitted: inconsistent sign'
+    F8:
+      gain_K_per_drive: 0.0
+      iqr:
+      - -1.69338
+      - 0.54956
+      n: 13
+      sign_agreement: 0.69
+      status: 'unfitted: inconsistent sign'
+    F9:
+      gain_K_per_drive: 0.0
+      iqr:
+      - -0.29201
+      - 0.59158
+      n: 13
+      sign_agreement: 0.54
+      status: 'unfitted: inconsistent sign'
+    F10:
+      gain_K_per_drive: 0.0
+      iqr:
+      - -0.47719
+      - 0.86385
+      n: 13
+      sign_agreement: 0.62
+      status: 'unfitted: inconsistent sign'
+    F11:
+      gain_K_per_drive: 0.0
+      iqr:
+      - -0.55675
+      - 1.11399
+      n: 11
+      sign_agreement: 0.55
+      status: 'unfitted: inconsistent sign'
+    M1:
+      gain_K_per_drive: 0.0
+      iqr:
+      - -2.02442
+      - 2.30866
+      n: 13
+      sign_agreement: 0.54
+      status: 'unfitted: inconsistent sign'
+    M2:
+      gain_K_per_drive: 0.04791
+      iqr:
+      - 0.00178
+      - 0.05599
+      n: 13
+      sign_agreement: 0.77
+      status: fitted
+    M3:
+      gain_K_per_drive: 0.00637
+      iqr:
+      - 0.0014
+      - 0.0185
+      n: 8
+      sign_agreement: 0.75
+      status: fitted
+    M4:
+      gain_K_per_drive: 0.00372
+      iqr:
+      - 0.00205
+      - 0.02454
+      n: 13
+      sign_agreement: 0.85
+      status: fitted
+    M5:
+      gain_K_per_drive: 0.0
+      iqr:
+      - -0.00269
+      - 0.01661
+      n: 13
+      sign_agreement: 0.54
+      status: 'unfitted: inconsistent sign'
+dnp:
+  material: irradiated d-butanol
+  P_max: 0.498
+  tau_up_s: 2450.0
+  T1_P_s: 11591.0
+  Q_heal_tau_s: 240.0
+  T1_Q_apparent_s: 6473.0
+  lobe_width_GHz: 0.2
+  optimum_offset_GHz: 0.0
+  basis:
+    P_max, tau_up_s: Spin-1-Rates-Fit results/fit_asym_pq.json steady_state.Pn and legacy_R_T1.tau (Dec
+      2025 d-butanol spin-up, B=5.077 T, T=0.997 K)
+    T1_P_s: Spin-1-Rates-Fit results/t1_analysis.json T1_P (microwave-off relaxation)
+    T1_Q_apparent_s: 'Spin-1-Rates-Fit results/t1_analysis.json T1_Q_apparent -- NOT a model input: it
+      is reproduced by Q tracking Q_B(P(t)) as P relaxes (Q ~ P^2 decays at ~T1_P/2); kept as a cross-check'
+    Q_heal_tau_s: 'ASSUMED: time for Q to return to the single-temperature curve after it is pushed off
+      it (ssRF burns); 4 min, the McClellan test-cooldown generator''s hole-healing default. Short compared
+      with tau_up, so TE-start spin-ups stay on the Boltzmann curve (Spin-1-Rates-Fit finding)'
+    optimum_offset_GHz: 'best positive P observed at the free-electron frequency 28.025 GHz/T x B within
+      the 0.1 GHz binning: 138.4 GHz at 4.94 T (2025-11, 2026-06), 142.3 GHz at 5.08 T (2025-12)'
+    lobe_width_GHz: 'ASSUMED: lobe shape not resolvable from the record (operating frequencies were rarely
+      varied). Width 0.2 GHz gives the few-percent positive P seen 0.3-0.4 GHz below the optimum; the
+      negative lobe is placed on the high-frequency side because none appears below it'
+    Q relaxation: ASSUMED single-spin-temperature target Q_B(P) = 2 - sqrt(4 - 3 P^2), approached with
+      Q_heal_tau_s (P and Q are separate state variables)
+assumed:
+  lattice:
+    gain_K_per_drive: 0.4
+    tau_s: 730.0
+    basis: 'ASSUMED: the record does not constrain the microwave thermal response (fitted T1 sign agreement
+      ~0.6). Anchored on the two cleanest isolated transitions, 2026-06-17 10:41 (on, T1 +0.62 K) and
+      2026-06-18 18:49 (off, T1 -0.36 K); tau from the median T1 rise time (n=2).'
+  coldboard:
+    gain_K_per_W: 0.3
+    tau_s: 300.0
+    basis: 'ASSUMED: no coldboard heat-load record exists. Applied to the lattice (cup) temperature only.'
+  quench:
+    fridge_target_K: 25.0
+    magnet_target_K: 15.0
+    lattice_target_K: 4.5
+    rise_tau_s: 60.0
+    recovery_tau_s: 900.0
+    T1_quenched_s: 30.0
+    cell_target_Torr: 760.0
+    ovc_target_Torr: 0.001
+    basis: ASSUMED quench-like warm-up for exercising interlocks and alarms; not a model of a real quench.

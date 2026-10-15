@@ -28,7 +28,9 @@ log = logging.getLogger(__name__)
 #: (PV, units, status-key) for the target-model truth read-backs
 TRUTH = (("TRUE_P", "%", "P"), ("TRUE_Q", "%", "Q"), ("TRUE_T_LATTICE", "K", "T_lattice"),
          ("TRUE_T_SPIN", "K", "T_spin"), ("TRUE_B", "T", "B"),
-         ("HEAT_MW", "mW", "heat_mw_mW"), ("HEAT_CB", "W", "heat_cb_W"),
+         ("MW_DRIVE", "", "mw_drive"), ("MW_FREQ", "GHz", "mw_freq_GHz"),
+         ("HEAT_CB", "W", "heat_cb_W"), ("QUENCH_LEVEL", "", "quench_level"),
+         ("TRUE_Q_BOLTZMANN", "%", "Q_boltzmann"),
          ("FIT_P", "%", "fit_P"), ("FIT_RESID_P", "%", "fit_resid_P"))
 
 #: model inputs settable from Sim Control: (PV, model key, units, DRVL, DRVH)
@@ -37,7 +39,10 @@ MODEL_INPUTS = (("CB_HEAT_W_CMD", "coldboard_heat_W", "W", 0.0, 5.0),
                 ("NMR_NOISE_X_CMD", "nmr_noise_x", "x", 0.0, 100.0),
                 ("NMR_PHASE_DEG_CMD", "nmr_phase_offset_deg", "deg", -180.0, 180.0),
                 ("TAKE_BASELINE_CMD", "take_baseline", "", 0, 1),
-                ("FIELD_OFFSET_MHZ_CMD", "line_offset_MHz", "MHz", -5.0, 5.0))
+                ("FIELD_OFFSET_MHZ_CMD", "line_offset_MHz", "MHz", -5.0, 5.0),
+                ("MW_ON_CMD", "mw_on", "", 0, 1),
+                ("MW_FREQ_GHZ_CMD", "mw_freq_GHz", "GHz", 100.0, 200.0),
+                ("MW_POWER_DB_CMD", "mw_power_dB", "dB", -60.0, 30.0))
 
 
 class Device:
