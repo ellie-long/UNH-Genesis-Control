@@ -4,8 +4,9 @@
 # no record exists for them; they make the closed loop respond plausibly
 # and are reported as assumptions in every session report.
 provenance:
-  generated: '2026-10-15T11:43:22+00:00'
-  method: median sign-aligned, pre-step-detrended response to isolated microwave RF transitions
+  generated: '2026-10-15T21:19:07+00:00'
+  method: median sign-aligned, pre-step-detrended response to isolated logbook-stated (and 2020-2021 record)
+    UCA power steps while RF is on, placed on the cup response
   cooldowns:
   - 2021-09-Cooldown
   - 2022-05-Cooldown
@@ -18,181 +19,196 @@ provenance:
   - 2025-11-Cooldown
   - 2025-12-Cooldown
   - 2026-06-Cooldown
-  transitions_used: 13
-  transitions:
-  - 2021-09-Cooldown 2021-10-01 01:16:57 drive +1.00
-  - 2021-09-Cooldown 2021-10-01 04:51:17 drive -1.00
-  - 2021-09-Cooldown 2021-10-01 15:21:57 drive +1.00
-  - 2022-05-Cooldown 2022-05-06 08:02:59 drive -0.05
-  - 2022-05-Cooldown 2022-05-06 09:26:19 drive +0.05
-  - 2024-09-Cooldown 2024-09-17 18:09:23 drive -1.00
-  - 2025-11-Cooldown 2025-11-20 20:40:58 drive +1.00
-  - 2025-11-Cooldown 2025-11-21 03:13:13 drive -1.00
-  - 2025-11-Cooldown 2025-11-21 20:18:08 drive -1.00
-  - 2025-12-Cooldown 2025-12-13 01:17:28 drive -1.00
-  - 2025-12-Cooldown 2025-12-16 18:15:08 drive -1.00
-  - 2026-06-Cooldown 2026-06-17 10:41:04 drive +1.00
-  - 2026-06-Cooldown 2026-06-18 18:49:18 drive -1.00
-  drive_definition: RF_on * 10**((P_dB - 10)/10); uncalibrated, 1.0 = RF on at 10 dB
+  steps_used: 24
+  steps:
+  - 2021-09-Cooldown 2021-10-01 01:30:37 (+0 s) record 5.00->-0.00 V drive +0.80
+  - 2021-09-Cooldown 2021-10-01 15:26:17 (+0 s) record 5.00->-0.00 V drive +0.84
+  - 2021-09-Cooldown 2021-10-01 21:02:57 (+0 s) record -0.00->5.00 V drive -0.85
+  - 2021-09-Cooldown 2021-10-01 21:33:57 (+0 s) record 5.00->-0.00 V drive +0.85
+  - 2021-09-Cooldown 2021-10-01 22:02:37 (+0 s) record -0.00->5.00 V drive -0.85
+  - 2022-05-Cooldown 2022-05-06 00:32:09 (+69 s) stated 5.00->1.00 V drive +0.90
+  - 2024-12-Cooldown 2024-12-17 16:43:52 (-8 s) stated 5.00->0.00 V drive +0.87
+  - 2024-12-Cooldown 2024-12-17 23:32:37 (-23 s) stated 0.00->5.00 V drive -0.98
+  - 2024-12-Cooldown 2024-12-17 23:38:17 (+17 s) stated 5.00->0.00 V drive +0.98
+  - 2024-12-Cooldown 2024-12-17 23:43:37 (-23 s) stated 0.00->5.00 V drive -0.98
+  - 2024-12-Cooldown 2024-12-17 23:48:37 (-83 s) stated 5.00->0.00 V drive +0.98
+  - 2024-12-Cooldown 2024-12-17 23:53:37 (+37 s) stated 0.00->5.00 V drive -0.98
+  - 2024-12-Cooldown 2024-12-17 23:58:37 (+37 s) stated 5.00->0.00 V drive +0.98
+  - 2025-02-Cooldown 2025-02-11 19:27:24 (-156 s) stated 0.00->5.00 V drive -0.78
+  - 2025-11-Cooldown 2025-11-21 18:20:50 (-10 s) stated 5.00->0.00 V drive +0.87
+  - 2025-12-Cooldown 2025-12-13 13:41:18 (-162 s) stated 5.00->0.00 V drive +0.78
+  - 2025-12-Cooldown 2025-12-13 21:22:14 (-226 s) stated 0.00->5.00 V drive -0.78
+  - 2025-12-Cooldown 2025-12-15 17:49:58 (-2 s) stated 5.00->0.00 V drive +0.87
+  - 2025-12-Cooldown 2025-12-15 18:06:26 (+86 s) stated 0.00->5.00 V drive -0.87
+  - 2025-12-Cooldown 2025-12-16 04:23:54 (-6 s) stated 5.00->2.00 V drive +0.75
+  - 2025-12-Cooldown 2025-12-16 13:38:58 (-2 s) stated 5.00->0.00 V drive +0.87
+  - 2025-12-Cooldown 2025-12-16 16:42:18 (+18 s) stated 0.00->5.00 V drive -0.87
+  - 2026-06-Cooldown 2026-06-16 23:54:36 (-24 s) stated 0.00->5.00 V drive -0.89
+  - 2026-06-Cooldown 2026-06-17 10:46:01 (+2 s) stated 0.00->5.00 V drive -0.87
+  drive_definition: 'RF_on x saturation(P_dB) x uca_fraction(V_UCA, f) x freq_factor(f); saturation 1
+    for P_dB >= -5 (ASSUMED 10**((P_dB+5)/10) below); UCA and frequency response from vendor test data
+    for the repaired AMC (2025-10), freq_factor 1 at 140 GHz; history UCA from the cool-down logbooks
+    (uca_logbook.yaml: 5 V at RF ON until lowered, RF OFF resets, unlogged RF-on periods full power after
+    5 min; the record''s UCA column in 2020-2021)'
 thermal:
-  tau_s: 730.5
-  tau_n: 2
+  tau_s: 6.2
+  tau_n: 8
   channels:
     T1:
-      gain_K_per_drive: 0.0
+      gain_K_per_drive: 0.13682
       iqr:
-      - -0.35869
-      - 0.52199
-      n: 5
-      sign_agreement: 0.6
-      status: 'unfitted: inconsistent sign'
+      - 0.04547
+      - 0.15052
+      n: 21
+      sign_agreement: 0.86
+      status: fitted
     T2:
       gain_K_per_drive: 0.0
-      n: 1
+      n: 0
       status: 'unfitted: too few steps'
     T3:
-      gain_K_per_drive: 0.63524
+      gain_K_per_drive: 0.04772
       iqr:
-      - 0.03104
-      - 0.91253
-      n: 7
-      sign_agreement: 0.71
+      - 0.01183
+      - 0.1271
+      n: 19
+      sign_agreement: 0.79
       status: fitted
     vp_temp:
       gain_K_per_drive: 0.0
       iqr:
-      - -0.46758
-      - 0.6477
-      n: 13
+      - -0.00831
+      - 0.01353
+      n: 24
       sign_agreement: 0.54
       status: 'unfitted: inconsistent sign'
     F1:
-      gain_K_per_drive: 0.0
+      gain_K_per_drive: -1.29823
       iqr:
-      - -0.22284
-      - 42.53071
-      n: 13
-      sign_agreement: 0.69
-      status: 'unfitted: inconsistent sign'
+      - -13.89324
+      - -0.0778
+      n: 24
+      sign_agreement: 0.79
+      status: fitted
     F2:
       gain_K_per_drive: 0.0
       iqr:
-      - -4.05714
-      - 61.33887
-      n: 13
-      sign_agreement: 0.62
-      status: 'unfitted: inconsistent sign'
+      - -16.96624
+      - 0.06398
+      n: 24
+      sign_agreement: 0.75
+      status: 'unfitted: interquartile range spans zero'
     F3:
-      gain_K_per_drive: 0.0
+      gain_K_per_drive: -0.25901
       iqr:
-      - -9.70456
-      - 9.05695
-      n: 13
-      sign_agreement: 0.54
-      status: 'unfitted: inconsistent sign'
+      - -3.30124
+      - -0.06916
+      n: 24
+      sign_agreement: 0.83
+      status: fitted
     F4:
-      gain_K_per_drive: 0.0
+      gain_K_per_drive: -0.41384
       iqr:
-      - -6.76868
-      - 5.18318
-      n: 13
-      sign_agreement: 0.54
-      status: 'unfitted: inconsistent sign'
+      - -1.29618
+      - -0.02459
+      n: 24
+      sign_agreement: 0.75
+      status: fitted
     F5:
-      gain_K_per_drive: 0.0
+      gain_K_per_drive: -0.22662
       iqr:
-      - -2.90264
-      - 5.05902
-      n: 13
-      sign_agreement: 0.54
-      status: 'unfitted: inconsistent sign'
+      - -2.61844
+      - -0.02593
+      n: 24
+      sign_agreement: 0.79
+      status: fitted
     F6:
-      gain_K_per_drive: 0.0
+      gain_K_per_drive: -0.07445
       iqr:
-      - -3.24278
-      - 4.61551
-      n: 13
-      sign_agreement: 0.54
-      status: 'unfitted: inconsistent sign'
+      - -3.1941
+      - -0.01515
+      n: 24
+      sign_agreement: 0.83
+      status: fitted
     F7:
-      gain_K_per_drive: 0.0
+      gain_K_per_drive: -0.13271
       iqr:
-      - -1.67444
-      - 0.27806
-      n: 11
-      sign_agreement: 0.55
-      status: 'unfitted: inconsistent sign'
+      - -0.41491
+      - -0.07875
+      n: 20
+      sign_agreement: 0.95
+      status: fitted
     F8:
       gain_K_per_drive: 0.0
       iqr:
-      - -1.69338
-      - 0.54956
-      n: 13
-      sign_agreement: 0.69
-      status: 'unfitted: inconsistent sign'
+      - -0.59239
+      - 0.00286
+      n: 24
+      sign_agreement: 0.75
+      status: 'unfitted: interquartile range spans zero'
     F9:
-      gain_K_per_drive: 0.0
+      gain_K_per_drive: -0.07709
       iqr:
-      - -0.29201
-      - 0.59158
-      n: 13
-      sign_agreement: 0.54
-      status: 'unfitted: inconsistent sign'
+      - -0.63234
+      - -0.03819
+      n: 24
+      sign_agreement: 0.79
+      status: fitted
     F10:
       gain_K_per_drive: 0.0
       iqr:
-      - -0.47719
-      - 0.86385
-      n: 13
-      sign_agreement: 0.62
-      status: 'unfitted: inconsistent sign'
+      - -0.23503
+      - 0.00191
+      n: 24
+      sign_agreement: 0.71
+      status: 'unfitted: interquartile range spans zero'
     F11:
       gain_K_per_drive: 0.0
       iqr:
-      - -0.55675
-      - 1.11399
-      n: 11
-      sign_agreement: 0.55
-      status: 'unfitted: inconsistent sign'
+      - -0.00014
+      - 0.21666
+      n: 20
+      sign_agreement: 0.75
+      status: 'unfitted: interquartile range spans zero'
     M1:
       gain_K_per_drive: 0.0
       iqr:
-      - -2.02442
-      - 2.30866
-      n: 13
-      sign_agreement: 0.54
+      - -0.42944
+      - 1.62202
+      n: 24
+      sign_agreement: 0.58
       status: 'unfitted: inconsistent sign'
     M2:
-      gain_K_per_drive: 0.04791
+      gain_K_per_drive: 0.0
       iqr:
-      - 0.00178
-      - 0.05599
-      n: 13
-      sign_agreement: 0.77
-      status: fitted
+      - -0.02971
+      - 0.1293
+      n: 24
+      sign_agreement: 0.5
+      status: 'unfitted: inconsistent sign'
     M3:
-      gain_K_per_drive: 0.00637
+      gain_K_per_drive: 0.0
       iqr:
-      - 0.0014
-      - 0.0185
-      n: 8
-      sign_agreement: 0.75
-      status: fitted
+      - -0.00927
+      - 0.00019
+      n: 18
+      sign_agreement: 0.72
+      status: 'unfitted: interquartile range spans zero'
     M4:
-      gain_K_per_drive: 0.00372
+      gain_K_per_drive: 0.0
       iqr:
-      - 0.00205
-      - 0.02454
-      n: 13
-      sign_agreement: 0.85
-      status: fitted
+      - -0.00607
+      - 0.00053
+      n: 24
+      sign_agreement: 0.71
+      status: 'unfitted: interquartile range spans zero'
     M5:
       gain_K_per_drive: 0.0
       iqr:
-      - -0.00269
-      - 0.01661
-      n: 13
-      sign_agreement: 0.54
+      - -0.00315
+      - 0.00128
+      n: 24
+      sign_agreement: 0.5
       status: 'unfitted: inconsistent sign'
 dnp:
   material: irradiated d-butanol
@@ -226,25 +242,31 @@ heat:
   basis:
     mw_W_at_full_drive: 'MEASURED: 2024-12-17 23:33-23:56 logbook (UNH_Poltarg_Cooldown_Notes): UCA toggled
       5 V <-> 0 V gave a ~1 slm Roots-flow differential, 60-62 mW absorbed cold (Farooq: 16.06 SLPM/W).
-      Sept 2024 with the old stick was higher. Automated step fits cannot see it (flows around logged
-      transitions are dominated by other operations).'
+      Sept 2024 with the old stick was higher. Consistent with the logbook UCA timeline (RF on throughout;
+      the toggles match the T1 steps within a minute; each a 0.98 full-drive step at 139.27 GHz). The
+      record''s Roots Flow L differential is ~0.85 slm for the first toggle but only 0.2-0.5 slm for the
+      later 4-6 min ones (to be reviewed).'
     W_per_slm: 16.8 slpm per W at 1 K (C. Keith, PSTP 2024; Spin-1-Rates-Fit holeburn/dec15_thermal.py)
       = 59.5 mW/slm; first-principles latent heat 62.5 mW/slm
     flow_tau_s: Roots-flow impulse response 10-15 s (Spin-1-Rates-Fit afp_holeburn_technote, Dec-15-2025
       isolated 10-s burns)
 assumed:
   cup:
-    gain_K_per_W: 10.2
-    tau_s: 730.0
+    gain_K_per_W: 2.21
+    tau_s: 20.0
     basis: 'PARTLY FITTED: cup thermometers (T1/T2/T3) are much more sensitive to microwaves than the
-      helium bath (lab knowledge). Gain from the FITTED T3 step response (+0.635 K per full-drive transition,
-      n=7, IQR excludes zero) divided by the measured 62 mW; T1 steps (+0.25..+0.62 K) agree. tau = median
-      T1 rise time (n=2): weakly constrained.'
+      helium bath (lab knowledge; the fit agrees). Gain from the FITTED T1 step response (+0.137 K per
+      full drive at logbook UCA steps, n=21, IQR +0.045..+0.151) divided by the measured 62 mW. tau =
+      median T1 rise time (6 s, n=8) floored at the record''s ~20 s sampling: an upper bound, the response
+      is not resolved.'
   bath:
     gain_K_per_W: 2.3
     tau_s: 730.0
     basis: 'ASSUMED: the bath (vapor-pressure thermometer, cell pressure) responds much less than the
-      cup. Median vapor-pressure step +0.144 K per full drive (inconsistent sign, n=13) over 62 mW.'
+      cup. 2.3 K/W came from the earlier RF-flip fit''s median vapor-pressure step (+0.144 K per full
+      drive, inconsistent sign, n=13) over 62 mW; the logbook UCA-step fit finds only about +0.003 K per
+      full drive (interquartile range spans zero), i.e. ~0.05 K/W. Kept at 2.3 K/W so coldboard test faults
+      stay visible: probably an overestimate for microwaves.'
   coldboard:
     to: bath
     basis: 'ASSUMED: coldboard heat goes into the bath (raises bath and, through it, the cup) and into

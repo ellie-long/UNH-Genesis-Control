@@ -129,7 +129,10 @@ def test_operator_turns_microwaves_off_early(params):
     assert m.lattice_T() == pytest.approx(expected, rel=0.01)
     assert m.lattice_T() < 1.0
     assert m.truth(m.state.t)["boiloff_delta_slm"] == pytest.approx(-q_mw / params["heat"]["W_per_slm"], rel=0.01)
-    assert m.temperature("M2", 50.0, s.t) < 50.0                     # fitted magnet gain responds
+    if params["thermal"]["channels"]["M2"]["status"] == "fitted":
+        assert m.temperature("M2", 50.0, s.t) < 50.0                 # fitted magnet gain responds
+    else:
+        assert m.temperature("M2", 50.0, s.t) == 50.0                # unfitted: no invented response
 
 
 def test_wrong_frequency_gives_no_dnp(params):
