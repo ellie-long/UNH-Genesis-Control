@@ -32,6 +32,8 @@ import numpy as np
 
 from ..data import records
 from ..data.timeline import Timeline
+from ..autopilot.ssrf import apply_burn
+from ..data.blast_log import read_cooldown_burns
 from .target import TargetModel, load_params
 
 STEP_S = 60.0
@@ -95,7 +97,7 @@ def despike(p: np.ndarray, half: int = 5, floor_pp: float = 3.0) -> np.ndarray:
 
 
 def run(tl: Timeline, params: dict | None = None, *, anchor_h: float | None = None,
-        step_s: float = STEP_S, cooldown: str | None = None) -> Series:
+        step_s: float = STEP_S, cooldown: str | None = None, burns: list | None = None) -> Series:
     """Step the model through the whole record; re-anchor every ``anchor_h`` hours."""
     ts = np.arange(tl.start, tl.end, step_s)
     probe = TargetModel(tl, tl.start, params)
@@ -108,9 +110,14 @@ def run(tl: Timeline, params: dict | None = None, *, anchor_h: float | None = No
     model = TargetModel(tl, t0, params, cooldown)
     next_anchor = t0 + anchor_h * 3600.0 if anchor_h else math.inf
     pm, dr = np.full_like(ts, np.nan), np.zeros_like(ts)
+    pending = sorted((b for b in (burns or []) if b.ok and b.end > t0), key=lambda b: b.end)
     for i, t in enumerate(ts):
         if t < t0:
             continue
+        while pending and pending[0].end <= t:          # logged ssRF burns, as the ssRF leg applies them
+            b = pending.pop(0)
+            model.advance(b.end)
+            apply_burn(model, b.start, b.end, b.sweep_max_dbm, b.centre_mhz)
         if t >= next_anchor:
             if ok[i]:
                 model.reset(t)
@@ -146,8 +153,9 @@ def evaluate(cooldown_dir: Path, params: dict | None = None, anchor_h: float = 6
     tl = tl or load(cooldown_dir)
     name = cooldown_dir.name
     params = params if params is not None else load_params(cooldown=name)
-    free = run(tl, params, cooldown=name)
-    anch = run(tl, params, anchor_h=anchor_h, cooldown=name)
+    burns = read_cooldown_burns(cooldown_dir)
+    free = run(tl, params, cooldown=name, burns=burns)
+    anch = run(tl, params, anchor_h=anchor_h, cooldown=name, burns=burns)
     return ([score(name, "free", free), score(name, f"anchored {anchor_h:g}h", anch, anchor_h)],
             {"free": free, "anchored": anch})
 

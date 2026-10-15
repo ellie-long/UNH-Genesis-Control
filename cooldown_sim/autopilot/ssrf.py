@@ -38,9 +38,31 @@ FINAL_STATES = {"COMPLETE", "FAILED", "ABORTED", "CLEANUP_FAILED"}
 #: heat deposited cold by ssRF: 140 mW at -5 dBm (logbook 2024-12-18: 2.25 slm),
 #: 16 mW at -15 dBm -- about one decade per 10 dB
 BURN_W_AT_M5_DBM = 0.140
-#: ASSUMED hole rate: fraction of Q removed per second of resonant RF at -5 dBm
-HOLE_RATE_PER_S_AT_M5 = 0.05
+#: burn depth and rate, calibrated to the 2026-06 blast logs against the record's
+#: P: a resonant burn removes the fraction BURN_P_DEPTH * frac of P, and frac of
+#: Q (the tensor hole), with frac = 1 - exp(-HOLE_RATE * scale * seconds) and
+#: scale = 10**((dBm + 5)/10).  Record: -5 dBm 1 s ~3 %, 0 dBm 1 s ~5 %,
+#: +3 dBm 1 s 6-8 %, +3 dBm 32 s ~12 % of P; P then re-pumps over 10-20 min.
+BURN_P_DEPTH = 0.12
+HOLE_RATE_PER_S_AT_M5 = 0.14
 RESONANT_WINDOW_MHZ = 0.3
+
+
+def apply_burn(model, t0: float, t1: float, level_dbm: float, freq_mhz: float) -> None:
+    """ssRF on from t0 to t1 at level/frequency: heat the cup and, if resonant,
+    burn P and a tensor hole (queued at t1).  Shared by the ssRF leg and the hindcast."""
+    if model is None or t1 <= t0:
+        return
+    level = level_dbm if math.isfinite(level_dbm) else -120.0
+    scale = 10.0 ** ((level + 5.0) / 10.0)
+    model.queue_burn_heat(t0, t1, BURN_W_AT_M5_DBM * scale)
+    B = model.field_T(t1)
+    larmor = ph.deuteron_larmor_MHz(B) if B > 0.5 else math.nan
+    if not (math.isfinite(larmor) and math.isfinite(freq_mhz) and abs(freq_mhz - larmor) < RESONANT_WINDOW_MHZ):
+        return
+    frac = 1.0 - math.exp(-HOLE_RATE_PER_S_AT_M5 * scale * (t1 - t0))
+    s = model.state
+    model.queue_burn(t1, dP=-BURN_P_DEPTH * frac * s.P, dQ=-frac * s.Q)
 
 
 def stage_waveform() -> list[float]:
@@ -124,18 +146,7 @@ class SSRFLeg:
 
     def _apply_burn(self, t0: float, t1: float) -> None:
         """Real RF was on from t0 to t1: heat the cup and burn a tensor hole."""
-        if self.model is None or t1 <= t0:
-            return
-        level = self._rf["level"] if math.isfinite(self._rf["level"]) else -120.0
-        scale = 10.0 ** ((level + 5.0) / 10.0)
-        self.model.queue_burn_heat(t0, t1, BURN_W_AT_M5_DBM * scale)
-        B = self.model.field_T(t1)
-        larmor = ph.deuteron_larmor_MHz(B) if B > 0.5 else math.nan
-        if not (math.isfinite(larmor) and abs(self._rf["freq"] - larmor) < RESONANT_WINDOW_MHZ):
-            return
-        frac = 1.0 - math.exp(-HOLE_RATE_PER_S_AT_M5 * scale * (t1 - t0))
-        s = self.model.state
-        self.model.queue_burn(t1, dP=-0.1 * frac * s.P, dQ=-frac * s.Q)
+        apply_burn(self.model, t0, t1, self._rf["level"], self._rf["freq"])
 
     # ----------------------------------------------------------- autopilot
     async def step(self) -> None:
