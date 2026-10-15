@@ -67,6 +67,10 @@ def add_model_parsers(sub) -> None:
     p = sub.add_parser("fit-params", help="fit target-model parameters from past cool-downs")
     p.add_argument("--data", default=os.environ.get(DATA_ENV))
     p.add_argument("--cooldowns", help="comma list (default: every cool-down from 2021)")
+    p.add_argument("--method", choices=("uca", "rf"), default="uca",
+                   help="uca: logbook UCA power steps (default, writes the model parameters); "
+                        "rf: the earlier RF-flip fit, printed for comparison only")
+    p.add_argument("--dry-run", action="store_true", help="print the fit, do not write it")
     p.set_defaults(func=_fit_params)
 
 
@@ -77,9 +81,15 @@ def _fit_params(args) -> int:
         print(f"set {DATA_ENV} or pass --data")
         return EXIT_SETUP
     cds = [c.strip() for c in args.cooldowns.split(",")] if args.cooldowns else None
-    params = fit_params.build_params(fit_params.fit(Path(args.data), cds))
-    path = fit_params.write(params)
-    th = params["thermal"]["channels"]
-    print(f"wrote {path}: {params['provenance']['transitions_used']} transitions; fitted channels: "
-          + ", ".join(c for c, g in th.items() if g["status"] == "fitted"))
+    fitted = fit_params.fit(Path(args.data), cds, method=args.method)
+    prov = fitted["provenance"]
+    print(f"{prov['steps_used']} steps ({args.method}):\n  " + "\n  ".join(prov["steps"]))
+    for ch, g in fitted["thermal"]["channels"].items():
+        print(f"  {ch:8s} {g['gain_K_per_drive']:+.4f} K/drive  n={g['n']:<3d} {g['status']}")
+    print(f"  tau {fitted['thermal']['tau_s']} s (n={fitted['thermal']['tau_n']})")
+    if args.method != "uca" or args.dry_run:
+        print("not written (" + ("comparison method" if args.method != "uca" else "--dry-run") + ")")
+        return EXIT_OK
+    path = fit_params.write(fit_params.build_params(fitted))
+    print(f"wrote {path}")
     return EXIT_OK

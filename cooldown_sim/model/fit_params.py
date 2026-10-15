@@ -1,20 +1,43 @@
 """Fit the thermal-response parameters of the target model from past cool-downs.
 
-No measured microwave heat load or fridge time constants exist, so they are
-inferred from the record: every *isolated* microwave RF on/off transition
-(stable for ``STABLE_S`` either side, not within ``MIDNIGHT_GUARD_S`` of a
-day-file boundary -- the DAQ logs spurious status flips there) gives one step
-response per thermometer.
+No measured fridge time constants exist, so the thermal response to
+microwaves is inferred from the record at the moments the microwave POWER
+changed.  That is the UCA, not the RF switch: RF is switched ON with the UCA
+at 5 V (no power) and the operator lowers it by hand later, so an RF on/off
+flip is usually not a power step at all.  The steps used are the
+logbook-STATED UCA changes (``uca_logbook.yaml`` via ``uca_history``) while
+RF is on, plus the record's own UCA steps in the era when the DAQ logged the
+real UCA (2020-2021).  Inferred logbook entries shape the history drive but
+never select a step.  A step qualifies when
+
+* the setting before it is known (a logbook entry, the 5 V of the RF-ON
+  procedure, or the record) -- not the unlogged-period fallback;
+* the drive changes by >= ``MIN_DRIVE_STEP`` and no other change (UCA, RF
+  ON/OFF) lies within ``MIN_ISOLATION_S`` either side.  (The midnight guard of
+  the RF method is not needed: it protected against the DAQ's spurious RF
+  status flips at day-file boundaries, which no longer define a step.)
+
+Logbook times are when the entry was written: the action is typically 0-4
+min earlier, occasionally up to a minute later.  The cup thermometers respond
+within ~20 s, so each logbook step is placed at the largest one-sample jump
+of T1 (else T3) within [t - ``LOG_LEAD_S``, t + ``LOG_LAG_S``] (the absolute
+jump: the expected sign plays no part); the step is then measured as the
+median after it minus the pre-step level (linear trend extrapolated when the
+quiet stretch before is >= 10 min, else its median), each window kept
+``WINDOW_GUARD_S`` clear of the step and of its neighbours.
 
 For each channel:
 
-* step size per unit microwave drive -- the median over all qualifying
-  transitions (sign-aligned: an OFF step counts as the negative of an ON
-  step), with its interquartile range;
-* time constant -- the median 1/e rise time of the T1 (cup) response;
+* step size per unit microwave drive -- the median over all qualifying steps
+  (sign-aligned by the drive change), with its interquartile range;
+* time constant -- the median 1/e rise time of the T1 (cup) response, from
+  steps with a quiet ``STABLE_S`` after them;
 * a channel is used only if >= ``MIN_STEPS`` steps agree in sign at least
   70 % of the time AND their interquartile range excludes zero; otherwise its
   gain is 0 and it is flagged ``unfitted``.
+
+``method="rf"`` (``fit-params --method rf``) keeps the earlier fit to isolated
+RF on/off transitions (``STABLE_S`` either side) for comparison only.
 
 Microwave drive is the dimensionless fraction of the chain's full output
 power (1.0 = full power at 140 GHz; the heat at full drive is the measured
@@ -33,11 +56,12 @@ power (1.0 = full power at 140 GHz; the heat at full drive is the measured
 * ``freq_factor``: the chain's maximum output vs frequency (same vendor data),
   relative to its value at 140.0 GHz.
 
-The record's ``UCA (V)`` column has not been the real UCA for years (a manual
-supply drove it), so history is taken at full power whenever RF is on
-(``HIST_UCA_V`` = 0 V).  The vendor curves describe the chain as repaired in
-2025-10; earlier cool-downs are assumed to share its frequency response.
-Gains are K per unit drive.
+The record's ``UCA (V)`` column has not been the real UCA since about 2022 (a
+manual supply drives it), so the history UCA comes from the logbooks
+(``uca_history``: 5 V at RF ON until the logbook says it was lowered; RF OFF
+resets; unlogged RF-on periods reach full power after 5 min).  The vendor
+curves describe the chain as repaired in 2025-10; earlier cool-downs are
+assumed to share its frequency response.  Gains are K per unit drive.
 
 Output: ``cooldown_sim/model/model_params.yaml`` (derived numbers only,
 with provenance -- never raw data).
@@ -47,6 +71,7 @@ from __future__ import annotations
 
 import datetime as _dt
 import math
+from dataclasses import dataclass
 from pathlib import Path
 
 import numpy as np
@@ -54,28 +79,41 @@ import yaml
 
 from ..data import records
 from ..data.timeline import Timeline
+from . import uca_history
 
 PARAMS_FILE = Path(__file__).with_name("model_params.yaml")
 STABLE_S = 1800.0
 MIDNIGHT_GUARD_S = 600.0
 MIN_STEPS = 3
+#: a UCA step needs this long free of other changes on both sides
+MIN_ISOLATION_S = 240.0
+#: a logbook entry is written up to this long after the action ...
+LOG_LEAD_S = 240.0
+#: ... or up to this long before it
+LOG_LAG_S = 90.0
+#: measurement windows stay this far from the (placed) step and its neighbours
+WINDOW_GUARD_S = 40.0
+#: smallest UCA drive step fitted: a partial step (e.g. 1 V -> 2 V, 0.09) is within the noise
+MIN_DRIVE_STEP = 0.25
 #: folders whose files duplicate another cool-down (would double-count steps)
 DUPLICATES = {"2026-07-Cooldown"}
 CHANNELS = ["T1", "T2", "T3", "vp_temp"] + [f"F{i}" for i in range(1, 12)] + [f"M{i}" for i in range(1, 6)]
-COLUMNS = ["mw_rf_status", "mw_power_db", "mw_freq_ghz"] + CHANNELS
+COLUMNS = ["mw_rf_status", "mw_power_db", "mw_freq_ghz", "uca_v"] + CHANNELS
+#: cup thermometers used to place a logbook step in time
+CUP = ("T1", "T3")
 
 
 DRIVE_DEFINITION = ("RF_on x saturation(P_dB) x uca_fraction(V_UCA, f) x freq_factor(f); "
                     "saturation 1 for P_dB >= -5 (ASSUMED 10**((P_dB+5)/10) below); UCA and "
                     "frequency response from vendor test data for the repaired AMC (2025-10), "
-                    "freq_factor 1 at 140 GHz; history at UCA 0 V (full power) when RF is on")
+                    "freq_factor 1 at 140 GHz; history UCA from the cool-down logbooks "
+                    "(uca_logbook.yaml: 5 V at RF ON until lowered, RF OFF resets, unlogged "
+                    "RF-on periods full power after 5 min; the record's UCA column in 2020-2021)")
 
 #: Vaunix setpoint (dB) from which the AMC chain is saturated (full power)
 SATURATION_DB = -5.0
-#: UCA voltage assumed for the record (its UCA column is not the real UCA)
-HIST_UCA_V = 0.0
 #: UCA voltage with no microwave output (also the RF-enable transition value)
-UCA_SAFE_V = 5.0
+UCA_SAFE_V = uca_history.UCA_SAFE_V
 FREQ_RANGE_GHZ = (138.0, 142.0)
 REF_FREQ_GHZ = 140.0
 #: hold the last logged microwave frequency this long
@@ -136,7 +174,7 @@ def freq_factor(freq_GHz: float) -> float:
 
 
 def drive(rf_on: float, power_db: float, freq_GHz: float = float("nan"),
-          uca_V: float = HIST_UCA_V) -> float:
+          uca_V: float = 0.0) -> float:
     """Microwave power as a fraction of full output at 140 GHz (see module doc)."""
     if not (math.isfinite(rf_on) and rf_on > 0.5):
         return 0.0
@@ -150,10 +188,16 @@ def hist_freq(tl: Timeline, t: float) -> float:
     return float(vs[good][-1]) if good.any() else float("nan")
 
 
+def hist_uca(tl: Timeline, t: float) -> uca_history.Setting:
+    """History UCA setting at t (logbook timeline; see ``uca_history``)."""
+    return uca_history.for_timeline(tl).setting(t)
+
+
 def hist_drive(tl: Timeline, t: float) -> float:
-    """Drive the record says the microwaves had at t (UCA taken as HIST_UCA_V:
-    the record's UCA column is ignored)."""
-    return drive(tl.value_at("mw_rf_status", t), tl.value_at("mw_power_db", t), hist_freq(tl, t))
+    """Drive the record says the microwaves had at t: RF status, Vaunix power and
+    frequency from the record, the UCA from the logbook timeline (``hist_uca``)."""
+    return drive(tl.value_at("mw_rf_status", t), tl.value_at("mw_power_db", t), hist_freq(tl, t),
+                 hist_uca(tl, t).uca_V)
 
 
 def _near_midnight(t: float) -> bool:
@@ -163,7 +207,9 @@ def _near_midnight(t: float) -> bool:
 
 
 def transitions(tl: Timeline) -> list[tuple[float, float]]:
-    """(time, drive change) for isolated RF transitions."""
+    """(time, drive change) for isolated RF transitions -- the earlier method,
+    kept for comparison (``method="rf"``): it takes every RF flip as a full
+    power step, which the UCA procedure makes untrue."""
     t, rf = tl.samples("mw_rf_status")
     out = []
     for i in np.nonzero(np.diff(rf) != 0)[0]:
@@ -210,7 +256,104 @@ def rise_time(tl: Timeline, ch: str, ts: float) -> float:
     return float(t[t >= ts][hit[0]] - ts) if len(hit) else float("nan")
 
 
-def fit(data_root: Path, cooldowns: list[str] | None = None) -> dict:
+METHODS = {
+    "uca": "median sign-aligned, pre-step-detrended response to isolated logbook-stated (and "
+           "2020-2021 record) UCA power steps while RF is on, placed on the cup response",
+    "rf": "median sign-aligned, pre-step-detrended response to isolated microwave RF transitions "
+          "(earlier method, every RF flip taken as a full-power step)",
+}
+
+
+@dataclass(frozen=True)
+class Step:
+    """One microwave power step to fit: placed time, drive change, measurement windows."""
+
+    t: float                            # step time (placed on the cup response for logbook steps)
+    t_log: float                        # logbook / record time it came from
+    dd: float                           # drive change (after - before)
+    pre: tuple[float, float]            # pre-step window (epoch s)
+    post: tuple[float, float]           # post-step window
+    quiet_after_s: float                # time to the next change
+    label: str
+
+
+def place(tl: Timeline, lo: float, hi: float) -> float:
+    """Midpoint of the largest one-sample jump of the first cup thermometer with
+    data in [lo, hi] (NaN if none) -- where a logbook step really happened."""
+    for ch in CUP:
+        t, v = tl.samples(ch, lo - 60.0, hi)
+        ok = v < 100.0                                   # drop the DAQ's out-of-range sentinels
+        t, v = t[ok], v[ok]
+        if len(t) < 3:
+            continue
+        tm = 0.5 * (t[1:] + t[:-1])
+        d = np.where((tm >= lo) & (tm <= hi), np.abs(np.diff(v)), -1.0)
+        if d.max() >= 0:
+            return float(tm[int(np.argmax(d))])
+    return float("nan")
+
+
+def uca_steps(tl: Timeline, bases=("stated", "record")) -> list[Step]:
+    """Isolated microwave power steps at UCA changes while RF is on (module doc)."""
+    hist = uca_history.for_timeline(tl)
+    changes = hist.changes()
+    # place every logbook change, so neighbours are known as well as the step itself
+    when: dict[float, tuple[float, float]] = {}         # logbook t -> (earliest, latest) real time
+    for c in changes:
+        if c.exact:
+            when[c.t] = (c.t, c.t)
+            continue
+        tp = place(tl, max(c.t - LOG_LEAD_S, c.prev_t + 30.0), min(c.t + LOG_LAG_S, c.next_t - 30.0))
+        when[c.t] = (tp, tp) if math.isfinite(tp) else (c.t - LOG_LEAD_S, c.t + LOG_LAG_S)
+    out = []
+    for c in changes:
+        if c.basis not in bases or c.before not in ("stated", "inferred", "procedure", "record"):
+            continue
+        lo, hi = when[c.t]
+        if lo != hi:                                     # could not be placed
+            continue
+        ts = lo
+        prev = when.get(c.prev_t, (c.prev_t, c.prev_t))[1]
+        nxt = when.get(c.next_t, (c.next_t, c.next_t))[0]
+        if ts - prev < MIN_ISOLATION_S or nxt - ts < MIN_ISOLATION_S:
+            continue
+        f = hist_freq(tl, ts + 60.0)
+        p_db = tl.value_at("mw_power_db", ts)
+        dd = drive(1.0, p_db, f, c.v_after) - drive(1.0, p_db, f, c.v_before)
+        if abs(dd) < MIN_DRIVE_STEP:
+            continue
+        post_end = min(nxt - WINDOW_GUARD_S, ts + STABLE_S - 100.0)
+        post_start = ts + (600.0 if post_end - ts >= 1200.0 else WINDOW_GUARD_S)
+        out.append(Step(ts, c.t, dd, (max(prev + WINDOW_GUARD_S, ts - 1500.0), ts - WINDOW_GUARD_S),
+                        (post_start, post_end), nxt - ts,
+                        f"{c.basis} {c.v_before:.2f}->{c.v_after:.2f} V"))
+    return out
+
+
+def rf_steps(tl: Timeline) -> list[Step]:
+    """The earlier method's steps (isolated RF flips at full drive), as Steps."""
+    return [Step(ts, ts, dd, (ts - 1500.0, ts - 30.0), (ts + 600.0, ts + 1700.0), STABLE_S, "RF flip")
+            for ts, dd in transitions(tl)]
+
+
+def step_size(tl: Timeline, ch: str, s: Step) -> float:
+    """Response of ``ch`` to step ``s``: post-window median minus the pre-step level
+    (its linear trend extrapolated when the pre window is >= 10 min, else its median)."""
+    tb, vb = tl.samples(ch, *s.pre)
+    ta, va = tl.samples(ch, *s.post)
+    if len(tb) < 3 or len(ta) < 3:
+        return float("nan")
+    if s.pre[1] - s.pre[0] >= 600.0 and len(tb) >= 8:
+        slope, icpt = np.polyfit(tb - s.t, vb, 1)
+        return float(np.median(va - (slope * (ta - s.t) + icpt)))
+    return float(np.median(va) - np.median(vb))
+
+
+def fit(data_root: Path, cooldowns: list[str] | None = None, method: str = "uca") -> dict:
+    """Fit the thermal response; ``method`` "uca" (logbook UCA steps) or "rf"
+    (the earlier RF-flip method, for comparison only)."""
+    if method not in ("uca", "rf"):
+        raise ValueError(f"method {method!r} not in ('uca', 'rf')")
     cds = [records.resolve_cooldown(c, data_root) for c in cooldowns] if cooldowns else \
         [p for p in records.list_cooldowns(data_root)
          if p.name[:4] >= "2021" and "Subset" not in p.name and p.name not in DUPLICATES]
@@ -219,15 +362,17 @@ def fit(data_root: Path, cooldowns: list[str] | None = None) -> dict:
     used = []
     for cd in cds:
         tl = Timeline(records.read_cooldown(cd, COLUMNS))
-        for ts, dd in transitions(tl):
-            used.append(f"{cd.name} {records.format_epoch(ts)} drive {dd:+.2f}")
+        for s in (uca_steps(tl) if method == "uca" else rf_steps(tl)):
+            used.append(f"{cd.name} {records.format_epoch(s.t)} ({s.t - s.t_log:+.0f} s) "
+                        f"{s.label} drive {s.dd:+.2f}")
             for ch in CHANNELS:
-                s = step(tl, ch, ts)
-                if math.isfinite(s):
-                    steps[ch].append(s / dd)
-            tau = rise_time(tl, "T1", ts)
-            if math.isfinite(tau) and 30 < tau < STABLE_S:
-                taus.append(tau)
+                v = step(tl, ch, s.t) if method == "rf" else step_size(tl, ch, s)
+                if math.isfinite(v):
+                    steps[ch].append(v / s.dd)
+            if s.quiet_after_s >= STABLE_S:
+                tau = rise_time(tl, "T1", s.t)
+                if math.isfinite(tau) and (30.0 if method == "rf" else 0.0) < tau < STABLE_S:
+                    taus.append(tau)
     gains = {}
     for ch, vals in steps.items():
         v = np.array(vals)
@@ -252,9 +397,9 @@ def fit(data_root: Path, cooldowns: list[str] | None = None) -> dict:
     return {
         "provenance": {
             "generated": _dt.datetime.now(_dt.timezone.utc).isoformat(timespec="seconds"),
-            "method": "median sign-aligned, pre-step-detrended response to isolated microwave RF transitions",
-            "cooldowns": [c.name for c in cds], "transitions_used": len(used),
-            "transitions": used[:200],
+            "method": METHODS[method],
+            "cooldowns": [c.name for c in cds], "steps_used": len(used),
+            "steps": used[:200],
             "drive_definition": DRIVE_DEFINITION,
         },
         "thermal": {
@@ -319,8 +464,11 @@ HEAT = {
         "mw_W_at_full_drive": "MEASURED: 2024-12-17 23:33-23:56 logbook (UNH_Poltarg_Cooldown_Notes): "
                               "UCA toggled 5 V <-> 0 V gave a ~1 slm Roots-flow differential, "
                               "60-62 mW absorbed cold (Farooq: 16.06 SLPM/W). Sept 2024 with the "
-                              "old stick was higher. Automated step fits cannot see it (flows "
-                              "around logged transitions are dominated by other operations).",
+                              "old stick was higher. Consistent with the logbook UCA timeline "
+                              "(RF on throughout; the toggles match the T1 steps within a minute; "
+                              "each a 0.98 full-drive step at 139.27 GHz). The record's Roots "
+                              "Flow L differential is ~0.85 slm for the first toggle but only "
+                              "0.2-0.5 slm for the later 4-6 min ones (to be reviewed).",
         "W_per_slm": "16.8 slpm per W at 1 K (C. Keith, PSTP 2024; Spin-1-Rates-Fit "
                      "holeburn/dec15_thermal.py) = 59.5 mW/slm; first-principles latent heat "
                      "62.5 mW/slm",
@@ -329,20 +477,20 @@ HEAT = {
     },
 }
 
+#: cup response used when no cup thermometer is fitted (the RF-flip fit's T3 value)
+CUP_FALLBACK = {"gain_K_per_W": 10.2, "tau_s": 730.0}
+#: the record samples every 10-20 s: a faster cup response is not resolved
+CUP_TAU_FLOOR_S = 20.0
+
 ASSUMED = {
-    "cup": {
-        "gain_K_per_W": 10.2, "tau_s": 730.0,
-        "basis": "PARTLY FITTED: cup thermometers (T1/T2/T3) are much more sensitive to microwaves than the "
-                 "helium bath (lab knowledge). Gain from the FITTED T3 step response "
-                 "(+0.635 K per full-drive transition, n=7, IQR excludes zero) divided by "
-                 "the measured 62 mW; T1 steps (+0.25..+0.62 K) agree. tau = median T1 rise "
-                 "time (n=2): weakly constrained.",
-    },
     "bath": {
         "gain_K_per_W": 2.3, "tau_s": 730.0,
         "basis": "ASSUMED: the bath (vapor-pressure thermometer, cell pressure) responds much "
-                 "less than the cup. Median vapor-pressure step +0.144 K per full drive "
-                 "(inconsistent sign, n=13) over 62 mW.",
+                 "less than the cup. 2.3 K/W came from the earlier RF-flip fit's median "
+                 "vapor-pressure step (+0.144 K per full drive, inconsistent sign, n=13) over "
+                 "62 mW; the logbook UCA-step fit finds only about +0.003 K per full drive "
+                 "(interquartile range spans zero), i.e. ~0.05 K/W. Kept at 2.3 K/W so "
+                 "coldboard test faults stay visible: probably an overestimate for microwaves.",
     },
     "coldboard": {
         "to": "bath",
@@ -362,5 +510,31 @@ ASSUMED = {
 }
 
 
+def cup_params(fitted: dict) -> dict:
+    """Cup (target-lattice) response per watt from the fitted cup thermometer:
+    T1 (the lattice temperature the model reports), else T3."""
+    ch = fitted["thermal"]["channels"]
+    w = HEAT["mw_W_at_full_drive"]
+    tau = max(float(fitted["thermal"]["tau_s"]), CUP_TAU_FLOOR_S)
+    for name in ("T1", "T3"):
+        g = ch.get(name, {})
+        if g.get("status") == "fitted" and g["gain_K_per_drive"] > 0:
+            return {
+                "gain_K_per_W": round(g["gain_K_per_drive"] / w, 2), "tau_s": round(tau, 1),
+                "basis": f"PARTLY FITTED: cup thermometers (T1/T2/T3) are much more sensitive to "
+                         f"microwaves than the helium bath (lab knowledge; the fit agrees). Gain "
+                         f"from the FITTED {name} step response ({g['gain_K_per_drive']:+.3f} K "
+                         f"per full drive at logbook UCA steps, n={g['n']}, IQR "
+                         f"{g['iqr'][0]:+.3f}..{g['iqr'][1]:+.3f}) divided by the measured "
+                         f"{w * 1e3:.0f} mW. tau = median T1 rise time "
+                         f"({fitted['thermal']['tau_s']:.0f} s, n={fitted['thermal']['tau_n']}) "
+                         f"floored at the record's ~{CUP_TAU_FLOOR_S:.0f} s sampling: an upper "
+                         f"bound, the response is not resolved.",
+            }
+    return {**CUP_FALLBACK,
+            "basis": "ASSUMED: no cup thermometer fitted; the earlier RF-flip fit's T3 response "
+                     "(+0.635 K per full drive) over 62 mW, tau 730 s."}
+
+
 def build_params(fitted: dict) -> dict:
-    return {**fitted, "dnp": DNP, "heat": HEAT, "assumed": ASSUMED}
+    return {**fitted, "dnp": DNP, "heat": HEAT, "assumed": {"cup": cup_params(fitted), **ASSUMED}}

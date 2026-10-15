@@ -27,8 +27,10 @@ State (all integrated with exact exponential sub-steps of <= MAX_STEP_S):
 Microwave drive (``fit_params.drive``) is the fraction of the chain's full
 output at 140 GHz: RF on x Vaunix saturation (full power from -5 dB up) x UCA
 attenuation (0 V full, 5 V none; vendor curve) x the chain's frequency
-response.  History is taken at full power whenever RF is on (the record has
-no usable UCA voltage); the operator side uses the OBSERVED UCA voltage.  The
+response.  The history UCA comes from the cool-down logbooks
+(``uca_history``: 5 V at RF ON until the logbook says it was lowered, RF OFF
+resets, unlogged RF-on periods full power after 5 min); the operator side
+uses the OBSERVED UCA voltage.  The
 DNP pumping strength is the drive without the frequency response: P_max and
 the lobe come from spin-ups at the operating frequencies, so the chain's
 output there is already inside them.
@@ -146,8 +148,8 @@ class TargetModel:
         return hist_freq(self.tl, t)
 
     def hist_mw(self, t: float) -> tuple[float, float]:
-        """(drive, frequency GHz) the record says the microwaves had at t
-        (full power when RF is on: the record's UCA column is not used)."""
+        """(drive, frequency GHz) the microwaves had at t: RF, power and frequency
+        from the record, the UCA from the logbook timeline (``hist_drive``)."""
         return hist_drive(self.tl, t), self._hist_freq(t)
 
     def op_mw(self, t: float) -> tuple[float, float]:

@@ -1,0 +1,235 @@
+# UCA (microwave attenuator) voltage of past cool-downs, from the cool-down logbooks.
+#
+# Read by cooldown_sim/model/uca_history.py.  Derived facts only (no logbook text).
+#
+# Procedure: RF is switched ON with the UCA at 5 V (no power); the operator then
+# lowers the UCA BY HAND (0 V = full power), often only after alignment or tests,
+# and raises it to 5 V before RF OFF.  The record's "UCA (V)" column has not been
+# the real UCA since a manual supply took over (see uca_source below), so the
+# setting is taken from what operators wrote.
+#
+# Per cool-down:
+#   span        record coverage, lab local time (America/New_York); the lookup is by time
+#   uca_source  logbook -- these entries are the UCA history
+#               record  -- the record's "UCA (V)" column was the real, DAQ-driven UCA
+#                          in this era (its steps match the logbook statements); the
+#                          entries below are kept as a cross-check only
+#   entries     time-ordered {t, uca_V, basis, note}
+#     t       lab local time the entry was written ("YYYY-MM-DD HH:MM"); the action
+#             itself is typically 0-4 min earlier
+#     basis   stated   -- the logbook gives the setting ("UCA at 0 V", "full power",
+#                         "UCA to 5 V")
+#             inferred -- implied by context, e.g. "microwaves off" / "back on" while
+#                         the record shows RF still on (the safe way to switch them is
+#                         the UCA), or "polarizing" right after RF ON
+#     note    short neutral description (optional)
+#
+# The thermal fit uses only 'stated' entries (and record-era UCA steps); 'inferred'
+# entries shape the history drive but never select fit steps.  Entries while the
+# record shows RF OFF have no effect (the drive is zero) and are listed for
+# completeness.  Uncertain readings are listed for review, not resolved here.
+
+cooldowns:
+  2020-09-Cooldown:
+    span: ["2020-09-10 00:00", "2020-09-15 08:05"]
+    uca_source: record
+    entries:
+      - {t: "2020-09-10 22:23", uca_V: 3.0, basis: stated, note: "reflection test at reduced power"}
+      - {t: "2020-09-10 22:36", uca_V: 0.0, basis: stated, note: "full power"}
+      - {t: "2020-09-11 15:43", uca_V: 5.0, basis: stated}
+      - {t: "2020-09-12 12:43", uca_V: 2.5, basis: stated, note: "EPR / reflector tests"}
+      - {t: "2020-09-13 01:19", uca_V: 5.0, basis: stated, note: "before magnet ramp"}
+      - {t: "2020-09-13 02:37", uca_V: 5.0, basis: stated, note: "end of shift"}
+      - {t: "2020-09-15 00:44", uca_V: 0.5, basis: stated, note: "power test"}
+      - {t: "2020-09-15 00:46", uca_V: 1.0, basis: stated, note: "power test"}
+      - {t: "2020-09-15 00:47", uca_V: 1.25, basis: stated, note: "power test"}
+      - {t: "2020-09-15 00:49", uca_V: 0.0, basis: stated, note: "back to full power"}
+      - {t: "2020-09-15 04:30", uca_V: 5.0, basis: stated, note: "control handed back to the DAQ"}
+      - {t: "2020-09-15 04:33", uca_V: 0.0, basis: stated}
+      - {t: "2020-09-15 06:00", uca_V: 5.0, basis: stated}
+
+  2020-12-Cooldown:
+    span: ["2020-12-05 00:00", "2020-12-11 03:00"]
+    uca_source: record
+    entries:
+      - {t: "2020-12-10 11:27", uca_V: 5.0, basis: stated, note: "leakage check at 5 V"}
+      - {t: "2020-12-10 17:46", uca_V: 2.5, basis: stated, note: "after a check at 5 V"}
+      - {t: "2020-12-10 21:48", uca_V: 5.0, basis: stated}
+
+  2021-09-Cooldown:
+    span: ["2021-09-30 00:00", "2021-10-03 00:00"]
+    uca_source: record
+    entries:
+      - {t: "2021-10-01 21:04", uca_V: 5.0, basis: stated, note: "microwave stand moved aside"}
+      - {t: "2021-10-01 21:35", uca_V: 0.0, basis: inferred, note: "microwaves back on target"}
+
+  2022-05-Cooldown:
+    span: ["2022-05-03 00:00", "2022-05-07 00:00"]
+    uca_source: logbook
+    entries:
+      - {t: "2022-05-06 00:31", uca_V: 1.0, basis: stated}
+      - {t: "2022-05-06 00:46", uca_V: 0.0, basis: stated, note: "full power"}
+      - {t: "2022-05-06 05:35", uca_V: 0.5, basis: stated, note: "power reduced slightly"}
+      - {t: "2022-05-06 05:38", uca_V: 1.0, basis: stated}
+      - {t: "2022-05-06 05:41", uca_V: 0.0, basis: stated, note: "full power"}
+      - {t: "2022-05-06 09:30", uca_V: 0.0, basis: inferred, note: "polarizing resumed after RF ON; physical UCA not stated"}
+      - {t: "2022-05-06 13:40", uca_V: 5.0, basis: stated, note: "before RF OFF"}
+
+  2024-08-Cooldown:
+    span: ["2024-08-27 00:00", "2024-08-31 00:00"]
+    uca_source: logbook
+    entries:
+      # the record never shows RF ON in this cool-down: none of these reach the drive
+      - {t: "2024-08-27 18:14", uca_V: 2.9, basis: stated, note: "reflector test just below 3 V"}
+      - {t: "2024-08-28 15:31", uca_V: 5.0, basis: stated, note: "on/off thermometry test"}
+      - {t: "2024-08-30 00:28", uca_V: 5.0, basis: stated}
+      - {t: "2024-08-30 10:27", uca_V: 0.0, basis: stated, note: "full power"}
+
+  2024-09-Cooldown:
+    span: ["2024-09-16 00:00", "2024-09-19 17:20"]
+    uca_source: logbook
+    entries:
+      - {t: "2024-09-17 11:50", uca_V: 0.0, basis: inferred, note: "microwaves on to polarize"}
+      - {t: "2024-09-18 09:06", uca_V: 2.5, basis: stated, note: "test outside the DAQ (record RF off)"}
+      - {t: "2024-09-18 09:11", uca_V: 5.0, basis: stated, note: "record RF off"}
+      - {t: "2024-09-18 09:39", uca_V: 0.0, basis: inferred, note: "SIG check, then polarizing; level during the check not stated"}
+      - {t: "2024-09-18 19:04", uca_V: 5.0, basis: stated, note: "relaxation check"}
+      - {t: "2024-09-18 19:08", uca_V: 0.0, basis: stated}
+      - {t: "2024-09-19 08:25", uca_V: 0.0, basis: inferred, note: "polarizing at field"}
+      - {t: "2024-09-19 09:56", uca_V: 5.0, basis: inferred, note: "microwaves briefly off, RF on"}
+      - {t: "2024-09-19 09:58", uca_V: 0.0, basis: inferred, note: "back on"}
+      - {t: "2024-09-19 16:36", uca_V: 5.0, basis: stated, note: "after RF OFF"}
+
+  2024-11-Cooldown:
+    span: ["2024-11-13 00:00", "2024-11-16 00:00"]
+    uca_source: logbook
+    entries:
+      - {t: "2024-11-13 20:44", uca_V: 0.0, basis: inferred, note: "microwaves seen on flow and thermometry"}
+      - {t: "2024-11-15 15:32", uca_V: 0.0, basis: inferred, note: "polarizing near maximum power"}
+      - {t: "2024-11-15 16:31", uca_V: 5.0, basis: inferred, note: "microwaves shut off, RF on"}
+      - {t: "2024-11-15 16:54", uca_V: 0.0, basis: inferred, note: "polarizing again"}
+      - {t: "2024-11-15 21:18", uca_V: 5.0, basis: stated, note: "after RF OFF"}
+
+  2024-12-Cooldown:
+    span: ["2024-12-16 13:45", "2024-12-19 00:00"]
+    uca_source: logbook
+    entries:
+      - {t: "2024-12-17 16:44", uca_V: 0.0, basis: stated, note: "aligned, at max power"}
+      - {t: "2024-12-17 17:11", uca_V: 5.0, basis: stated, note: "brief check at 5 V"}
+      - {t: "2024-12-17 17:12", uca_V: 0.0, basis: stated, note: "back to full power"}
+      # Roots-flow power calibration (heat.mw_W_at_full_drive): 5 V / 0 V toggles
+      - {t: "2024-12-17 23:33", uca_V: 5.0, basis: stated, note: "power calibration toggles"}
+      - {t: "2024-12-17 23:38", uca_V: 0.0, basis: stated}
+      - {t: "2024-12-17 23:44", uca_V: 5.0, basis: stated}
+      - {t: "2024-12-17 23:50", uca_V: 0.0, basis: stated}
+      - {t: "2024-12-17 23:53", uca_V: 5.0, basis: stated}
+      - {t: "2024-12-17 23:58", uca_V: 0.0, basis: stated, note: "end of calibration toggles"}
+      - {t: "2024-12-18 00:30", uca_V: 0.0, basis: stated, note: "full power after realignment"}
+      - {t: "2024-12-18 04:45", uca_V: 5.0, basis: stated, note: "before RF OFF"}
+
+  2025-02-Cooldown:
+    span: ["2025-02-11 00:00", "2025-02-14 00:00"]
+    uca_source: logbook
+    entries:
+      - {t: "2025-02-11 18:35", uca_V: 3.0, basis: stated, note: "alignment at reduced power (2-3 V)"}
+      - {t: "2025-02-11 19:11", uca_V: 0.0, basis: inferred, note: "aligned on the thermal cap"}
+      - {t: "2025-02-11 19:30", uca_V: 5.0, basis: stated, note: "check at 5 V"}
+      - {t: "2025-02-11 20:29", uca_V: 0.0, basis: inferred, note: "spin-up under way"}
+      - {t: "2025-02-11 23:28", uca_V: 5.0, basis: inferred, note: "microwaves off before ramp down"}
+      - {t: "2025-02-12 09:45", uca_V: 0.0, basis: inferred, note: "microwaves on at ~09:45 per logbook"}
+      - {t: "2025-02-12 13:04", uca_V: 5.0, basis: inferred, note: "UCA on/off power test"}
+      - {t: "2025-02-12 13:12", uca_V: 0.0, basis: inferred, note: "back on"}
+      - {t: "2025-02-12 21:07", uca_V: 5.0, basis: inferred, note: "off for a burn"}
+      - {t: "2025-02-12 21:23", uca_V: 0.0, basis: inferred, note: "back on"}
+      - {t: "2025-02-13 12:57", uca_V: 0.0, basis: inferred, note: "spin-up started"}
+      - {t: "2025-02-13 16:41", uca_V: 5.0, basis: inferred, note: "microwaves off and pulled back"}
+      - {t: "2025-02-13 18:46", uca_V: 0.0, basis: inferred, note: "spin-up started"}
+
+  2025-07-Cooldown:
+    span: ["2025-07-10 00:00", "2025-07-11 00:00"]
+    uca_source: logbook
+    entries: []                   # no UCA setting logged: RF-on periods use the fallback
+
+  2025-11-Cooldown:
+    span: ["2025-11-18 00:00", "2025-11-24 15:20"]
+    uca_source: logbook
+    entries:
+      - {t: "2025-11-20 21:57", uca_V: 5.0, basis: inferred, note: "microwaves off, RF on"}
+      - {t: "2025-11-20 22:19", uca_V: 0.0, basis: inferred, note: "back on"}
+      - {t: "2025-11-21 01:35", uca_V: 5.0, basis: inferred, note: "off for ssRF (announced)"}
+      - {t: "2025-11-21 01:56", uca_V: 0.0, basis: inferred, note: "back on to recover signal"}
+      - {t: "2025-11-21 02:23", uca_V: 5.0, basis: inferred, note: "off for the next burn"}
+      - {t: "2025-11-21 02:27", uca_V: 0.0, basis: inferred, note: "back on"}
+      - {t: "2025-11-21 02:35", uca_V: 5.0, basis: inferred, note: "off for suppression / AFP tests"}
+      - {t: "2025-11-21 11:36", uca_V: 0.0, basis: inferred, note: "enhancing"}
+      - {t: "2025-11-21 15:18", uca_V: 0.0, basis: inferred, note: "back on after RF ON"}
+      - {t: "2025-11-21 15:53", uca_V: 5.0, basis: inferred, note: "off for hole burning"}
+      - {t: "2025-11-21 18:21", uca_V: 0.0, basis: stated}
+
+  2025-12-Cooldown:
+    span: ["2025-12-12 00:00", "2025-12-16 19:10"]
+    uca_source: logbook
+    entries:
+      - {t: "2025-12-12 18:54", uca_V: 5.0, basis: inferred, note: "microwaves off, RF on"}
+      - {t: "2025-12-12 20:57", uca_V: 0.0, basis: inferred, note: "enhancing"}
+      - {t: "2025-12-13 00:49", uca_V: 5.0, basis: inferred, note: "off for ssRF (announced)"}
+      - {t: "2025-12-13 13:44", uca_V: 0.0, basis: stated}
+      - {t: "2025-12-13 20:54", uca_V: 5.0, basis: stated, note: "before RF OFF"}
+      - {t: "2025-12-13 21:09", uca_V: 0.0, basis: stated}
+      - {t: "2025-12-13 21:26", uca_V: 5.0, basis: stated, note: "before RF OFF"}
+      - {t: "2025-12-13 21:33", uca_V: 0.0, basis: stated}
+      - {t: "2025-12-13 21:51", uca_V: 0.0, basis: stated}
+      - {t: "2025-12-13 22:46", uca_V: 0.0, basis: stated}
+      - {t: "2025-12-13 23:00", uca_V: 5.0, basis: stated, note: "with RF OFF"}
+      - {t: "2025-12-15 14:04", uca_V: 3.5, basis: stated, note: "reflector check (Vaunix at -40 dB)"}
+      - {t: "2025-12-15 17:50", uca_V: 0.0, basis: stated}
+      - {t: "2025-12-15 18:05", uca_V: 5.0, basis: stated}
+      - {t: "2025-12-15 18:57", uca_V: 0.0, basis: inferred, note: "on during dinner (written afterwards)"}
+      - {t: "2025-12-15 19:09", uca_V: 5.0, basis: inferred, note: "off for sweep debugging"}
+      - {t: "2025-12-15 19:35", uca_V: 0.0, basis: inferred, note: "back on"}
+      - {t: "2025-12-15 19:43", uca_V: 5.0, basis: inferred, note: "off"}
+      - {t: "2025-12-15 20:18", uca_V: 0.0, basis: inferred, note: "on with the Roots"}
+      - {t: "2025-12-15 20:23", uca_V: 5.0, basis: inferred, note: "off"}
+      - {t: "2025-12-15 21:17", uca_V: 0.0, basis: inferred, note: "back on"}
+      - {t: "2025-12-15 21:37", uca_V: 0.0, basis: inferred, note: "back on (an unlogged off came before)"}
+      - {t: "2025-12-16 01:44", uca_V: 1.0, basis: stated, note: "heat-load test"}
+      - {t: "2025-12-16 01:52", uca_V: 2.0, basis: stated}
+      - {t: "2025-12-16 01:59", uca_V: 2.12, basis: stated}
+      - {t: "2025-12-16 02:18", uca_V: 2.2, basis: stated}
+      - {t: "2025-12-16 02:52", uca_V: 2.0, basis: stated}
+      - {t: "2025-12-16 03:06", uca_V: 5.0, basis: inferred, note: "off for an ssRF burn (time not logged)"}
+      - {t: "2025-12-16 04:24", uca_V: 2.0, basis: stated, note: "back on from 5 V"}
+      - {t: "2025-12-16 11:25", uca_V: 0.0, basis: stated}
+      - {t: "2025-12-16 12:44", uca_V: 5.0, basis: inferred, note: "off (announced 12:23)"}
+      - {t: "2025-12-16 12:57", uca_V: 0.0, basis: inferred, note: "back on"}
+      - {t: "2025-12-16 13:11", uca_V: 5.0, basis: stated}
+      - {t: "2025-12-16 13:13", uca_V: 0.0, basis: stated}
+      - {t: "2025-12-16 13:28", uca_V: 5.0, basis: inferred, note: "ten-minute off before 13:38"}
+      - {t: "2025-12-16 13:39", uca_V: 0.0, basis: stated}
+      - {t: "2025-12-16 14:04", uca_V: 5.0, basis: inferred, note: "off"}
+      - {t: "2025-12-16 15:29", uca_V: 0.0, basis: inferred, note: "on for a burn cycle"}
+      - {t: "2025-12-16 16:29", uca_V: 5.0, basis: stated}
+      - {t: "2025-12-16 16:34", uca_V: 0.0, basis: stated}
+      - {t: "2025-12-16 16:42", uca_V: 5.0, basis: stated, note: "off for T1 data"}
+
+  2026-06-Cooldown:               # also covers 2026-07-Cooldown (a copy of 06-17/18)
+    span: ["2026-06-15 00:00", "2026-06-19 00:00"]
+    uca_source: logbook
+    entries:
+      - {t: "2026-06-16 17:59", uca_V: 5.0, basis: stated, note: "chain prepared, record RF off"}
+      - {t: "2026-06-16 21:10", uca_V: 3.66, basis: stated, note: "record shows RF off"}
+      - {t: "2026-06-16 21:23", uca_V: 2.9, basis: stated, note: "record shows RF off"}
+      - {t: "2026-06-16 21:30", uca_V: 0.0, basis: stated, note: "full power"}
+      - {t: "2026-06-16 23:55", uca_V: 5.0, basis: stated, note: "before RF OFF"}
+      - {t: "2026-06-17 10:44", uca_V: 0.0, basis: stated}
+      - {t: "2026-06-17 10:46", uca_V: 5.0, basis: stated, note: "T1 measurement; message edited from 0 to 5"}
+      - {t: "2026-06-17 14:56", uca_V: 0.0, basis: inferred, note: "back to the enhancing frequency"}
+      - {t: "2026-06-18 00:01", uca_V: 5.0, basis: stated, note: "before RF OFF"}
+      - {t: "2026-06-18 10:11", uca_V: 5.0, basis: stated}
+      - {t: "2026-06-18 10:15", uca_V: 0.0, basis: stated, note: "message edited from 5 to 0"}
+      - {t: "2026-06-18 15:18", uca_V: 0.0, basis: inferred, note: "back on after a burn attempt"}
+      - {t: "2026-06-18 15:25", uca_V: 5.0, basis: inferred, note: "off for a burn"}
+      - {t: "2026-06-18 15:31", uca_V: 0.0, basis: inferred, note: "back on"}
+      - {t: "2026-06-18 17:28", uca_V: 5.0, basis: inferred, note: "off for recovery timing"}
+      - {t: "2026-06-18 17:30", uca_V: 0.0, basis: inferred, note: "back on"}
+      - {t: "2026-06-18 17:59", uca_V: 0.0, basis: inferred, note: "back on (an unlogged off came before)"}

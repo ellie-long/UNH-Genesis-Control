@@ -256,8 +256,10 @@ def test_frequency_factor_is_relative_to_140_ghz():
 
 
 def test_history_drive_ignores_the_record_uca_column(params):
-    # the record's UCA column has not been the real UCA for years: history is
-    # full power whenever RF is on, whatever that column says
+    # the record's UCA column has not been the real UCA since ~2022: outside the
+    # 2020-2021 record era it is ignored.  This synthetic record lies outside
+    # every logged cool-down and starts with RF on, so the unlogged-period
+    # fallback (full power) applies whatever that column says
     tl = record()
     n = len(tl.table.t)
     tl_uca = Timeline(SlowTable(t=tl.table.t, numeric={**tl.table.numeric, "uca_v": np.full(n, 5.0)}),

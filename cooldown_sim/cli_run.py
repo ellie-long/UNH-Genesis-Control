@@ -111,7 +111,7 @@ def parse_start(start: str, day: str | None) -> float:
 
 #: record columns the closed-loop target model reads besides the channel map's
 MODEL_COLUMNS = ("T1", "vp_temp", "central_field", "mw_rf_status", "mw_power_db", "mw_freq_ghz",
-                 "online_p", "nmr_centfreq", "nmr_span", "nmr_status", "vme_mode")
+                 "uca_v", "online_p", "nmr_centfreq", "nmr_span", "nmr_status", "vme_mode")
 
 
 def load_timeline(cooldown: str, data_root, t0: float, t1: float, cmap) -> tuple[Timeline, Path]:
