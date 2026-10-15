@@ -57,16 +57,17 @@ instruments:
     channels:
       Cell:
         source: manometer_hi
-        fallback: manometer           # 2020 single-range column
+        fallback: manometer           # 2020: the 902B was the only manometer
         units: Torr
         valid: [0.0, 1000.0]
-        confidence: medium
+        confidence: high
         note: >-
           Ells (2026-10-15): the MKS 902B (absolute piezo, 0.1-1000 Torr, on
           the target cell) is "Manometer-Hi (Torr)", whatever range the
-          LabVIEW display was on.  "Manometer-Lo" is a different gauge with no
-          Genesis IOC.  CHECK: is the 2020 single-range "Manometer (Torr)"
-          the same 902B?
+          LabVIEW display was on, and the 2020 single-range "Manometer (Torr)".
+          It struggled with helium near 1 K, so a lower-range manometer
+          ("Manometer-Lo", on a KJL-SPARC controller, no Genesis IOC) was
+          added from 2021.
 
   tpg262:                # UNH:GEN:CRYO:VAC  Pump_PI / OVC_PI (mbar)
     wire: torr_to_mbar   # TPG answers in its display unit; emulator reports UNI=0 (mbar)
@@ -178,10 +179,10 @@ equipment:
     link: RS-232 via serial gateway 192.168.1.251:5004, address 253
     prefix: UNH:GEN:CRYO:CELL
     control: read-only
-    map: mks902b.Cell (Manometer-Hi)
+    map: mks902b.Cell (Manometer-Hi; 2020 Manometer)
     sim: MKS 900-series emulator
-    confidence: medium
-    note: "Ells 2026-10-15: it is Manometer-Hi. CHECK: is the 2020 'Manometer (Torr)' the same gauge?"
+    confidence: high
+    note: "Ells 2026-10-15: Manometer-Hi, and the 2020 single-range Manometer. Poor near 1 K helium, hence Manometer-Lo from 2021"
   - genesis: tpg262
     equipment: Pfeiffer TPG 262 dual gauge controller
     role: "Gauge 1 'Pump', gauge 2 'OVC'"
@@ -351,7 +352,7 @@ record_only:
   - instrument: Low-range cell manometer on a Kurt J. Lesker KJL-SPARC controller
     columns: [manometer_lo]
     used_by: "nothing (the MKS 902B is Manometer-Hi)"
-    note: "Ells 2026-10-15. CHECK: gauge-head model and range; how LabVIEW reads the KJL-SPARC"
+    note: "Ells 2026-10-15: added from 2021 because the 902B struggled with helium near 1 K. CHECK: gauge-head model and range; how LabVIEW reads the KJL-SPARC"
   - instrument: Vapor-pressure readout (LabVIEW)
     columns: [vp_range, vp_temp]
     used_by: "vp_temp is a model-fit channel (fit-params)"

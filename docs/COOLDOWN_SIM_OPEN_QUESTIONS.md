@@ -64,10 +64,12 @@ How Genesis is configured today:
 
 ## Settled
 
-* MKS 902B `Cell` = `Manometer-Hi (Torr)` (Ells, 2026-10-15). `Manometer-Lo`
-  is a different gauge with no Genesis IOC. Still open: is the 2020
-  single-range `Manometer (Torr)` the same gauge? It is used as the fallback
-  for 2020.
+* MKS 902B `Cell` = `Manometer-Hi (Torr)`, and the 2020 single-range
+  `Manometer (Torr)` (Ells, 2026-10-15).
+  * The 902B struggled with helium near 1 K, so a lower-range manometer was
+    added from 2021: `Manometer-Lo`, on a Kurt J. Lesker KJL-SPARC
+    controller.
+  * Genesis has no IOC for the KJL-SPARC.
 * No fridge thermal time constants exist. The closed-loop thermal model fits
   them from past microwave on/off steps (`python -m cooldown_sim fit-params`).
 * Microwave heat: 62 mW at full drive, measured as a Roots-flow differential
