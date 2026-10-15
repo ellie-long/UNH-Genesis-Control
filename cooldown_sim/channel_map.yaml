@@ -277,6 +277,7 @@ equipment:
     map: "-"
     sim: the shims run on loopback
     confidence: high
+    note: "Ells 2026-10-15: the microwave Pi (robot, possibly the Vaunix); Genesis configs put both shims here. It has no IP label; Genesis reaches it by its .local name"
   - genesis: (not instrumented)
     equipment: VDI amplifier / x12 multiplier / diode chain
     role: Turns the LabBrick output into ~140 GHz
@@ -299,12 +300,22 @@ equipment:
   - genesis: ssrf_keysight_wavegen
     equipment: Keysight DSOX3024T oscilloscope WaveGen (s/n MY57252012)
     role: External-FM waveform for the SMC100A
-    link: USB-VISA on host genesis-keysight (the IOC runs there)
+    link: USB-VISA on the Raspberry Pi 'keysight' (192.168.1.24; the IOC runs there)
     prefix: UNH:GEN:SSRF:WGEN
     control: write-enabled (waveform staging)
     map: "-"
     sim: tools/sim_keysight_wavegen.py
     confidence: high
+  - genesis: (keysight Pi)
+    equipment: Raspberry Pi, hostname keysight (labelled 192.168.1.24)
+    role: Hosts the Genesis Keysight WaveGen IOC (USB to the DSOX3024T); the KJL-SPARC (Manometer-Lo) is also on its USB (Ells 2026-10-15)
+    link: LAN 192.168.1.24, EPICS CA port 5064; USB to the Keysight and the KJL-SPARC
+    prefix: "-"
+    control: transport only
+    map: "-"
+    sim: the Keysight simulator runs on loopback; Manometer-Lo is not emulated
+    confidence: high
+    note: "docs/SSRF_PHYSICAL_COMMISSIONING.md. CHECK: what on this Pi reads the KJL-SPARC, and how its reading reaches LabVIEW"
   - genesis: ssrf_nmr_switch
     equipment: Mini-Circuits RC-2SPDT-A18 dual SPDT switch
     role: Routes the NMR signal path
@@ -358,7 +369,7 @@ record_only:
   - instrument: Low-range cell manometer on a Kurt J. Lesker KJL-SPARC controller
     columns: [manometer_lo]
     used_by: "nothing (the MKS 902B is Manometer-Hi)"
-    note: "Ells 2026-10-15: added from 2021 because the 902B struggled with helium near 1 K. The KJL-SPARC is connected by USB to a Raspberry Pi. CHECK: which Pi (the serial gateway, mmWaveRobot.local, or a third), how its reading reaches LabVIEW, and the gauge-head model and range"
+    note: "Ells 2026-10-15: added from 2021 because the 902B struggled with helium near 1 K. The KJL-SPARC is connected by USB to the Raspberry Pi 'keysight' (192.168.1.24), which also hosts the Genesis Keysight WaveGen IOC. CHECK: what on the Pi reads it and how the reading reaches LabVIEW; the gauge-head model and range"
   - instrument: Vapor-pressure readout (LabVIEW)
     columns: [vp_range, vp_temp]
     used_by: "vp_temp is a model-fit channel (fit-params)"

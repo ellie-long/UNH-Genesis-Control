@@ -45,6 +45,17 @@ lab answers are in `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`.
 
 ## Log
 
+### 2026-10-15: The lab's Raspberry Pis
+* Ells: the KJL-SPARC (Manometer-Lo) is on the USB of the Pi labelled
+  192.168.1.24. Per `docs/SSRF_PHYSICAL_COMMISSIONING.md` that is the
+  `keysight` Pi, which runs the Genesis Keysight WaveGen IOC. So one Pi
+  serves both, and a future Manometer-Lo IOC would naturally live there.
+* The second Pi (no IP label) handles the microwaves: the robot, possibly
+  the Vaunix. Genesis configs put both the Vaunix and PCL602 shims on
+  `mmWaveRobot.local`, so it is both.
+* Channel map: new `(keysight Pi)` row, the Keysight and mmWaveRobot rows
+  annotated, the Manometer-Lo note updated; map regenerated.
+
 ### 2026-10-15: Instrument IPs handled in the lab
 * Ells: the lab is fixing the post-outage IPs (static addresses, then reboot
   the equipment). Question 6 closed here; nothing to track in the sim.
