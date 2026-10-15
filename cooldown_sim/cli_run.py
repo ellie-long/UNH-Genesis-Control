@@ -33,7 +33,11 @@ log = logging.getLogger("cooldown_sim")
 
 DEVICE_START_TIMEOUT_S = 45.0
 LOGIC_START_TIMEOUT_S = 45.0
-LEGS_AVAILABLE = {"cryo"}
+LEGS_AVAILABLE = {"cryo", "nmr"}
+#: equilibrium sweeps the fitter autopilot waits for before Update Constants
+FIT_AUTOPILOT_SWEEPS = 40
+#: legs that are not IOC stacks in stacks.yaml (launched by the session itself)
+SESSION_LEGS = {"nmr"}
 
 
 def add_parsers(sub) -> None:
@@ -51,6 +55,9 @@ def add_parsers(sub) -> None:
     p.add_argument("--legs", default="cryo", help="comma list")
     p.add_argument("--scenario", default="nominal")
     p.add_argument("--autostart", action="store_true", help="interactive: start running immediately")
+    p.add_argument("--autopilot", default=None,
+                   help="comma list of autopilot legs to start ON (mw, ssrf, fit); default: "
+                        "'fit' for regression runs with the nmr leg, none for interactive")
     p.add_argument("--model", choices=["closed-loop", "replay"], default=None,
                    help="closed-loop target model (interactive default) or plain replay "
                         "(regression default)")
@@ -161,7 +168,11 @@ def controller_profile(run_path: Path, stacks: dict, offset: int) -> tuple[Path,
 
 
 def model_kind(args) -> str:
-    return args.model or ("closed-loop" if args.mode == "interactive" else "replay")
+    if args.model:
+        return args.model
+    legs = {x.strip() for x in args.legs.split(",")}
+    # the live NMR source needs the target model's P and Q
+    return "closed-loop" if args.mode == "interactive" or "nmr" in legs else "replay"
 
 
 def build_provider(args, timeline, cmap, clock):
@@ -207,13 +218,17 @@ def _run(args) -> int:
 
     run = run_dir.create(args.mode, args.scenario)
     stacks = ports.load_stacks()
-    stack = profile.generate(run.path, legs, offset=args.port_offset)
+    stack = profile.generate(run.path, tuple(l for l in legs if l not in SESSION_LEGS),
+                             offset=args.port_offset)
     from .validation import save_stack
     save_stack(stack)
     ctl_folder, ctl = controller_profile(run.path, stacks, args.port_offset)
     needed = {s.ca for s in stack.iocs} | {s.pva for s in stack.iocs}
     needed |= {int(_settings_port(s)) for s in stack.iocs if s.emulator}
     needed |= {ctl["ca"], ctl["pva"], ctl["control_port"]}
+    fitter = {k: int(v) + args.port_offset for k, v in stacks["legs"]["nmr"]["fitter"].items()}
+    if "nmr" in legs:
+        needed |= {fitter["ca"], fitter["pva"], fitter["fit_port"], fitter["publish_port"]}
     taken = ports.unbindable_ports(needed)
     if taken:
         print("replay ports unavailable (try --port-offset):")
@@ -228,14 +243,16 @@ def _run(args) -> int:
             "git": run.meta.get("git", {}).get("head", "")[:12]}
     run.write_manifest(source={"kind": "real", "cooldown": str(cd), "t0": t0, "t1": t1},
                        args={k: v for k, v in vars(args).items() if k != "func"}, meta=meta,
-                       controller=ctl)
+                       controller=ctl, fitter=fitter if "nmr" in legs else None,
+                       legs=list(legs))
     print(f"run directory: {run.path}")
     _route_native_stderr(run.sub("logs") / "runner.log")
     return asyncio.run(_session(args, run, stack, stacks, timeline, cmap, t0, t1, meta,
-                                ctl_folder, ctl))
+                                ctl_folder, ctl, set(legs), fitter))
 
 
-async def _session(args, run, stack, stacks, timeline, cmap, t0, t1, meta, ctl_folder, ctl) -> int:
+async def _session(args, run, stack, stacks, timeline, cmap, t0, t1, meta, ctl_folder, ctl,
+                   legs, fitter) -> int:
     from .__main__ import EXIT_FAIL, EXIT_OK, EXIT_SETUP
     from .control import ControlServer
     from .engine import SimEngine
@@ -245,10 +262,17 @@ async def _session(args, run, stack, stacks, timeline, cmap, t0, t1, meta, ctl_f
     clock = SimClock(t0, args.speed, running=False)
     engine = SimEngine(run, stack, timeline, cmap, clock, noise_rel=args.noise_rel, seed=args.seed,
                        provider=build_provider(args, timeline, cmap, clock))
+    if args.autopilot is not None:
+        start_on = {x.strip() for x in args.autopilot.split(",") if x.strip()}
+    else:
+        start_on = {"fit"} if (not interactive and "nmr" in legs) else set()
+    for leg in start_on & set(engine.autopilot):
+        engine.autopilot[leg] = True
     engine.info.update({"mode": f"{args.mode} ({model_kind(args)})", "scenario": args.scenario,
                         "source": meta["source"],
                         "window": meta["window"], "run_dir": str(run.path)})
-    ca_ports = sorted({s.ca for s in stack.iocs} | {ctl["ca"]})
+    ca_ports = sorted({s.ca for s in stack.iocs} | {ctl["ca"]}
+                      | ({fitter["ca"]} if "nmr" in legs else set()))
     apply_client_env_here(ca_ports, stacks)          # before aioca is imported
     from .autopilot.ca import RestrictedCA
     from .probe import Probe
@@ -258,6 +282,7 @@ async def _session(args, run, stack, stacks, timeline, cmap, t0, t1, meta, ctl_f
     skipped: dict[str, str] = {}
     deaths: list[str] = []
     probe = None
+    feeder = None
     interrupted = False
     try:
         engine.start()
@@ -281,6 +306,17 @@ async def _session(args, run, stack, stacks, timeline, cmap, t0, t1, meta, ctl_f
                 print(f"[FAIL] {phase} IOCs not reachable: {missing}")
                 return EXIT_SETUP
             print(f"[ok] {len(started)} {phase} IOC(s) up")
+        if "nmr" in legs:
+            group.start("online_fitter", ["-m", "online_fitter.epics_run",
+                                          "--port", str(fitter["fit_port"]),
+                                          "--publish-port", str(fitter["publish_port"]),
+                                          "--material", "d-butanol", "--mode", "equilibrium"],
+                        server_env(fitter["ca"], fitter["pva"], ca_ports, stacks), role="fitter")
+            missing = await _wait_connected(["UNH:GEN:SSRF:FIT:FITTER_UP"], 60.0)
+            if missing:
+                print(f"[FAIL] online fitter not reachable:\n{_tail(run.sub('logs') / 'online_fitter.log')}")
+                return EXIT_SETUP
+            print("[ok] online fitter up (UNH:GEN:SSRF:FIT)")
         if interactive:
             group.start_ioc("sim_controller", str(ctl_folder), "controller",
                             server_env(ctl["ca"], ctl["pva"], ca_ports, stacks), role="controller")
@@ -290,8 +326,14 @@ async def _session(args, run, stack, stacks, timeline, cmap, t0, t1, meta, ctl_f
                 return EXIT_SETUP
             print(f"[ok] Sim Control IOC up ({ctl['prefix']})")
 
-        probe = Probe(pvlist.for_stack(stack), run.path / "probe.csv")
+        probe = Probe(pvlist.for_stack(stack, legs=legs), run.path / "probe.csv")
         probe.start()
+        if "nmr" in legs:
+            from .nmr.feeder import NMRFeeder
+            from .nmr.source import NMRSource
+            source = NMRSource(engine.provider.model, timeline, seed=args.seed)
+            feeder = NMRFeeder(source, clock, fitter["fit_port"], run.path / "nmr.csv",
+                               provider=engine.provider, events=engine.events).start()
         ca = RestrictedCA(engine.events, clock)
         if any(s.leg == "cryo" and s.ioc == "archiver" for s in stack.iocs):
             await ca.caput("UNH:GEN:CRYO:ARCH:Archive_Enable", 1)
@@ -311,7 +353,13 @@ async def _session(args, run, stack, stacks, timeline, cmap, t0, t1, meta, ctl_f
                   f"(~{(t1 - t0) / args.speed / 60:.1f} wall min)")
 
         last_print = 0.0
+        fit_autopilot_done = False
         while not engine.stop_requested.is_set():
+            # fitter autopilot: calibrate once the fitter has seen enough equilibrium sweeps
+            if (feeder is not None and engine.autopilot.get("fit") and not fit_autopilot_done
+                    and feeder.sent >= FIT_AUTOPILOT_SWEEPS):
+                await ca.caput("UNH:GEN:SSRF:FIT:UPDATE_CONSTANTS_CMD", 1)
+                fit_autopilot_done = True
             if clock.now() >= t1:
                 if not interactive:
                     break
@@ -337,13 +385,17 @@ async def _session(args, run, stack, stacks, timeline, cmap, t0, t1, meta, ctl_f
         print("\n[interrupted] stopping the session")
     finally:
         never = probe.never_connected() if probe else []
+        if feeder is not None:
+            feeder.stop()
         if probe:
             probe.close()
         group.stop()
         control.stop()
         runtime = {"deaths": deaths, "skipped": skipped, "never_connected": never,
                    "read_only_violations": engine.host.read_only_violations(),
-                   "clamps": engine.host.clamp_counts(), "interrupted": interrupted}
+                   "clamps": engine.host.clamp_counts(), "interrupted": interrupted,
+                   "nmr_sweeps": feeder.sent if feeder else 0,
+                   "nmr_errors": feeder.errors if feeder else 0}
         engine.stop()
         (run.sub("state") / "runtime.json").write_text(json.dumps(runtime, indent=2), encoding="utf-8")
 

@@ -31,6 +31,12 @@ CRYO_LOGIC = {
 
 DEVICE_ROLES = {"ls224", "mks902b", "tpg262", "ionivac", "ls455", "scpi_supply"}
 
+FITTER_PREFIX = "UNH:GEN:SSRF:FIT"
+#: online_fitter.epics_run read-backs and operator commands (names from epics_run.py)
+FITTER_PVS = ("FITTER_UP", "PUBLISHER_CONNECTED", "CALIBRATED", "UPDATE_BUSY", "LAST_OK", "WARNING",
+              "MODE_CMD", "MODE_RBV", "MATERIAL_RBV", "UPDATE_CONSTANTS_CMD", "FIT_TYPE", "NPTS",
+              "P_AREA", "P_FIT", "Q_EQ", "Q_FIT", "R", "PHASE_DEG", "RED_CHISQ", "CC", "SCALE")
+
 
 def archiver_explicit_pvs(root: Path = REPO_ROOT) -> list[str]:
     path = root / "configs/target_physical/archiver/settings.yaml"
@@ -38,14 +44,16 @@ def archiver_explicit_pvs(root: Path = REPO_ROOT) -> list[str]:
         return list(yaml.safe_load(fh)["archiver"].get("explicit_pvs", []))
 
 
-def for_stack(stack: GeneratedStack, root: Path = REPO_ROOT) -> list[str]:
+def for_stack(stack: GeneratedStack, root: Path = REPO_ROOT, legs: set | None = None) -> list[str]:
     pvs: set[str] = set()
-    legs = {s.leg for s in stack.iocs}
+    if legs and "nmr" in legs:
+        pvs.update(f"{FITTER_PREFIX}:{n}" for n in FITTER_PVS)
+    stack_legs = {s.leg for s in stack.iocs}
     for spec in stack.iocs:
         pvs.add(f"{spec.prefix}:MAN:{spec.ioc}_time")
         if spec.emulator or spec.simulator:
             pvs.update(f"{spec.prefix}:{h}" for h in HEALTH)
-    if "cryo" in legs:
+    if "cryo" in stack_legs:
         pvs.update(archiver_explicit_pvs(root))
         for prefix, names in CRYO_LOGIC.items():
             pvs.update(f"{prefix}:{n}" for n in names)

@@ -176,6 +176,13 @@ def unbindable_ports(ports: set[int], host: str = LOOPBACK) -> dict[int, str]:
     bad: dict[int, str] = {}
     for port in sorted(ports):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        # bind the way the servers will: on POSIX SO_REUSEADDR (a port left in
+        # TIME_WAIT by the previous run is reusable); on Windows exclusive use
+        # (SO_REUSEADDR there would let us "succeed" on a port in active use)
+        if hasattr(socket, "SO_EXCLUSIVEADDRUSE"):
+            sock.setsockopt(socket.SOL_SOCKET, socket.SO_EXCLUSIVEADDRUSE, 1)
+        else:
+            sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         try:
             sock.bind((host, port))
         except OSError as exc:

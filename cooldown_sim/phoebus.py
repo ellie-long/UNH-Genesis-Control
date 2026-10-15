@@ -81,6 +81,9 @@ def run_ca_ports(run: Path) -> list[int]:
     ctl = manifest.get("controller", {})
     if ctl.get("ca"):
         ports.add(int(ctl["ca"]))
+    fitter = manifest.get("fitter") or {}
+    if fitter.get("ca"):
+        ports.add(int(fitter["ca"]))
     return sorted(ports)
 
 

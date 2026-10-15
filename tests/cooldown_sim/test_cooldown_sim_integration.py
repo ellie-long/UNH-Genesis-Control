@@ -62,3 +62,18 @@ def test_guard_refuses_beside_a_live_port():
         proc = _run("guard", timeout=60)
     assert proc.returncode == 2
     assert "5116" in proc.stdout
+
+
+def test_cryo_and_nmr_regression_calibrates_and_matches_truth():
+    """Real fitter fed by the target model; the fitter autopilot presses Update
+    Constants; afterwards the fitter must match the model's P within 1 pp."""
+    proc = _run("run", "--cooldown", "2026-06", "--start", "2026-06-17 18:00",
+                "--duration", "60", "--speed", "60", "--legs", "cryo,nmr")
+    assert proc.returncode == 0, proc.stdout[-4000:] + proc.stderr[-4000:]
+    report, run = _latest_report()
+    names = {c["name"]: c for c in report["checks"]}
+    assert names["nmr feeder"]["verdict"] == "PASS"
+    assert names["nmr fitter vs model truth"]["verdict"] == "PASS", names["nmr fitter vs model truth"]
+    assert names["nmr fitter vs model truth"]["data"]["median_abs_pp"] < 1.0
+    events = (run / "events.csv").read_text()
+    assert "UPDATE_CONSTANTS_CMD <- 1" in events

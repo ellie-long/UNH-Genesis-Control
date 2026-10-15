@@ -9,7 +9,7 @@ from pathlib import Path
 from . import channel_map as cmap_mod
 from .profile import GeneratedStack, LaunchSpec, Rewrite
 from .pvlist import archiver_explicit_pvs
-from .validate import Check, logic, mapcheck, report, roundtrip
+from .validate import Check, logic, mapcheck, nmr, report, roundtrip
 
 
 def save_stack(stack: GeneratedStack) -> Path:
@@ -44,6 +44,7 @@ def run_all(run: Path, stack: GeneratedStack, *, runtime: dict, timeline=None,
     for name, reason in runtime.get("skipped_legs", {}).items():
         checks.append(Check(f"leg {name}", "SKIPPED", reason))
     checks += roundtrip.device_channels(stack, run)
+    checks += nmr.checks(run, runtime)
     if "cryo" in legs:
         checks += logic.cryo_safety(run)
         checks += roundtrip.archive(run, archiver_explicit_pvs())

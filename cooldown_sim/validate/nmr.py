@@ -1,0 +1,69 @@
+"""NMR leg checks: the real online fitter against the target model's truth."""
+
+from __future__ import annotations
+
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+
+from . import Check
+
+#: calibrated |P_fit - truth| median must be within this (percentage points)
+CALIBRATED_TOL_PP = 1.0
+#: ignore this much sim time after a baseline change (fitter settling)
+SETTLE_S = 120.0
+
+
+def checks(run: Path, runtime: dict) -> list[Check]:
+    path = Path(run) / "nmr.csv"
+    if not path.exists():
+        return []
+    out = []
+    df = pd.read_csv(path, keep_default_na=True)
+    sent, errors = runtime.get("nmr_sweeps", len(df)), runtime.get("nmr_errors", 0)
+    if sent == 0:
+        out.append(Check("nmr feeder", "FAIL", "no sweeps reached the online fitter"))
+        return out
+    verdict = "PASS" if errors <= max(2, 0.01 * sent) else "FAIL"
+    out.append(Check("nmr feeder", verdict, f"{sent} sweeps exchanged with the online fitter, "
+                                            f"{errors} exchange error(s)"))
+    for col in ("P_fit", "P_area", "true_P", "Q_fit", "true_Q"):
+        df[col] = pd.to_numeric(df[col], errors="coerce")
+    # sweeps right after a baseline change are excluded (and a baseline taken
+    # with the line on-window is an operator error the fitter cannot fix)
+    note_change = df["baseline_note"].ne(df["baseline_note"].shift())
+    change_t = df.loc[note_change, "sim"].to_numpy()
+    settled = np.ones(len(df), bool)
+    for t in change_t[1:]:
+        settled &= ~((df["sim"] >= t) & (df["sim"] < t + SETTLE_S)).to_numpy()
+    good_base = ~df["baseline_note"].astype(str).str.contains("WITH the line", regex=False)
+    pre = df[df["P_area"].isna() & settled & good_base]
+    cal = df[df["P_area"].notna() & settled & good_base]
+    if len(pre):
+        bias = float(np.nanmedian(pre["P_fit"] - pre["true_P"]))
+        out.append(Check("nmr fitter before Update Constants", "INFO",
+                         f"P_fit - truth median {bias:+.2f} pp over {len(pre)} sweeps (preset "
+                         "constants; the operator calibrates with Update Constants)"))
+    if len(cal):
+        d = (cal["P_fit"] - cal["true_P"]).to_numpy()
+        da = (cal["P_area"] - cal["true_P"]).to_numpy()
+        dq = (cal["Q_fit"] - cal["true_Q"]).to_numpy()
+        med = float(np.nanmedian(np.abs(d)))
+        verdict = "PASS" if med <= CALIBRATED_TOL_PP else "FAIL"
+        out.append(Check("nmr fitter vs model truth", verdict,
+                         f"after Update Constants: |P_fit - truth| median {med:.2f} pp "
+                         f"(P_area {float(np.nanmedian(np.abs(da))):.2f} pp, "
+                         f"Q_fit {float(np.nanmedian(np.abs(dq))):.2f} pp) over {len(cal)} sweeps; "
+                         f"limit {CALIBRATED_TOL_PP} pp",
+                         data={"median_abs_pp": med, "n": int(len(cal))}))
+    else:
+        out.append(Check("nmr fitter vs model truth", "INFO",
+                         "the fitter was never calibrated in this run (Update Constants not "
+                         "pressed; the fitter autopilot does this in regression runs)"))
+    bad = df[~good_base]
+    if len(bad):
+        out.append(Check("nmr baseline taken on-window", "INFO",
+                         f"{len(bad)} sweeps used a baseline that contained the line "
+                         "(operator action recorded in events.csv)"))
+    return out
