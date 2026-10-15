@@ -137,7 +137,7 @@ instruments:
     wire: none
     absent: output_off
     channels:
-      CH1: {source: uca_v, units: V, valid: [-1.0, 30.0], confidence: medium, note: "\"UCA (V)\" (2021+) / \"UCA Voltage (V)\" (2020); NaN in 2026-06.  RF ON requires 5.0 +/- 0.1 V (microwave_ioc/rf_safety.py)."}
+      CH1: {source: uca_v, units: V, valid: [-1.0, 30.0], confidence: guess, note: "\"UCA (V)\" (2021+) / \"UCA Voltage (V)\" (2020); NaN from 2025-11.  NOT the real UCA for years (Ells, 2026-10-15): an attempt to drive the UCA from an analog output had problems, so an external manual DC supply drove it instead and this column stayed in the record without meaning anything.  The SPD1305X took over only in the last few weeks (date of the switch to the manual supply not known).  RF ON requires 5.0 +/- 0.1 V (microwave_ioc/rf_safety.py)."}
 
 # History inputs used by the target model and the autopilot (not instrument
 # emulators).  Same keys as above.
@@ -386,7 +386,7 @@ record_only:
   - instrument: "Low-range cell manometer: KJLC XCG carbon capacitance manometer on a Kurt J. Lesker KJL-SPARC controller"
     columns: [manometer_lo]
     used_by: "nothing (the MKS 902B is Manometer-Hi)"
-    note: "Ells 2026-10-15: added from 2021 because the 902B struggled with helium near 1 K. The gauge head is a KJLC XCG carbon capacitance manometer, cabled to the KJL-SPARC with a black RJ45-style cable that carries the gauge's power and signals (not Ethernet). The KJL-SPARC's micro-USB output goes to a USB-A port on the Raspberry Pi 'keysight' (192.168.1.24), which also hosts the Genesis Keysight WaveGen IOC. CHECK: the XCG's full-scale range; what on the Pi reads it and how the reading reaches LabVIEW"
+    note: "Ells 2026-10-15: added from 2021 because the 902B struggled with helium near 1 K. The KJL-SPARC answers a Pfeiffer-TPG-style serial protocol, which is how the Pi should read it (Ells). The gauge head is a KJLC XCG carbon capacitance manometer, cabled to the KJL-SPARC with a black RJ45-style cable that carries the gauge's power and signals (not Ethernet). The KJL-SPARC's micro-USB output goes to a USB-A port on the Raspberry Pi 'keysight' (192.168.1.24), which also hosts the Genesis Keysight WaveGen IOC. CHECK: the XCG's full-scale range; what on the Pi reads it and how the reading reaches LabVIEW"
   - instrument: Vapor-pressure readout (LabVIEW)
     columns: [vp_range, vp_temp]
     used_by: "vp_temp is a model-fit channel (fit-params)"
@@ -398,10 +398,15 @@ record_only:
   - instrument: Roots flow meters (left / right)
     columns: [roots_flow_l, roots_flow_r]
     used_by: "the model's boil-off (59.5 mW/slm) is reported, not replayed"
-    note: "Helium pumped out of the fridge"
+    note: "Helium pumped out of the fridge. Ells 2026-10-15: needed on the Genesis DAQ soon (no IOC yet)"
   - instrument: Separator flow meter
     columns: [separator_flow]
     used_by: nothing
+    note: "Ells 2026-10-15: needed on the Genesis DAQ soon (no IOC yet)"
+  - instrument: Microwave power monitor (SIG output of the microwave chain)
+    columns: [sig_v]
+    used_by: nothing
+    note: "Ells 2026-10-15: measures microwave power; LOWER voltage = MORE power. Calibration to come. Not in EPICS. A possible drive measure for the model (open question 9); in the record it does not obviously track the UCA column, which was not the real UCA for years"
   - instrument: Cold-cathode gauge (older back-up to the IONIVAC on the shells' vacuum)
     columns: [cold_cathode]
     used_by: "still feeds tpg262.OVC until the vacuum rework (wrong: that gauge is the bottom Roots manometer)"
@@ -413,6 +418,7 @@ record_only:
   - instrument: Helium level meters (fridge, magnet)
     columns: [fridge_he_level, magnet_lhe_level]
     used_by: "history inputs only"
+    note: "Two AMI level meters. Ells 2026-10-15: needed on the Genesis DAQ soon (no IOC yet)"
   - instrument: Magnet power supply
     columns: [ps_current, magnet_current, central_field]
     used_by: "central field = the model's B (DNP optimum, NMR line)"

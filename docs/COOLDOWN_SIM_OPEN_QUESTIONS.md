@@ -18,22 +18,23 @@ treated as authoritative. Answers go into `cooldown_sim/channel_map.yaml`
 
 ## Microwave power
 
-9. **UCA voltage to microwave power.** Ells (2026-10-15): `MMwaves Power (dB)`
-   is the Vaunix setpoint (default 10 dBm, rarely changed); the UCA sets the
-   actual power. The model gets this wrong:
-   * Its drive is `RF_on * 10**((P_dB - 10)/10)`, built on the Vaunix setpoint.
-     The UCA is never used.
-   * The record has the Vaunix at -3 to -5 dB from 2022 to 2025-07, so the
-     model reads those cool-downs as about 4 % power. Two of the 13 fitted
-     thermal transitions (2022-05) carry drive steps of 0.05 for that reason.
-   * The UCA is often between 0 and 5 V with RF on (64 % of RF-on rows in
-     2022-05, 93 % in 2024-12), so intermediate power is real.
-   * The UCA column is empty from 2025-11 on.
-
-   Needed: the UCA's power-vs-voltage curve (0 V = full, 5 V = none; linear
-   in volts, in dB, or a datasheet curve?). Does the Vaunix setpoint matter
-   at all, given the multiplier chain? When the UCA was not recorded
-   (2025-11 on), was it normally at 0 V while polarizing?
+9. **Microwave power for the model.** Ells (2026-10-15): `MMwaves Power (dB)`
+   is the Vaunix setpoint (default 10 dBm, rarely changed) and the UCA sets
+   the actual power. But the `UCA (V)` column is not the real UCA for years:
+   an analog-output drive had problems, an external manual DC supply drove
+   the UCA instead, and the SPD1305X took over only in the last few weeks.
+   So the record holds no usable measure of microwave power, only RF on/off.
+   * The model's drive today is `RF_on * 10**((P_dB - 10)/10)`, built on the
+     Vaunix setpoint. It reads 2022 to 2025-07 (Vaunix at -3 to -5 dB) as
+     about 4 % power, and two of the 13 fitted thermal transitions (2022-05)
+     carry drive steps of 0.05 for that reason.
+   * Proposed fix: history drive = RF on/off only (full power assumed); live
+     drive from the emulated SPD1305X's UCA voltage through a UCA curve
+     (assumed until known); then re-fit (`fit-params`).
+   * Needed: the UCA's power-vs-voltage curve (0 V = full, 5 V = none). The
+     microwave chain's SIG output measures power (lower voltage = more
+     power); once calibrated it could measure the curve directly.
+   * Roughly when did the manual supply take over from the analog output?
 
 ## ssRF power (come back to later)
 

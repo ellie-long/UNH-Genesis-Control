@@ -56,6 +56,7 @@ CHANNELS: dict[str, tuple[str, ...]] = {
     "mw_power_db": ("MMwaves Power (dB)", "Mmwaves Power (dBm)"),
     "mw_freq_set1": ("mmWave Freq Setting 1 (GHz)",),
     "uca_v": ("UCA (V)", "UCA Voltage (V)"),
+    "sig_v": ("SIG (V)",),
     # ssRF / holeburning
     "hb_freq_mhz": ("Holeburning Frequency (MHz)", "Holeburn Freq (MHz)"),
     "hb_power_dbm": ("Holeburning Power (dBm)",),

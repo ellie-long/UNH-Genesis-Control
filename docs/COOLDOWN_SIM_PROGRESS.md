@@ -45,6 +45,21 @@ lab answers are in `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`.
 
 ## Log
 
+### 2026-10-15: UCA history, SIG, upcoming DAQ instruments
+* Ells:
+  * the `UCA (V)` column has not been the real UCA for years (analog-output
+    drive had problems; a manual DC supply drove it; the SPD1305X took over in
+    the last few weeks). Question 9 rewritten: the record has only RF on/off,
+    with a proposed drive fix;
+  * SIG is the microwave chain's power monitor (lower voltage = more power).
+    Added to the channel map as record-only (`sig_v` alias);
+  * the KJL-SPARC speaks a TPG-style serial protocol;
+  * the two AMI helium-level meters and the flow meters are needed on the
+    Genesis DAQ soon. When they get IOCs, the sim will need emulators and
+    channel-map rows for them;
+  * the NMR RF source (SMT03) and the VME crate are being replaced by the JLab
+    NMR, so they are not worth modelling.
+
 ### 2026-10-15: Cold-cathode gauge identified
 * Ells: the cold-cathode gauge was an older back-up to the IONIVAC (shells'
   vacuum). The device that read it is broken and disconnected, which is why
