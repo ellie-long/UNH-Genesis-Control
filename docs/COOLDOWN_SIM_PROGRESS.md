@@ -33,8 +33,9 @@ lab answers are in `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`.
 
 **The planned build is complete.** What is left is Ells's call:
 
-1. Answer the open questions in `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`: four
-   channel-map guesses, and whether Q lags Q_B(P) on a spin-up from zero.
+1. Answer the open questions in `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`: three
+   channel-map guesses, the Siglent supply models and the coldboard load, and
+   whether Q lags Q_B(P) on a spin-up from zero.
 2. Try an interactive rehearsal (guide section 2) with the real screens in
    Phoebus.
 3. Decide whether to push `dev-sim` and merge it into `elong`.
