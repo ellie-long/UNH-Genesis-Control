@@ -33,9 +33,10 @@ lab answers are in `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`.
 
 **The planned build is complete.** What is left is Ells's call:
 
-1. Answer the open questions in `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`: two
-   channel-map guesses, the Siglent supply models, and whether Q lags Q_B(P)
-   on a spin-up from zero.
+1. Answer the open questions in `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`: the
+   two TPG 262 gauges, the instrument IPs after the power outage, the UCA
+   power curve (the model's microwave drive), the field during a quench, and
+   whether Q lags Q_B(P) on a spin-up from zero.
 2. Try an interactive rehearsal (guide section 2) with the real screens in
    Phoebus.
 3. Decide whether to push `dev-sim` and merge it into `elong`.
@@ -43,6 +44,14 @@ lab answers are in `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`.
    separate change to the live system, deliberately not made here.
 
 ## Log
+
+### 2026-10-15: Cold-board supply is an SPD1305X
+* Ells: the varactors are powered by an SPD1305X with a sticker reading IP
+  192.168.1.5, the `siglent_coldboard` IOC's address. The existing
+  single-channel driver fits, so the feared SPD4306X gap does not exist.
+* Sim: the coldboard emulator now reports `SPD1305X` (`stacks.yaml`);
+  `channel_map.yaml` updated and the map regenerated.
+* Question 6 now covers checking the IPs after a lab power outage.
 
 ### 2026-10-15: UCA supply confirmed SPD1305X
 * Ells confirmed the UCA supply is an SPD1305X: it matches the live IOC and

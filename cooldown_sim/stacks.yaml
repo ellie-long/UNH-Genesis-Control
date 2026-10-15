@@ -15,7 +15,7 @@ legs:
   cryo:
     manager: configs/target_physical/ioc_manager/settings.yaml
     iocs:
-      siglent_coldboard: {ca: 6111, pva: 6211, emulator: {kind: scpi_supply, port: 16025, model: SPD1168X}}
+      siglent_coldboard: {ca: 6111, pva: 6211, emulator: {kind: scpi_supply, port: 16025, model: SPD1305X}}
       mks902b:           {ca: 6112, pva: 6212, emulator: {kind: mks902b, port: 16004}}
       tpg262:            {ca: 6113, pva: 6213, emulator: {kind: tpg262, port: 16011}}
       ionivac:           {ca: 6114, pva: 6214, emulator: {kind: ionivac, port: 16005}}

@@ -219,15 +219,15 @@ equipment:
     sim: LS455 emulator
     confidence: high
   - genesis: siglent_coldboard
-    equipment: "Siglent DC supply. Driver written for the single-channel SPD1000X (SPD1168X/SPD1305X); Ells: likely the 4-channel SPD4306X"
+    equipment: "Siglent SPD1305X single-channel DC supply (Ells 2026-10-15; the driver is written for this SPD1000X family)"
     role: "Cold-board varactor bias, 0-19 V; tunes the NMR Q-curve (higher V = higher frequency). Also the safety interlock's only actuator"
     link: Ethernet SCPI 192.168.1.5:5025
     prefix: UNH:GEN:CRYO:COLDBOARD
     control: "read-only in the live profile (write_enabled: false)"
     map: siglent_coldboard.Coldboard (no past-record column)
-    sim: SCPI supply emulator (as SPD1168X), output OFF
-    confidence: guess
-    note: "Open question 6: confirm the model with caget UNH:GEN:CRYO:COLDBOARD:Coldboard_IDN. Genesis has no SPD4000X driver. Before Genesis the cold board ran from an external DC supply, never recorded (Ells 2026-10-15)."
+    sim: SCPI supply emulator (as SPD1305X), output OFF
+    confidence: high
+    note: "Ells 2026-10-15: an SPD1305X with a sticker reading IP 192.168.1.5, the IOC's address. CHECK after the power outage that the IP is unchanged (caget UNH:GEN:CRYO:COLDBOARD:Coldboard_IDN). Before Genesis the cold board ran from an external DC supply, never recorded."
   - genesis: (serial gateway)
     equipment: Serial-to-Ethernet gateway (model not recorded in Genesis)
     role: Carries the four RS-232 instruments

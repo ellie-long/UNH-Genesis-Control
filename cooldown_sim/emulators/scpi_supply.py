@@ -1,4 +1,4 @@
-"""Siglent SPD1000X-series supply (SPD1168X coldboard, SPD1305X microwave UCA).
+"""Siglent SPD1000X-series supply (SPD1305X for both the coldboard and the microwave UCA).
 
 Stateful: setpoints, output, timer and OVP/OCP persist; measured values follow
 the state through a resistive load, entering constant-current mode when the

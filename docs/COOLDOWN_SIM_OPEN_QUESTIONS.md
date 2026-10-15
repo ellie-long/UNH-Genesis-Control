@@ -15,35 +15,14 @@ treated as authoritative. Answers go into `cooldown_sim/channel_map.yaml`
    of the shells separating the fridge space from the magnet space. Is that
    the volume Genesis calls OVC, which the vacuum interlock watches?)
 
-## Siglent supplies (Ells, 2026-10-15)
+## Lab network
 
-What the lab has, per Ells:
-* two Lake Shore 224 temperature monitors for the thermometry (Genesis
-  `ls224_fridge` and `ls224_magnet`);
-* a Siglent **SPD4306X** (4-channel) that may drive the varactor diodes on
-  the cold board;
-* a newer **single-channel** Siglent (one +/- output) for the microwave UCA.
-
-How Genesis is configured today:
-* UCA: `microwave_ioc/spd1305x`, single channel. It refuses to connect
-  unless `*IDN?` contains `SPD1305X`.
-* Coldboard: `target_ioc/instruments/spd1000x`, written for a single-channel
-  SPD1000X (SPD1168X/SPD1305X), with one channel (`Coldboard`) limited to
-  30 V and 5 A. The interlock treats it as the one supply putting energy into
-  the insert (trip at 120 W).
-* Nothing in Genesis supports the SPD4306X or any SPD4000X model.
-* The sim emulates the UCA as an SPD1305X and the coldboard as an SPD1168X.
-
-6. **Cold-board supply model.** (The UCA supply is settled: see below.)
-   * If the cold board is powered by the SPD4306X, Genesis has no driver for
-     it. The current coldboard IOC would at best reach one channel, through
-     commands written for a different model. Neither this nor the 4-channel
-     PV layout has been checked against the SPD4306X.
-   * Ells thinks the SPD4306X is the supply behind the `siglent_coldboard`
-     IOC. That driver is a port of Farooq's `spd1000x_lan_gui.py`, so the
-     coldboard may have been a single-channel SPD1000X then and swapped since.
-     A read-only check on the lab host settles it:
-     `caget UNH:GEN:CRYO:COLDBOARD:Coldboard_IDN`.
+6. **IP addresses after the power outage.** Ells (2026-10-15): there was a
+   power outage, so the instrument IPs may have changed. The channel map and
+   Genesis configs use the addresses from before it (cold-board SPD1305X
+   sticker: 192.168.1.5, as configured). A read-only check per IOC on the lab
+   host confirms each, e.g. `caget UNH:GEN:CRYO:COLDBOARD:Coldboard_IDN`.
+   Instruments set by DHCP rather than static IPs are the ones at risk.
 
 ## Microwave power
 
@@ -92,6 +71,12 @@ How Genesis is configured today:
      equilibrium) at full field?
 
 ## Settled
+
+* The cold-board varactors are powered by a Siglent **SPD1305X** (single
+  channel), with a sticker reading IP 192.168.1.5 (Ells, 2026-10-15). That is
+  the `siglent_coldboard` IOC's address, and its SPD1000X-family driver fits.
+  So Genesis has no 4-channel gap: the SPD4306X is not the cold-board supply.
+  The sim's coldboard emulator now reports SPD1305X (was SPD1168X).
 
 * The UCA supply is a Siglent SPD1305X (Ells, 2026-10-15), matching the live
   UCA IOC's `*IDN?` check and the sim's emulator.
