@@ -55,6 +55,22 @@ How Genesis is configured today:
    reads about 13 % low there. A spin-up from near zero P with fitted P and Q in
    the past data (or the Spin-1-Rates-Fit results) would settle this; the value
    lives in `cooldown_sim/model/fit_params.py` (`Q_heal_tau_s`).
+   * Ells (2026-10-15): during a quench P and Q cannot be measured at all.
+     The magnet field crashes, so the Larmor frequency moves rapidly away
+     from nominal and the NMR signal leaves the window. Whether Q lags once
+     the field is back and P rebuilds is still open.
+8. **Field during a quench.** The sim's `quench` holds the field at the
+   recorded value, so the line stays on the window and the fitter keeps
+   reporting P throughout (wrong, per Ells under question 5). The NMR source
+   already drops the line when B moves (signal at the Larmor frequency for the
+   model's B, none below 0.5 T), so a quench that collapses B would lose the
+   line, as on the real system. To model it:
+   * How fast does the field fall in a quench (dump time constant), and to
+     roughly what?
+   * How is it brought back: re-ramp rate or time to full field, and roughly
+     how long after a quench before ramping starts?
+   * After the re-ramp, does the target start from P = 0 (or thermal
+     equilibrium) at full field?
 
 ## Settled
 

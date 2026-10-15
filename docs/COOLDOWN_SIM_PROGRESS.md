@@ -44,6 +44,17 @@ lab answers are in `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`.
 
 ## Log
 
+### 2026-10-15: No NMR during a quench (open question 5, new question 8)
+* Ells: in a quench P and Q cannot be measured. The field crashes, the Larmor
+  frequency runs away from nominal and the signal leaves the NMR window.
+* Gap found: the sim's `quench` is thermal only and holds B at the recorded
+  field, so the line stays on the window and the fitter keeps reporting P.
+  The `quench` scenario even expects that (`fitter keeps fitting through the
+  recovery`). Recorded as open question 8, with the numbers needed (field-dump
+  time, re-ramp rate, starting P after the re-ramp). No model change yet.
+* Question 5's core (does Q lag Q_B(P) as P rebuilds after the field returns)
+  is still open.
+
 ### 2026-10-15: Coldboard supply has no record (open question 4)
 * Ells: before Genesis the cold board ran from an external DC supply, never
   recorded. It is set between 0 and 19 V. It biases the varactors, so it moves
@@ -318,6 +329,7 @@ Also observed:
 | Bath response ~2 K/W, fridge F-sensors none | assumed / not identifiable |
 | Q healing to Q_B(P), DNP lobe shape, coldboard, quench | **assumed** |
 | Varactor-bias heating from the cold-board supply | **neglected** (none noticed; Ells 2026-10-15) |
+| Field collapse in a quench | **not modelled**: B held at the record, so the NMR line wrongly stays on the window (open question 8) |
 
 **Fidelity:** the model follows recorded spin-ups and plateaus to within a few
 points. It does not reproduce deliberate fast depolarisations (AFP, anneals,
