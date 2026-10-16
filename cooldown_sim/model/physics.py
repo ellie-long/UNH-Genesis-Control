@@ -124,8 +124,15 @@ _ITS90_HIGH = ((3.146631, 1.357655, 0.413923, 0.091159, 0.016349, 0.001826,
                 -0.004325, -0.004973), 10.3, 1.9)          # 2.1768-5.0 K
 _ITS90_LOW = ((1.392408, 0.527153, 0.166756, 0.050988, 0.026514, 0.001975,
                -0.017976, 0.005409, 0.013259), 5.6, 2.9)   # 1.25-2.1768 K
+#: branch boundaries (Pa).  The lambda point is 5042.3 Pa = 2.1768 K: the
+#: ITS-90 high equation applies for 2.1768 K < T < 5.0 K, i.e.
+#: 5042.3 Pa < P < 1.960e5 Pa.  (The lab code's comment there reads 5023.3 Pa,
+#: a typo; its code, and this one, use 5042.3 Pa.)
 _HE4_LAMBDA_PA = 5042.3
+#: 1.25 K = 114.7 Pa: ITS-90 low equation for 1.25 K <= T < 2.1768 K
+#: (114.7 Pa <= P < 5042.3 Pa); Donnelly-Barenghi below 114.7 Pa (0.5-1.25 K)
 _HE4_1P25K_PA = 114.7
+#: 5.0 K = 1.960e5 Pa, the top of ITS-90's He-4 vapor-pressure range
 _HE4_MAX_PA = 1.960e5
 _DB_I0, _DB_L0, _DB_R = 12.2440, 59.83, 8.314510
 
