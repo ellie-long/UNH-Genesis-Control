@@ -61,6 +61,18 @@ named in each item. Numbers are stable: answered items move to *Settled*.
       plates (0.75" spacers), from the 2011 JLab Hall A g2p refrigerator
       assembly (lower-stack spacer drawing revised 2015). Do these drawings
       match the fridge as installed at UNH?
+- [ ] 41. Panopticon: is the TPG 262 always set to mbar? Its two Roots
+      readings are converted x0.750062 to Torr on screen; if the controller
+      were ever switched to Torr they would read 25 % low (`VAC:Pump_Unit`
+      shows the unit).
+- [ ] 42. Panopticon magnet drawing: the 5 neck baffles (31.6-45.4") are
+      drawn compressed to fit under the fridge flange (proportional, not to
+      the depth scale above 31.5"). Acceptable?
+- [ ] 43. Panopticon: where does M1 sit? Placed high in the neck (~35");
+      the magnet drawing does not give it.
+- [ ] 44. Panopticon plot toolbars (zoom/pan/axis limits) take ~30 px from
+      each plot; the small pressure and shells plots are tight. Keep them, or
+      hide them and rely on Ctrl+drag zoom / Shift+drag pan?
 - [ ] 5. Does Q lag Q_B(P) as P rebuilds after a quench or anneal?
 - [ ] 8. Quench field: dump time and level, re-ramp delay and rate, starting
       P after the re-ramp.
