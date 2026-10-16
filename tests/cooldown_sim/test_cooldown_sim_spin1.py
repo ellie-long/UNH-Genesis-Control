@@ -85,5 +85,5 @@ def test_material_without_rates_uses_its_phenomenological_values():
     assert m.material(600.0) == "trityl_d_propanediol"
     assert m.spin1_engine(600.0) is None                           # no fitted rates for trityl
     d = m.dnp_at(600.0)
-    assert d["P_max"] == pytest.approx(0.25) and d["lobe_width_GHz"] == pytest.approx(0.04)
+    assert d["P_max"] == pytest.approx(0.39) and d["lobe_width_GHz"] == pytest.approx(0.026)
     assert m.dnp["P_max"] != d["P_max"]                             # defaults untouched

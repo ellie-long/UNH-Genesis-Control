@@ -77,15 +77,15 @@ materials:
     basis: >-
       No rate-equation fit exists for trityl (Spin-1-Rates-Fit
       analysis/scan_trityl.py: thermal-uncorrected raw slopes only), so this
-      material uses the phenomenological DNP with values read off that scan:
-      2020-12-07, B 4.9275 T, P pumped up below f/B ~ 28.034 (fastest near
-      28.026, +1.6e-4 /s at P ~ -6 %) and down above it (fastest near 28.041,
-      -1e-4 /s); 2020-09-15 held +12..+16 % across 141.0-141.4 GHz at 5.038 T.
-      Offsets are from 28.025 GHz/T x B; tau_up from the up-slope; neg_scale
-      from the ratio of the slopes.  Rough: no trityl relaxation data.
-    phenomenological: {P_max: 0.25, tau_up_s: 1900.0, optimum_offset_GHz: 0.005,
-                       lobe_width_GHz: 0.04, neg_scale: 0.65, neg_side: 1}
-    magic: {plus: 28.026, minus: 28.041}
+      material uses the phenomenological DNP.  Started from that scan
+      (2020-12-07, 4.9275 T: P pumped up below f/B ~ 28.034, down above it;
+      2020-09-15 held +12..+16 % at 5.038 T), then fitted to the 2020-09 and
+      2020-12 records together (hindcast cost 10.19 -> 8.98 pp; free-run and
+      6 h-anchored MAE).  Offsets are from 28.025 GHz/T x B.  No trityl
+      relaxation data: T1 is the default.
+    phenomenological: {P_max: 0.39, tau_up_s: 1565.0, optimum_offset_GHz: 0.038,
+                       lobe_width_GHz: 0.026, neg_scale: 1.32, neg_side: 1}
+    magic: {plus: 28.033, minus: 28.043}
 
 # Which material each past cool-down had (lab-local times; the last entry
 # whose start is <= t applies).  A material without rates (or a cool-down not
