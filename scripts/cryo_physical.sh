@@ -202,7 +202,19 @@ expected = (
     "archiver",
 )
 
-physical = expected[:7]
+optional = (
+    "flowmeter_pi",
+    "flowmeter_left",
+    "flowmeter_sep",
+    "lhe_fridge",
+    "lhe_magnet",
+    "manometer_low",
+)
+
+# Validate all registered Cryo IOCs, including those excluded
+# from normal physical startup pending commissioning.
+physical = expected[:7] + optional
+expected = expected + optional
 
 for name in expected:
     if name not in manager:

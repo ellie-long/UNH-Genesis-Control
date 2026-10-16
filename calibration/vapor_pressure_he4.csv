@@ -1,0 +1,34 @@
+# Helium-4 vapour-pressure -> temperature bands, for logic in
+# devices/its90_helium.py.  Every band is the same equation:
+#
+#     x = (ln(P/Pa) - B) / C
+#     T = A0 + A1*x + A2*x^2 + ... + A9*x^9
+#
+# which is the formula node in the lab's LabVIEW VI, and the published form of
+# the ITS-90 helium vapour-pressure scale.  A band applies when the pressure is
+# between Pmin_Pa and Pmax_Pa; bands are tried in file order, and a pressure
+# outside all of them gives NaN rather than an extrapolation.
+#
+# THE TWO ITS-90 BANDS BELOW ARE BUILT INTO THE MODULE AS WELL.  This file
+# exists so a band can be added or corrected without touching Python - a row
+# here REPLACES a built-in band of the same name.
+#
+# ---------------------------------------------------------------------------
+# STILL MISSING: the band below 1.25 K.
+#
+# ITS-90 does not define the 4He vapour-pressure scale below 1.25 K (114.73 Pa,
+# 0.8606 Torr), and this fridge runs colder than that - Mano.Lo reading
+# 0.0465 Torr is about 6 Pa, near 0.9 K.  So during normal running there is no
+# ITS-90 temperature and _VapT is NaN by design.
+#
+# The lab's LabVIEW VI already has a low branch (its "Range Vapor" indicator
+# reads Low / Med / High).  To make the IOC agree with it, add one row here
+# with that branch's own A0..A9, B and C, and its pressure limits:
+#
+#   LabVIEW-low,<Pmin_Pa>,<Pmax_Pa>,<B>,<C>,<A0>,<A1>,...,<A9>
+#
+# Nothing else needs to change.
+# ---------------------------------------------------------------------------
+Name,Pmin_Pa,Pmax_Pa,B,C,A0,A1,A2,A3,A4,A5,A6,A7,A8,A9
+He-II,114.7343,5041.8,5.6,2.9,1.392408,0.527153,0.166756,0.050988,0.026514,0.001975,-0.017976,0.005409,0.013259,0.0
+He-I,5041.8,196016.5,10.3,1.9,3.146631,1.357655,0.413923,0.091159,0.016349,0.001826,-0.004325,-0.004973,0.0,0.0

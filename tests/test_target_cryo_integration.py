@@ -200,8 +200,17 @@ def test_cryo_manager_contract():
         "archiver",
     }
 
+    optional_owners = {
+        "flowmeter_pi",
+        "flowmeter_left",
+        "flowmeter_sep",
+        "lhe_fridge",
+        "lhe_magnet",
+        "manometer_low",
+    }
+
     assert set(manager) - {"general"} == (
-        set(PHYSICAL) | logic_owners
+        set(PHYSICAL) | logic_owners | optional_owners
     )
 
     for name, expected in PHYSICAL.items():

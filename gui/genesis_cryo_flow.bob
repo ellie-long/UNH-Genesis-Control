@@ -1,0 +1,683 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<display version="2.0.0">
+  <name>Genesis Cryo Vacuum</name>
+  <width>1280</width>
+  <height>720</height>
+  <widget type="rectangle" version="2.0.0">
+    <name>Flow_Page</name>
+    <x>0</x>
+    <y>0</y>
+    <width>1280</width>
+    <height>720</height>
+    <line_width>0</line_width>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>Flow_Header</name>
+    <x>0</x>
+    <y>0</y>
+    <width>1280</width>
+    <height>70</height>
+    <line_width>0</line_width>
+    <background_color>
+      <color red="0" green="36" blue="92" alpha="255" />
+    </background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Flow_Title</name>
+    <x>24</x>
+    <y>18</y>
+    <width>1200</width>
+    <height>32</height>
+    <text>UNH Genesis - Cryogenics Flow Monitoring</text>
+    <transparent>true</transparent>
+    <horizontal_alignment>0</horizontal_alignment>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="22.0" />
+    </font>
+    <foreground_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>Flow_0_Card</name>
+    <x>20</x>
+    <y>100</y>
+    <width>400</width>
+    <height>250</height>
+    <line_width>0</line_width>
+    <corner_width>8</corner_width>
+    <corner_height>8</corner_height>
+    <background_color>
+      <color red="245" green="248" blue="252" alpha="255" />
+    </background_color>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>Flow_0_Header</name>
+    <x>20</x>
+    <y>100</y>
+    <width>400</width>
+    <height>38</height>
+    <line_width>0</line_width>
+    <corner_width>8</corner_width>
+    <corner_height>8</corner_height>
+    <background_color>
+      <color red="220" green="231" blue="243" alpha="255" />
+    </background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Flow_0_Title</name>
+    <x>34</x>
+    <y>107</y>
+    <width>372</width>
+    <height>24</height>
+    <text>RIGHT PUMP</text>
+    <transparent>true</transparent>
+    <horizontal_alignment>0</horizontal_alignment>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="15.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Flow_0_Level_L</name>
+    <x>38</x>
+    <y>155</y>
+    <width>107</width>
+    <height>24</height>
+    <text>Flow</text>
+    <transparent>true</transparent>
+    <horizontal_alignment>0</horizontal_alignment>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Flow_0_Level_V</name>
+    <x>153</x>
+    <y>153</y>
+    <width>160</width>
+    <height>28</height>
+    <pv_name>ca://UNH:GEN:CRYO:FLOW:RIGHT:RPump_SLM</pv_name>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Flow_0_Level_U</name>
+    <x>325</x>
+    <y>155</y>
+    <width>65</width>
+    <height>24</height>
+    <text>SLM</text>
+    <transparent>true</transparent>
+    <horizontal_alignment>0</horizontal_alignment>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="12.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Flow_0_Status_L</name>
+    <x>38</x>
+    <y>205</y>
+    <width>107</width>
+    <height>24</height>
+    <text>Status</text>
+    <transparent>true</transparent>
+    <horizontal_alignment>0</horizontal_alignment>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Flow_0_Status_V</name>
+    <x>153</x>
+    <y>203</y>
+    <width>240</width>
+    <height>27</height>
+    <pv_name>ca://UNH:GEN:CRYO:FLOW:RIGHT:RPump_Status</pv_name>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="12.0" />
+    </font>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Flow_0_Heartbeat_L</name>
+    <x>38</x>
+    <y>255</y>
+    <width>107</width>
+    <height>24</height>
+    <text>Heartbeat</text>
+    <transparent>true</transparent>
+    <horizontal_alignment>0</horizontal_alignment>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Flow_0_Heartbeat_V</name>
+    <x>153</x>
+    <y>253</y>
+    <width>240</width>
+    <height>27</height>
+    <pv_name>ca://UNH:GEN:CRYO:FLOW:RIGHT:MAN:flowmeter_pi_time</pv_name>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="12.0" />
+    </font>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Flow_0_Note</name>
+    <x>38</x>
+    <y>313</y>
+    <width>363</width>
+    <height>20</height>
+    <text>Read-only / optional instrument</text>
+    <transparent>true</transparent>
+    <horizontal_alignment>0</horizontal_alignment>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="12.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>Flow_1_Card</name>
+    <x>440</x>
+    <y>100</y>
+    <width>400</width>
+    <height>250</height>
+    <line_width>0</line_width>
+    <corner_width>8</corner_width>
+    <corner_height>8</corner_height>
+    <background_color>
+      <color red="245" green="248" blue="252" alpha="255" />
+    </background_color>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>Flow_1_Header</name>
+    <x>440</x>
+    <y>100</y>
+    <width>400</width>
+    <height>38</height>
+    <line_width>0</line_width>
+    <corner_width>8</corner_width>
+    <corner_height>8</corner_height>
+    <background_color>
+      <color red="220" green="231" blue="243" alpha="255" />
+    </background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Flow_1_Title</name>
+    <x>454</x>
+    <y>107</y>
+    <width>372</width>
+    <height>24</height>
+    <text>LEFT PUMP</text>
+    <transparent>true</transparent>
+    <horizontal_alignment>0</horizontal_alignment>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="15.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Flow_1_Level_L</name>
+    <x>458</x>
+    <y>155</y>
+    <width>107</width>
+    <height>24</height>
+    <text>Flow</text>
+    <transparent>true</transparent>
+    <horizontal_alignment>0</horizontal_alignment>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Flow_1_Level_V</name>
+    <x>573</x>
+    <y>153</y>
+    <width>160</width>
+    <height>28</height>
+    <pv_name>ca://UNH:GEN:CRYO:FLOW:LEFT:LPump_SLM</pv_name>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Flow_1_Level_U</name>
+    <x>745</x>
+    <y>155</y>
+    <width>65</width>
+    <height>24</height>
+    <text>SLM</text>
+    <transparent>true</transparent>
+    <horizontal_alignment>0</horizontal_alignment>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="12.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Flow_1_Status_L</name>
+    <x>458</x>
+    <y>205</y>
+    <width>107</width>
+    <height>24</height>
+    <text>Status</text>
+    <transparent>true</transparent>
+    <horizontal_alignment>0</horizontal_alignment>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Flow_1_Status_V</name>
+    <x>573</x>
+    <y>203</y>
+    <width>240</width>
+    <height>27</height>
+    <pv_name>ca://UNH:GEN:CRYO:FLOW:LEFT:LPump_Status</pv_name>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="12.0" />
+    </font>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Flow_1_Heartbeat_L</name>
+    <x>458</x>
+    <y>255</y>
+    <width>107</width>
+    <height>24</height>
+    <text>Heartbeat</text>
+    <transparent>true</transparent>
+    <horizontal_alignment>0</horizontal_alignment>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Flow_1_Heartbeat_V</name>
+    <x>573</x>
+    <y>253</y>
+    <width>240</width>
+    <height>27</height>
+    <pv_name>ca://UNH:GEN:CRYO:FLOW:LEFT:MAN:flowmeter_left_time</pv_name>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="12.0" />
+    </font>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Flow_1_Note</name>
+    <x>458</x>
+    <y>313</y>
+    <width>363</width>
+    <height>20</height>
+    <text>Read-only / optional instrument</text>
+    <transparent>true</transparent>
+    <horizontal_alignment>0</horizontal_alignment>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="12.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>Flow_2_Card</name>
+    <x>860</x>
+    <y>100</y>
+    <width>400</width>
+    <height>250</height>
+    <line_width>0</line_width>
+    <corner_width>8</corner_width>
+    <corner_height>8</corner_height>
+    <background_color>
+      <color red="245" green="248" blue="252" alpha="255" />
+    </background_color>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>Flow_2_Header</name>
+    <x>860</x>
+    <y>100</y>
+    <width>400</width>
+    <height>38</height>
+    <line_width>0</line_width>
+    <corner_width>8</corner_width>
+    <corner_height>8</corner_height>
+    <background_color>
+      <color red="220" green="231" blue="243" alpha="255" />
+    </background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Flow_2_Title</name>
+    <x>874</x>
+    <y>107</y>
+    <width>372</width>
+    <height>24</height>
+    <text>SEPARATOR</text>
+    <transparent>true</transparent>
+    <horizontal_alignment>0</horizontal_alignment>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="15.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Flow_2_Level_L</name>
+    <x>878</x>
+    <y>155</y>
+    <width>107</width>
+    <height>24</height>
+    <text>Flow</text>
+    <transparent>true</transparent>
+    <horizontal_alignment>0</horizontal_alignment>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Flow_2_Level_V</name>
+    <x>993</x>
+    <y>153</y>
+    <width>160</width>
+    <height>28</height>
+    <pv_name>ca://UNH:GEN:CRYO:FLOW:SEP:SepFlow_SLM</pv_name>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Flow_2_Level_U</name>
+    <x>1165</x>
+    <y>155</y>
+    <width>65</width>
+    <height>24</height>
+    <text>SLM</text>
+    <transparent>true</transparent>
+    <horizontal_alignment>0</horizontal_alignment>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="12.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Flow_2_Status_L</name>
+    <x>878</x>
+    <y>205</y>
+    <width>107</width>
+    <height>24</height>
+    <text>Status</text>
+    <transparent>true</transparent>
+    <horizontal_alignment>0</horizontal_alignment>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Flow_2_Status_V</name>
+    <x>993</x>
+    <y>203</y>
+    <width>240</width>
+    <height>27</height>
+    <pv_name>ca://UNH:GEN:CRYO:FLOW:SEP:SepFlow_Status</pv_name>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="12.0" />
+    </font>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Flow_2_Heartbeat_L</name>
+    <x>878</x>
+    <y>255</y>
+    <width>107</width>
+    <height>24</height>
+    <text>Heartbeat</text>
+    <transparent>true</transparent>
+    <horizontal_alignment>0</horizontal_alignment>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Flow_2_Heartbeat_V</name>
+    <x>993</x>
+    <y>253</y>
+    <width>240</width>
+    <height>27</height>
+    <pv_name>ca://UNH:GEN:CRYO:FLOW:SEP:MAN:flowmeter_sep_time</pv_name>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="12.0" />
+    </font>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Flow_2_Note</name>
+    <x>878</x>
+    <y>313</y>
+    <width>363</width>
+    <height>20</height>
+    <text>Read-only / optional instrument</text>
+    <transparent>true</transparent>
+    <horizontal_alignment>0</horizontal_alignment>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="12.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>Flow_History_Card</name>
+    <x>20</x>
+    <y>380</y>
+    <width>1240</width>
+    <height>230</height>
+    <line_width>0</line_width>
+    <corner_width>8</corner_width>
+    <corner_height>8</corner_height>
+    <background_color>
+      <color red="245" green="248" blue="252" alpha="255" />
+    </background_color>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>Flow_History_Header</name>
+    <x>20</x>
+    <y>380</y>
+    <width>1240</width>
+    <height>38</height>
+    <line_width>0</line_width>
+    <corner_width>8</corner_width>
+    <corner_height>8</corner_height>
+    <background_color>
+      <color red="220" green="231" blue="243" alpha="255" />
+    </background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Flow_History_Title</name>
+    <x>34</x>
+    <y>387</y>
+    <width>1200</width>
+    <height>24</height>
+    <text>HISTORICAL FLOW MONITORING</text>
+    <transparent>true</transparent>
+    <horizontal_alignment>0</horizontal_alignment>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="15.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Flow_History_Help1</name>
+    <x>45</x>
+    <y>441</y>
+    <width>1130</width>
+    <height>24</height>
+    <text>Genesis Archive Viewer: select Cryo &gt; Flow</text>
+    <transparent>true</transparent>
+    <horizontal_alignment>0</horizontal_alignment>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Flow_History_Help2</name>
+    <x>45</x>
+    <y>480</y>
+    <width>1130</width>
+    <height>24</height>
+    <text>Preset: Cryo - Pump / separator flow</text>
+    <transparent>true</transparent>
+    <horizontal_alignment>0</horizontal_alignment>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Flow_History_Help3</name>
+    <x>45</x>
+    <y>519</y>
+    <width>1130</width>
+    <height>24</height>
+    <text>Trend selection uses the three SLM measurement PVs.</text>
+    <transparent>true</transparent>
+    <horizontal_alignment>0</horizontal_alignment>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Flow_Data_Back</name>
+    <x>780</x>
+    <y>652</y>
+    <width>205</width>
+    <height>36</height>
+    <actions>
+      <action type="open_display">
+        <file>genesis_cryo_data.bob</file>
+        <target>tab</target>
+        <description>Open genesis_cryo_data.bob</description>
+      </action>
+    </actions>
+    <text>Data / Trends</text>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Flow_Overview_Back</name>
+    <x>1000</x>
+    <y>652</y>
+    <width>245</width>
+    <height>36</height>
+    <actions>
+      <action type="open_display">
+        <file>genesis_cryo.bob</file>
+        <target>tab</target>
+        <description>Open genesis_cryo.bob</description>
+      </action>
+    </actions>
+    <text>Cryo Overview</text>
+  </widget>
+</display>

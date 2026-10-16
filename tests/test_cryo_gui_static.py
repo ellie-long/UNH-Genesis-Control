@@ -19,6 +19,7 @@ EXPECTED = {
     "genesis_cryo_coldboard.bob",
     "genesis_cryo_safety.bob",
     "genesis_cryo_data.bob",
+    "genesis_cryo_flow.bob",
     "genesis_cryo_diagnostics.bob",
 }
 
@@ -314,7 +315,7 @@ def test_cryo_gui_headers_and_final_schematic():
         gui.glob("genesis_cryo*.bob")
     )
 
-    assert len(bobs) == 12
+    assert len(bobs) == 13
 
     for path in bobs:
         root = ET.parse(path).getroot()

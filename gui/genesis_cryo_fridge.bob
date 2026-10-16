@@ -1,13 +1,13 @@
 <?xml version='1.0' encoding='utf-8'?>
 <display version="2.0.0">
   <name>Genesis Cryo - Fridge</name>
-  <width>1400</width>
-  <height>1245</height>
+  <width>1600</width>
+  <height>900</height>
   <widget type="label" version="2.0.0">
     <name>Title_ls224_fridge</name>
     <x>10</x>
     <y>74</y>
-    <width>1380</width>
+    <width>1580</width>
     <height>31</height>
     <text>ls224_fridge</text>
     <transparent>true</transparent>
@@ -34,7 +34,7 @@
   <widget type="label" version="2.0.0">
     <name>L_UNH:GEN:CRYO:FRIDGE:F1_TI</name>
     <x>10</x>
-    <y>141</y>
+    <y>145</y>
     <width>140</width>
     <height>20</height>
     <text>F1_TI</text>
@@ -42,7 +42,7 @@
   <widget type="textupdate" version="2.0.0">
     <name>T_UNH:GEN:CRYO:FRIDGE:F1_TI</name>
     <x>160</x>
-    <y>141</y>
+    <y>145</y>
     <width>150</width>
     <height>20</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F1_TI</pv_name>
@@ -52,7 +52,7 @@
   <widget type="label" version="2.0.0">
     <name>L_UNH:GEN:CRYO:FRIDGE:F1_RI</name>
     <x>10</x>
-    <y>162</y>
+    <y>166</y>
     <width>140</width>
     <height>20</height>
     <text>F1_RI</text>
@@ -60,7 +60,7 @@
   <widget type="textupdate" version="2.0.0">
     <name>T_UNH:GEN:CRYO:FRIDGE:F1_RI</name>
     <x>160</x>
-    <y>162</y>
+    <y>166</y>
     <width>150</width>
     <height>20</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F1_RI</pv_name>
@@ -70,7 +70,7 @@
   <widget type="label" version="2.0.0">
     <name>L_UNH:GEN:CRYO:FRIDGE:F1_Status</name>
     <x>10</x>
-    <y>183</y>
+    <y>187</y>
     <width>140</width>
     <height>20</height>
     <text>F1_Status</text>
@@ -78,7 +78,7 @@
   <widget type="textupdate" version="2.0.0">
     <name>T_UNH:GEN:CRYO:FRIDGE:F1_Status</name>
     <x>160</x>
-    <y>183</y>
+    <y>187</y>
     <width>260</width>
     <height>20</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F1_Status</pv_name>
@@ -87,7 +87,7 @@
   <widget type="label" version="2.0.0">
     <name>L_UNH:GEN:CRYO:FRIDGE:F1_Conn</name>
     <x>10</x>
-    <y>204</y>
+    <y>208</y>
     <width>140</width>
     <height>20</height>
     <text>F1_Conn</text>
@@ -95,7 +95,7 @@
   <widget type="textupdate" version="2.0.0">
     <name>T_UNH:GEN:CRYO:FRIDGE:F1_Conn</name>
     <x>160</x>
-    <y>204</y>
+    <y>208</y>
     <width>150</width>
     <height>20</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F1_Conn</pv_name>
@@ -105,7 +105,7 @@
   <widget type="label" version="2.0.0">
     <name>L_UNH:GEN:CRYO:FRIDGE:F2_TI</name>
     <x>10</x>
-    <y>225</y>
+    <y>229</y>
     <width>140</width>
     <height>20</height>
     <text>F2_TI</text>
@@ -113,7 +113,7 @@
   <widget type="textupdate" version="2.0.0">
     <name>T_UNH:GEN:CRYO:FRIDGE:F2_TI</name>
     <x>160</x>
-    <y>225</y>
+    <y>229</y>
     <width>150</width>
     <height>20</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F2_TI</pv_name>
@@ -123,7 +123,7 @@
   <widget type="label" version="2.0.0">
     <name>L_UNH:GEN:CRYO:FRIDGE:F2_RI</name>
     <x>10</x>
-    <y>246</y>
+    <y>250</y>
     <width>140</width>
     <height>20</height>
     <text>F2_RI</text>
@@ -131,7 +131,7 @@
   <widget type="textupdate" version="2.0.0">
     <name>T_UNH:GEN:CRYO:FRIDGE:F2_RI</name>
     <x>160</x>
-    <y>246</y>
+    <y>250</y>
     <width>150</width>
     <height>20</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F2_RI</pv_name>
@@ -141,7 +141,7 @@
   <widget type="label" version="2.0.0">
     <name>L_UNH:GEN:CRYO:FRIDGE:F2_Status</name>
     <x>10</x>
-    <y>267</y>
+    <y>271</y>
     <width>140</width>
     <height>20</height>
     <text>F2_Status</text>
@@ -149,7 +149,7 @@
   <widget type="textupdate" version="2.0.0">
     <name>T_UNH:GEN:CRYO:FRIDGE:F2_Status</name>
     <x>160</x>
-    <y>267</y>
+    <y>271</y>
     <width>260</width>
     <height>20</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F2_Status</pv_name>
@@ -158,7 +158,7 @@
   <widget type="label" version="2.0.0">
     <name>L_UNH:GEN:CRYO:FRIDGE:F2_Conn</name>
     <x>10</x>
-    <y>288</y>
+    <y>292</y>
     <width>140</width>
     <height>20</height>
     <text>F2_Conn</text>
@@ -166,7 +166,7 @@
   <widget type="textupdate" version="2.0.0">
     <name>T_UNH:GEN:CRYO:FRIDGE:F2_Conn</name>
     <x>160</x>
-    <y>288</y>
+    <y>292</y>
     <width>150</width>
     <height>20</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F2_Conn</pv_name>
@@ -176,7 +176,7 @@
   <widget type="label" version="2.0.0">
     <name>L_UNH:GEN:CRYO:FRIDGE:F3_TI</name>
     <x>10</x>
-    <y>309</y>
+    <y>313</y>
     <width>140</width>
     <height>20</height>
     <text>F3_TI</text>
@@ -184,7 +184,7 @@
   <widget type="textupdate" version="2.0.0">
     <name>T_UNH:GEN:CRYO:FRIDGE:F3_TI</name>
     <x>160</x>
-    <y>309</y>
+    <y>313</y>
     <width>150</width>
     <height>20</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F3_TI</pv_name>
@@ -194,7 +194,7 @@
   <widget type="label" version="2.0.0">
     <name>L_UNH:GEN:CRYO:FRIDGE:F3_RI</name>
     <x>10</x>
-    <y>330</y>
+    <y>334</y>
     <width>140</width>
     <height>20</height>
     <text>F3_RI</text>
@@ -202,7 +202,7 @@
   <widget type="textupdate" version="2.0.0">
     <name>T_UNH:GEN:CRYO:FRIDGE:F3_RI</name>
     <x>160</x>
-    <y>330</y>
+    <y>334</y>
     <width>150</width>
     <height>20</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F3_RI</pv_name>
@@ -212,7 +212,7 @@
   <widget type="label" version="2.0.0">
     <name>L_UNH:GEN:CRYO:FRIDGE:F3_Status</name>
     <x>10</x>
-    <y>351</y>
+    <y>355</y>
     <width>140</width>
     <height>20</height>
     <text>F3_Status</text>
@@ -220,7 +220,7 @@
   <widget type="textupdate" version="2.0.0">
     <name>T_UNH:GEN:CRYO:FRIDGE:F3_Status</name>
     <x>160</x>
-    <y>351</y>
+    <y>355</y>
     <width>260</width>
     <height>20</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F3_Status</pv_name>
@@ -229,7 +229,7 @@
   <widget type="label" version="2.0.0">
     <name>L_UNH:GEN:CRYO:FRIDGE:F3_Conn</name>
     <x>10</x>
-    <y>372</y>
+    <y>376</y>
     <width>140</width>
     <height>20</height>
     <text>F3_Conn</text>
@@ -237,7 +237,7 @@
   <widget type="textupdate" version="2.0.0">
     <name>T_UNH:GEN:CRYO:FRIDGE:F3_Conn</name>
     <x>160</x>
-    <y>372</y>
+    <y>376</y>
     <width>150</width>
     <height>20</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F3_Conn</pv_name>
@@ -247,7 +247,7 @@
   <widget type="label" version="2.0.0">
     <name>L_UNH:GEN:CRYO:FRIDGE:F4_TI</name>
     <x>10</x>
-    <y>393</y>
+    <y>397</y>
     <width>140</width>
     <height>20</height>
     <text>F4_TI</text>
@@ -255,7 +255,7 @@
   <widget type="textupdate" version="2.0.0">
     <name>T_UNH:GEN:CRYO:FRIDGE:F4_TI</name>
     <x>160</x>
-    <y>393</y>
+    <y>397</y>
     <width>150</width>
     <height>20</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F4_TI</pv_name>
@@ -265,7 +265,7 @@
   <widget type="label" version="2.0.0">
     <name>L_UNH:GEN:CRYO:FRIDGE:F4_RI</name>
     <x>10</x>
-    <y>414</y>
+    <y>418</y>
     <width>140</width>
     <height>20</height>
     <text>F4_RI</text>
@@ -273,7 +273,7 @@
   <widget type="textupdate" version="2.0.0">
     <name>T_UNH:GEN:CRYO:FRIDGE:F4_RI</name>
     <x>160</x>
-    <y>414</y>
+    <y>418</y>
     <width>150</width>
     <height>20</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F4_RI</pv_name>
@@ -283,7 +283,7 @@
   <widget type="label" version="2.0.0">
     <name>L_UNH:GEN:CRYO:FRIDGE:F4_Status</name>
     <x>10</x>
-    <y>435</y>
+    <y>439</y>
     <width>140</width>
     <height>20</height>
     <text>F4_Status</text>
@@ -291,7 +291,7 @@
   <widget type="textupdate" version="2.0.0">
     <name>T_UNH:GEN:CRYO:FRIDGE:F4_Status</name>
     <x>160</x>
-    <y>435</y>
+    <y>439</y>
     <width>260</width>
     <height>20</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F4_Status</pv_name>
@@ -300,7 +300,7 @@
   <widget type="label" version="2.0.0">
     <name>L_UNH:GEN:CRYO:FRIDGE:F4_Conn</name>
     <x>10</x>
-    <y>456</y>
+    <y>460</y>
     <width>140</width>
     <height>20</height>
     <text>F4_Conn</text>
@@ -308,7 +308,7 @@
   <widget type="textupdate" version="2.0.0">
     <name>T_UNH:GEN:CRYO:FRIDGE:F4_Conn</name>
     <x>160</x>
-    <y>456</y>
+    <y>460</y>
     <width>150</width>
     <height>20</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F4_Conn</pv_name>
@@ -318,7 +318,7 @@
   <widget type="label" version="2.0.0">
     <name>L_UNH:GEN:CRYO:FRIDGE:F5_TI</name>
     <x>10</x>
-    <y>477</y>
+    <y>481</y>
     <width>140</width>
     <height>20</height>
     <text>F5_TI</text>
@@ -326,7 +326,7 @@
   <widget type="textupdate" version="2.0.0">
     <name>T_UNH:GEN:CRYO:FRIDGE:F5_TI</name>
     <x>160</x>
-    <y>477</y>
+    <y>481</y>
     <width>150</width>
     <height>20</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F5_TI</pv_name>
@@ -336,7 +336,7 @@
   <widget type="label" version="2.0.0">
     <name>L_UNH:GEN:CRYO:FRIDGE:F5_RI</name>
     <x>10</x>
-    <y>498</y>
+    <y>502</y>
     <width>140</width>
     <height>20</height>
     <text>F5_RI</text>
@@ -344,7 +344,7 @@
   <widget type="textupdate" version="2.0.0">
     <name>T_UNH:GEN:CRYO:FRIDGE:F5_RI</name>
     <x>160</x>
-    <y>498</y>
+    <y>502</y>
     <width>150</width>
     <height>20</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F5_RI</pv_name>
@@ -354,7 +354,7 @@
   <widget type="label" version="2.0.0">
     <name>L_UNH:GEN:CRYO:FRIDGE:F5_Status</name>
     <x>10</x>
-    <y>519</y>
+    <y>523</y>
     <width>140</width>
     <height>20</height>
     <text>F5_Status</text>
@@ -362,7 +362,7 @@
   <widget type="textupdate" version="2.0.0">
     <name>T_UNH:GEN:CRYO:FRIDGE:F5_Status</name>
     <x>160</x>
-    <y>519</y>
+    <y>523</y>
     <width>260</width>
     <height>20</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F5_Status</pv_name>
@@ -371,7 +371,7 @@
   <widget type="label" version="2.0.0">
     <name>L_UNH:GEN:CRYO:FRIDGE:F5_Conn</name>
     <x>10</x>
-    <y>540</y>
+    <y>544</y>
     <width>140</width>
     <height>20</height>
     <text>F5_Conn</text>
@@ -379,7 +379,7 @@
   <widget type="textupdate" version="2.0.0">
     <name>T_UNH:GEN:CRYO:FRIDGE:F5_Conn</name>
     <x>160</x>
-    <y>540</y>
+    <y>544</y>
     <width>150</width>
     <height>20</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F5_Conn</pv_name>
@@ -389,7 +389,7 @@
   <widget type="label" version="2.0.0">
     <name>L_UNH:GEN:CRYO:FRIDGE:F6_TI</name>
     <x>10</x>
-    <y>561</y>
+    <y>565</y>
     <width>140</width>
     <height>20</height>
     <text>F6_TI</text>
@@ -397,7 +397,7 @@
   <widget type="textupdate" version="2.0.0">
     <name>T_UNH:GEN:CRYO:FRIDGE:F6_TI</name>
     <x>160</x>
-    <y>561</y>
+    <y>565</y>
     <width>150</width>
     <height>20</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F6_TI</pv_name>
@@ -407,7 +407,7 @@
   <widget type="label" version="2.0.0">
     <name>L_UNH:GEN:CRYO:FRIDGE:F6_RI</name>
     <x>10</x>
-    <y>582</y>
+    <y>586</y>
     <width>140</width>
     <height>20</height>
     <text>F6_RI</text>
@@ -415,7 +415,7 @@
   <widget type="textupdate" version="2.0.0">
     <name>T_UNH:GEN:CRYO:FRIDGE:F6_RI</name>
     <x>160</x>
-    <y>582</y>
+    <y>586</y>
     <width>150</width>
     <height>20</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F6_RI</pv_name>
@@ -425,7 +425,7 @@
   <widget type="label" version="2.0.0">
     <name>L_UNH:GEN:CRYO:FRIDGE:F6_Status</name>
     <x>10</x>
-    <y>603</y>
+    <y>607</y>
     <width>140</width>
     <height>20</height>
     <text>F6_Status</text>
@@ -433,7 +433,7 @@
   <widget type="textupdate" version="2.0.0">
     <name>T_UNH:GEN:CRYO:FRIDGE:F6_Status</name>
     <x>160</x>
-    <y>603</y>
+    <y>607</y>
     <width>260</width>
     <height>20</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F6_Status</pv_name>
@@ -442,7 +442,7 @@
   <widget type="label" version="2.0.0">
     <name>L_UNH:GEN:CRYO:FRIDGE:F6_Conn</name>
     <x>10</x>
-    <y>624</y>
+    <y>628</y>
     <width>140</width>
     <height>20</height>
     <text>F6_Conn</text>
@@ -450,7 +450,7 @@
   <widget type="textupdate" version="2.0.0">
     <name>T_UNH:GEN:CRYO:FRIDGE:F6_Conn</name>
     <x>160</x>
-    <y>624</y>
+    <y>628</y>
     <width>150</width>
     <height>20</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F6_Conn</pv_name>
@@ -459,16 +459,16 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>L_UNH:GEN:CRYO:FRIDGE:F7_TI</name>
-    <x>10</x>
-    <y>645</y>
+    <x>440</x>
+    <y>145</y>
     <width>140</width>
     <height>20</height>
     <text>F7_TI</text>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>T_UNH:GEN:CRYO:FRIDGE:F7_TI</name>
-    <x>160</x>
-    <y>645</y>
+    <x>590</x>
+    <y>145</y>
     <width>150</width>
     <height>20</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F7_TI</pv_name>
@@ -477,16 +477,16 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>L_UNH:GEN:CRYO:FRIDGE:F7_RI</name>
-    <x>10</x>
-    <y>666</y>
+    <x>440</x>
+    <y>166</y>
     <width>140</width>
     <height>20</height>
     <text>F7_RI</text>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>T_UNH:GEN:CRYO:FRIDGE:F7_RI</name>
-    <x>160</x>
-    <y>666</y>
+    <x>590</x>
+    <y>166</y>
     <width>150</width>
     <height>20</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F7_RI</pv_name>
@@ -495,16 +495,16 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>L_UNH:GEN:CRYO:FRIDGE:F7_Status</name>
-    <x>10</x>
-    <y>687</y>
+    <x>440</x>
+    <y>187</y>
     <width>140</width>
     <height>20</height>
     <text>F7_Status</text>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>T_UNH:GEN:CRYO:FRIDGE:F7_Status</name>
-    <x>160</x>
-    <y>687</y>
+    <x>590</x>
+    <y>187</y>
     <width>260</width>
     <height>20</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F7_Status</pv_name>
@@ -512,16 +512,16 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>L_UNH:GEN:CRYO:FRIDGE:F7_Conn</name>
-    <x>10</x>
-    <y>708</y>
+    <x>440</x>
+    <y>208</y>
     <width>140</width>
     <height>20</height>
     <text>F7_Conn</text>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>T_UNH:GEN:CRYO:FRIDGE:F7_Conn</name>
-    <x>160</x>
-    <y>708</y>
+    <x>590</x>
+    <y>208</y>
     <width>150</width>
     <height>20</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F7_Conn</pv_name>
@@ -530,16 +530,16 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>L_UNH:GEN:CRYO:FRIDGE:F8_TI</name>
-    <x>10</x>
-    <y>729</y>
+    <x>440</x>
+    <y>229</y>
     <width>140</width>
     <height>20</height>
     <text>F8_TI</text>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>T_UNH:GEN:CRYO:FRIDGE:F8_TI</name>
-    <x>160</x>
-    <y>729</y>
+    <x>590</x>
+    <y>229</y>
     <width>150</width>
     <height>20</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F8_TI</pv_name>
@@ -548,16 +548,16 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>L_UNH:GEN:CRYO:FRIDGE:F8_RI</name>
-    <x>10</x>
-    <y>750</y>
+    <x>440</x>
+    <y>250</y>
     <width>140</width>
     <height>20</height>
     <text>F8_RI</text>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>T_UNH:GEN:CRYO:FRIDGE:F8_RI</name>
-    <x>160</x>
-    <y>750</y>
+    <x>590</x>
+    <y>250</y>
     <width>150</width>
     <height>20</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F8_RI</pv_name>
@@ -566,16 +566,16 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>L_UNH:GEN:CRYO:FRIDGE:F8_Status</name>
-    <x>10</x>
-    <y>771</y>
+    <x>440</x>
+    <y>271</y>
     <width>140</width>
     <height>20</height>
     <text>F8_Status</text>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>T_UNH:GEN:CRYO:FRIDGE:F8_Status</name>
-    <x>160</x>
-    <y>771</y>
+    <x>590</x>
+    <y>271</y>
     <width>260</width>
     <height>20</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F8_Status</pv_name>
@@ -583,16 +583,16 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>L_UNH:GEN:CRYO:FRIDGE:F8_Conn</name>
-    <x>10</x>
-    <y>792</y>
+    <x>440</x>
+    <y>292</y>
     <width>140</width>
     <height>20</height>
     <text>F8_Conn</text>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>T_UNH:GEN:CRYO:FRIDGE:F8_Conn</name>
-    <x>160</x>
-    <y>792</y>
+    <x>590</x>
+    <y>292</y>
     <width>150</width>
     <height>20</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F8_Conn</pv_name>
@@ -601,16 +601,16 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>L_UNH:GEN:CRYO:FRIDGE:F9_TI</name>
-    <x>10</x>
-    <y>813</y>
+    <x>440</x>
+    <y>313</y>
     <width>140</width>
     <height>20</height>
     <text>F9_TI</text>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>T_UNH:GEN:CRYO:FRIDGE:F9_TI</name>
-    <x>160</x>
-    <y>813</y>
+    <x>590</x>
+    <y>313</y>
     <width>150</width>
     <height>20</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F9_TI</pv_name>
@@ -619,16 +619,16 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>L_UNH:GEN:CRYO:FRIDGE:F9_RI</name>
-    <x>10</x>
-    <y>834</y>
+    <x>440</x>
+    <y>334</y>
     <width>140</width>
     <height>20</height>
     <text>F9_RI</text>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>T_UNH:GEN:CRYO:FRIDGE:F9_RI</name>
-    <x>160</x>
-    <y>834</y>
+    <x>590</x>
+    <y>334</y>
     <width>150</width>
     <height>20</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F9_RI</pv_name>
@@ -637,16 +637,16 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>L_UNH:GEN:CRYO:FRIDGE:F9_Status</name>
-    <x>10</x>
-    <y>855</y>
+    <x>440</x>
+    <y>355</y>
     <width>140</width>
     <height>20</height>
     <text>F9_Status</text>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>T_UNH:GEN:CRYO:FRIDGE:F9_Status</name>
-    <x>160</x>
-    <y>855</y>
+    <x>590</x>
+    <y>355</y>
     <width>260</width>
     <height>20</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F9_Status</pv_name>
@@ -654,16 +654,16 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>L_UNH:GEN:CRYO:FRIDGE:F9_Conn</name>
-    <x>10</x>
-    <y>876</y>
+    <x>440</x>
+    <y>376</y>
     <width>140</width>
     <height>20</height>
     <text>F9_Conn</text>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>T_UNH:GEN:CRYO:FRIDGE:F9_Conn</name>
-    <x>160</x>
-    <y>876</y>
+    <x>590</x>
+    <y>376</y>
     <width>150</width>
     <height>20</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F9_Conn</pv_name>
@@ -672,16 +672,16 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>L_UNH:GEN:CRYO:FRIDGE:F10_TI</name>
-    <x>10</x>
-    <y>897</y>
+    <x>440</x>
+    <y>397</y>
     <width>140</width>
     <height>20</height>
     <text>F10_TI</text>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>T_UNH:GEN:CRYO:FRIDGE:F10_TI</name>
-    <x>160</x>
-    <y>897</y>
+    <x>590</x>
+    <y>397</y>
     <width>150</width>
     <height>20</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F10_TI</pv_name>
@@ -690,16 +690,16 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>L_UNH:GEN:CRYO:FRIDGE:F10_RI</name>
-    <x>10</x>
-    <y>918</y>
+    <x>440</x>
+    <y>418</y>
     <width>140</width>
     <height>20</height>
     <text>F10_RI</text>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>T_UNH:GEN:CRYO:FRIDGE:F10_RI</name>
-    <x>160</x>
-    <y>918</y>
+    <x>590</x>
+    <y>418</y>
     <width>150</width>
     <height>20</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F10_RI</pv_name>
@@ -708,16 +708,16 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>L_UNH:GEN:CRYO:FRIDGE:F10_Status</name>
-    <x>10</x>
-    <y>939</y>
+    <x>440</x>
+    <y>439</y>
     <width>140</width>
     <height>20</height>
     <text>F10_Status</text>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>T_UNH:GEN:CRYO:FRIDGE:F10_Status</name>
-    <x>160</x>
-    <y>939</y>
+    <x>590</x>
+    <y>439</y>
     <width>260</width>
     <height>20</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F10_Status</pv_name>
@@ -725,16 +725,16 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>L_UNH:GEN:CRYO:FRIDGE:F10_Conn</name>
-    <x>10</x>
-    <y>960</y>
+    <x>440</x>
+    <y>460</y>
     <width>140</width>
     <height>20</height>
     <text>F10_Conn</text>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>T_UNH:GEN:CRYO:FRIDGE:F10_Conn</name>
-    <x>160</x>
-    <y>960</y>
+    <x>590</x>
+    <y>460</y>
     <width>150</width>
     <height>20</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F10_Conn</pv_name>
@@ -743,16 +743,16 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>L_UNH:GEN:CRYO:FRIDGE:F11_TI</name>
-    <x>10</x>
-    <y>981</y>
+    <x>440</x>
+    <y>481</y>
     <width>140</width>
     <height>20</height>
     <text>F11_TI</text>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>T_UNH:GEN:CRYO:FRIDGE:F11_TI</name>
-    <x>160</x>
-    <y>981</y>
+    <x>590</x>
+    <y>481</y>
     <width>150</width>
     <height>20</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F11_TI</pv_name>
@@ -761,16 +761,16 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>L_UNH:GEN:CRYO:FRIDGE:F11_RI</name>
-    <x>10</x>
-    <y>1002</y>
+    <x>440</x>
+    <y>502</y>
     <width>140</width>
     <height>20</height>
     <text>F11_RI</text>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>T_UNH:GEN:CRYO:FRIDGE:F11_RI</name>
-    <x>160</x>
-    <y>1002</y>
+    <x>590</x>
+    <y>502</y>
     <width>150</width>
     <height>20</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F11_RI</pv_name>
@@ -779,16 +779,16 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>L_UNH:GEN:CRYO:FRIDGE:F11_Status</name>
-    <x>10</x>
-    <y>1023</y>
+    <x>440</x>
+    <y>523</y>
     <width>140</width>
     <height>20</height>
     <text>F11_Status</text>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>T_UNH:GEN:CRYO:FRIDGE:F11_Status</name>
-    <x>160</x>
-    <y>1023</y>
+    <x>590</x>
+    <y>523</y>
     <width>260</width>
     <height>20</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F11_Status</pv_name>
@@ -796,16 +796,16 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>L_UNH:GEN:CRYO:FRIDGE:F11_Conn</name>
-    <x>10</x>
-    <y>1044</y>
+    <x>440</x>
+    <y>544</y>
     <width>140</width>
     <height>20</height>
     <text>F11_Conn</text>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>T_UNH:GEN:CRYO:FRIDGE:F11_Conn</name>
-    <x>160</x>
-    <y>1044</y>
+    <x>590</x>
+    <y>544</y>
     <width>150</width>
     <height>20</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F11_Conn</pv_name>
@@ -814,19 +814,19 @@
   </widget>
   <widget type="databrowser" version="2.0.0">
     <name>Trend</name>
-    <x>460</x>
+    <x>880</x>
     <y>114</y>
-    <width>930</width>
-    <height>951</height>
+    <width>710</width>
+    <height>600</height>
     <file>genesis_cryo_fridge.plt</file>
     <show_toolbar>true</show_toolbar>
   </widget>
   <widget type="rectangle" version="2.0.0">
     <name>Genesis_Status_Card</name>
     <x>8</x>
-    <y>1135</y>
+    <y>760</y>
     <width>760</width>
-    <height>95</height>
+    <height>115</height>
     <line_width>0</line_width>
     <background_color>
       <color red="225" green="235" blue="247" alpha="255" />
@@ -835,7 +835,7 @@
   <widget type="label" version="2.0.0">
     <name>Genesis_Status_Title</name>
     <x>20</x>
-    <y>1143</y>
+    <y>768</y>
     <width>180</width>
     <height>22</height>
     <text>Genesis status</text>
@@ -847,7 +847,7 @@
   <widget type="label" version="2.0.0">
     <name>Genesis_COMM_L</name>
     <x>20</x>
-    <y>1173</y>
+    <y>798</y>
     <width>65</width>
     <height>22</height>
     <text>COMM:</text>
@@ -859,7 +859,7 @@
   <widget type="textupdate" version="2.0.0">
     <name>Genesis_COMM_V</name>
     <x>85</x>
-    <y>1171</y>
+    <y>796</y>
     <width>85</width>
     <height>25</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:COMM</pv_name>
@@ -867,7 +867,7 @@
   <widget type="label" version="2.0.0">
     <name>Genesis_WRITE_L</name>
     <x>190</x>
-    <y>1173</y>
+    <y>798</y>
     <width>75</width>
     <height>22</height>
     <text>Writes:</text>
@@ -879,7 +879,7 @@
   <widget type="textupdate" version="2.0.0">
     <name>Genesis_WRITE_V</name>
     <x>265</x>
-    <y>1171</y>
+    <y>796</y>
     <width>90</width>
     <height>25</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:WRITE_ENABLED</pv_name>
@@ -887,7 +887,7 @@
   <widget type="label" version="2.0.0">
     <name>Genesis_ERROR_L</name>
     <x>375</x>
-    <y>1173</y>
+    <y>798</y>
     <width>55</width>
     <height>22</height>
     <text>Error:</text>
@@ -899,7 +899,7 @@
   <widget type="textupdate" version="2.0.0">
     <name>Genesis_ERROR_V</name>
     <x>430</x>
-    <y>1171</y>
+    <y>796</y>
     <width>325</width>
     <height>25</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:ERROR</pv_name>
@@ -907,7 +907,7 @@
   <widget type="label" version="2.0.0">
     <name>Genesis_LASTOK_L</name>
     <x>20</x>
-    <y>1202</y>
+    <y>827</y>
     <width>65</width>
     <height>22</height>
     <text>Last OK:</text>
@@ -919,7 +919,7 @@
   <widget type="textupdate" version="2.0.0">
     <name>Genesis_LASTOK_V</name>
     <x>85</x>
-    <y>1200</y>
+    <y>825</y>
     <width>220</width>
     <height>25</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:LAST_OK</pv_name>
@@ -927,7 +927,7 @@
   <widget type="action_button" version="3.0.0">
     <name>Genesis_Back</name>
     <x>575</x>
-    <y>1197</y>
+    <y>822</y>
     <width>180</width>
     <height>30</height>
     <actions>
@@ -943,7 +943,7 @@
     <name>UNH_Header</name>
     <x>0</x>
     <y>0</y>
-    <width>1400</width>
+    <width>1600</width>
     <height>64</height>
     <line_width>0</line_width>
     <background_color>
@@ -954,7 +954,7 @@
     <name>UNH_Header_Title</name>
     <x>18</x>
     <y>15</y>
-    <width>1364</width>
+    <width>1564</width>
     <height>32</height>
     <text>UNH Genesis - Fridge Thermometry</text>
     <transparent>true</transparent>
@@ -965,5 +965,101 @@
     <foreground_color>
       <color red="255" green="255" blue="255" alpha="255" />
     </foreground_color>
+  </widget>
+
+<widget type="rectangle" version="2.0.0">
+    <name>Genesis_LHe_Card</name>
+    <x>800</x>
+    <y>760</y>
+    <width>790</width>
+    <height>115</height>
+    <line_width>0</line_width>
+    <background_color>
+      <color red="225" green="235" blue="247" alpha="255" />
+    </background_color>
+  </widget>
+<widget type="label" version="2.0.0">
+    <name>Genesis_LHe_Title</name>
+    <x>812</x>
+    <y>766</y>
+    <width>555</width>
+    <height>22</height>
+    <text>Liquid helium level (inch)</text>
+    <transparent>true</transparent>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+  </widget>
+<widget type="label" version="2.0.0">
+    <name>Genesis_LHe_Level_L</name>
+    <x>812</x>
+    <y>795</y>
+    <width>85</width>
+    <height>22</height>
+    <text>LHe level:</text>
+    <transparent>true</transparent>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="12.0" />
+    </font>
+  </widget>
+<widget type="textupdate" version="2.0.0">
+    <name>Genesis_LHe_Level_V</name>
+    <x>901</x>
+    <y>793</y>
+    <width>106</width>
+    <height>25</height>
+    <pv_name>ca://UNH:GEN:CRYO:FRIDGE:LHE:Fridge_LI</pv_name>
+  </widget>
+<widget type="label" version="2.0.0">
+    <name>Genesis_LHe_Status_L</name>
+    <x>1022</x>
+    <y>795</y>
+    <width>58</width>
+    <height>22</height>
+    <text>Status:</text>
+    <transparent>true</transparent>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="12.0" />
+    </font>
+  </widget>
+<widget type="textupdate" version="2.0.0">
+    <name>Genesis_LHe_Status_V</name>
+    <x>1082</x>
+    <y>793</y>
+    <width>293</width>
+    <height>25</height>
+    <pv_name>ca://UNH:GEN:CRYO:FRIDGE:LHE:Fridge_Status</pv_name>
+  </widget>
+<widget type="label" version="2.0.0">
+    <name>Genesis_LHe_Heartbeat_L</name>
+    <x>812</x>
+    <y>825</y>
+    <width>105</width>
+    <height>22</height>
+    <text>Heartbeat:</text>
+    <transparent>true</transparent>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="12.0" />
+    </font>
+  </widget>
+<widget type="textupdate" version="2.0.0">
+    <name>Genesis_LHe_Heartbeat_V</name>
+    <x>922</x>
+    <y>823</y>
+    <width>180</width>
+    <height>25</height>
+    <pv_name>ca://UNH:GEN:CRYO:FRIDGE:LHE:MAN:lhe_fridge_time</pv_name>
+  </widget>
+<widget type="label" version="2.0.0">
+    <name>Genesis_LHe_ReadOnly_Note</name>
+    <x>1115</x>
+    <y>825</y>
+    <width>260</width>
+    <height>22</height>
+    <text>Read-only | optional IOC</text>
+    <transparent>true</transparent>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="12.0" />
+    </font>
   </widget>
 </display>

@@ -540,4 +540,100 @@
       <color red="255" green="255" blue="255" alpha="255" />
     </foreground_color>
   </widget>
+
+<widget type="rectangle" version="2.0.0">
+    <name>Genesis_LHe_Card</name>
+    <x>800</x>
+    <y>631</y>
+    <width>590</width>
+    <height>95</height>
+    <line_width>0</line_width>
+    <background_color>
+      <color red="225" green="235" blue="247" alpha="255" />
+    </background_color>
+  </widget>
+<widget type="label" version="2.0.0">
+    <name>Genesis_LHe_Title</name>
+    <x>812</x>
+    <y>637</y>
+    <width>555</width>
+    <height>22</height>
+    <text>Liquid helium level (inch)</text>
+    <transparent>true</transparent>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+  </widget>
+<widget type="label" version="2.0.0">
+    <name>Genesis_LHe_Level_L</name>
+    <x>812</x>
+    <y>666</y>
+    <width>85</width>
+    <height>22</height>
+    <text>LHe level:</text>
+    <transparent>true</transparent>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="12.0" />
+    </font>
+  </widget>
+<widget type="textupdate" version="2.0.0">
+    <name>Genesis_LHe_Level_V</name>
+    <x>901</x>
+    <y>664</y>
+    <width>106</width>
+    <height>25</height>
+    <pv_name>ca://UNH:GEN:CRYO:MAG:LHE:Magnet_LI</pv_name>
+  </widget>
+<widget type="label" version="2.0.0">
+    <name>Genesis_LHe_Status_L</name>
+    <x>1022</x>
+    <y>666</y>
+    <width>58</width>
+    <height>22</height>
+    <text>Status:</text>
+    <transparent>true</transparent>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="12.0" />
+    </font>
+  </widget>
+<widget type="textupdate" version="2.0.0">
+    <name>Genesis_LHe_Status_V</name>
+    <x>1082</x>
+    <y>664</y>
+    <width>293</width>
+    <height>25</height>
+    <pv_name>ca://UNH:GEN:CRYO:MAG:LHE:Magnet_Status</pv_name>
+  </widget>
+<widget type="label" version="2.0.0">
+    <name>Genesis_LHe_Heartbeat_L</name>
+    <x>812</x>
+    <y>696</y>
+    <width>105</width>
+    <height>22</height>
+    <text>Heartbeat:</text>
+    <transparent>true</transparent>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="12.0" />
+    </font>
+  </widget>
+<widget type="textupdate" version="2.0.0">
+    <name>Genesis_LHe_Heartbeat_V</name>
+    <x>922</x>
+    <y>694</y>
+    <width>180</width>
+    <height>25</height>
+    <pv_name>ca://UNH:GEN:CRYO:MAG:LHE:MAN:lhe_magnet_time</pv_name>
+  </widget>
+<widget type="label" version="2.0.0">
+    <name>Genesis_LHe_ReadOnly_Note</name>
+    <x>1115</x>
+    <y>696</y>
+    <width>260</width>
+    <height>22</height>
+    <text>Read-only | optional IOC</text>
+    <transparent>true</transparent>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="12.0" />
+    </font>
+  </widget>
 </display>
