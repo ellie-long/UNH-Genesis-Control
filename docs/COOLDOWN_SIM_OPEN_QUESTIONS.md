@@ -72,6 +72,21 @@ named in each item. Numbers are stable: answered items move to *Settled*.
       from service start)? (d) `max_hold` 900 s: a reading that stays exactly
       constant is not re-archived, so after a restart a long steady stretch
       shows as a gap -- longer?
+- [ ] 55. Panopticon fridge (dev-visualizer 8fbcada): on the magnet's inch
+      scale, the fridge blueprints' vertical layout puts the lower HX stack
+      35-42" below the top flange, i.e. inside the 4" nose (impossible), so
+      the stacks and separator keep their heights from the UNH thermometry
+      diagram. Are the blueprints the UNH fridge as built, or the JLab g2p
+      design it was based on (with different lengths at UNH)?
+- [ ] 56. Panopticon drawing details: (a) the blueprint's refrigerator top
+      flange is 10.000" in diameter, but the drawing's two dark bars are
+      wider (lower/HX-dewar flange 13.3", head plate 12.1"); which bar is the
+      10" flange? (b) The middle HX plates are 6.9" across vs the upper
+      6.375" -- really wider? (c) With the cup centred on the magnet, the 8"
+      column steps to the nose at 19.4" (AMI drawing: 18.5") and the nose
+      ends at 3.3" (AMI: 1.5"); OK, or lengthen? (d) The magnet's widths are
+      still on the old 15 px/in scale (true scale would be ~12 % narrower);
+      redraw them to scale?
 - [ ] 44. Panopticon plot toolbars (zoom/pan/axis limits) take ~30 px from
       each plot; the small pressure and shells plots are tight. Keep them, or
       hide them and rely on Ctrl+drag zoom / Shift+drag pan?
