@@ -9,11 +9,20 @@ named in each item. Numbers are stable: answered items move to *Settled*.
 ## Checklist (all open items)
 
 **Equipment and wiring**
-- [ ] 45. Serial device servers: which devices are on the 3 TXI040 ports
-      (192.168.1.251) that Genesis doesn't use, and on the 2 occupied TXI017
-      ports (192.168.1.250)? Their TCP ports too, if easy (the servers' web
-      pages list them). Likely candidates are instruments the record has but
-      Genesis lacks (AMI level meters, flow meters, thermocouple readers).
+- [ ] 48. **IONIVAC port (live, likely bug):** Genesis's IONIVAC IOC connects
+      to 192.168.1.251:5005 (on every branch), but the serial-server technote
+      (2026-TN-02) puts the Ionivac on TXI040 port 3 = TCP 5006 and a
+      "Pumping Station" on 5005. Does live Genesis show a sensible shells
+      vacuum? If the technote is right, the config should be 5006.
+- [ ] 49. Models, and Genesis priority: (a) `Magnet_IPS` on the TXI017
+      (TCP 5001, 9600 8N2) -- the Oxford IPS120-10? (b) `Magnet_LHE_Prob`
+      (TCP 23) -- which level meter (AMI model)? (c) on the TXI040: the
+      "Pumping Station" (5005), `left_Roots_Pump` (5012) and
+      `Separator_Pump` (5013) -- what are they, and do they belong in Genesis?
+- [ ] 50. (Housekeeping) TXI040 port 8 is vacant but set to TCP 5011, the
+      same as port 5 (the TPG 262 that Genesis uses); give it a free port
+      (e.g. 5014) before anything is plugged in. TXI017 port 2 uses TCP 23
+      (the telnet port) -- intended, or a default to change?
 - [ ] 12. (Optional) cold-board voltage to Q-curve tune: MHz per volt, or
       the tune at 0 V and 19 V.
 
@@ -228,6 +237,16 @@ named in each item. Numbers are stable: answered items move to *Settled*.
     varactors at 0-19 V. Keep a rule, change it, or drop it?
 
 ## Settled
+
+* Serial device server ports (question 45): from the lab technote 2026-TN-02
+  (TXI040, 192.168.1.251) and the TXI017 port setup pages Ells sent
+  (192.168.1.250), 2026-10-16:
+  * TXI040: 1 Manometer_HI :5004, 2 Pumping Station :5005, 3 Ionivac :5006,
+    4 Fringe Field :5007 (19200 7O1), 5 ROOTS (TPG 262) :5011,
+    6 left_Roots_Pump :5012, 7 Separator_Pump :5013, 8 vacant.
+  * TXI017: 1 Magnet_IPS :5001 (9600 8N2), 2 Magnet_LHE_Prob :23 (9600 8N1).
+  Follow-ups: the IONIVAC port mismatch (48), models and priority (49),
+  port housekeeping (50).
 
 * d-butanol type (question 46): Ells (2026-10-16), yes, the d-butanol in
   2024-11, 2025-02 and 2025-11 was irradiated (as in 2024-09 and 2025-12

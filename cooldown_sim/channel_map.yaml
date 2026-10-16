@@ -216,7 +216,7 @@ equipment:
     map: ionivac.Ion
     sim: IONIVAC emulator
     confidence: high
-    note: "Ells 2026-10-15: the shells' vacuum. CHECK: is that the volume Genesis calls OVC (open question 3)? Ells 2026-10-16: very important to track; alarm above 1e-4 Torr with the magnet bottom > 300 K, above 1e-5 Torr with it < 80 K (Genesis has HIGH/HIHI 800/900 Torr; open questions 25, 39)"
+    note: "PORT MISMATCH (2026-10-16): the lab's serial-server technote puts the IONIVAC on TXI040 port 3 = TCP 5006 (9600 8N1) and a 'Pumping Station' on TCP 5005, where Genesis connects (open question 48). Ells 2026-10-15: the shells' vacuum. Ells 2026-10-16: very important to track; alarm above 1e-4 Torr with the magnet bottom > 300 K, above 1e-5 Torr with it < 80 K (Genesis has HIGH/HIHI 800/900 Torr; open questions 25, 39)"
   - genesis: ls455
     equipment: Lake Shore 455 DSP gaussmeter
     role: Magnet fringe field
@@ -245,17 +245,17 @@ equipment:
     map: "-"
     sim: the emulators listen on loopback instead
     confidence: high
-    note: "Ells 2026-10-16: a DIE WU TXI040 (8 serial ports to Ethernet) with 7 devices plugged in; Genesis uses 4 of them. CHECK: what the other 3 are (open question 45)"
+    note: "Ells 2026-10-16: a DIE WU TXI040 (8 serial ports to Ethernet) with 7 devices plugged in; Genesis uses 4 of them. Port map (lab technote 2026-TN-02, all TCP server mode, 1 connection): 1 Manometer_HI :5004 (9600 8N1); 2 Pumping Station :5005 (9600 8N1); 3 Ionivac :5006 (9600 8N1); 4 Fringe Field :5007 (19200 7O1); 5 ROOTS :5011 (19200 8N1, the TPG 262); 6 left_Roots_Pump :5012 (19200 8N1); 7 Separator_Pump :5013 (19200 8N1); 8 vacant, but set to :5011, the same TCP port as port 5. Genesis's IONIVAC uses :5005 (open questions 48-50)"
   - genesis: (serial gateway 2)
     equipment: DIE WU TXI017 4-port RS-232/485/422 serial device server
-    role: Serial-to-Ethernet for 2 devices; none of them used by Genesis
-    link: 192.168.1.250
+    role: "Serial-to-Ethernet for the magnet's two instruments, neither in Genesis yet: port 1 Magnet_IPS (TCP 5001, 9600 8N2, RS-232; the magnet power supply, presumably the Oxford IPS120-10), port 2 Magnet_LHE_Prob (TCP 23, 9600 8N1, RS-232; the magnet LHe level probe). Both TCP server mode, 1 connection (Ells 2026-10-16, port setup pages)"
+    link: 192.168.1.250, TCP 5001 / 23
     prefix: "-"
     control: transport only
     map: "-"
     sim: not emulated (nothing in Genesis behind it)
     confidence: high
-    note: "Ells 2026-10-16: 2 devices plugged in. CHECK: which (open question 45)"
+    note: "Ells 2026-10-16: 2 devices plugged in (above). Magnet supply = highest Genesis priority, AMI level meters next (question 26). CHECK: the IPS model and the level meter model (open question 49)"
   # ----------------------------------------------------------- microwave
   - genesis: mw_spd1305x
     equipment: "Siglent SPD1305X single-channel DC supply (confirmed by Ells, 2026-10-15)"

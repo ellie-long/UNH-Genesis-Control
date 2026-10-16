@@ -45,6 +45,17 @@ lab answers are in `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`.
 
 ## Log
 
+### 2026-10-16: serial servers mapped; IONIVAC port mismatch
+* **Finding (live system): the IONIVAC IOC may be on the wrong port.** Every
+  branch's `configs/target_physical/ionivac` connects to 192.168.1.251:5005;
+  the lab's serial-server technote (2026-TN-02) has the Ionivac on TXI040
+  port 3 = TCP 5006 and a "Pumping Station" on 5005 (question 48). If so,
+  Genesis has been parsing another device's bytes as IONIVAC telegrams.
+* The magnet power supply (TXI017 port 1, TCP 5001) and the magnet LHe
+  level probe (port 2, TCP 23) are on the second server, ready for the
+  Genesis IOCs Ells ranked highest (question 26).
+* TXI040 port 8 (vacant) duplicates port 5's TCP 5011 (question 50).
+
 ### 2026-10-16: Roots gauge and shells-vacuum alarm limits
 * LabVIEW only read the top Roots gauge, so "Roots Pressure (Torr)" is TPG 262
   gauge 1 (question 3, second half, settled; the sim already assumed it).

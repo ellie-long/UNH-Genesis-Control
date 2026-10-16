@@ -7,6 +7,11 @@ findings are in `COOLDOWN_SIM_PROGRESS.md`; questions for the lab are in
 
 ## 2026-10-16
 
+* Serial servers mapped (question 45 settled): every TXI040 and TXI017 port.
+  Finding: Genesis's IONIVAC connects to :5005, which the lab technote assigns
+  to a "Pumping Station"; the Ionivac is on :5006 (question 48). New 49, 50.
+
+
 * Question 46 settled: 2024-11, 2025-02, 2025-11 were irradiated d-butanol;
   schedule relabelled.
 
