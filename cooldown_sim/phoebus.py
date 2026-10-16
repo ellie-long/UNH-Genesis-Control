@@ -53,13 +53,20 @@ def find_phoebus() -> list[str] | None:
     return None
 
 
-def write_ini(run: Path, ca_ports: list[int]) -> Path:
+def write_ini(run: Path, ca_ports: list[int], pva_ports: list[int] = ()) -> Path:
     path = Path(run) / "phoebus_replay.ini"
     # Pin BOTH Phoebus Channel Access clients to this run's replay ports:
     # Phoebus 4 serves ca:// with JCA (org.phoebus.pv.ca/*); Phoebus 5 also
     # ships the Jackie client (org.phoebus.pv.jackie/*), which otherwise
     # reads EPICS_CA_* from the environment.
     addr = " ".join(f"127.0.0.1:{p}" for p in sorted(ca_ports))
+    # pva:// screens (e.g. Microwave): name each IOC's PVA server (TCP search)
+    pva = ""
+    if pva_ports:
+        servers = " ".join(f"127.0.0.1:{p}" for p in sorted(pva_ports))
+        pva = (f"org.phoebus.pv.pva/epics_pva_name_servers={servers}\n"
+               "org.phoebus.pv.pva/epics_pva_addr_list=\n"
+               "org.phoebus.pv.pva/epics_pva_auto_addr_list=false\n")
     path.write_text(
         "# Phoebus settings for a SIMULATED cool-down (cooldown_sim).\n"
         "# Loopback replay ports only; generated per run.\n"
@@ -70,7 +77,7 @@ def write_ini(run: Path, ca_ports: list[int]) -> Path:
         "org.phoebus.pv.jackie/use_env=false\n"
         f"org.phoebus.pv.jackie/ca_address_list={addr}\n"
         "org.phoebus.pv.jackie/ca_auto_address_list=false\n"
-        "org.phoebus.pv.jackie/ca_max_array_bytes=262144\n", encoding="utf-8")
+        "org.phoebus.pv.jackie/ca_max_array_bytes=262144\n" + pva, encoding="utf-8")
     return path
 
 
@@ -87,11 +94,21 @@ def run_ca_ports(run: Path) -> list[int]:
     return sorted(ports)
 
 
+def run_pva_ports(run: Path) -> list[int]:
+    stack = json.loads((Path(run) / "state" / "stack.json").read_text(encoding="utf-8"))
+    ports = {s["pva"] for s in stack["iocs"] if s.get("pva")}
+    manifest = json.loads((Path(run) / "manifest.json").read_text(encoding="utf-8"))
+    for key in ("controller", "fitter"):
+        if (manifest.get(key) or {}).get("pva"):
+            ports.add(int(manifest[key]["pva"]))
+    return sorted(ports)
+
+
 def command(run: Path, screens: list[str]) -> list[str] | None:
     prefix = find_phoebus()
     if prefix is None:
         return None
-    ini = write_ini(run, run_ca_ports(run))
+    ini = write_ini(run, run_ca_ports(run), run_pva_ports(run))
     user = Path(run) / "phoebus_user"
     user.mkdir(exist_ok=True)
     # JVM options must precede -jar

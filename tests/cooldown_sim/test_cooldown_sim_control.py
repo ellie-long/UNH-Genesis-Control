@@ -174,3 +174,12 @@ def test_phoebus_ini_pins_both_ca_clients(tmp_path):
     assert "org.phoebus.pv.jackie/ca_address_list=127.0.0.1:6116 127.0.0.1:6150" in ini
     assert "org.phoebus.pv.jackie/use_env=false" in ini
     assert "auto_addr_list=false" in ini and "5116" not in ini
+    assert "pva" not in ini
+
+
+def test_phoebus_ini_pins_pva_name_servers(tmp_path):
+    # pva:// screens (Microwave) need each IOC's PVA server named explicitly
+    from cooldown_sim import phoebus
+    ini = phoebus.write_ini(tmp_path, [6116], [6250, 6216]).read_text()
+    assert "org.phoebus.pv.pva/epics_pva_name_servers=127.0.0.1:6216 127.0.0.1:6250" in ini
+    assert "org.phoebus.pv.pva/epics_pva_auto_addr_list=false" in ini

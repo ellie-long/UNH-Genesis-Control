@@ -45,6 +45,21 @@ lab answers are in `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`.
 
 ## Log
 
+### 2026-10-16: pre-demo screen check
+* All four demo screens rendered offscreen against a 2026-06-17 replay: Sim
+  Control 74/74 PVs, NMR fitter 38/38, Panopticon 72/73 (SSRF:SEQ:STATE is
+  POSIX-only), Microwave 52/56 (the IOC-manager heartbeats; the sim runs no IOC
+  manager). Magic + set the supervisor to 138.4204 GHz = 28.025 x 4.93918 T.
+* Fixed: the Microwave screen is all `pva://`, and the sim's Phoebus ini only
+  configured CA, so it showed disconnected; the ini now names every IOC's PVA
+  server. Sim Control's End session / QUENCH confirmations were never shown
+  (`confirm_dialog` is not a Phoebus property; fixed on `dev-visualizer`).
+* Seen on the live NMR fitter screen (a Genesis file, not changed here): its x
+  axis is fixed at 32.25-33.15 MHz, while 2026-06's line sits at 32.08-32.48,
+  so the left of the signal is cut off; the incoming-NMR trace draws a line back
+  through the zero-padded tail of the waveform; a label overlaps; `grid_color`
+  is not an xyplot property.
+
 ### 2026-10-15: Panopticon checked against the 2026-06-17 23:00 screenshot
 * Built on `dev-visualizer`; replay values match the screenshot (see the
   changelog). Flags from that work, for the sim:
