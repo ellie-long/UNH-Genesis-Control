@@ -122,13 +122,13 @@ cooldowns:
     - {start: "2024-09-01 00:00", material: irradiated_d_butanol, dnp: fitted}  # NIST-irradiated
   2024-11-Cooldown:
     - {start: "2024-11-01 00:00", material: nd3, dnp: fitted}                   # did not polarize
-    - {start: "2024-11-15 00:00", material: d_butanol, dnp: fitted}
+    - {start: "2024-11-15 00:00", material: irradiated_d_butanol, dnp: fitted}
   2024-12-Cooldown:
     - {start: "2024-12-01 00:00", material: nd3, dnp: fitted}                   # first ammonia DNP
   2025-02-Cooldown:
-    - {start: "2025-02-01 00:00", material: d_butanol, dnp: fitted}
+    - {start: "2025-02-01 00:00", material: irradiated_d_butanol, dnp: fitted}
   2025-11-Cooldown:
-    - {start: "2025-11-01 00:00", material: d_butanol, dnp: fitted}
+    - {start: "2025-11-01 00:00", material: irradiated_d_butanol, dnp: fitted}
   2025-12-Cooldown:
     - {start: "2025-12-01 00:00", material: irradiated_d_butanol}
   2026-06-Cooldown:

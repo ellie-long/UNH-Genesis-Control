@@ -32,9 +32,6 @@ named in each item. Numbers are stable: answered items move to *Settled*.
       declared in GHz (default 140, the output band's middle), but its Magic
       formula needs the NMR centre in MHz (field = CentralFrequency /
       6.53566 MHz/T). Which is intended? (Details below.)
-- [ ] 46. Was the d-butanol in 2024-11, 2025-02 and 2025-11 irradiated (like
-      2024-09's NIST batch and 2025-12 onward), or doped another way? The
-      sim labels it plain "d-butanol" until known.
 - [ ] 44. Panopticon plot toolbars (zoom/pan/axis limits) take ~30 px from
       each plot; the small pressure and shells plots are tight. Keep them, or
       hide them and rely on Ctrl+drag zoom / Shift+drag pan?
@@ -225,6 +222,12 @@ named in each item. Numbers are stable: answered items move to *Settled*.
     varactors at 0-19 V. Keep a rule, change it, or drop it?
 
 ## Settled
+
+* d-butanol type (question 46): Ells (2026-10-16), yes, the d-butanol in
+  2024-11, 2025-02 and 2025-11 was irradiated (as in 2024-09 and 2025-12
+  onward). The schedule labels them irradiated d-butanol (Magic +/- of that
+  material); they keep their own fitted DNP until scored against the
+  McClellan-fitted P.
 
 * Vacuum interlock (question 3): Ells (2026-10-16), the IONIVAC alarm is
   enough; the interlock need not act on the shells' vacuum. So the live

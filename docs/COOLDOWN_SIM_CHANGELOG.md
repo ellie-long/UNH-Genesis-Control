@@ -7,6 +7,10 @@ findings are in `COOLDOWN_SIM_PROGRESS.md`; questions for the lab are in
 
 ## 2026-10-16
 
+* Question 46 settled: 2024-11, 2025-02, 2025-11 were irradiated d-butanol;
+  schedule relabelled.
+
+
 * Question 3 settled: the IONIVAC alarm is enough (no interlock action).
   Question 20 rephrased: the sim vacuum rework is unblocked, awaiting go-ahead.
 
