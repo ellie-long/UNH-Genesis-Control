@@ -347,7 +347,7 @@ equipment:
     role: Routes the NMR signal path
     link: HTTP 192.168.1.8:80 (confirmed, Ells 2026-10-16)
     prefix: UNH:GEN:SSRF:NMR_SW
-    control: write-enabled
+    control: "write-enabled. NMR ON: http://192.168.1.8/SETP=0 ; NMR OFF: http://192.168.1.8/SETP=3 (turn the ssRF OFF first)"
     map: "-"
     sim: tools/sim_minicircuits_switch.py
     confidence: medium
@@ -357,7 +357,7 @@ equipment:
     role: Routes the ssRF signal path
     link: HTTP 192.168.1.11:80 (confirmed, Ells 2026-10-16)
     prefix: UNH:GEN:SSRF:RF_SW
-    control: write-enabled
+    control: "write-enabled. ssRF ON: http://192.168.1.11/SETP=0 (turn the NMR OFF first) ; ssRF OFF: http://192.168.1.11/SETP=3"
     map: "-"
     sim: tools/sim_minicircuits_switch.py
     confidence: medium
