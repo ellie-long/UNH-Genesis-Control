@@ -129,14 +129,11 @@ named in each item. Numbers are stable: answered items move to *Settled*.
 - [ ] 32. The 62 mW microwave heat (2024-12-17 UCA toggles): the first toggle
       shows ~0.85 slm of extra Roots flow, the later 4-6 min toggles only
       0.22-0.51 slm. Was the boil-off still settling, or is 62 mW high?
-- [ ] 20. Sim vacuum rework, now that 3 is settled (alarm only): feed the
-      shells' vacuum to the IONIVAC (cold-cathode history as its fallback),
-      move the quench vacuum rise there, stop feeding TPG gauge 2 (`OVC_PI`,
-      the bottom Roots gauge, which the record never logged), and turn the
-      `vacuum-trip` scenario into a shells-vacuum ALARM scenario at your
-      limits. Go ahead? (For the live system, the matching fix is to drop the
-      interlock's `OVC_PI` >= 1e-3 mbar rule and add the IONIVAC alarm;
-      timing is question 18.)
+- [ ] 57. Quench and the shells vacuum: does the IONIVAC (shells' vacuum)
+      actually rise during a magnet quench, and roughly how far / how fast?
+      The sim's quench scenario assumes a rise toward 1e-3 Torr (it used to
+      put it on TPG gauge 2); it is an assumption for exercising alarms, not
+      data.
 - [ ] 30. Did LabVIEW read T1 with the transposed range-2 limits (stick 2)?
       If so, recorded T1 between about 3 and 19 K is wrong; at 1 K it is
       unaffected (range 1).
@@ -277,6 +274,12 @@ named in each item. Numbers are stable: answered items move to *Settled*.
     varactors at 0-19 V. Keep a rule, change it, or drop it?
 
 ## Settled
+
+* Sim vacuum rework (question 20): Ells (2026-10-16), go ahead. Do NOT feed
+  TPG gauge 2 (`OVC_PI`, the bottom Roots gauge) from the record (LabVIEW
+  never logged it), but keep it in the live datastream for new data; the
+  `vacuum-trip` scenario should primarily be about the shells' vacuum
+  measured by the IONIVAC.
 
 * Serial device server ports (question 45): from the lab technote 2026-TN-02
   (TXI040, 192.168.1.251) and the TXI017 port setup pages Ells sent
