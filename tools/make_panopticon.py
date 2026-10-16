@@ -429,7 +429,14 @@ def lab_space():
 #: tighter.  (count, y of the first plate, pitch in px)
 UPPER_HX = (5, 414, 26)
 LOWER_HX = (10, 700, 10)
-SEPARATOR = (834, 584, 132, 84)          # x, y, width, height: wider than the column
+#: Fridge parts' diameters (as built, in drawing px at the insert's inch
+#: scale, 13.2 px/in): upper HX plates 6.375", middle 6.9" (the first 6 of
+#: the lower stack), lower 4.84" (its last 4), pumping (main support) tube
+#: 1.75", separator can 4.0" across and 7.0" tall (5.75" body + 2 heads),
+#: inside the fridge column, around the pumping tube
+UPPER_PLATE_W, MIDDLE_PLATE_W, LOWER_PLATE_W, N_MIDDLE = 84, 91, 64, 6
+PUMP_TUBE_W = 23
+SEPARATOR = (874, 580, 53, 93)           # x, y, width, height
 
 #: Insert drawing: each thermometer's marker sits at the sensor's physical
 #: position (x, y) on the fridge insert or magnet, top to bottom: F1 on the
@@ -443,7 +450,7 @@ SEPARATOR = (834, 584, 132, 84)          # x, y, width, height: wider than the c
 CARTOON_MARKERS = {
     # F1 inside the upper insert, halfway from its wall to the pumping tube;
     # F3 under the lowest upper plate; F5 / F6 on the separator's top / bottom
-    "F1": (947, 298), "F2": (873, 403), "F3": (870, 527), "F4": (935, 540), "F5": (893, 579),
+    "F1": (942, 298), "F2": (873, 403), "F3": (870, 527), "F4": (935, 540), "F5": (893, 579),
     "F6": (913, 673), "F8": (913, 702), "F7": (877, 712), "F9": (891, 745), "F10": (927, 765),
     "F11": (873, 800), "T1": (900, 925), "T3": (900, 1000),
     # magnet sensors, right side of the magnet LHe space: M1 on the highest neck baffle,
@@ -689,18 +696,19 @@ def _insert_drawing():
     w.append(rect(846, 408, 108, 424, INSERT, MUTED, name="Shape_Fridge_Can"))
     n, y0, pitch = LOWER_HX
     w.append(rect(850, y0 - 4, 100, 830 - y0 + 4, FRIDGE, FRIDGE_LINE, name="Shape_Fridge_Liquid"))
-    w.append(rect(878, 228, 44, 604, STEEL, name="Shape_Pumping_Tube"))
+    w.append(rect(AXIS_X - PUMP_TUBE_W // 2, 228, PUMP_TUBE_W, 604, STEEL, name="Shape_Pumping_Tube"))
     n, y0, pitch = UPPER_HX
     for i in range(n - 1):
-        for tx in ((858, 896, 934) if i % 2 == 0 else (877, 915)):
+        for tx in ((864, 898, 932) if i % 2 == 0 else (881, 915)):
             w.append(rect(tx, y0 + i * pitch + 4, 3, pitch - 4, COPPER, name=f"Coil_Tube_{i}_{tx}"))
     for stack, (n, y0, pitch) in (("U", UPPER_HX), ("L", LOWER_HX)):
         for i in range(n):
-            w.append(rect(850, y0 + i * pitch, 100, 4 if stack == "U" else 3, BAFFLE,
+            pw = UPPER_PLATE_W if stack == "U" else (MIDDLE_PLATE_W if i < N_MIDDLE else LOWER_PLATE_W)
+            w.append(rect(AXIS_X - pw // 2, y0 + i * pitch, pw, 4 if stack == "U" else 3, BAFFLE,
                           name=f"Baffle_{stack}{i + 1}"))
     sx, sy, sw, sh = SEPARATOR
     w.append(rect(sx, sy, sw, sh, (165, 171, 181), (70, 76, 86), 2, corner=6, name="Shape_Separator"))
-    w.append(label("separator", sx, sy + sh // 2 - 8, sw, 15, 9, True, TEXT, align=1))
+    w.append(label("separator", sx - 6, sy + sh // 2 - 8, sw + 12, 15, 8, True, TEXT, align=1))
     w.append(label("fridge", 952, 812, 40, 14, 8, True, FRIDGE_LINE))
     # magnet-space baffles: 5 in the neck (ring from the wall to the insert),
     # and the magnet-support baffle at 16.5"

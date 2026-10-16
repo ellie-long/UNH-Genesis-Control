@@ -211,7 +211,9 @@ def test_insert_follows_the_sensor_positions_and_trace_colours():
     sep_top, sep_bottom = int(sep.findtext("y")), int(sep.findtext("y")) + int(sep.findtext("height"))
     assert box("Marker_F5")[3] == sep_top and box("Marker_F6")[1] == sep_bottom
     can = widgets["Shape_Fridge_Can"]
-    assert int(sep.findtext("width")) > int(can.findtext("width"))     # the can is wider than the column
+    sep_box = (int(sep.findtext("x")), int(sep.findtext("x")) + int(sep.findtext("width")))
+    can_box = (int(can.findtext("x")), int(can.findtext("x")) + int(can.findtext("width")))
+    assert can_box[0] < sep_box[0] and sep_box[1] < can_box[1]        # the separator is inside the fridge
     for s in ("T1", "T3"):
         assert int(cup.findtext("y")) <= centre_y(f"Marker_{s}") <= int(cup.findtext("y")) + int(cup.findtext("height"))
     for sensor in FRIDGE_ORDER + MAGNET_ORDER:
@@ -227,6 +229,14 @@ def test_insert_follows_the_sensor_positions_and_trace_colours():
 
 def test_heat_exchanger_is_two_stacks_around_the_separator():
     widgets = _by_name()
+    # as-built diameters: upper plates 6.375", lower stack 6 x 6.9" then 4 x 4.84",
+    # all inside the fridge column
+    widths = {n: int(w.findtext("width")) for n, w in widgets.items() if re.fullmatch(r"Baffle_[UL]\d+", n)}
+    can_w = int(widgets["Shape_Fridge_Can"].findtext("width"))
+    assert all(v < can_w for v in widths.values())
+    lower = [widths[f"Baffle_L{i}"] for i in range(1, 11)]
+    assert len(set(lower[:6])) == 1 and len(set(lower[6:])) == 1 and lower[6] < widths["Baffle_U1"] < lower[0]
+    assert abs(lower[6] / widths["Baffle_U1"] - 4.84 / 6.375) < 0.05
 
     def plates(stack):
         ys = sorted(int(w.findtext("y")) for n, w in widgets.items() if re.fullmatch(rf"Baffle_{stack}\d+", n))
