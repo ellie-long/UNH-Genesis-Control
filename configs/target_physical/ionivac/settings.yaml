@@ -13,7 +13,7 @@ general:
 ionivac:
   module: target_ioc.instruments.ionivac
   ip: 192.168.1.251
-  port: 5005
+  port: 5006               # the shells' IONIVAC (TXI040 port 3); :5005 is the pumping-station cart's IONIVAC
   timeout: 2
   delay: 1
   channels:

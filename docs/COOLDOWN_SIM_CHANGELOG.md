@@ -7,6 +7,12 @@ findings are in `COOLDOWN_SIM_PROGRESS.md`; questions for the lab are in
 
 ## 2026-10-16
 
+* IONIVAC port fixed (question 48 settled): the shells' IONIVAC is on TXI040 :5006;
+  :5005 is the portable pumping-station cart's IONIVAC, which Genesis had been
+  reading on every branch. `configs/target_physical/ionivac` -> 5006 (dev-sim;
+  the live system needs the same change).
+
+
 * Confirmed (Ells): LS224 #2 at 192.168.1.13 (`ls224_magnet`) carries both the
   magnet (M1-M5) and the target thermometry (T1, T3); channel map updated.
 

@@ -29,7 +29,7 @@ settings.yaml
     ionivac:
       module: 'target_ioc.instruments.ionivac'
       ip: '192.168.1.251'      # the gateway
-      port: 5005               # gateway serial port the IONIVAC is on
+      port: 5006               # gateway port of the shells' IONIVAC (5005 is the pumping-station cart's)
       timeout: 2
       delay: 1
       channels: [Ion]

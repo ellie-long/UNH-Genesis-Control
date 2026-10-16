@@ -208,13 +208,13 @@ equipment:
   - genesis: ionivac
     equipment: Leybold IONIVAC combination gauge
     role: "Vacuum of the 'shells' separating the fridge space from the magnet space (Ells 2026-10-15); streams binary telegrams, never queried"
-    link: RS-232 via serial gateway 192.168.1.251:5005
+    link: RS-232 via serial gateway 192.168.1.251:5006 (TXI040 port 3)
     prefix: UNH:GEN:CRYO:ION
     control: read-only
     map: ionivac.Ion
     sim: IONIVAC emulator
     confidence: high
-    note: "PORT MISMATCH (2026-10-16): the lab's serial-server technote puts the IONIVAC on TXI040 port 3 = TCP 5006 (9600 8N1) and a 'Pumping Station' on TCP 5005, where Genesis connects (open question 48). Ells 2026-10-15: the shells' vacuum. Ells 2026-10-16: very important to track; alarm above 1e-4 Torr with the magnet bottom > 300 K, above 1e-5 Torr with it < 80 K (Genesis has HIGH/HIHI 800/900 Torr; open questions 25, 39)"
+    note: "Ells 2026-10-16: the lab has TWO IONIVACs. The one on the shells (the important one) is on TXI040 :5006; the other is on the portable pumping station (a cart with roughing and turbo pumps, moved around the lab) on :5005. Genesis connected to :5005, i.e. read the cart, until the dev-sim fix (question 48). Alarm limits: above 1e-4 Torr with the magnet bottom > 300 K, above 1e-5 Torr below 80 K (Genesis has HIGH/HIHI 800/900 Torr; open questions 25, 39)"
   - genesis: ls455
     equipment: Lake Shore 455 DSP gaussmeter
     role: Magnet fringe field
@@ -237,13 +237,13 @@ equipment:
   - genesis: (serial gateway)
     equipment: DIE WU TXI040 8-port RS-232/422/485 serial device server
     role: Carries Genesis's four RS-232 instruments (MKS 902B, IONIVAC, LS455, TPG 262)
-    link: 192.168.1.251, TCP ports 5004 / 5005 / 5007 / 5011
+    link: 192.168.1.251, TCP ports 5004 / 5006 / 5007 / 5011
     prefix: "-"
     control: transport only
     map: "-"
     sim: the emulators listen on loopback instead
     confidence: high
-    note: "Ells 2026-10-16: a DIE WU TXI040 (8 serial ports to Ethernet) with 7 devices plugged in; Genesis uses 4 of them. Port map (lab technote 2026-TN-02, all TCP server mode, 1 connection): 1 Manometer_HI :5004 (9600 8N1); 2 Pumping Station :5005 (9600 8N1); 3 Ionivac :5006 (9600 8N1); 4 Fringe Field :5007 (19200 7O1); 5 ROOTS :5011 (19200 8N1, the TPG 262); 6 left_Roots_Pump :5012 (19200 8N1); 7 Separator_Pump :5013 (19200 8N1); 8 vacant, but set to :5011, the same TCP port as port 5. Genesis's IONIVAC uses :5005 (open questions 48-50)"
+    note: "Ells 2026-10-16: a DIE WU TXI040 (8 serial ports to Ethernet) with 7 devices plugged in; Genesis uses 4 of them. Port map (lab technote 2026-TN-02, all TCP server mode, 1 connection): 1 Manometer_HI :5004 (9600 8N1); 2 Pumping Station :5005 (9600 8N1; the portable cart's IONIVAC); 3 Ionivac :5006 (9600 8N1; the shells'); 4 Fringe Field :5007 (19200 7O1); 5 ROOTS :5011 (19200 8N1, the TPG 262); 6 left_Roots_Pump :5012 (19200 8N1); 7 Separator_Pump :5013 (19200 8N1); 8 vacant, but set to :5011, the same TCP port as port 5. Genesis's IONIVAC used :5005 (the cart) until fixed to :5006 (question 48)"
   - genesis: (serial gateway 2)
     equipment: DIE WU TXI017 4-port RS-232/485/422 serial device server
     role: "Serial-to-Ethernet for the magnet's two instruments, neither in Genesis yet: port 1 Magnet_IPS (TCP 5001, 9600 8N2, RS-232; the magnet power supply, presumably the Oxford IPS120-10), port 2 Magnet_LHE_Prob (TCP 23, 9600 8N1, RS-232; the magnet LHe level probe). Both TCP server mode, 1 connection (Ells 2026-10-16, port setup pages)"

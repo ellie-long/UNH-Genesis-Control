@@ -74,7 +74,9 @@ lab answers are in `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`.
   to rerun once the live demo session is closed.
 
 ### 2026-10-16: serial servers mapped; IONIVAC port mismatch
-* **Finding (live system): the IONIVAC IOC may be on the wrong port.** Every
+* **Finding (live system): the IONIVAC IOC was on the wrong port (CONFIRMED,
+  fixed on dev-sim).** Ells: two IONIVACs; :5006 is the shells', :5005 the
+  portable pumping-station cart's. Every
   branch's `configs/target_physical/ionivac` connects to 192.168.1.251:5005;
   the lab's serial-server technote (2026-TN-02) has the Ionivac on TXI040
   port 3 = TCP 5006 and a "Pumping Station" on 5005 (question 48). If so,

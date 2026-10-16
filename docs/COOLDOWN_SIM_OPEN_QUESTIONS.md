@@ -9,16 +9,12 @@ named in each item. Numbers are stable: answered items move to *Settled*.
 ## Checklist (all open items)
 
 **Equipment and wiring**
-- [ ] 48. **IONIVAC port (live, likely bug):** Genesis's IONIVAC IOC connects
-      to 192.168.1.251:5005 (on every branch), but the serial-server technote
-      (2026-TN-02) puts the Ionivac on TXI040 port 3 = TCP 5006 and a
-      "Pumping Station" on 5005. Does live Genesis show a sensible shells
-      vacuum? If the technote is right, the config should be 5006.
 - [ ] 49. Models, and Genesis priority: (a) `Magnet_IPS` on the TXI017
       (TCP 5001, 9600 8N2) -- the Oxford IPS120-10? (b) `Magnet_LHE_Prob`
-      (TCP 23) -- which level meter (AMI model)? (c) on the TXI040: the
-      "Pumping Station" (5005), `left_Roots_Pump` (5012) and
-      `Separator_Pump` (5013) -- what are they, and do they belong in Genesis?
+      (TCP 23) -- which level meter (AMI model)? (c) Should the portable
+      pumping station's IONIVAC (:5005) get its own Genesis IOC (e.g. a
+      second ionivac device, "cart vacuum")? (d) `left_Roots_Pump` (5012) and
+      `Separator_Pump` (5013): what are they, and do they belong in Genesis?
 - [ ] 50. (Housekeeping) TXI040 port 8 is vacant but set to TCP 5011, the
       same as port 5 (the TPG 262 that Genesis uses); give it a free port
       (e.g. 5014) before anything is plugged in. TXI017 port 2 uses TCP 23
@@ -271,6 +267,14 @@ named in each item. Numbers are stable: answered items move to *Settled*.
     varactors at 0-19 V. Keep a rule, change it, or drop it?
 
 ## Settled
+
+* IONIVAC port (question 48): Ells (2026-10-16), there are TWO IONIVACs. The
+  shells' one (the important one) is on TXI040 :5006; :5005 is the IONIVAC
+  on the portable pumping station (a cart with roughing and turbo pumps,
+  moved around the lab). Genesis's IONIVAC IOC connected to :5005 on every
+  branch, so live Genesis has been showing the cart's vacuum as the shells'.
+  Fixed on dev-sim (`configs/target_physical/ionivac/settings.yaml` -> 5006);
+  the live system needs the same one-line change.
 
 * Magic +/- constants (question 34): Ells (2026-10-16), GHz/T:
   TEMPO d-butanol 28.0527 / 28.0919; trityl d-propanediol 28.0316 / 28.0468;
