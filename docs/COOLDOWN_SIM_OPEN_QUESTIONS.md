@@ -140,8 +140,7 @@ named in each item. Numbers are stable: answered items move to *Settled*.
       If so, recorded T1 between about 3 and 19 K is wrong; at 1 K it is
       unaffected (range 1).
 - [ ] 22. Try an interactive rehearsal (guide section 2) in Phoebus.
-- [ ] 23. Push `dev-sim` and merge into `elong`? Before any push: squash
-      `642e0f3` into `d6a9045` (an early wording of question 10).
+- [ ] 23. Merge into `elong` (and push `dev-sim` itself)? Your call.
 
 ## Details
 
@@ -276,6 +275,12 @@ named in each item. Numbers are stable: answered items move to *Settled*.
     varactors at 0-19 V. Keep a rule, change it, or drop it?
 
 ## Settled
+
+* Push (question 23, part): Ells (2026-10-16), push `dev-visualizer` (it
+  carries all of dev-sim) so others can run the Panopticon; quick start in
+  `docs/PANOPTICON_QUICK_START.md` (dev-visualizer). The planned squash of the
+  LZY-22+ commit with the question-10 note was done first (one commit,
+  identical files).
 
 * NMR / ssRF switches (Ells, 2026-10-16): NMR switch 192.168.1.8: /SETP=0 =
   NMR ON, /SETP=3 = NMR OFF. ssRF switch 192.168.1.11: /SETP=0 = ssRF ON,
