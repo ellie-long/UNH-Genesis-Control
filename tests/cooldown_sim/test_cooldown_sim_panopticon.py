@@ -19,6 +19,7 @@ from cooldown_sim.testing import softioc_stub
 
 ROOT = Path(__file__).resolve().parents[2]
 BOB = ROOT / "gui" / "genesis_panopticon.bob"
+HIST_SETTINGS = ROOT / "configs" / "target_physical" / "trend_history" / "settings.yaml"
 
 #: Genesis IOC profiles whose records the screen may show
 CONFIG_DIRS = ("configs/target_physical", "configs/commissioning/microwave_physical",
@@ -55,6 +56,15 @@ def _fitter_records():
         return {f"{mod.DEFAULT_PREFIX}:{name}" for name in stub.builder.records}
 
 
+def history_pvs() -> dict[str, str | None]:
+    """{trend-history PV: the source PV it trends (None for TIME/T_REF/status)},
+    built by the IOC's own code from its settings."""
+    cfg = yaml.safe_load(HIST_SETTINGS.read_text(encoding="utf-8"))
+    with softioc_stub.installed():
+        mod = importlib.import_module("logic_devices.trend_history")
+        return mod.published_pvs(cfg["general"]["prefix"], cfg["trend_history"])
+
+
 def served_pvs() -> set[str]:
     """PV names some Genesis IOC serves: its profile's records, the standard
     instrument health PVs, the logic IOCs' records (cooldown_sim.pvlist, built
@@ -77,6 +87,7 @@ def served_pvs() -> set[str]:
             served.update(f"{prefix}:{n}" for n in names)
     served.update(f"UNH:GEN:SSRF:SEQ:{n}" for n in pvlist.SSRF_SEQ_PVS)
     served |= _fitter_records()
+    served |= set(history_pvs())
     return served
 
 
@@ -142,14 +153,19 @@ def test_placeholders_are_grey_and_have_no_pv():
     assert text.count(f"<text>{gen.NOT_YET}</text>") >= 25
 
 
+def _trends():
+    return {w.findtext("name"): w for w in _widgets() if w.findtext("name").startswith("Trend_")}
+
+
 def _trace_colours():
+    """{ca://source PV: trace colour} of every trend (history arrays mapped to their source)."""
+    sources = history_pvs()
     colours = {}
-    for w in _widgets():
-        if w.get("type") != "stripchart":
-            continue
+    for w in _trends().values():
         for trace in w.iter("trace"):
             c = trace.find("color/color")
-            colours[trace.findtext("y_pv")] = (int(c.get("red")), int(c.get("green")), int(c.get("blue")))
+            pv = sources[trace.findtext("y_pv").removeprefix("ca://")]
+            colours[f"ca://{pv}"] = (int(c.get("red")), int(c.get("green")), int(c.get("blue")))
     return colours
 
 
@@ -387,10 +403,54 @@ def test_leader_lines_are_clear():
                 assert not gen.runs_along(y0, x0, x1, dark), s
 
 
+def test_trends_are_history_plots_full_on_open():
+    """No strip chart (they start blank on every open): every trend is an XY plot
+    of the trend-history IOC's arrays, each trace on its own group's time base."""
+    assert not [w.findtext("name") for w in _widgets() if w.get("type") == "stripchart"]
+    sources = history_pvs()
+    trends = _trends()
+    assert set(trends) == {"Trend_MagnetThermometry", "Trend_FridgePressures", "Trend_FridgeThermometry",
+                           "Trend_ShellsVacuum", "Trend_Polarization"}
+    for name, w in trends.items():
+        assert w.get("type") == "xyplot" and w.get("version") == "3.0.0", name
+        for trace in w.iter("trace"):
+            x, y = trace.findtext("x_pv").removeprefix("ca://"), trace.findtext("y_pv").removeprefix("ca://")
+            group = y.rsplit(":", 1)[0]
+            assert x == f"{group}:TIME" and x in sources, (name, x, y)
+            assert sources[y], (name, y)                    # a trended source, not a status PV
+            assert trace.findtext("trace_type") == "1", name   # lines; unfilled slots are NaN
+    # the history covers the PVs the strip charts plotted, in the same order and colours
+    want = {"Trend_MagnetThermometry": [f"UNH:GEN:CRYO:MAG:{s}_TI" for s in ("M1", "M2", "M3", "M4", "M5")],
+            "Trend_FridgePressures": ["UNH:GEN:CRYO:CELL:Cell_PI", "UNH:GEN:CRYO:VAC:Pump_PI",
+                                      "UNH:GEN:CRYO:VAC:OVC_PI"],
+            "Trend_ShellsVacuum": ["UNH:GEN:CRYO:ION:Ion_PI"],
+            "Trend_Polarization": [f"UNH:GEN:SSRF:FIT:{n}" for n in ("P_AREA", "P_FIT", "Q_FIT", "Q_EQ")]}
+    for name, pvs in want.items():
+        assert [sources[t.findtext("y_pv").removeprefix("ca://")] for t in trends[name].iter("trace")] == pvs
+    # the TPG gauges (mbar) are shown in Torr: the history IOC scales them
+    cfg = yaml.safe_load(HIST_SETTINGS.read_text(encoding="utf-8"))["trend_history"]["groups"]["PRESS"]
+    assert {k: v.get("scale", 1.0) for k, v in cfg["sources"].items()} == \
+        {"Cell_PI": 1.0, "Pump_Torr": 0.750062, "OVC_Torr": 0.750062}
+
+
 def test_trends_have_the_daq_windows_and_log_pressures():
-    charts = {w.findtext("name"): w for w in _widgets() if w.get("type") == "stripchart"}
-    assert charts["Trend_ShellsVacuum"].findtext("start") == "2 days"
-    assert charts["Trend_Polarization"].findtext("start") == "3 hours"
+    charts = _trends()
+    gen = _generator()
+    # the DAQ windows: x from -window to 0 (now); the shells vacuum in hours
+    span = {"Trend_MagnetThermometry": (-15, "min"), "Trend_FridgeThermometry": (-40, "min"),
+            "Trend_FridgePressures": (-60, "min"), "Trend_Polarization": (-180, "min"),
+            "Trend_ShellsVacuum": (-48, "h")}
+    hist = yaml.safe_load(HIST_SETTINGS.read_text(encoding="utf-8"))["trend_history"]
+    for name, (lo, unit) in span.items():
+        xa = charts[name].find("x_axis")
+        assert float(xa.findtext("minimum")) == lo and float(xa.findtext("maximum")) == 0, name
+        assert xa.findtext("autoscale") == "false" and f"({unit}, 0 = now)" in xa.findtext("title"), name
+        group = charts[name].find("traces/trace/y_pv").text.removeprefix("ca://").split(":")[3]
+        g = hist["groups"][group]
+        assert g.get("time_unit", hist["time_unit"]) == unit == gen.HIST_UNITS[group], name
+        # the history holds more than the window shown (zoom out to see it)
+        window_s = g.get("window", hist["window"])
+        assert window_s >= -lo * {"min": 60, "h": 3600}[unit], name
     for name in ("Trend_ShellsVacuum", "Trend_FridgePressures"):
         assert {a.findtext("log_scale") for a in charts[name].iter("y_axis")} == {"true"}, name
     # one common scale: all pressures in Torr, all polarizations in %
@@ -403,9 +463,6 @@ def test_trends_have_the_daq_windows_and_log_pressures():
     for w in charts.values():                    # log axes must not autoscale (a 0 reading breaks them)
         for a in w.iter("y_axis"):
             assert not (a.findtext("log_scale") == "true" and a.findtext("autoscale") == "true"), w.findtext("name")
-    for w in charts.values():
-        assert w.get("version") == "2.1.0"          # 'start' is the 2.1.0 time-range property
-        assert w.findtext("start")
 
 
 def test_polarization_headline_is_the_area_method():

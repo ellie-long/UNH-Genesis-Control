@@ -64,6 +64,13 @@ findings are in `COOLDOWN_SIM_PROGRESS.md`; questions for the lab are in
   list; no Magic constants yet). The read-only guard test now allows the
   material combo only; tests added.
 
+* (dev-visualizer) Trend history service: new Genesis logic IOC
+  `logic_devices/trend_history.py` (prefix `UNH:GEN:HIST`) keeps 6 h (shells
+  vacuum 2 days) of the Panopticon's trended PVs as waveform PVs, back-filled
+  from the archiver's CSVs at start-up; the Panopticon's strip charts are now
+  XY plots of those arrays, so they are full the moment the screen opens.
+  Launched by the sim with the cryo leg (CA 6123); not in the live IOC
+  manager (live deployment is Ells's call).
 
 * Irradiated d-butanol now uses its own MEASURED microwave lineshape, from
   the 2024-09-18 slow sweep (beta peak 28.023 GHz/T, x_opt 28.021 -> 28.023;

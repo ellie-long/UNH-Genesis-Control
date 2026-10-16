@@ -44,6 +44,16 @@ OUTPUT_PATHS = {
     "session_data_root": "archive/sessions",
 }
 
+#: input-path key -> the run's generated file it must read instead (the trend
+#: history back-fills from the archiver the run launched, not the live one)
+RUN_INPUTS = {
+    "archiver_settings": "profiles/cryo/archiver/settings.yaml",
+}
+
+#: The online fitter's live CA server port (scripts/start_ssrf_physical.sh:
+#: EPICS_CAS_SERVER_PORT=5100); a logic IOC that reads fitter PVs lists it.
+CANONICAL_FITTER_CA = 5100
+
 #: never rewritten, by profile generation or by scenarios
 SAFETY_KEYS = frozenset({"write_enabled", "simulation", "execution_mode",
                          "execution_enabled", "apply_enabled", "initialize_on_connect"})
@@ -110,10 +120,12 @@ def _load(path: Path) -> dict:
         return yaml.safe_load(fh)
 
 
-def leg_entries(stacks: dict, leg: str) -> list[tuple[str, dict, str]]:
-    """(entry name, stack spec, manager path) for every IOC of a leg."""
+def leg_entries(stacks: dict, leg: str) -> list[tuple[str, dict, str | None]]:
+    """(entry name, stack spec, manager path) for every IOC of a leg.  A leg
+    without a manager (``history``: a Genesis IOC not in a live manager yet)
+    names ``settings_folder`` and ``ioc`` in each stack spec; manager is None."""
     block = stacks["legs"][leg]
-    out = [(name, spec, block["manager"]) for name, spec in block.get("iocs", {}).items()]
+    out = [(name, spec, block.get("manager")) for name, spec in block.get("iocs", {}).items()]
     for name, spec in block.get("borrowed", {}).items():
         out.append((name, spec, spec["manager"]))
     return out
@@ -126,7 +138,18 @@ def canonical_to_replay(stacks: dict, offset: int = 0, root: Path = REPO_ROOT) -
         for name, spec, manager in leg_entries(stacks, leg):
             entry = _load(root / manager)[name]
             mapping[int(entry["ca_server_port"])] = int(spec["ca"]) + offset
+    mapping[CANONICAL_FITTER_CA] = int(stacks["legs"]["nmr"]["fitter"]["ca"]) + offset
     return mapping
+
+
+def with_companion_legs(legs, stacks: dict) -> tuple:
+    """``legs`` plus every manager-less leg launched alongside one of them
+    (``history`` rides with ``cryo``)."""
+    out = list(legs)
+    for name, block in stacks["legs"].items():
+        if block.get("with_leg") in out and name not in out:
+            out.append(name)
+    return tuple(out)
 
 
 def map_addr_list(value: str, mapping: dict[int, int]) -> str:
@@ -169,9 +192,9 @@ def generate(run_dir: Path, legs=("cryo", "ssrf", "mw"), *, offset: int = 0,
             if (ioc_key, setting) not in SCENARIO_OVERRIDABLE:
                 raise ValueError(f"scenario may not override {ioc_key}.{setting}")
 
-    for leg in legs:
+    for leg in with_companion_legs(legs, stacks):
         for name, spec, manager in leg_entries(stacks, leg):
-            entry = _load(root / manager)[name]
+            entry = _load(root / manager)[name] if manager else spec
             folder = entry["settings_folder"]
             ioc_key = entry["ioc"]
             src = root / folder / "settings.yaml"
@@ -206,6 +229,12 @@ def generate(run_dir: Path, legs=("cryo", "ssrf", "mw"), *, offset: int = 0,
                 if key in block:
                     value = str(run_dir / rel_path)
                     note(f"{ioc_key}.{key}", block[key], value, "run-directory output")
+                    block[key] = value
+
+            for key, rel_path in RUN_INPUTS.items():
+                if key in block:
+                    value = str(run_dir / rel_path)
+                    note(f"{ioc_key}.{key}", block[key], value, "run-directory input")
                     block[key] = value
 
             for setting, value in overrides.get(ioc_key, {}).items():

@@ -60,6 +60,16 @@ legs:
         ca: 6143
         pva: 6243
 
+  history:
+    # Trend history (logic_devices/trend_history.py): a NEW Genesis logic IOC,
+    # not in any live IOC manager yet, so its stack entry names its canonical
+    # settings folder itself.  Launched with the cryo leg (it back-fills from
+    # the cryo archiver's CSVs and trends cryo and fitter PVs).
+    with_leg: cryo
+    iocs:
+      trend_history: {settings_folder: configs/target_physical/trend_history, ioc: trend_history,
+                      ca: 6123, pva: 6223}
+
   nmr:
     # online_fitter.epics_run (not a master_ioc IOC).
     fitter: {ca: 6100, pva: 6200, fit_port: 16777, publish_port: 16778, pynmr_port: 16779}

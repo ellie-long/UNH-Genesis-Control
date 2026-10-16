@@ -20,10 +20,16 @@ links to the subsystem screens, where the controls are.
 
 Trend windows follow the DAQ screen (magnet thermometry 15 min, fridge
 thermometry 40 min, pressures 1 h, polarization 3 h, shells vacuum 2 days).
-Strip charts plot what arrives while the screen is open: Phoebus can only
-back-fill them from an archive data source it knows (e.g. an Archiver
-Appliance), and the Genesis CSV archive is not one.  Their time axis is wall
-time, so under the simulator at speed N a window spans N times as much
+The trends are XY plots of the trend-history IOC's arrays
+(logic_devices/trend_history.py, prefix UNH:GEN:HIST), not strip charts: a
+strip chart only plots what arrives while the screen is open (Phoebus can
+back-fill one only from an archive data source it knows, and the Genesis CSV
+archive is not one), so it started blank on every open or reload.  The
+history IOC keeps 6 h (shells vacuum 2 days) and back-fills from the CSV
+archive at start-up, so the plots are full the moment the screen opens; zoom
+out (toolbar) to see more than the DAQ window.  The x axis is time relative
+to now in minutes (hours for the shells vacuum), 0 = the newest sample; it is
+wall time, so under the simulator at speed N a window spans N times as much
 simulated time.
 """
 
@@ -42,6 +48,7 @@ OUT = ROOT / "gui" / "genesis_panopticon.bob"
 W, H = 1900, 915
 
 CRYO = "UNH:GEN:CRYO"
+HIST = "UNH:GEN:HIST"
 FIT = "UNH:GEN:SSRF:FIT"
 SSRF = "UNH:GEN:SSRF"
 MW = "UNH:GEN:MW"
@@ -242,29 +249,45 @@ def placeholder_plot(key, title, x, y, w, h, what):
                     tooltip=tip))
 
 
-def stripchart(key, title, x, y, w, h, traces, axes, time_range):
-    """traces: (name, pv, rgb, axis); axes: (title, log, minimum, maximum).
+def hist(group, key):
+    """A trend-history array: UNH:GEN:HIST:<group>:<key> (TIME is the group's time base)."""
+    return f"{HIST}:{group}:{key}"
 
-    Linear axes autoscale.  Log axes keep their fixed range: autoscaling a log
-    axis breaks (a 1E-323 lower limit) as soon as a trace holds a 0, as it
-    does before an IOC's first reading."""
+
+#: time unit of each trend-history group (configs/target_physical/trend_history)
+HIST_UNITS = {"MAG": "min", "FRIDGE": "min", "PRESS": "min", "POL": "min", "SHELLS": "h"}
+
+
+def history_plot(key, title, x, y, w, h, group, traces, axes, span):
+    """An XY plot of trend-history arrays: x = the group's TIME (relative to
+    now, negative, in HIST_UNITS[group]), shown from -span to 0.
+
+    traces: (name, history key, rgb, axis); axes: (title, log, minimum, maximum).
+    Linear y axes autoscale.  Log axes keep their fixed range: autoscaling a
+    log axis breaks (a 1E-323 lower limit) as soon as a trace holds a 0.
+    Unfilled history slots are NaN, so nothing is drawn there."""
+    small = '<font family="Liberation Sans" style="REGULAR" size="9.0"/>'
+    fonts = f"<title_font>{small}</title_font><scale_font>{small}</scale_font>"
+    unit = HIST_UNITS[group]
+    xa = (f"<x_axis><title>Time ({unit}, 0 = now)</title><autoscale>false</autoscale>"
+          f"<log_scale>false</log_scale><minimum>{-span}.0</minimum><maximum>0.0</maximum>"
+          f"<show_grid>true</show_grid>{fonts}<visible>true</visible></x_axis>")
     ax = "".join(
         f"<y_axis><title>{escape(t)}</title><autoscale>{str(not log).lower()}</autoscale>"
         f"<log_scale>{str(log).lower()}</log_scale>"
-        f"<minimum>{lo}</minimum><maximum>{hi}</maximum><show_grid>true</show_grid><visible>true</visible>"
-        f"</y_axis>" for t, log, lo, hi in axes)
+        f"<minimum>{lo}</minimum><maximum>{hi}</maximum><show_grid>true</show_grid>{fonts}"
+        f"<visible>true</visible></y_axis>" for t, log, lo, hi in axes)
     tr = "".join(
-        f"<trace><name>{escape(n)}</name><y_pv>{escape(pvref(pv))}</y_pv><axis>{a}</axis><trace_type>1</trace_type>"
+        f"<trace><name>{escape(n)}</name><x_pv>ca://{hist(group, 'TIME')}</x_pv>"
+        f"<y_pv>ca://{hist(group, k)}</y_pv><axis>{a}</axis><trace_type>1</trace_type>"
         f"<color>{col(rgb)}</color><line_width>2</line_width><point_type>0</point_type>"
-        f"<point_size>4</point_size><visible>true</visible></trace>" for n, pv, rgb, a in traces)
-    small = '<font family="Liberation Sans" style="REGULAR" size="9.0"/>'
-    return (f'<widget type="stripchart" version="2.1.0"><name>Trend_{key}</name>'
+        f"<point_size>4</point_size><visible>true</visible></trace>" for n, k, rgb, a in traces)
+    return (f'<widget type="xyplot" version="3.0.0"><name>Trend_{key}</name>'
             f"<x>{x}</x><y>{y}</y><width>{w}</width><height>{h}</height>"
             f"<title>{escape(title)}</title>"
             f'<title_font><font family="Liberation Sans" style="BOLD" size="10.0"/></title_font>'
-            f"<label_font>{small}</label_font><scale_font>{small}</scale_font>"
             f"<show_toolbar>true</show_toolbar><show_legend>false</show_legend>"
-            f"<show_grid>true</show_grid><start>{time_range}</start><y_axes>{ax}</y_axes><traces>{tr}</traces></widget>")
+            f"{xa}<y_axes>{ax}</y_axes><traces>{tr}</traces></widget>")
 
 
 def key(x, y, items, wid):
@@ -318,9 +341,9 @@ def magnet_space():
     w = [card("Magnet Space", x, y, 610, 232, "Magnet", ("Magnet", "genesis_cryo_magnet.bob"))]
     w.append(placeholder_plot("MagnetLevelTrend", "Magnet LHe level (AMI meter), 40 min",
                               12, 80, 160, 192, "Magnet LHe level meter (AMI)"))
-    w.append(stripchart("MagnetThermometry", "Magnet thermometry (K)", 178, 80, 330, 176,
-                        [(s, thermometer_pv(s), c, 0) for s, c in MAGNET_T.items()],
-                        [("K", False, 0, 10)], "15 minutes"))
+    w.append(history_plot("MagnetThermometry", "Magnet thermometry (K)", 178, 80, 330, 176, "MAG",
+                          [(s, f"{s}_TI", c, 0) for s, c in MAGNET_T.items()],
+                          [("K", False, 0, 10)], 15))
     w.append(key(196, 258, list(MAGNET_T.items()), 60))
     # magnet LHe level bar: 0-31 inch, alarm at 20", magnet top at 16.5"
     top, h = 100, 136
@@ -354,16 +377,17 @@ def fridge_space():
     w = [card("Fridge Space", x, y, 610, 410, "Fridge", ("Fridge", "genesis_cryo_fridge.bob"))]
     w.append(placeholder_plot("FlowTrend", "Flows: separator, Roots L / R / total (1 h)",
                               12, 314, 170, 150, "Flow meters (separator, Roots L/R)"))
-    w.append(stripchart("FridgePressures", "Pressures (Torr, log)", 12, 470, 170, 200,
-                        [("Mano. Hi", f"{CRYO}:CELL:Cell_PI", (230, 110, 0), 0),
-                         ("Roots top", torr_from_mbar(f"{CRYO}:VAC:Pump_PI"), (220, 0, 160), 0),
-                         ("Roots bottom", torr_from_mbar(f"{CRYO}:VAC:OVC_PI"), (120, 40, 200), 0)],
-                        [("Torr", True, 0.01, 100)], "1 hour"))
+    # the history IOC converts the TPG 262's mbar to Torr (Pump_Torr, OVC_Torr)
+    w.append(history_plot("FridgePressures", "Pressures (Torr, log)", 12, 470, 170, 200, "PRESS",
+                          [("Mano. Hi", "Cell_PI", (230, 110, 0), 0),
+                           ("Roots top", "Pump_Torr", (220, 0, 160), 0),
+                           ("Roots bottom", "OVC_Torr", (120, 40, 200), 0)],
+                          [("Torr", True, 0.01, 100)], 60))
     w.append(key(12, 672, [("Mano. Hi", (230, 110, 0)), ("Roots top", (220, 0, 160)),
                            ("Roots bot.", (120, 40, 200))], 56))
-    w.append(stripchart("FridgeThermometry", "Fridge thermometry (K, log)", 188, 314, 282, 224,
-                        [(s, thermometer_pv(s), c, 0) for s, c in FRIDGE_T.items()],
-                        [("K", True, 0.5, 300)], "40 minutes"))
+    w.append(history_plot("FridgeThermometry", "Fridge thermometry (K, log)", 188, 314, 282, 224, "FRIDGE",
+                          [(s, f"{s}_TI", c, 0) for s, c in FRIDGE_T.items()],
+                          [("K", True, 0.5, 300)], 40))
     w.append(placeholder_plot("FridgeLevelTrend", "Fridge LHe level (AMI meter), 6 h",
                               188, 544, 282, 142, "Fridge LHe level meter (AMI)"))
     for i, (kind, ref, caption, what) in enumerate(FRIDGE_READOUTS):
@@ -379,9 +403,9 @@ def fridge_space():
 def shells_space():
     x, y = 4, 698
     w = [card("Shells Space", x, y, 304, 213, "Shells")]
-    w.append(stripchart("ShellsVacuum", "Shells (insulating) vacuum, log", 12, 728, 214, 176,
-                        [("IONIVAC", f"{CRYO}:ION:Ion_PI", (110, 50, 200), 0)],
-                        [("Torr", True, 1e-8, 1e-3)], "2 days"))
+    w.append(history_plot("ShellsVacuum", "Shells (insulating) vacuum, log", 12, 728, 214, 176, "SHELLS",
+                          [("IONIVAC", "Ion_PI", (110, 50, 200), 0)],
+                          [("Torr", True, 1e-8, 1e-3)], 48))
     w.append(field("IONIVAC", f"{CRYO}:ION:Ion_PI", 232, 728, 72, 10, prec=2, fmt=2))
     w.append(field("Gauge comm", f"{CRYO}:ION:COMM", 232, 772, 72, 9, bold=False))
     return w
@@ -726,13 +750,13 @@ def nmr():
     # the processed NMR signal above the polarization history, right of the column
     px, pw = 1146, 490
     w.append(nmr_plot(px, 104, pw, 230))
-    w.append(stripchart("Polarization", "P area (green), P fit (grey), Q fit (magenta), Q eq (orange)",
-                        px, 338, pw, 226,
-                        [("P area", f"{FIT}:P_AREA", (0, 140, 40), 0),
-                         ("P fit", f"{FIT}:P_FIT", (140, 140, 140), 0),
-                         ("Q fit", f"{FIT}:Q_FIT", (200, 0, 160), 0),
-                         ("Q eq", f"{FIT}:Q_EQ", (225, 135, 0), 0)],
-                        [("%", False, -60, 60)], "3 hours"))
+    w.append(history_plot("Polarization", "P area (green), P fit (grey), Q fit (magenta), Q eq (orange)",
+                          px, 338, pw, 226, "POL",
+                          [("P area", "P_AREA", (0, 140, 40), 0),
+                           ("P fit", "P_FIT", (140, 140, 140), 0),
+                           ("Q fit", "Q_FIT", (200, 0, 160), 0),
+                           ("Q eq", "Q_EQ", (225, 135, 0), 0)],
+                          [("%", False, -60, 60)], 180))
     return w
 
 

@@ -35,8 +35,19 @@ def stack(tmp_path_factory):
 
 def test_every_replay_ioc_generated(stack):
     stacks = ports.load_stacks()
-    expected = {name for leg in ("cryo", "ssrf", "mw") for name, _s, _m in profile.leg_entries(stacks, leg)}
+    legs = profile.with_companion_legs(("cryo", "ssrf", "mw"), stacks)
+    assert "history" in legs                                # the trend history rides with cryo
+    expected = {name for leg in legs for name, _s, _m in profile.leg_entries(stacks, leg)}
     assert {s.name for s in stack.iocs} == expected
+
+
+def test_trend_history_reads_the_runs_archiver(stack):
+    spec = stack.by_name("trend_history")
+    generated = yaml.safe_load((Path(spec.folder) / "settings.yaml").read_text())
+    archiver = Path(generated["trend_history"]["archiver_settings"])
+    assert archiver == Path(stack.by_name("archiver").folder) / "settings.yaml"
+    # the fitter's live CA port maps to the replay fitter
+    assert "127.0.0.1:6100" in generated["general"]["epics_addr_list"].split()
 
 
 def test_only_allowlisted_keys_differ(stack):
@@ -48,6 +59,7 @@ def test_only_allowlisted_keys_differ(stack):
         allowed = {"general.epics_addr_list"}
         allowed |= {f"{spec.ioc}.{k}" for k in profile.ENDPOINT_KEYS}
         allowed |= {f"{spec.ioc}.{k}" for k in profile.OUTPUT_PATHS}
+        allowed |= {f"{spec.ioc}.{k}" for k in profile.RUN_INPUTS}
         differing = {k for k in a if a[k] != b[k]}
         assert differing <= allowed, (spec.name, differing - allowed)
 

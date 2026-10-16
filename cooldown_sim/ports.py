@@ -74,6 +74,9 @@ def replay_endpoints(stacks: dict | None = None, offset: int = 0) -> list[Endpoi
                 add(spec["emulator"]["port"], f"{leg}/{name}", "emulator")
             if "simulator" in spec:
                 add(spec["simulator"]["port"], f"{leg}/{name}", "simulator")
+    for name, spec in legs.get("history", {}).get("iocs", {}).items():
+        add(spec["ca"], f"history/{name}", "ca")
+        add(spec["pva"], f"history/{name}", "pva")
     fitter = legs["nmr"]["fitter"]
     add(fitter["ca"], "nmr/fitter", "ca")
     add(fitter["pva"], "nmr/fitter", "pva")

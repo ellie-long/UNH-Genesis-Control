@@ -57,6 +57,39 @@ lab answers are in `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`.
   the supervisor settings (both commissioning configs). Still to do: Magic
   constants per dopant/material (questions 34, 36); thresholds for the new
   materials copy ND3's.
+### 2026-10-16: trend history service; Panopticon plots full on open (dev-visualizer)
+* Problem: a Phoebus strip chart only plots what arrives while its display is
+  open, so every Panopticon trend started blank on each open or reload. The
+  Genesis CSV archive is not a data source Phoebus can back-fill from.
+* New Genesis logic IOC `logic_devices/trend_history.py`
+  (`configs/target_physical/trend_history/settings.yaml`, prefix
+  `UNH:GEN:HIST`). It monitors the 26 PVs the Panopticon trended, samples
+  them on a fixed grid (12 s, 6 h = 1800 points; shells vacuum 120 s over
+  2 days) and serves per group `<GROUP>:TIME` (minutes, or hours for
+  SHELLS, relative to `<GROUP>:T_REF`; 0 = newest), one float32 waveform per
+  source (`MAG:M1_TI`, `FRIDGE:F7_TI`, `PRESS:Pump_Torr`, `SHELLS:Ion_PI`,
+  `POL:P_AREA`, ...), and `Hist_Status/Sources/Connected/Backfilled`. The
+  TPG 262 mbar readings are scaled to Torr by the IOC (no formula PVs).
+* Back-fill at start-up from the archiver's own CSVs (archive_path read from
+  the archiver's settings.yaml, `{safe_pv}_{date}.csv`): sample-and-hold of
+  the irregular deadband rows onto the grid, a row held at most `max_hold`
+  = 900 s, non-numeric rows (the archiver's disconnect object) = NaN.
+* Time base is wall clock, the same as the archiver's `datetime.now()`
+  stamps, so under the sim at speed N a 15-minute window spans 15N sim
+  minutes, as the strip charts did. Unfilled slots are at the START of the
+  arrays with NaN values and a continued time grid (nothing drawn, no line
+  back across the plot); gaps, disconnects and clock steps break the line.
+* The sim launches it with the cryo leg (`stacks.yaml` leg `history`, CA
+  6123 / PVA 6223, profile generated from the canonical settings; its
+  `archiver_settings` is pointed at the run's archiver). It is NOT in the
+  live IOC manager: deploying it live is Ells's call.
+* Panopticon: the five strip charts are XY plots of the history arrays, same
+  geometry, colours, trace order, log axes and DAQ windows (x from -15/-40/
+  -60/-180 min, -48 h to 0); zoom out to see the rest of the history.
+* Verified on a 30x replay (offset 500): plots populated on open and again
+  on re-open; Ctrl+scroll zooms; Ctrl+drag did not zoom (toolbar Zoom does).
+* Tests: `tests/test_trend_history.py` (ring buffer, synthetic archiver
+  CSVs, back-fill, published arrays); Panopticon and drift tests updated.
 
 ### 2026-10-16: measured irradiated d-butanol lineshape (2024-09 slow sweep)
 * The 2024-09-17 window was not a sweep; the real slow sweep is 2024-09-18

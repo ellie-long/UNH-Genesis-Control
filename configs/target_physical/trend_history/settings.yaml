@@ -1,0 +1,79 @@
+# Trend history (logic_devices/trend_history.py): recent history of the
+# Panopticon's trended PVs, served as waveform PVs so its plots are filled the
+# moment the screen opens; back-filled from the cryo archiver's CSV files at
+# start-up.  A NEW Genesis device: it is not in the live IOC manager yet
+# (configs/target_physical/ioc_manager/settings.yaml); the simulated cool-down
+# launches it (its stack table).  Run by hand:
+#   python master_ioc.py -s configs/target_physical/trend_history -i trend_history
+general:
+  prefix: UNH:GEN:HIST
+  log_dir: logs
+  # LS224 magnet + fridge, MKS 902B, TPG 262, IONIVAC, and the online fitter
+  epics_addr_list: 127.0.0.1:5112 127.0.0.1:5113 127.0.0.1:5114 127.0.0.1:5116 127.0.0.1:5117
+    127.0.0.1:5100
+  delay: 0.5
+trend_history:
+  module: logic_devices.trend_history
+  autostart: false
+  delay: 1.0
+  channels:
+  - None
+  # back-fill from the archiver configured here (its archive_path and file naming)
+  archiver_settings: configs/target_physical/archiver/settings.yaml
+  backfill: true
+  # longest an archived value is held over a gap in the archive (s); the
+  # archiver writes on a 0.1% change or every 30 s while the value moves
+  max_hold: 900
+  # defaults for every group: 6 h of history, one sample every 12 s (1800 points)
+  window: 21600
+  interval: 12
+  time_unit: min
+  groups:
+    MAG:
+      sources:
+        M1_TI: UNH:GEN:CRYO:MAG:M1_TI
+        M2_TI: UNH:GEN:CRYO:MAG:M2_TI
+        M3_TI: UNH:GEN:CRYO:MAG:M3_TI
+        M4_TI: UNH:GEN:CRYO:MAG:M4_TI
+        M5_TI: UNH:GEN:CRYO:MAG:M5_TI
+    FRIDGE:
+      sources:
+        F1_TI: UNH:GEN:CRYO:FRIDGE:F1_TI
+        F2_TI: UNH:GEN:CRYO:FRIDGE:F2_TI
+        F3_TI: UNH:GEN:CRYO:FRIDGE:F3_TI
+        F4_TI: UNH:GEN:CRYO:FRIDGE:F4_TI
+        F5_TI: UNH:GEN:CRYO:FRIDGE:F5_TI
+        F6_TI: UNH:GEN:CRYO:FRIDGE:F6_TI
+        F7_TI: UNH:GEN:CRYO:FRIDGE:F7_TI
+        F8_TI: UNH:GEN:CRYO:FRIDGE:F8_TI
+        F9_TI: UNH:GEN:CRYO:FRIDGE:F9_TI
+        F10_TI: UNH:GEN:CRYO:FRIDGE:F10_TI
+        F11_TI: UNH:GEN:CRYO:FRIDGE:F11_TI
+        T1_TI: UNH:GEN:CRYO:MAG:T1_TI
+        T3_TI: UNH:GEN:CRYO:MAG:T3_TI
+    PRESS:
+      sources:
+        Cell_PI: {pv: UNH:GEN:CRYO:CELL:Cell_PI, egu: Torr}
+        # the TPG 262 reports mbar; the Panopticon shows every pressure in Torr
+        Pump_Torr: {pv: UNH:GEN:CRYO:VAC:Pump_PI, scale: 0.750062, egu: Torr}
+        OVC_Torr: {pv: UNH:GEN:CRYO:VAC:OVC_PI, scale: 0.750062, egu: Torr}
+    SHELLS:
+      # the DAQ trends the insulating vacuum over 2 days
+      window: 172800
+      interval: 120
+      time_unit: h
+      sources:
+        Ion_PI: {pv: UNH:GEN:CRYO:ION:Ion_PI, egu: Torr}
+    POL:
+      # the fitter's PVs are not in the cryo archiver's list: this group fills
+      # from the moment the service starts
+      sources:
+        P_AREA: {pv: UNH:GEN:SSRF:FIT:P_AREA, egu: '%'}
+        P_FIT: {pv: UNH:GEN:SSRF:FIT:P_FIT, egu: '%'}
+        Q_FIT: {pv: UNH:GEN:SSRF:FIT:Q_FIT, egu: '%'}
+        Q_EQ: {pv: UNH:GEN:SSRF:FIT:Q_EQ, egu: '%'}
+  records:
+    Hist_Status: {DESC: Trend history state}
+    Hist_Sources: {DESC: Trended source PVs}
+    Hist_Connected: {DESC: Trended source PVs connected}
+    Hist_Backfilled: {DESC: Samples back-filled from archive}
