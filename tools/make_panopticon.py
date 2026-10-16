@@ -315,22 +315,22 @@ def header():
 
 def magnet_space():
     x, y = 4, 48
-    w = [card("Magnet Space", x, y, 572, 232, "Magnet", ("Magnet", "genesis_cryo_magnet.bob"))]
+    w = [card("Magnet Space", x, y, 610, 232, "Magnet", ("Magnet", "genesis_cryo_magnet.bob"))]
     w.append(placeholder_plot("MagnetLevelTrend", "Magnet LHe level (AMI meter), 40 min",
-                              12, 80, 150, 192, "Magnet LHe level meter (AMI)"))
-    w.append(stripchart("MagnetThermometry", "Magnet thermometry (K)", 168, 80, 304, 176,
+                              12, 80, 160, 192, "Magnet LHe level meter (AMI)"))
+    w.append(stripchart("MagnetThermometry", "Magnet thermometry (K)", 178, 80, 330, 176,
                         [(s, thermometer_pv(s), c, 0) for s, c in MAGNET_T.items()],
                         [("K", False, 0, 10)], "15 minutes"))
-    w.append(key(184, 258, list(MAGNET_T.items()), 56))
+    w.append(key(196, 258, list(MAGNET_T.items()), 60))
     # magnet LHe level bar: 0-31 inch, alarm at 20", magnet top at 16.5"
     top, h = 100, 136
-    w.append(label("Level (in)", 484, 80, 88, 18, 10, True, GREY_TEXT))
-    w.append(rect(492, top, 28, h, GREY_FILL, GREY_LINE, name="Placeholder_MagnetLevelBar"))
+    w.append(label("Level (in)", 522, 80, 88, 18, 10, True, GREY_TEXT))
+    w.append(rect(530, top, 28, h, GREY_FILL, GREY_LINE, name="Placeholder_MagnetLevelBar"))
     for inch, rgb, text in ((20.0, RED, '20" alarm'), (16.5, AMBER, '16.5" top')):
         yy = top + h - round(inch / 31.0 * h)
-        w.append(rect(488, yy, 36, 2, rgb))
-        w.append(label(text, 526, yy - 8, 50, 16, 8, True, rgb))
-    w.append(placeholder("MagnetLevel", "Magnet LHe level", 480, 240, 92, "Magnet LHe level meter (AMI)"))
+        w.append(rect(526, yy, 36, 2, rgb))
+        w.append(label(text, 564, yy - 8, 50, 16, 8, True, rgb))
+    w.append(placeholder("MagnetLevel", "Magnet LHe level", 518, 240, 92, "Magnet LHe level meter (AMI)"))
     return w
 
 
@@ -351,50 +351,50 @@ FRIDGE_READOUTS = (
 
 def fridge_space():
     x, y = 4, 284
-    w = [card("Fridge Space", x, y, 572, 410, "Fridge", ("Fridge", "genesis_cryo_fridge.bob"))]
+    w = [card("Fridge Space", x, y, 610, 410, "Fridge", ("Fridge", "genesis_cryo_fridge.bob"))]
     w.append(placeholder_plot("FlowTrend", "Flows: separator, Roots L / R / total (1 h)",
-                              12, 314, 160, 150, "Flow meters (separator, Roots L/R)"))
-    w.append(stripchart("FridgePressures", "Pressures (Torr, log)", 12, 470, 160, 200,
+                              12, 314, 170, 150, "Flow meters (separator, Roots L/R)"))
+    w.append(stripchart("FridgePressures", "Pressures (Torr, log)", 12, 470, 170, 200,
                         [("Mano. Hi", f"{CRYO}:CELL:Cell_PI", (230, 110, 0), 0),
                          ("Roots top", torr_from_mbar(f"{CRYO}:VAC:Pump_PI"), (220, 0, 160), 0),
                          ("Roots bottom", torr_from_mbar(f"{CRYO}:VAC:OVC_PI"), (120, 40, 200), 0)],
                         [("Torr", True, 0.01, 100)], "1 hour"))
     w.append(key(12, 672, [("Mano. Hi", (230, 110, 0)), ("Roots top", (220, 0, 160)),
-                           ("Roots bot.", (120, 40, 200))], 54))
-    w.append(stripchart("FridgeThermometry", "Fridge thermometry (K, log)", 178, 314, 262, 224,
+                           ("Roots bot.", (120, 40, 200))], 56))
+    w.append(stripchart("FridgeThermometry", "Fridge thermometry (K, log)", 188, 314, 282, 224,
                         [(s, thermometer_pv(s), c, 0) for s, c in FRIDGE_T.items()],
                         [("K", True, 0.5, 300)], "40 minutes"))
     w.append(placeholder_plot("FridgeLevelTrend", "Fridge LHe level (AMI meter), 6 h",
-                              178, 544, 262, 142, "Fridge LHe level meter (AMI)"))
+                              188, 544, 282, 142, "Fridge LHe level meter (AMI)"))
     for i, (kind, ref, caption, what) in enumerate(FRIDGE_READOUTS):
         yy = 314 + i * 34
         if kind == "live":
-            w.append(field(caption, ref, 446, yy, 124, 10, prec=3, fmt=2, units=not ref.startswith("="),
+            w.append(field(caption, ref, 476, yy, 132, 10, prec=3, fmt=2, units=not ref.startswith("="),
                            compact=True))
         else:
-            w.append(placeholder(ref, caption, 446, yy, 124, what, compact=True))
+            w.append(placeholder(ref, caption, 476, yy, 132, what, compact=True))
     return w
 
 
 def shells_space():
     x, y = 4, 698
-    w = [card("Shells Space", x, y, 286, 213, "Shells")]
-    w.append(stripchart("ShellsVacuum", "Shells (insulating) vacuum, log", 12, 728, 196, 176,
+    w = [card("Shells Space", x, y, 304, 213, "Shells")]
+    w.append(stripchart("ShellsVacuum", "Shells (insulating) vacuum, log", 12, 728, 214, 176,
                         [("IONIVAC", f"{CRYO}:ION:Ion_PI", (110, 50, 200), 0)],
                         [("Torr", True, 1e-8, 1e-3)], "2 days"))
-    w.append(field("IONIVAC", f"{CRYO}:ION:Ion_PI", 214, 728, 72, 10, prec=2, fmt=2))
-    w.append(field("Gauge comm", f"{CRYO}:ION:COMM", 214, 772, 72, 9, bold=False))
+    w.append(field("IONIVAC", f"{CRYO}:ION:Ion_PI", 232, 728, 72, 10, prec=2, fmt=2))
+    w.append(field("Gauge comm", f"{CRYO}:ION:COMM", 232, 772, 72, 9, bold=False))
     return w
 
 
 def lab_space():
-    x, y = 294, 698
-    w = [card("Lab Space", x, y, 282, 213, "Lab")]
-    w.append(placeholder_plot("LabTrend", "Lab thermocouples (1 day)", 302, 728, 160, 176,
+    x, y = 312, 698
+    w = [card("Lab Space", x, y, 302, 213, "Lab")]
+    w.append(placeholder_plot("LabTrend", "Lab thermocouples (1 day)", 320, 728, 170, 176,
                               "Lab thermocouples"))
     for i, (key, caption) in enumerate((("BackingPumpL", "Backing pump L"), ("BackingPumpR", "Backing pump R"),
                                         ("VMETemp", "VME temp"), ("SeparatorHeater", "Separator heater"))):
-        w.append(placeholder(key, caption, 468, 728 + i * 42, 104, f"Lab thermocouple: {caption}"))
+        w.append(placeholder(key, caption, 496, 728 + i * 42, 112, f"Lab thermocouple: {caption}"))
     return w
 
 
@@ -422,11 +422,10 @@ CARTOON_MARKERS = {
     "F1": (947, 298), "F2": (873, 403), "F3": (870, 527), "F4": (935, 540), "F5": (893, 579),
     "F6": (913, 673), "F8": (913, 702), "F7": (877, 712), "F9": (891, 745), "F10": (927, 765),
     "F11": (873, 800), "T1": (900, 925), "T3": (900, 1000),
-    # magnet sensors, on the left of the magnet LHe space (their values are on
-    # the left; the fridge's on the right): M1 high in the neck, M2 on the
-    # lowest neck baffle (top of the belly), M3 on the magnet-support baffle at
-    # 16.5", M4 at the solenoid's top, M5 at its bottom
-    "M1": (815, 530), "M2": (815, 579), "M3": (815, 801), "M4": (840, 822), "M5": (840, 1044),
+    # magnet sensors, right side of the magnet LHe space: M1 high in the neck,
+    # M2 on the lowest neck baffle (top of the belly), M3 on the magnet-support
+    # baffle at 16.5", M4 at the solenoid's top, M5 at its bottom
+    "M1": (985, 530), "M2": (985, 579), "M3": (985, 801), "M4": (960, 822), "M5": (960, 1044),
 }
 
 #: Magnet LHe space (inches on the depth scale, 15 px/in, radii about the
@@ -483,7 +482,7 @@ def leader(points, rgb=LEADER, name=None):
 #: _insert_drawing) and placed on the screen scaled by INSERT_SCALE about the
 #: point INSERT_SRC -> INSERT_DST, keeping all its proportions.
 INSERT_SRC = (726, 166)
-INSERT_DST = (666, 152)
+INSERT_DST = (622, 152)
 INSERT_SCALE = 0.84
 MARKER = 9                               # marker square on screen (px)
 
@@ -522,13 +521,12 @@ def _box(widget_xml):
 
 #: markers that sit on (above) or hang from (below) a drawn part
 ATTACH = {"F3": ("below", "Baffle_U5"), "F5": ("above", "Shape_Separator"),
-          "F6": ("below", "Shape_Separator"), "M2": ("above", "Magnet_Baffle_N1_L"),
-          "M3": ("above", "Magnet_Baffle_Support_L")}
+          "F6": ("below", "Shape_Separator"), "M2": ("above", "Magnet_Baffle_N1"),
+          "M3": ("above", "Magnet_Baffle_Support")}
 
-#: readout columns (screen): fridge and cup sensors right of the insert,
-#: magnet sensors left of it; leader lines turn at the elbow x
-F_COLUMN, F_ELBOW = 910, 904
-M_COLUMN, M_ELBOW = 584, 668
+#: readout columns (screen), right of the insert: fridge and cup sensors,
+#: and the magnet sensors set off further right; leader lines turn at ELBOW
+F_COLUMN, M_COLUMN, ELBOW = 902, 926, 878
 #: thin dark parts a leader line must not run along (it would vanish)
 DARK_PARTS = re.compile(r"^(Baffle_|Magnet_Baffle_|Shape_Separator|Shape_PumpOut|Shape_Flange|Shape_Head_Plate)")
 
@@ -547,28 +545,40 @@ def runs_along(y, x0, x1, boxes):
     return False
 
 
-def route(mx, my, elbow, end, boxes):
-    """Leader from a marker to its value box: straight across when that is
-    clear, else a short diagonal step to the nearest clear height first."""
-    if not runs_along(my, mx, elbow, boxes):
-        return [(mx, my), (elbow, my), end]
-    step = 10 if elbow > mx else -10
-    for d in (1, -1, 2, -2, 3, -3, 4, -4, 5, -5, 6, -6, 7, -7, 8, -8, 9, -9, 10, -10, 12, -12):
-        if not runs_along(my + d, mx + step, elbow, boxes):
-            return [(mx, my), (mx + step, my + d), (elbow, my + d), end]
+def route(mx, my, elbow, ends, boxes, taken, markers=()):
+    """Leader from a marker to its value box: across to the elbow, then to the
+    box.  The run across is straight when clear, else a short diagonal step
+    first to the nearest clear height (upward first: lines are routed top to
+    bottom, so this keeps them in the boxes' order).  Clear means: not along a
+    thin dark part, not on a run already taken, not through another marker."""
+    def clear(y, x0):
+        if runs_along(y, x0, elbow, boxes):
+            return False
+        if any(abs(y - ty) <= 2 and min(elbow, tx1) - max(x0, tx0) > 0 for ty, tx0, tx1 in taken):
+            return False
+        return not any(by0 - 1 <= y <= by1 + 1 and min(elbow, bx1) - max(x0, bx0) > 0
+                       for bx0, by0, bx1, by1 in markers)
+
+    if clear(my, mx):
+        taken.append((my, mx, elbow))
+        return [(mx, my), (elbow, my)] + ends
+    for d in (-1, -2, -3, -4, -5, -6, -7, -8, 1, 2, 3, 4, 5, 6, -9, -10, 7, 8, 9, 10, -12, 12):
+        if clear(my + d, mx + 10):
+            taken.append((my + d, mx + 10, elbow))
+            return [(mx, my), (mx + 10, my + d), (elbow, my + d)] + ends
     raise ValueError(f"no clear leader route from {mx}, {my}")
 
 
 def insert_cartoon():
-    x, y = 580, 48
-    w = [card("Target insert", x, y, 418, 863, "Insert")]
-    w.append(label("markers: sensor positions; boxes coloured like the traces", 700, 52, 294, 20, 8, False,
+    x, y = 618, 48
+    w = [card("Target insert", x, y, 380, 863, "Insert")]
+    w.append(label("markers: sensor positions; boxes coloured like the traces", 734, 52, 260, 20, 8, False,
                    MUTED, align=2))
     # target selectors
-    w.append(field("Target material", f"{CRYO}:STATE:material", 588, 76, 200, 11))
-    w.append(field("Fitter material", f"{FIT}:MATERIAL_RBV", 796, 76, 196, 11))
-    w.append(field("Dopant (MW supervisor)", f"{MW}:SUP:Dopant", 588, 112, 200, 11))
-    w.append(placeholder("TargetStick", "Target stick", 796, 112, 196, "Target stick selection"))
+    w.append(field("Target material", f"{CRYO}:STATE:material", 626, 76, 180, 11))
+    w.append(field("Fitter material", f"{FIT}:MATERIAL_RBV", 812, 76, 180, 11))
+    w.append(field("Dopant (MW supervisor)", f"{MW}:SUP:Dopant", 626, 112, 180, 11))
+    w.append(placeholder("TargetStick", "Target stick", 812, 112, 180, "Target stick selection"))
     drawing = [_place(d) for d in _insert_drawing()]
     w.extend(drawing)
     boxes = dict(_box(d) for d in drawing)
@@ -581,27 +591,31 @@ def insert_cartoon():
             side, part = ATTACH[sensor]
             cy = boxes[part][1] - half if side == "above" else boxes[part][3] + half
         marks[sensor] = (round(cx), cy)
-    tops = {}
-    for side in ("F", "M"):
-        last = None
-        for sensor, (_, cy) in sorted(((s, m) for s, m in marks.items() if (s[0] == "M") == (side == "M")),
-                                      key=lambda kv: kv[1][1]):
-            top = round(cy) - 10 if last is None else max(round(cy) - 10, last + READOUT_GAP)
-            tops[sensor] = last = top
+    # one column of value boxes in the markers' top-to-bottom order; the
+    # magnet sensors' boxes are set off to the right of the fridge's
+    # route each line's run across (top to bottom), then stack the value
+    # boxes in the order of those runs, so the fan-out to the boxes never crosses
+    taken, runs = [], {}
+    for sensor in sorted(marks, key=lambda s: marks[s][1]):
+        cx, cy = marks[sensor]
+        others = [(ox - half, oy - half, ox + half, oy + half) for s, (ox, oy) in marks.items() if s != sensor]
+        runs[sensor] = route(cx, round(cy), ELBOW, [], boxes, taken, others)
+    tops, last = {}, None
+    for sensor in sorted(runs, key=lambda s: (runs[s][-1][1], marks[s][1])):
+        y_run = runs[sensor][-1][1]
+        top = y_run - 10 if last is None else max(y_run - 10, last + READOUT_GAP)
+        tops[sensor] = last = top
     for sensor, (cx, cy) in marks.items():
         rgb = FRIDGE_T.get(sensor) or MAGNET_T[sensor]
         top = tops[sensor]
-        if sensor.startswith("M"):         # values left of the insert: box, then name
-            pts = route(cx, round(cy), M_ELBOW, (M_COLUMN + 80, top + 10), boxes)
-            w.append(update(thermometer_pv(sensor), M_COLUMN, top, 58, 20, 10, True, prec=2, bg=rgb,
-                            fg=ink(rgb), align=1, name=f"Insert_{sensor}"))
-            w.append(label(sensor, M_COLUMN + 58, top, 22, 20, 9, True, TEXT, align=1))
-        else:
-            pts = route(cx, round(cy), F_ELBOW, (F_COLUMN - 2, top + 10), boxes)
-            w.append(label(sensor, F_COLUMN, top, 22, 20, 9, True, TEXT))
-            w.append(update(thermometer_pv(sensor), F_COLUMN + 22, top, 62, 20, 10, True, prec=2, bg=rgb,
-                            fg=ink(rgb), align=1, name=f"Insert_{sensor}"))
-        w.append(leader(pts, name=f"Leader_{sensor}"))
+        col = M_COLUMN if sensor.startswith("M") else F_COLUMN
+        # every line fans out between the elbow and the fridge column; the
+        # magnet sensors' then run on along their own row to their column
+        ends = [(F_COLUMN - 2, top + 10)] + ([(col - 2, top + 10)] if col != F_COLUMN else [])
+        w.append(label(sensor, col, top, 20, 20, 9, True, TEXT))
+        w.append(update(thermometer_pv(sensor), col + 20, top, 50, 20, 10, True, prec=1, bg=rgb,
+                        fg=ink(rgb), align=1, name=f"Insert_{sensor}"))
+        w.append(leader(runs[sensor] + ends, name=f"Leader_{sensor}"))
         w.append(rect(round(cx - half), round(cy - half), MARKER, MARKER, rgb, (30, 30, 30),
                       name=f"Marker_{sensor}"))
     return w
@@ -626,7 +640,7 @@ def _insert_drawing():
         w.append(rect(762, yy, 10, 1, NAVY))
         if inch != 20:
             w.append(label(str(inch), 740, yy - 6, 20, 12, 8, False, NAVY, align=2))
-    w.append(label(f"magnet LHe (in): {NOT_YET}", 726, 452, 66, 50, 8, False, GREY_TEXT, italic=True,
+    w.append(label(f"magnet LHe (in): {NOT_YET}", 726, 420, 40, 90, 8, False, GREY_TEXT, italic=True,
                    wrap=True, name="Placeholder_MagnetLevelScale"))
     alarm_y = level_y(20)
     top_y = support_y

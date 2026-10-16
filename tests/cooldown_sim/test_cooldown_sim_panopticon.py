@@ -280,13 +280,13 @@ def test_magnet_space_baffles_solenoid_and_sensors():
     def marker(s):
         return box(f"Marker_{s}")
 
-    assert marker("M2")[3] == box("Magnet_Baffle_N1_L")[1]        # on the lowest neck baffle
-    assert marker("M3")[3] == box("Magnet_Baffle_Support_L")[1]   # on the support baffle
+    assert marker("M2")[3] == box("Magnet_Baffle_N1")[1]          # on the lowest neck baffle
+    assert marker("M3")[3] == support[1]                          # on the support baffle
     assert abs(inches((marker("M4")[1] + marker("M4")[3]) / 2) - top_in) <= 0.5      # solenoid top
     assert abs(inches((marker("M5")[1] + marker("M5")[3]) / 2) - bottom_in) <= 0.5   # solenoid bottom
     assert marker("M1")[3] < marker("M2")[1]                      # M1 higher, in the neck
-    for s in ("M1", "M2", "M3", "M4", "M5"):                      # left side, outside the solenoid
-        assert marker(s)[2] <= coil_l[0], s
+    for s in ("M1", "M2", "M3", "M4", "M5"):                      # right side, outside the solenoid
+        assert marker(s)[0] >= coil_r[2], s
 
 
 def test_no_stray_labels_and_buttons_in_card_headers():
@@ -360,11 +360,11 @@ def test_leader_lines_are_clear():
 
     sensors = FRIDGE_ORDER + MAGNET_ORDER
     leaders = {s: _segments(widgets[f"Leader_{s}"]) for s in sensors}
-    # fridge and cup values on the right of the insert, magnet values on the left
-    insert_x = box(widgets["Shape_Fridge_Can"])
-    for s in sensors:
-        vb = box(widgets[f"Insert_{s}"])
-        assert (vb[2] < insert_x[0]) if s.startswith("M") else (vb[0] > insert_x[2]), s
+    # every value right of the drawing; the magnet sensors' set off further right
+    drawing_right = max(box(w)[2] for n, w in widgets.items() if n.startswith(("Shape_", "Magnet_")))
+    f_x = {box(widgets[f"Insert_{s}"])[0] for s in FRIDGE_ORDER}
+    m_x = {box(widgets[f"Insert_{s}"])[0] for s in MAGNET_ORDER}
+    assert len(f_x) == 1 and len(m_x) == 1 and min(f_x) > drawing_right and min(m_x) >= min(f_x) + 20
     for i, a in enumerate(sensors):
         for b in sensors[i + 1:]:
             assert not any(_cross(sa, sb) for sa in leaders[a] for sb in leaders[b]), (a, b)
