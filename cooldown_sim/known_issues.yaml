@@ -86,3 +86,12 @@ pynmr-producer-paths-hardcoded:
     (Protected mode also imports pyepics, which requirements.txt omits.)
   where: [online_fitter/pynmr_producer_session.py, requirements.txt]
   match: {protected_nmr: true}
+
+ionivac-alarm-limits:
+  summary: >-
+    The IONIVAC record (configs/target_physical/ionivac, Ion_PI) alarms only at
+    HIGH 800 / HIHI 900 Torr, so a loss of the shells' vacuum raises no alarm.
+    Ells (2026-10-16): alarm above 1e-4 Torr while the bottom of the magnet is
+    above 300 K, above 1e-5 Torr once it is below 80 K (open questions 25, 39).
+  where: [configs/target_physical/ionivac/settings.yaml, logic_devices/states_unh.yaml]
+  match: {scenario_check: shells_vacuum_alarm}

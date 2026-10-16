@@ -431,9 +431,12 @@ class TargetModel:
             p = hist_torr * (ratio if math.isfinite(ratio) else ph.he4_vapor_pressure_ratio(T_hist, T_mod))
         return p + s.q * max(self.assumed["quench"]["cell_target_Torr"] - p, 0.0)
 
-    def ovc_pressure(self, hist_torr: float, t: float) -> float:
+    def shells_pressure(self, hist_torr: float, t: float) -> float:
+        """The shells' (insulating) vacuum, IONIVAC: the record, raised toward
+        the ASSUMED quench level while a quench is injected (question 57)."""
         s = self.advance(t)
-        target = self.assumed["quench"]["ovc_target_Torr"]
+        q = self.assumed["quench"]
+        target = q.get("shells_target_Torr", q.get("ovc_target_Torr", 1.0e-3))
         if not math.isfinite(hist_torr):
             return s.q * target if s.q > 0.01 else hist_torr
         return hist_torr + s.q * max(target - hist_torr, 0.0)

@@ -281,5 +281,5 @@ assumed:
     recovery_tau_s: 900.0
     T1_quenched_s: 30.0
     cell_target_Torr: 760.0
-    ovc_target_Torr: 0.001
+    shells_target_Torr: 0.001   # IONIVAC (shells' vacuum) during a quench: ASSUMED (question 57)
     basis: ASSUMED quench-like warm-up for exercising interlocks and alarms; not a model of a real quench.

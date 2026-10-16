@@ -7,6 +7,17 @@ findings are in `COOLDOWN_SIM_PROGRESS.md`; questions for the lab are in
 
 ## 2026-10-16
 
+* Vacuum rework (question 20): TPG gauge 2 (`OVC_PI`, bottom Roots gauge) is no
+  longer fed from the record (never logged; reads invalid in the sim, live
+  unchanged); the IONIVAC carries the shells' vacuum (cold-cathode history as
+  fallback) and the quench's ASSUMED vacuum rise (`shells_pressure`,
+  question 57). `vacuum-trip` is now a shells-vacuum loss on the IONIVAC:
+  alarm expected (KNOWN: live limits 800/900 Torr, new known issue
+  `ionivac-alarm-limits`), interlock must not act. Expectations can name a
+  known issue (`known:`). Windows offset run: vacuum-trip PASS,
+  operator-microwaves PASS, quench only the Windows fitter-timing check.
+
+
 * Ells's Magic +/- constants (question 34 settled): sim materials (new `nd3`)
   and the Genesis supervisor's dopants, per dopant and material
   (`configured_magic(..., material)`, supervisor reads `CRYO:STATE:material`).

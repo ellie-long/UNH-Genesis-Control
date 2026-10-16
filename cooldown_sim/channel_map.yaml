@@ -87,26 +87,23 @@ instruments:
           (0.1-30 Torr while pumping on the fridge), is this gauge: the old
           LabVIEW DAQ only read the top Roots gauge (Ells, 2026-10-16).
       OVC:
-        source: cold_cathode
+        source: null
         units: Torr
         valid: [1.0e-12, 1100.0]
-        confidence: guess
+        confidence: high
         note: >-
-          WRONG, kept until the vacuum rework (open question 3).  Ells
-          (2026-10-15): TPG262 gauge 2, which Genesis names "OVC", is the
-          BOTTOM manometer on the Roots pump, not an insulating vacuum.  The
-          record has no column for it (one Roots column only).  It is still
-          fed from "ColdCathode.Pres (Torr)" (2021+, NaN from 2025-11; an
-          older back-up gauge to the IONIVAC, now disconnected) because
-          the model's quench vacuum rise, the sim's vacuum interlock limits
-          and the vacuum-trip scenario all act on it.  The insulating (shells)
+          TPG262 gauge 2, which Genesis names "OVC", is the BOTTOM manometer
+          on the Roots pump, not an insulating vacuum (Ells, 2026-10-15).  The
+          old LabVIEW DAQ never logged it, so the replay serves no value for
+          it (the gauge reads invalid in the sim); it stays in the live
+          datastream for new data (Ells, 2026-10-16).  The shells' insulating
           vacuum is the IONIVAC.
 
   ionivac:               # UNH:GEN:CRYO:ION  Ion_PI (Torr)
     wire: ionivac_count
     absent: refuse       # a silent IONIVAC is how the driver detects "not present"
     channels:
-      Ion: {source: ionivac, units: Torr, valid: [1.0e-12, 1100.0], confidence: high, note: "Same instrument name in LabVIEW and Genesis.  Measures the vacuum of the shells separating the fridge space from the magnet space (Ells, 2026-10-15)."}
+      Ion: {source: ionivac, fallback: cold_cathode, units: Torr, valid: [1.0e-12, 1100.0], confidence: high, note: "Same instrument name in LabVIEW and Genesis.  Measures the vacuum of the shells separating the fridge space from the magnet space (Ells, 2026-10-15).  Fallback: the cold-cathode gauge, an older back-up on the same vacuum (2021+, NaN from 2025-11; now disconnected).  The model's quench vacuum rise acts here (question 20, 2026-10-16)."}
 
   ls455:                 # UNH:GEN:CRYO:FIELD  Fringe_Field (G) / Fringe_FieldT
     wire: none           # emulator reports UNIT?=1 (gauss)

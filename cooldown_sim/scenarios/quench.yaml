@@ -1,4 +1,4 @@
-description: Quench-like warm-up with microwaves on; temperatures, cell pressure, vacuum trip, P collapse, recovery
+description: Quench-like warm-up with microwaves on; temperatures, cell pressure, shells vacuum, P collapse, recovery
 source: synthetic
 start: "2000-01-01 02:00"
 duration_min: 78
@@ -17,7 +17,8 @@ actions:
 expect:
   - {label: "fridge warms", pv: "UNH:GEN:CRYO:FRIDGE:F5_TI", from: 19, to: 28, op: gt, value: 20}
   - {label: "cell pressure rises", pv: "UNH:GEN:CRYO:CELL:Cell_PI", from: 19, to: 28, op: gt, value: 600}
-  - {label: "vacuum trip", pv: "UNH:GEN:CRYO:SAFE:Vac_Permit", from: 19, to: 28, op: eq, value: 0}
+  # ASSUMED shells-vacuum rise during the quench (question 57); alarm only (question 3)
+  - {label: "shells vacuum rises", pv: "UNH:GEN:CRYO:ION:Ion_PI", from: 19, to: 28, op: gt, value: 1.0e-5}
   - {label: "polarization collapses", truth: true_P, from: 21, to: 28, op: lt, value: 5}
   - {label: "fridge recovers", pv: "UNH:GEN:CRYO:FRIDGE:F5_TI", from: 58, to: 78, op: lt, value: 12}
   # still spinning up before the quench: the same (smaller) Q lag costs ~1.1 pp

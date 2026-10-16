@@ -16,6 +16,9 @@ coldboard:
   clear_w: 3.0
   output_pv: Coldboard_Mode
 vacuum:
+  # OVC_PI is TPG gauge 2 (a Roots-line manometer), unread in the replay, so
+  # this rule idles (an unreadable value never trips); the shells' vacuum is
+  # alarm-only on the IONIVAC (Ells, questions 3 and 20)
   ovc_pv: OVC_PI
   ovc_trip: 1.1e-3          # mbar
   ovc_clear: 5.5e-4         # mbar

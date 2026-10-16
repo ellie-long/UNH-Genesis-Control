@@ -504,7 +504,7 @@ ASSUMED = {
     "quench": {
         "fridge_target_K": 25.0, "magnet_target_K": 15.0, "lattice_target_K": 4.5,
         "rise_tau_s": 60.0, "recovery_tau_s": 900.0, "T1_quenched_s": 30.0,
-        "cell_target_Torr": 760.0, "ovc_target_Torr": 1.0e-3,
+        "cell_target_Torr": 760.0, "shells_target_Torr": 1.0e-3,
         "basis": "ASSUMED quench-like warm-up for exercising interlocks and alarms; not a "
                  "model of a real quench.",
     },

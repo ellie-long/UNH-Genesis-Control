@@ -40,8 +40,8 @@ class ModelProvider(ReplayProvider):
             return self.model.temperature(channel, base, t)
         if instrument == "mks902b":
             return self.model.cell_pressure(base, t)
-        if instrument == "tpg262" and channel == "OVC":
-            return self.model.ovc_pressure(base, t)
+        if instrument == "ionivac":
+            return self.model.shells_pressure(base, t)
         self.model.advance(t)
         return base
 

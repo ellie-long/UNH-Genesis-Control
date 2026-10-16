@@ -91,7 +91,10 @@ def checks(run: Path, spec: dict, t0: float, all_checks: list[Check],
                 samples = list(w["value"])
             what = f"{e['pv']}{' severity' if 'severity' in e else ''} in [{e.get('from', 0)}, {e.get('to', 'end')}] min"
         ok, why = _evaluate(samples, e.get("op", "eq"), e["value"], mode)
-        out.append(Check(f"scenario: {label}", "PASS" if ok else "FAIL", f"{what} ({mode}): {why}",
+        verdict = "PASS" if ok else ("KNOWN" if e.get("known") else "FAIL")
+        if verdict == "KNOWN":
+            why = f"{why} (known issue {e['known']})"
+        out.append(Check(f"scenario: {label}", verdict, f"{what} ({mode}): {why}",
                          [e["note"]] if e.get("note") else []))
     return out
 

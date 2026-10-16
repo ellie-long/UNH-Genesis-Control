@@ -1,22 +1,25 @@
-description: OVC pressure rises past the (SIM-ONLY, enforced) trip; latch, coldboard held off, reset
+description: >-
+  Shells (insulating) vacuum loss on the IONIVAC: the pressure rises past Ells's
+  alarm limits and recovers; Genesis should alarm (known issue: it alarms only at
+  800/900 Torr) and, per Ells, the interlock does NOT act on it (alarm only)
 source: synthetic
 start: "2000-01-01 02:00"
-duration_min: 25
+duration_min: 20
 speed: 10
 legs: [cryo]
 overrides:
   safety_interlock: {limits: limits_replay.yaml}
+# Ells (2026-10-16): vacuum-trip is primarily the shells' vacuum (IONIVAC); the
+# IONIVAC alarm is enough, the interlock need not act on it (question 3).  The
+# synthetic record's magnet is cold, so the limit is 1e-5 Torr; 5e-4 Torr is
+# above both of her limits (1e-4 warm, 1e-5 cold).
 actions:
-  - {at: 3, do: override, instrument: tpg262, channel: OVC, value: 2.0e-3}     # Torr -> 2.7e-3 mbar
-  - {at: 8, do: override, instrument: tpg262, channel: OVC, value: null}
-  - {at: 12, do: caput, pv: "UNH:GEN:CRYO:SAFE:Safe_Reset", value: 1}
+  - {at: 3, do: override, instrument: ionivac, channel: Ion, value: 5.0e-4}
+  - {at: 9, do: override, instrument: ionivac, channel: Ion, value: null}
 expect:
-  - {label: "vacuum trip withholds Vac_Permit", pv: "UNH:GEN:CRYO:SAFE:Vac_Permit", from: 4, to: 8, op: eq, value: 0}
-  - {label: "trip latches", pv: "UNH:GEN:CRYO:SAFE:Safe_Fault", from: 4, to: 8, op: eq, value: 1}
-  - {label: "reason names the OVC", pv: "UNH:GEN:CRYO:SAFE:Safe_Reason", from: 4, to: 8, op: contains, value: "OVC"}
-  - {label: "latch holds after the pressure recovers", pv: "UNH:GEN:CRYO:SAFE:Safe_Fault", from: 9.5, to: 11.5, op: eq, value: 1, mode: always}
-  - {label: "operator reset clears the latch", pv: "UNH:GEN:CRYO:SAFE:Safe_Fault", from: 12.5, to: 25, op: eq, value: 0}
-  # the interlock caputs Coldboard_Mode=0 on every trip cycle (logs/safety_interlock.log:
-  # "driven off"); the output is already 0, so the driver never reaches its write gate
-  - {label: "coldboard output stays off through the trip", pv: "UNH:GEN:CRYO:COLDBOARD:Coldboard_Mode", from: 0, to: 25, op: eq, value: 0, mode: always}
+  - {label: "shells vacuum reads the loss", pv: "UNH:GEN:CRYO:ION:Ion_PI", from: 4, to: 9, op: gt, value: 1.0e-4}
+  - {label: "shells vacuum loss alarms (>= MINOR)", pv: "UNH:GEN:CRYO:ION:Ion_PI", severity: ge, value: 1, from: 4, to: 9, known: ionivac-alarm-limits}
+  - {label: "shells vacuum recovers", pv: "UNH:GEN:CRYO:ION:Ion_PI", from: 12, to: 20, op: lt, value: 1.0e-5, mode: always}
+  - {label: "interlock does not act on the shells vacuum (alarm only)", pv: "UNH:GEN:CRYO:SAFE:Safe_Fault", from: 0, to: 20, op: eq, value: 0, mode: always}
+  - {label: "coldboard output stays off", pv: "UNH:GEN:CRYO:COLDBOARD:Coldboard_Mode", from: 0, to: 20, op: eq, value: 0, mode: always}
   - {check: "read-only proof", verdict: PASS}

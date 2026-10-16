@@ -145,6 +145,16 @@ def test_severity_contains_and_numeric_ops(tmp_path):
     ]) == ["PASS", "PASS", "PASS", "PASS"]
 
 
+def test_expectation_naming_a_known_issue_reports_known(tmp_path):
+    pv = "UNH:GEN:CRYO:ION:Ion_PI"
+    run = _fake_run(tmp_path, [(1, pv, "4e-7", 0), (5, pv, "5e-4", 0)])
+    assert _verdicts(run, [
+        {"pv": pv, "from": 4, "to": 8, "severity": "ge", "value": 1, "known": "ionivac-alarm-limits"},
+        {"pv": pv, "from": 4, "to": 8, "op": "gt", "value": 1e-4, "known": "ionivac-alarm-limits"},
+        {"pv": pv, "from": 4, "to": 8, "severity": "ge", "value": 1},
+    ]) == ["KNOWN", "PASS", "FAIL"]
+
+
 def test_truth_and_check_expectations(tmp_path):
     run = _fake_run(tmp_path, [(0.5, PERMIT, 1, 0)], nmr_rows=[(1, 30.0, 29.9), (10, 2.0, 2.5)])
     existing = [Check("read-only proof", "PASS", "")]
