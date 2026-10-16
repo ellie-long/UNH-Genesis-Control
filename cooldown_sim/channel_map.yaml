@@ -80,13 +80,12 @@ instruments:
         source: roots_pressure
         units: Torr
         valid: [1.0e-5, 1100.0]
-        confidence: medium
+        confidence: high
         note: >-
           TPG262 gauge 1 is the TOP manometer on the Roots pump (Ells,
-          2026-10-15).  The record has one Roots column, "Roots Pressure
-          (Torr)" (0.1-30 Torr while pumping on the fridge), assumed to be this
-          gauge.  CHECK: is LabVIEW's "Roots Pressure" the top or the bottom
-          Roots manometer?
+          2026-10-15).  The record's one Roots column, "Roots Pressure (Torr)"
+          (0.1-30 Torr while pumping on the fridge), is this gauge: the old
+          LabVIEW DAQ only read the top Roots gauge (Ells, 2026-10-16).
       OVC:
         source: cold_cathode
         units: Torr
@@ -207,7 +206,7 @@ equipment:
     map: tpg262.Pump, tpg262.OVC
     sim: TPG 262 emulator (ACK/ENQ handshake)
     confidence: high
-    note: "CHECK: which of the two is LabVIEW's 'Roots Pressure (Torr)'? The vacuum interlock watches gauge 2 as if it were the OVC (see Findings)"
+    note: "LabVIEW's 'Roots Pressure (Torr)' is gauge 1, the top one; LabVIEW never read the bottom gauge (Ells 2026-10-16). The vacuum interlock watches gauge 2 as if it were the OVC (see Findings)"
   - genesis: ionivac
     equipment: Leybold IONIVAC combination gauge
     role: "Vacuum of the 'shells' separating the fridge space from the magnet space (Ells 2026-10-15); streams binary telegrams, never queried"

@@ -10,8 +10,7 @@ named in each item. Numbers are stable: answered items move to *Settled*.
 
 **Equipment and wiring**
 - [ ] 3. Vacuum: should the interlock watch the IONIVAC, at what trip
-      pressure? Is LabVIEW's `Roots Pressure` the top or bottom Roots
-      manometer?
+      pressure? (LabVIEW's `Roots Pressure` = the top gauge: settled.)
 - [ ] 13. Manometer-Lo: the XCG gauge's full-scale range.
 - [ ] 14. Serial gateway at 192.168.1.251: make and model (possibly a Pi).
 - [ ] 12. (Optional) cold-board voltage to Q-curve tune: MHz per volt, or
@@ -110,7 +109,9 @@ named in each item. Numbers are stable: answered items move to *Settled*.
    sim's vacuum handling is reworked:
    * Should the vacuum interlock watch the IONIVAC (`ION:Ion_PI`) instead,
      and at what trip pressure?
-   * Is LabVIEW's `Roots Pressure (Torr)` the top or the bottom manometer?
+   * ~~Is LabVIEW's `Roots Pressure (Torr)` the top or the bottom manometer?~~
+     Ells (2026-10-16): the top one; the old LabVIEW DAQ only read the top
+     Roots gauge, so the record has no bottom-gauge column.
 
 ### Microwave power
 
