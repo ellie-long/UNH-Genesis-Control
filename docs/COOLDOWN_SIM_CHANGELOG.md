@@ -7,6 +7,10 @@ findings are in `COOLDOWN_SIM_PROGRESS.md`; questions for the lab are in
 
 ## 2026-10-16
 
+* Confirmed (Ells): LS224 #2 at 192.168.1.13 (`ls224_magnet`) carries both the
+  magnet (M1-M5) and the target thermometry (T1, T3); channel map updated.
+
+
 * Vacuum rework (question 20): TPG gauge 2 (`OVC_PI`, bottom Roots gauge) is no
   longer fed from the record (never logged; reads invalid in the sim, live
   unchanged); the IONIVAC carries the shells' vacuum (cold-cathode history as

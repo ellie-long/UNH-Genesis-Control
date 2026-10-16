@@ -177,13 +177,14 @@ equipment:
     confidence: high
   - genesis: ls224_magnet
     equipment: Lake Shore 224 temperature monitor (#2)
-    role: Magnet thermometry M1-M5
+    role: Magnet thermometry M1-M5 and the target-cup thermometers T1, T3
     link: Ethernet TCP 192.168.1.13:7777
     prefix: UNH:GEN:CRYO:MAG
     control: read-only (monitor)
-    map: ls224_magnet.M1-M5
+    map: ls224_magnet.M1-M5, ls224_magnet.T1, ls224_magnet.T3
     sim: LS224 emulator
     confidence: high
+    note: "Ells 2026-10-16, confirmed: this LS224 (192.168.1.13) carries both the magnet and the target thermometry"
   - genesis: mks902b
     equipment: MKS 902B absolute piezo transducer
     role: Target cell (helium vapour) pressure
