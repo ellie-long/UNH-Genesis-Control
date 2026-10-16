@@ -69,10 +69,6 @@ named in each item. Numbers are stable: answered items move to *Settled*.
       low? Ells (2026-10-16): uncertain; needs deeper analysis -- LOW
       PRIORITY. Highest priority is a working estimate for irradiated
       d-butanol.
-- [ ] 41. Panopticon: is the TPG 262 always set to mbar? Its two Roots
-      readings are converted x0.750062 to Torr on screen; if the controller
-      were ever switched to Torr they would read 25 % low (`VAC:Pump_Unit`
-      shows the unit).
 - [ ] 42. Panopticon magnet drawing: the 5 neck baffles (31.6-45.4") are
       drawn compressed to fit under the fridge flange (proportional, not to
       the depth scale above 31.5"). Acceptable?
@@ -267,6 +263,9 @@ named in each item. Numbers are stable: answered items move to *Settled*.
     varactors at 0-19 V. Keep a rule, change it, or drop it?
 
 ## Settled
+
+* TPG 262 units (question 41): Ells (2026-10-16), yes, the TPG 262 is always
+  set to mbar, so the Panopticon's x0.750062 conversion to Torr stands.
 
 * Fridge blueprints vs the installed fridge (question 38): Ells (2026-10-16),
   they should match very closely; the UNH fridge was built from the JLab g2p

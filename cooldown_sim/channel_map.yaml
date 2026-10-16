@@ -204,7 +204,7 @@ equipment:
     prefix: UNH:GEN:CRYO:VAC
     control: read-only
     map: tpg262.Pump, tpg262.OVC
-    sim: TPG 262 emulator (ACK/ENQ handshake)
+    sim: TPG 262 emulator (ACK/ENQ handshake); always set to mbar (Ells 2026-10-16)
     confidence: high
     note: "LabVIEW's 'Roots Pressure (Torr)' is gauge 1, the top one; LabVIEW never read the bottom gauge (Ells 2026-10-16). The vacuum interlock watches gauge 2 as if it were the OVC (see Findings)"
   - genesis: ionivac
