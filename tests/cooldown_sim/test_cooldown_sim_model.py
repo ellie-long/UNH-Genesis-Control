@@ -64,6 +64,43 @@ def test_dnp_lobe_shape():
     assert abs(ph.dnp_lobe(1.6, w)) < 1e-6                     # 140 GHz at 4.94 T: no DNP (seen)
 
 
+def test_he4_t90_matches_the_lab_conversion():
+    # values from Ells's t90_torr_to_k (Lambert-W form below 1.25 K)
+    assert ph.he4_t90_K(0.12) == pytest.approx(1.0028, abs=1e-4)
+    assert ph.he4_t90_K(0.0418) == pytest.approx(0.9030, abs=1e-4)
+    assert ph.he4_t90_K(0.0527) == pytest.approx(0.9234, abs=1e-4)
+    assert ph.he4_t90_K(5.0) == pytest.approx(1.5743, abs=1e-4)
+    assert ph.he4_t90_K(760.0) == pytest.approx(4.222, abs=2e-3)       # normal boiling point
+    for bad in (0.0, -0.01, float("nan"), 2000.0):
+        assert math.isnan(ph.he4_t90_K(bad))
+
+
+def test_he4_t90_branches_join_and_invert():
+    eps = 1e-6
+    for p_pa in (114.7, 5042.3):                                      # 1.25 K and lambda point
+        p = p_pa / ph.HE4_PA_PER_TORR
+        assert ph.he4_t90_K(p * (1 - eps)) == pytest.approx(ph.he4_t90_K(p * (1 + eps)), abs=2e-3)
+    assert ph.he4_t90_K(5042.3 / ph.HE4_PA_PER_TORR) == pytest.approx(2.1768, abs=1e-3)
+    for p in (0.01, 0.05, 0.3, 0.9, 5.0, 40.0, 700.0):
+        assert ph.he4_p90_torr(ph.he4_t90_K(p)) == pytest.approx(p, rel=1e-6)
+    Ts = np.linspace(0.7, 4.9, 200)
+    assert np.all(np.diff([ph.he4_p90_torr(T) for T in Ts]) > 0)
+
+
+def test_bath_temperature_from_the_manometers(params):
+    # Manometer-Hi below 5 Torr: use Manometer-Lo; above: Manometer-Hi
+    tl = record()
+    t = tl.table.t
+    n = len(t)
+    hi = np.where(t < 3600.0, 0.1, 8.0)
+    lo = np.where(t < 3600.0, 0.12, 9.9)
+    tl = Timeline(SlowTable(t=t, numeric={**tl.table.numeric, "manometer_hi": hi, "manometer_lo": lo,
+                                          "vp_temp": np.full(n, 1.5)}), max_hold_s=60)
+    m = TargetModel(tl, 60.0, params)
+    assert m.hist_bath_T(600.0) == pytest.approx(ph.he4_t90_K(0.12))
+    assert m.hist_bath_T(7200.0) == pytest.approx(ph.he4_t90_K(8.0))
+
+
 def test_vapor_pressure_ratio_against_its90_points():
     # ITS-90 He-4: 0.120 Torr at 1.0 K, 23.8 Torr at 2.0 K
     assert ph.he4_vapor_pressure_ratio(1.0, 2.0) == pytest.approx(23.8 / 0.120, rel=0.15)

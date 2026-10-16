@@ -98,7 +98,8 @@ MIN_DRIVE_STEP = 0.25
 #: folders whose files duplicate another cool-down (would double-count steps)
 DUPLICATES = {"2026-07-Cooldown"}
 CHANNELS = ["T1", "T2", "T3", "vp_temp"] + [f"F{i}" for i in range(1, 12)] + [f"M{i}" for i in range(1, 6)]
-COLUMNS = ["mw_rf_status", "mw_power_db", "mw_freq_ghz", "uca_v"] + CHANNELS
+COLUMNS = (["mw_rf_status", "mw_power_db", "mw_freq_ghz", "uca_v", "manometer_hi", "manometer_lo",
+            "manometer"] + CHANNELS)
 #: cup thermometers used to place a logbook step in time
 CUP = ("T1", "T3")
 

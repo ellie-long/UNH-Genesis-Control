@@ -111,6 +111,76 @@ def dnp_lobe(delta_GHz: float, width_GHz: float, neg_scale: float = 1.0, neg_sid
     return g * neg_scale if g < 0 else g
 
 
+# ---------------------------------------------------- He-4 vapor pressure (T90)
+# The lab's reference conversion (Ells's offline t90_torr_to_k; trusted over
+# the LabVIEW DAQ's online readout, whose "Lo" range reads ~1.6 mK colder):
+#   1.25-5.0 K: ITS-90, H. Preston-Thomas, Metrologia 27, 3 (1990), p. 5;
+#   below 1.25 K: R. J. Donnelly & C. F. Barenghi, J. Phys. Chem. Ref. Data
+#   27, 1217 (1998), ln(10 P/Pa) = i0 + 5/2 ln T - L0/(R T) (their equation
+#   gives 10x the pressure, hence the factor of 10).
+#: Pa per Torr as the lab's code uses it
+HE4_PA_PER_TORR = 133.3
+_ITS90_HIGH = ((3.146631, 1.357655, 0.413923, 0.091159, 0.016349, 0.001826,
+                -0.004325, -0.004973), 10.3, 1.9)          # 2.1768-5.0 K
+_ITS90_LOW = ((1.392408, 0.527153, 0.166756, 0.050988, 0.026514, 0.001975,
+               -0.017976, 0.005409, 0.013259), 5.6, 2.9)   # 1.25-2.1768 K
+_HE4_LAMBDA_PA = 5042.3
+_HE4_1P25K_PA = 114.7
+_HE4_MAX_PA = 1.960e5
+_DB_I0, _DB_L0, _DB_R = 12.2440, 59.83, 8.314510
+
+
+def _its90(A, B, C, p_pa):
+    x = (math.log(p_pa) - B) / C
+    return sum(a * x ** i for i, a in enumerate(A))
+
+
+def _donnelly_ln_p10(T_K):
+    return _DB_I0 + 2.5 * math.log(T_K) - _DB_L0 / (_DB_R * T_K)
+
+
+def he4_t90_K(p_torr: float) -> float:
+    """T90 (K) of saturated liquid He-4 at vapor pressure p (Torr); nan for
+    p <= 0 or non-finite (a manometer at or below zero is no reading) and
+    above ~5 K (1.96e5 Pa, where the lab's code returns a 20 K flag)."""
+    if not (math.isfinite(p_torr) and p_torr > 0):
+        return float("nan")
+    p = p_torr * HE4_PA_PER_TORR
+    if p > _HE4_MAX_PA:
+        return float("nan")
+    if p > _HE4_LAMBDA_PA:
+        return _its90(*_ITS90_HIGH, p)
+    if p >= _HE4_1P25K_PA:
+        return _its90(*_ITS90_LOW, p)
+    # Donnelly-Barenghi, inverted by bisection (monotonic in T; the lab's code
+    # uses the Lambert-W closed form, which gives the same root)
+    target = math.log(10.0 * p)
+    lo, hi = 0.2, 1.3
+    for _ in range(60):
+        mid = 0.5 * (lo + hi)
+        if _donnelly_ln_p10(mid) < target:
+            lo = mid
+        else:
+            hi = mid
+    return 0.5 * (lo + hi)
+
+
+def he4_p90_torr(T_K: float) -> float:
+    """Vapor pressure (Torr) of He-4 at T90 = T_K: the inverse of he4_t90_K."""
+    if not (math.isfinite(T_K) and 0.2 < T_K < 5.0):
+        return float("nan")
+    if T_K < he4_t90_K(_HE4_1P25K_PA / HE4_PA_PER_TORR):
+        return math.exp(_donnelly_ln_p10(T_K)) / 10.0 / HE4_PA_PER_TORR
+    lo, hi = math.log(_HE4_1P25K_PA), math.log(_HE4_MAX_PA)   # ln P, bisection
+    for _ in range(80):
+        mid = 0.5 * (lo + hi)
+        if he4_t90_K(math.exp(mid) / HE4_PA_PER_TORR) < T_K:
+            lo = mid
+        else:
+            hi = mid
+    return math.exp(0.5 * (lo + hi)) / HE4_PA_PER_TORR
+
+
 def he4_vapor_pressure_ratio(T_ref_K: float, T_K: float, b_K: float = 10.6) -> float:
     """P_vap(T) / P_vap(T_ref) for liquid He-4 near 1-2 K, Clausius-Clapeyron form
     ln P = a - b/T with b ~ 10.6 K (fitted to ITS-90 values P(1.0 K)=0.120 Torr,

@@ -62,6 +62,13 @@ lab answers are in `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`.
   temperature of exactly 0.650 K is a Manometer-Lo dropout (it read 0); up to
   ~100 rows per cool-down, which the model took as a 0.65 K bath. Fixed.
 * Question 10: Ells has ssRF heat data from the 2026-06 prep to analyze.
+* He-4 vapor pressure: the model now uses the lab's offline T90 conversion
+  (Ells's `t90_torr_to_k`, ported to `physics.he4_t90_K`) on the recorded
+  manometers with the 5 Torr crossover, instead of LabVIEW's online vp_temp
+  (whose Lo range reads ~1.6 mK colder; question 40). The cell-pressure
+  scaling uses the same curve. Finding for a future Genesis VP readout: use
+  this conversion, treat a manometer at or below 0 as no reading (the XCG's
+  output can go to -0.2 V), and take the real part of the Lambert-W result.
 
 ### 2026-10-16: pre-demo screen check
 * All four demo screens rendered offscreen against a 2026-06-17 replay: Sim

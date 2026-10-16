@@ -110,6 +110,10 @@ NMR_DEFAULT_SPAN_MHZ = 0.4
 #: reads 0 (a dropout, not a bath temperature): treat it as missing
 VP_DROPOUT_K = 0.650
 
+#: Manometer-Hi (MKS 902B) to Manometer-Lo (XCG, 10 Torr F.S.) crossover for
+#: the vapor-pressure temperature (Ells; the record's LabVIEW ranges agree)
+VP_CROSSOVER_TORR = 5.0
+
 @dataclass
 class Inputs:
     """Operator-side inputs (Sim Control, scenarios, or the MW leg in phase C)."""
@@ -238,7 +242,27 @@ class TargetModel:
         return self._first_valid_T(("T1", "T3", "vp_temp"), t)
 
     def hist_bath_T(self, t: float) -> float:
-        return self._first_valid_T(("vp_temp", "T1"), t)
+        """Recorded bath temperature: T90 from the cell manometers (the lab's
+        offline conversion, trusted over LabVIEW's online vp_temp), else
+        vp_temp, else T1."""
+        T = self.hist_vp_T90(t)
+        return T if math.isfinite(T) else self._first_valid_T(("vp_temp", "T1"), t)
+
+    def hist_vp_T90(self, t: float) -> float:
+        """He-4 T90 from the recorded cell pressure, crossing from Manometer-Hi
+        to Manometer-Lo below VP_CROSSOVER_TORR as the lab's DAQ does."""
+        hi = self.tl.value_at("manometer_hi", t)
+        if not math.isfinite(hi):
+            hi = self.tl.value_at("manometer", t)       # 2020: single manometer
+        lo = self.tl.value_at("manometer_lo", t)
+        if math.isfinite(hi) and hi >= VP_CROSSOVER_TORR:
+            p = hi
+        elif math.isfinite(lo) and lo > 0:
+            p = lo
+        else:
+            p = hi
+        T = ph.he4_t90_K(p)
+        return T if 0.5 < T < 5.0 else float("nan")
 
     def _first_valid_T(self, channels, t: float) -> float:
         for ch in channels:
@@ -399,7 +423,10 @@ class TargetModel:
             return hist_torr
         T_hist = self.hist_bath_T(t)
         T_mod = max((T_hist if math.isfinite(T_hist) else 1.0) + s.dT_bath, 0.05)
-        p = hist_torr * ph.he4_vapor_pressure_ratio(T_hist, T_mod) if math.isfinite(T_hist) else hist_torr
+        p = hist_torr
+        if math.isfinite(T_hist):
+            ratio = ph.he4_p90_torr(T_mod) / ph.he4_p90_torr(T_hist)
+            p = hist_torr * (ratio if math.isfinite(ratio) else ph.he4_vapor_pressure_ratio(T_hist, T_mod))
         return p + s.q * max(self.assumed["quench"]["cell_target_Torr"] - p, 0.0)
 
     def ovc_pressure(self, hist_torr: float, t: float) -> float:

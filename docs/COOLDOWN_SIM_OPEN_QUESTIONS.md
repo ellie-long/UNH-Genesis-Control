@@ -85,6 +85,8 @@ named in each item. Numbers are stable: answered items move to *Settled*.
       match it to < 0.1 mK. A constant fraction like this looks like a ~1 %
       pressure scale or an older temperature scale in LabVIEW's Lo branch.
       Known? (Only matters if Genesis's VP readout must reproduce LabVIEW.)
+      Ells (2026-10-16): trust her offline code over the online readout; the
+      sim now computes the bath T90 from the manometers with it.
 - [ ] 39. Shells-vacuum alarm between 80 and 300 K: which limit applies
       (1e-4 until the magnet bottom is below 80 K? stepped or log-interpolated
       in between?). And is "the bottom of the magnet" M5 (`M5_TI`, LS224

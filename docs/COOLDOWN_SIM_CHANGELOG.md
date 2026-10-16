@@ -18,7 +18,13 @@ findings are in `COOLDOWN_SIM_PROGRESS.md`; questions for the lab are in
 * Question 10 (ssRF heat): reminder that Ells has data from the 2026-06 prep
   to analyze and send.
 * Checked Ells's 4He `t90_torr_to_k` against the record: Med/Hi/VHi agree to
-  < 0.1 mK; LabVIEW's Lo range is ~1.6 mK colder (new question 40).
+  < 0.1 mK; LabVIEW's Lo range is ~1.6 mK colder (question 40). Ells: trust
+  the offline code over the online readout. So `physics.he4_t90_K` /
+  `he4_p90_torr` port it (ITS-90 above 1.25 K, Donnelly-Barenghi below, no
+  scipy), the model's bath temperature is now T90 from the manometers
+  (Manometer-Hi at >= 5 Torr, else Manometer-Lo; LabVIEW's vp_temp only as a
+  fallback), and the simulated cell pressure scales with the exact T90 curve
+  instead of the ln P = a - b/T approximation. Tests added.
 
 * Phoebus ini also names each IOC's PVA server
   (`org.phoebus.pv.pva/epics_pva_name_servers`), so `pva://` screens such as
