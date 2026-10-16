@@ -35,8 +35,24 @@ named in each item. Numbers are stable: answered items move to *Settled*.
 **Target physics**
 - [ ] 34. **REMINDER for Ells (afternoon 2026-10-16):** the actual Magic + /
       Magic - constants (GHz/T) per material. The sim uses irradiated
-      d-butanol 28.025 / 28.077, TEMPO d-butanol 28.052 / 28.108, trityl
-      d-propanediol 28.033 / 28.043.
+      d-butanol 28.025 / 28.0405 (minus from the 2024-09 logbook's "good
+      negative"; the measured beta peak is 28.023), TEMPO d-butanol
+      28.052 / 28.108, trityl d-propanediol 28.033 / 28.043.
+- [ ] 51. Which spin-up is `fit_asym_pq.json` (the irradiated d-butanol rate
+      set) from? Its JSON records B 5.077 T and 0.997 K (the Dec 2025
+      cool-down), but its data file is 2026-06-18 (4.939 T). Also, its input
+      is an equilibrium-ratio export whose Q is Q_B(P) by construction, so
+      k_delta sits at its bound and the Boltzmann pinning may be an artifact;
+      the 2024-09-18 freq-hop Q runs 0.3-1.1 % above Q_B while P grows.
+      Refit with k_delta free on independent Q?
+- [ ] 52. Irradiated d-butanol steady state: with these rates the sim
+      plateaus at ~48.6 % at 4.85 T / 1.08 K, ~5 pp above 2024-09's measured
+      43.7 %. Fix with a small P-down admixture at the optimum (A/B ~0.05,
+      the 2024-09 spin-up fit), retune leakage, or leave it?
+- [ ] 53. (Run request) A two-pass (up and down) slow microwave sweep out to
+      f/B >= 28.06 GHz/T on irradiated d-butanol would locate the alpha
+      (P-down) maximum, which the 2024-09-18 sweep (ending at 28.045, still on
+      the alpha plateau) could not.
 - [ ] 36. Genesis Magic +/- (live): the supervisor's `CentralFrequency` is
       declared in GHz (default 140, the output band's middle), but its Magic
       formula needs the NMR centre in MHz (field = CentralFrequency /
@@ -268,9 +284,15 @@ named in each item. Numbers are stable: answered items move to *Settled*.
   ~1.6 mK colder below ~0.86 Torr). The sim computes the bath T90 from the
   manometers with it.
 * 2024-09 slow sweep (question 35): Ells (2026-10-16), run the rates fit on
-  2024-09-17 11:36-16:31 (NIST-irradiated d-butanol; agent started, using the
-  McClellan-fitted P/Q rather than the miscalibrated online P); pass on the
-  2025-02-13 file (the Excel comma re-save with a column shift).
+  2024-09 (NIST-irradiated d-butanol); pass on the 2025-02-13 file. Done the
+  same day: the 09-17 window was not a sweep (readback glitches, no P/Q
+  fits); the real slow sweep is 2024-09-18 10:16-11:56 (up, 3 MHz / 2 min,
+  f/B 28.015-28.045, B 4.850 T), fitted on the McClellan freq-hop P. Beta
+  peak 28.023 +- 0.001 GHz/T (FWHM ~0.011, half TEMPO's; 0.03 below TEMPO's);
+  crossover ~28.031; alpha still on its plateau at 28.045 (no maximum);
+  drive amplitude within ~10 % of the rate set. The sim now uses this
+  measured lineshape for irradiated d-butanol (x_opt 28.023): hindcast
+  2025-12 MAE 7.05 -> 6.89, 2026-06 4.77 -> 4.82 pp. Follow-ups 51-53.
 * Magic +/- meaning (question 34, part): Ells (2026-10-16), Magic +/- are the
   mmwave frequency / field ratios (GHz/T) at which each material polarizes
   well positive / negative; the DAQ multiplies them by the present field and

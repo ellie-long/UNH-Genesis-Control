@@ -52,11 +52,34 @@ materials:
     basis: >-
       Spin-1-Rates-Fit results/fit_asym_pq.json: joint P,Q fit of the Dec 2025
       irradiated d-butanol spin-up (B 5.077 T, T 0.997 K, chi2/dof 5.2);
-      steady state P 49.8 %, Q 19.6 %, Q on the Boltzmann curve.  x_opt: the
-      record polarized to 50-54 % at f = 28.025 GHz/T x B (the DAQ's "magic"
-      frequency, 2025-12 and 2026-06) and well at 28.012-28.016 (2025-11);
-      28.021 puts both on the measured beta plateau (hindcast-checked).
-    x_opt: 28.021
+      steady state P 49.8 %, Q 19.6 %, Q on the Boltzmann curve.  Lineshape
+      and x_opt: MEASURED on NIST-irradiated d-butanol, the 2024-09-18
+      10:16-11:56 slow up-sweep (3 MHz / 2 min, B 4.850 T, 1.04-1.10 K;
+      McClellan freq-hop P; Q-slaved single-sign solve with this rate set's
+      non-microwave sector frozen), 2026-10-16.  One sweep fixes only the NET
+      drive: B below the crossover (28.031), A above it, each a lower bound
+      where they overlap.  Beta peak 28.023 +- 0.001 GHz/T (FWHM ~0.011); the
+      drive amplitude agrees with this rate set to ~10 %.  A was still on its
+      plateau (0.73-0.85 of the beta peak) at the sweep's end, 28.045: no alpha
+      maximum is resolved.  Hindcast against TEMPO's borrowed lineshape:
+      2025-12 MAE 7.05 -> 6.89, 2026-06 4.77 -> 4.82 pp (medians 2.17 -> 2.04,
+      2.14 -> 2.11).  Known: steady state ~5 pp above 2024-09's 43.7 % plateau.
+    x_opt: 28.023
+    # Magic +: the DAQ's 28.025 until Ells's numbers (open question 34);
+    # Magic -: 28.0405, the 2024-09 logbook's "good negative", on the measured
+    # alpha plateau (the old 28.077 was TEMPO's spacing, past the measured range)
+    magic: {plus: 28.025, minus: 28.0405}
+    lineshape:
+      source: NIST-irradiated d-butanol, 2024-09-18 slow microwave sweep (net drive)
+      peak_x: 28.023
+      taper: 0.004
+      taper_low: 0.004      # ~ the measured rising edge
+      # ASSUMED above 28.045 (unmeasured): A held on its plateau to 28.060, then
+      # tapering to 0 by 28.100, so Magic - and higher frequencies still pump P down
+      taper_high: 0.04
+      x: [28.015, 28.019, 28.023, 28.027, 28.031, 28.035, 28.039, 28.043, 28.060]
+      B: [0.288, 0.817, 1.000, 0.852, 0.000, 0.000, 0.000, 0.000, 0.000]
+      A: [0.003, 0.008, 0.010, 0.008, 0.041, 0.233, 0.742, 0.854, 0.854]
     rates: {k_e: 1.967699, k_s: 0.000136, k_zeta1: 0.000461, k_zeta2: 0.0,
             k_phitheta1: 5.9e-05, k_phitheta2: 0.0, k_alpha1: 0.182674, k_alpha2: 1.3e-05,
             k_beta1: 18.789418, k_beta2: 0.000821, k_sigma1: 87.411713, k_sigma2: 2.0e-05,

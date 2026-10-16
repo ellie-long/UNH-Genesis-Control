@@ -121,17 +121,21 @@ def magic_ratio(sign: str, material: str = "", table: dict | None = None) -> flo
     return float((spec.get("magic") or table["magic"])[key])
 
 
-def lineshape(x: float, table: dict | None = None) -> tuple[float, float]:
-    """(B, A): P-up and P-down pump strength at f/B = x (TEMPO frame), normalized."""
-    ls = (table or load_table())["lineshape"]
-    xs, taper = np.asarray(ls["x"]), float(ls["taper"])
+def lineshape(x: float, table: dict | None = None, ls: dict | None = None) -> tuple[float, float]:
+    """(B, A): P-up and P-down pump strength at f/B = x in the frame of the
+    lineshape ``ls`` (default: the shared TEMPO table), normalized."""
+    ls = ls or (table or load_table())["lineshape"]
+    xs = np.asarray(ls["x"])
+    # linear taper to 0 outside the measured range; each side may set its own
+    lo = float(ls.get("taper_low", ls["taper"]))
+    hi = float(ls.get("taper_high", ls["taper"]))
     out = []
     for key in ("B", "A"):
         ys = np.asarray(ls[key])
         if x < xs[0]:
-            v = ys[0] * max(0.0, 1.0 - (xs[0] - x) / taper)
+            v = ys[0] * max(0.0, 1.0 - (xs[0] - x) / lo)
         elif x > xs[-1]:
-            v = ys[-1] * max(0.0, 1.0 - (x - xs[-1]) / taper)
+            v = ys[-1] * max(0.0, 1.0 - (x - xs[-1]) / hi)
         else:
             v = float(np.interp(x, xs, ys))
         out.append(float(v))
@@ -158,8 +162,10 @@ class Spin1:
         self.material = material
         self.base = dict(spec["rates"])
         self.x_opt = float(spec["x_opt"])
-        self.peak_x = float(self.table["lineshape"]["peak_x"])
-        self._B0, self._A0 = lineshape(self.peak_x, self.table)
+        # the material's own measured lineshape if it has one, else the shared one
+        self.ls = spec.get("lineshape") or self.table["lineshape"]
+        self.peak_x = float(self.ls["peak_x"])
+        self._B0, self._A0 = lineshape(self.peak_x, ls=self.ls)
 
     def rates(self, f_GHz: float, B_T: float, power: float):
         """Rate set at frequency f, field B and delivered power (0..1 of full)."""
@@ -169,7 +175,7 @@ class Spin1:
                 p[k] = 0.0
             return self.RateParams(**p)
         x = f_GHz / B_T - self.x_opt + self.peak_x       # into the lineshape's frame
-        b, a = lineshape(x, self.table)
+        b, a = lineshape(x, ls=self.ls)
         b, a = b / self._B0, a / self._B0                 # 1 at the material's optimum
         base = self.base
         mirror = {"k_alpha1": "k_beta1", "k_alpha2": "k_beta2", "k_beta1": "k_alpha1", "k_beta2": "k_alpha2"}

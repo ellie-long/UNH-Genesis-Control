@@ -82,6 +82,8 @@ def add_parsers(sub) -> None:
     p.add_argument("names", nargs="+", help="'list', 'all', or scenario names")
     p.add_argument("--speed", type=float, default=None, help="override the scenario speed")
     p.add_argument("--data", default=os.environ.get(DATA_ENV))
+    p.add_argument("--port-offset", type=int, default=0,
+                   help="shift every port (run beside another session on the default ports)")
     p.set_defaults(func=_scenario)
 
     p = sub.add_parser("ctl", help="control a running session (pause, play, speed, seek, fault ...)")
@@ -688,7 +690,7 @@ def _stop(args) -> int:
 
 
 # -------------------------------------------------------------- scenarios
-def scenario_args(spec: dict, speed: float | None, data: str | None):
+def scenario_args(spec: dict, speed: float | None, data: str | None, port_offset: int = 0):
     """argparse-equivalent run arguments for a scenario."""
     import argparse
     return argparse.Namespace(
@@ -697,7 +699,7 @@ def scenario_args(spec: dict, speed: float | None, data: str | None):
         duration=float(spec.get("duration_min", 30)), speed=float(speed or spec.get("speed", 20)),
         legs=",".join(spec.get("legs", ["cryo"])), scenario=spec["name"], autostart=False,
         autopilot=None, model=spec.get("model"), nmr_protected=bool(spec.get("nmr_protected")),
-        port_offset=0, noise_rel=2e-5, seed=int(spec.get("seed", 0)), scenario_spec=spec)
+        port_offset=int(port_offset), noise_rel=2e-5, seed=int(spec.get("seed", 0)), scenario_spec=spec)
 
 
 def _scenario(args) -> int:
@@ -721,12 +723,14 @@ def _scenario(args) -> int:
             continue
         if len(names) == 1:
             print(f"\n=== scenario {name}: {spec.get('description', '')}", flush=True)
-            code = _run(scenario_args(spec, args.speed, args.data))
+            code = _run(scenario_args(spec, args.speed, args.data, args.port_offset))
         else:                       # one process per scenario: libca state is per-process
             import subprocess
             cmd = [sys.executable, "-m", "cooldown_sim", "scenario", name]
             if args.speed:
                 cmd += ["--speed", str(args.speed)]
+            if args.port_offset:
+                cmd += ["--port-offset", str(args.port_offset)]
             code = subprocess.run(cmd, cwd=str(REPO_ROOT)).returncode
         results.append((name, "PASS" if code == 0 else "FAIL", f"exit {code}"))
     print("\nScenario summary")

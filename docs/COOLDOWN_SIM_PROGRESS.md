@@ -45,6 +45,21 @@ lab answers are in `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`.
 
 ## Log
 
+### 2026-10-16: measured irradiated d-butanol lineshape (2024-09 slow sweep)
+* The 2024-09-17 window was not a sweep; the real slow sweep is 2024-09-18
+  10:16-11:56. Fitted (agent, Spin-1-Rates-Fit method, McClellan freq-hop P):
+  beta peak 28.023 +- 0.001 GHz/T, FWHM ~0.011 (half TEMPO's), crossover
+  ~28.031, alpha still on its plateau at 28.045; drive amplitude within ~10 %
+  of the Dec 2025 rate set. Adopted for irradiated d-butanol; hindcasts as
+  well or better than the borrowed TEMPO lineshape.
+* Known gaps: steady state ~5 pp above 2024-09's 43.7 % (question 52); the
+  rate set's provenance and Q pinning (51); alpha maximum unmeasured (53).
+* Scenario runs on Windows (port offset 700): operator-microwaves PASS (P-down
+  at Magic -), real-2026-06 PASS; quench FAIL on Windows only: the fitter
+  applied its calibration at 18.5 min, after the 16-18 min check (synthetic,
+  unaffected by the lineshape; passed in WSL this morning). Full WSL library
+  to rerun once the live demo session is closed.
+
 ### 2026-10-16: serial servers mapped; IONIVAC port mismatch
 * **Finding (live system): the IONIVAC IOC may be on the wrong port.** Every
   branch's `configs/target_physical/ionivac` connects to 192.168.1.251:5005;

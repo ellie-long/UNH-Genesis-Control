@@ -31,6 +31,25 @@ def test_material_schedule():
     assert not spin1.uses_cooldown_fit("2026-06") and not spin1.uses_cooldown_fit("2020-12", t_1211)
 
 
+def test_material_uses_its_own_measured_lineshape():
+    # irradiated d-butanol: the 2024-09-18 slow sweep, beta peak at 28.023 GHz/T
+    s = spin1.Spin1(MAT)
+    assert s.peak_x == pytest.approx(28.023) and s.x_opt == pytest.approx(28.023)
+    B = 4.85
+    at_peak = s.rates(28.023 * B, B, 1.0)
+    assert at_peak.k_beta1 == pytest.approx(s.base["k_beta1"], rel=1e-6)   # the fitted set at its optimum
+    assert s.rates(28.031 * B, B, 1.0).k_beta1 < 0.05 * s.base["k_beta1"]  # past the crossover
+    assert s.rates(28.0405 * B, B, 1.0).k_alpha1 > 50 * s.base["k_alpha1"]  # Magic -: P-down drive
+
+
+def test_lineshape_tapers_each_side_separately():
+    ls = {"peak_x": 0.0, "taper": 1.0, "taper_low": 0.1, "taper_high": 2.0,
+          "x": [0.0, 1.0], "B": [1.0, 1.0], "A": [1.0, 1.0]}
+    assert spin1.lineshape(-0.05, ls=ls)[0] == pytest.approx(0.5)
+    assert spin1.lineshape(-0.2, ls=ls)[0] == 0.0
+    assert spin1.lineshape(2.0, ls=ls)[1] == pytest.approx(0.5)
+
+
 def test_label_only_material_keeps_the_cooldown_fit():
     # 2024-09 is labelled irradiated d-butanol (Magic +/-) but keeps its own fitted DNP
     assert spin1.material_for("2024-09") == MAT

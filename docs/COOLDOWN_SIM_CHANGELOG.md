@@ -7,6 +7,16 @@ findings are in `COOLDOWN_SIM_PROGRESS.md`; questions for the lab are in
 
 ## 2026-10-16
 
+* Irradiated d-butanol now uses its own MEASURED microwave lineshape, from
+  the 2024-09-18 slow sweep (beta peak 28.023 GHz/T, x_opt 28.021 -> 28.023;
+  alpha on its plateau at the sweep end, extended to 28.060 as an assumption).
+  Hindcast: 2025-12 MAE 7.05 -> 6.89, 2026-06 4.77 -> 4.82 pp. Magic - for
+  the material 28.077 -> 28.0405 (2024-09 logbook, on the measured plateau).
+  `spin1.py`: per-material lineshapes and separate low/high tapers.
+  operator-microwaves scenario: P-down step at Magic - (138.49 GHz).
+  `scenario --port-offset` added (run beside a live session). Questions 51-53.
+
+
 * Serial servers mapped (question 45 settled): every TXI040 and TXI017 port.
   Finding: Genesis's IONIVAC connects to :5005, which the lab technote assigns
   to a "Pumping Station"; the Ionivac is on :5006 (question 48). New 49, 50.
