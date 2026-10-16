@@ -78,25 +78,39 @@ def load_table(path: Path = MATERIALS_FILE) -> dict:
         return yaml.safe_load(fh)
 
 
-def material_for(cooldown: str | None, t: float | None = None, table: dict | None = None) -> str:
-    """Material of a past cool-down at time t (lab-local schedule), else the default."""
+def schedule_entry(cooldown: str | None, t: float | None = None, table: dict | None = None) -> dict:
+    """The schedule entry of a past cool-down in force at t (lab-local), or {}."""
     table = table or load_table()
     if not cooldown:
-        return table.get("default") or ""
+        return {}
     entries = None
     for key, sched in (table.get("cooldowns") or {}).items():
         if key == cooldown or key.split("-Cooldown")[0] == cooldown.split("-Cooldown")[0]:
             entries = sched
     if not entries:
-        return ""                         # unknown: phenomenological with fitted values
+        return {}
     from ..data.records import lab_tz
     tz = lab_tz()
-    name = entries[0]["material"]
+    entry = entries[0]
     for e in entries:
         start = _dt.datetime.strptime(e["start"], "%Y-%m-%d %H:%M").replace(tzinfo=tz).timestamp()
         if t is None or t >= start:
-            name = e["material"]
-    return name
+            entry = e
+    return entry
+
+
+def material_for(cooldown: str | None, t: float | None = None, table: dict | None = None) -> str:
+    """Material of a past cool-down at time t (lab-local schedule), else the default."""
+    table = table or load_table()
+    if not cooldown:
+        return table.get("default") or ""
+    return schedule_entry(cooldown, t, table).get("material") or ""   # unknown: fitted values
+
+
+def uses_cooldown_fit(cooldown: str | None, t: float | None = None, table: dict | None = None) -> bool:
+    """True when the schedule marks the material as a label only (``dnp: fitted``):
+    the model then keeps this cool-down's own fitted phenomenological DNP."""
+    return schedule_entry(cooldown, t, table).get("dnp") == "fitted"
 
 
 def magic_ratio(sign: str, material: str = "", table: dict | None = None) -> float:

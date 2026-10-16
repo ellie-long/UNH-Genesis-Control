@@ -184,7 +184,7 @@ class TargetModel:
 
     def spin1_engine(self, t: float):
         """The spin-1 rate model for the material at t, or None (phenomenological DNP)."""
-        if self.p["dnp"].get("engine") == "phenomenological":
+        if self.p["dnp"].get("engine") == "phenomenological" or spin1.uses_cooldown_fit(self.cooldown, t):
             return None
         name = self.material(t)
         if name not in self._spin1:
@@ -323,6 +323,8 @@ class TargetModel:
     def dnp_at(self, t: float) -> dict:
         """Phenomenological DNP values at t: the material's own block if it has one
         (spin1_materials.yaml), else the defaults / this cool-down's fitted values."""
+        if spin1.uses_cooldown_fit(self.cooldown, t):
+            return self.dnp
         name = self.material(t)
         if name not in self._dnp_by_material:
             spec = (spin1.load_table().get("materials") or {}).get(name) or {}

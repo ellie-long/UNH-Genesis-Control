@@ -88,18 +88,47 @@ materials:
     magic: {plus: 28.033, minus: 28.043}
 
 # Which material each past cool-down had (lab-local times; the last entry
-# whose start is <= t applies).  A material without rates (or a cool-down not
-# listed) uses the phenomenological DNP with that cool-down's fitted values
-# (cooldown_dnp.yaml).  `default` applies to synthetic runs and unlisted
-# cool-downs; empty keeps them on the phenomenological DNP (the synthetic day is
-# designed with it).
+# whose start is <= t applies).  Source: the cool-downs technote
+# (Optimizied-McClellan-Fits docs/cooldowns; dissertation section 5.6 wins on
+# any conflict).  A material without rates (or a cool-down not listed) uses
+# the phenomenological DNP with that cool-down's fitted values
+# (cooldown_dnp.yaml).  `dnp: fitted` makes the material a LABEL only (Magic
+# +/- constants, screens): the model keeps the cool-down's own fitted
+# phenomenological DNP.  Used where the material's model does not hindcast
+# that cool-down (2026-10-16 trial against the record's online P: the Dec 2025
+# irradiated d-butanol rates give MAE 9.6-22.8 pp on 2024-09, 2024-11,
+# 2025-02 and 2025-11 vs 2.0-6.7 fitted; the trityl block 10.8 vs 1.7 pp on
+# 2021-09).  Caveat: 2024-09 and 2024-11's online P is miscalibrated (~+32 %
+# offset; 2024-09 truly reached 43.9 %, close to the rate model's 49 %), so
+# that trial undersells the rate model there.  `default` applies to synthetic
+# runs and unlisted cool-downs; empty keeps them on the phenomenological DNP
+# (the synthetic day is designed with it).  2025-07 (material unknown, no DNP
+# achieved) is not listed.
 default: ""
 cooldowns:
   2020-09-Cooldown:
     - {start: "2020-09-01 00:00", material: trityl_d_propanediol}
   2020-12-Cooldown:
-    - {start: "2020-12-01 00:00", material: trityl_d_propanediol}
+    - {start: "2020-12-01 00:00", material: trityl_d_propanediol}   # 12/06-12/09, not in the data
     - {start: "2020-12-10 00:00", material: tempo_d_butanol}
+  2021-09-Cooldown:
+    - {start: "2021-09-01 00:00", material: trityl_d_propanediol, dnp: fitted}
+  2022-05-Cooldown:
+    - {start: "2022-05-01 00:00", material: trityl_d_propanediol, dnp: fitted}
+  2024-08-Cooldown:
+    - {start: "2024-08-01 00:00", material: tempo_d_butanol, dnp: fitted}       # no deuteron signal
+    - {start: "2024-08-29 00:00", material: trityl_d_propanediol, dnp: fitted}
+  2024-09-Cooldown:
+    - {start: "2024-09-01 00:00", material: irradiated_d_butanol, dnp: fitted}  # NIST-irradiated
+  2024-11-Cooldown:
+    - {start: "2024-11-01 00:00", material: nd3, dnp: fitted}                   # did not polarize
+    - {start: "2024-11-15 00:00", material: d_butanol, dnp: fitted}
+  2024-12-Cooldown:
+    - {start: "2024-12-01 00:00", material: nd3, dnp: fitted}                   # first ammonia DNP
+  2025-02-Cooldown:
+    - {start: "2025-02-01 00:00", material: d_butanol, dnp: fitted}
+  2025-11-Cooldown:
+    - {start: "2025-11-01 00:00", material: d_butanol, dnp: fitted}
   2025-12-Cooldown:
     - {start: "2025-12-01 00:00", material: irradiated_d_butanol}
   2026-06-Cooldown:

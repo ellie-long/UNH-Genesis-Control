@@ -22,12 +22,24 @@ X_OPT = spin1.load_table()["materials"][MAT]["x_opt"]
 def test_material_schedule():
     assert spin1.material_for("2026-06") == MAT
     assert spin1.material_for("2026-06-Cooldown") == MAT
-    assert spin1.material_for("2024-09") == ""                    # unknown: phenomenological
+    assert spin1.material_for("2025-07") == ""                    # unknown: phenomenological
     assert spin1.material_for(None) == ""                          # synthetic
     t_1207 = 1607346000.0                                          # 2020-12-07 08:00 EST
     t_1211 = 1607691600.0                                          # 2020-12-11 08:00 EST
     assert spin1.material_for("2020-12", t_1207) == "trityl_d_propanediol"
     assert spin1.material_for("2020-12", t_1211) == "tempo_d_butanol"
+    assert not spin1.uses_cooldown_fit("2026-06") and not spin1.uses_cooldown_fit("2020-12", t_1211)
+
+
+def test_label_only_material_keeps_the_cooldown_fit():
+    # 2024-09 is labelled irradiated d-butanol (Magic +/-) but keeps its own fitted DNP
+    assert spin1.material_for("2024-09") == MAT
+    assert spin1.uses_cooldown_fit("2024-09")
+    params = load_params(cooldown="2024-09")
+    m = TargetModel(record(), 60.0, params, cooldown="2024-09")
+    assert m.spin1_engine(600.0) is None
+    assert m.dnp_at(600.0) == m.dnp
+    assert m.magic_GHz("+", 600.0) == pytest.approx(spin1.magic_ratio("+", MAT) * B)
 
 
 def test_lineshape_normalized_and_tapered():
