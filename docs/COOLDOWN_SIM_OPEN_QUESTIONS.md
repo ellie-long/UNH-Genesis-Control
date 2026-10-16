@@ -9,6 +9,12 @@ named in each item. Numbers are stable: answered items move to *Settled*.
 ## Checklist (all open items)
 
 **Equipment and wiring**
+- [ ] 58. IP check after the static-IP rework: the cold-board supply is now
+      192.168.1.18 (Ells). The NMR switch (Mini-Circuits RC-2SPDT-A18,
+      `ssrf_nmr_switch`) is configured live at 192.168.1.8
+      (`configs/ssrf_physical/nmr_switch`), while the SSRF commissioning doc
+      (and so the channel map) lists it at 192.168.1.18. What is the NMR
+      switch's address now? (Two devices cannot both be .18.)
 - [ ] 49. Models, and Genesis priority: (a) `Magnet_IPS` on the TXI017
       (TCP 5001, 9600 8N2) -- the Oxford IPS120-10? (b) `Magnet_LHE_Prob`
       (TCP 23) -- which level meter (AMI model)? (c) Should the portable

@@ -7,6 +7,10 @@ findings are in `COOLDOWN_SIM_PROGRESS.md`; questions for the lab are in
 
 ## 2026-10-16
 
+* Cold-board supply (`siglent_coldboard`, SPD1305X) now at 192.168.1.18 (was
+  192.168.1.5; Ells): config, driver docstring and channel map updated.
+
+
 * IONIVAC port fixed (question 48 settled): the shells' IONIVAC is on TXI040 :5006;
   :5005 is the portable pumping-station cart's IONIVAC, which Genesis had been
   reading on every branch. `configs/target_physical/ionivac` -> 5006 (dev-sim;

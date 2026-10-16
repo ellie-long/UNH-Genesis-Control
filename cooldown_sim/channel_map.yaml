@@ -227,13 +227,13 @@ equipment:
   - genesis: siglent_coldboard
     equipment: "Siglent SPD1305X single-channel DC supply (Ells 2026-10-15; the driver is written for this SPD1000X family)"
     role: "Cold-board varactor bias, 0-19 V; tunes the NMR Q-curve (higher V = higher frequency). Also the safety interlock's only actuator"
-    link: Ethernet SCPI 192.168.1.5:5025
+    link: Ethernet SCPI 192.168.1.18:5025
     prefix: UNH:GEN:CRYO:COLDBOARD
     control: "read-only in the live profile (write_enabled: false)"
     map: siglent_coldboard.Coldboard (no past-record column)
     sim: SCPI supply emulator (as SPD1305X), output OFF
     confidence: high
-    note: "Ells 2026-10-15: an SPD1305X with a sticker reading IP 192.168.1.5, the IOC's address. Before Genesis the cold board ran from an external DC supply, never recorded."
+    note: "Ells 2026-10-16: now at 192.168.1.18 (the sticker and the old config said 192.168.1.5, before the post-outage static-IP rework). An SPD1305X. Before Genesis the cold board ran from an external DC supply, never recorded."
   - genesis: (serial gateway)
     equipment: DIE WU TXI040 8-port RS-232/422/485 serial device server
     role: Carries Genesis's four RS-232 instruments (MKS 902B, IONIVAC, LS455, TPG 262)
@@ -345,7 +345,7 @@ equipment:
   - genesis: ssrf_nmr_switch
     equipment: Mini-Circuits RC-2SPDT-A18 dual SPDT switch
     role: Routes the NMR signal path
-    link: HTTP 192.168.1.8:80
+    link: HTTP 192.168.1.18:80
     prefix: UNH:GEN:SSRF:NMR_SW
     control: write-enabled
     map: "-"

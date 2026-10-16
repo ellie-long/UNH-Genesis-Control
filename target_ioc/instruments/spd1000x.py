@@ -45,7 +45,7 @@ settings.yaml entry
     siglent_coldboard:
       module: 'target_ioc.instruments.spd1000x'
       autostart: True
-      ip: '192.168.1.5'
+      ip: '192.168.1.18'
       port: 5025            # raw SCPI socket port (used when transport: socket)
       transport: 'socket'   # 'socket' (std library only) or 'visa' (pyvisa, VXI-11)
       timeout: 5            # seconds
