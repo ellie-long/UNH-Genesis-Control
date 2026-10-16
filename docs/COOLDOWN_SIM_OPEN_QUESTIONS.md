@@ -32,6 +32,12 @@ named in each item. Numbers are stable: answered items move to *Settled*.
       declared in GHz (default 140, the output band's middle), but its Magic
       formula needs the NMR centre in MHz (field = CentralFrequency /
       6.53566 MHz/T). Which is intended? (Details below.)
+- [ ] 47. Panopticon magnet neck: drawn to scale, the AMI drawing puts all
+      five neck baffles (31.6, 33.5, 36.4, 40.4, 45.4") inside the magnet's
+      LHe neck, which runs from the belly top (31.5") to the top flange
+      (51.5"), so none falls outside the magnet space. Which baffles did you
+      mean as lying outside it? (The fridge's own plates are its
+      heat-exchanger stacks, inside the insert.)
 - [ ] 44. Panopticon plot toolbars (zoom/pan/axis limits) take ~30 px from
       each plot; the small pressure and shells plots are tight. Keep them, or
       hide them and rely on Ctrl+drag zoom / Shift+drag pan?
