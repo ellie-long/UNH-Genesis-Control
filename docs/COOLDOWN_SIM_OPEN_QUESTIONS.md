@@ -9,12 +9,6 @@ named in each item. Numbers are stable: answered items move to *Settled*.
 ## Checklist (all open items)
 
 **Equipment and wiring**
-- [ ] 58. IP check after the static-IP rework: the cold-board supply is now
-      192.168.1.18 (Ells). The NMR switch (Mini-Circuits RC-2SPDT-A18,
-      `ssrf_nmr_switch`) is configured live at 192.168.1.8
-      (`configs/ssrf_physical/nmr_switch`), while the SSRF commissioning doc
-      (and so the channel map) lists it at 192.168.1.18. What is the NMR
-      switch's address now? (Two devices cannot both be .18.)
 - [ ] 49. Models, and Genesis priority: (a) `Magnet_IPS` on the TXI017
       (TCP 5001, 9600 8N2) -- the Oxford IPS120-10? (b) `Magnet_LHE_Prob`
       (TCP 23) -- which level meter (AMI model)? (c) Should the portable
@@ -273,6 +267,11 @@ named in each item. Numbers are stable: answered items move to *Settled*.
     varactors at 0-19 V. Keep a rule, change it, or drop it?
 
 ## Settled
+
+* Switch and supply IPs (question 58): Ells (2026-10-16), the NMR switch is
+  192.168.1.8 and the ssRF switch 192.168.1.11 (as configured); the cold-board
+  supply is now 192.168.1.18. The channel map's 192.168.1.18 for the NMR
+  switch was a transcription error, now fixed.
 
 * IONIVAC port (question 48): Ells (2026-10-16), there are TWO IONIVACs. The
   shells' one (the important one) is on TXI040 :5006; :5005 is the IONIVAC

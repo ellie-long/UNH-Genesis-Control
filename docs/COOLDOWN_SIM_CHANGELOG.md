@@ -7,6 +7,10 @@ findings are in `COOLDOWN_SIM_PROGRESS.md`; questions for the lab are in
 
 ## 2026-10-16
 
+* Channel map: NMR switch 192.168.1.8 (was mis-copied as .18) and ssRF switch
+  192.168.1.11, both confirmed (question 58 settled).
+
+
 * Cold-board supply (`siglent_coldboard`, SPD1305X) now at 192.168.1.18 (was
   192.168.1.5; Ells): config, driver docstring and channel map updated.
 

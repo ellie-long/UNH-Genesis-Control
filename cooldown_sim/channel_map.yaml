@@ -345,7 +345,7 @@ equipment:
   - genesis: ssrf_nmr_switch
     equipment: Mini-Circuits RC-2SPDT-A18 dual SPDT switch
     role: Routes the NMR signal path
-    link: HTTP 192.168.1.18:80
+    link: HTTP 192.168.1.8:80 (confirmed, Ells 2026-10-16)
     prefix: UNH:GEN:SSRF:NMR_SW
     control: write-enabled
     map: "-"
@@ -355,7 +355,7 @@ equipment:
   - genesis: ssrf_rf_switch
     equipment: Mini-Circuits RC-2SPDT-A18 dual SPDT switch
     role: Routes the ssRF signal path
-    link: HTTP 192.168.1.11:80
+    link: HTTP 192.168.1.11:80 (confirmed, Ells 2026-10-16)
     prefix: UNH:GEN:SSRF:RF_SW
     control: write-enabled
     map: "-"
