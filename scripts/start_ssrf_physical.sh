@@ -169,7 +169,7 @@ read -r PYNMR_PID PYNMR_TICKS <<< "$PYNMR_ID"
 }
 echo "[PASS] Authorized PyNMR producer PID=$PYNMR_PID"
 
-screen -dmS genesis-ssrf-fitter bash -lc "cd '$ROOT' && exec env EPICS_CAS_SERVER_PORT=5100 EPICS_PVA_SERVER_PORT=5101 EPICS_CA_MAX_ARRAY_BYTES=262144 PYTHONPATH='$ROOT' GENESIS_PYNMR_PRODUCER_PID='$PYNMR_PID' GENESIS_PYNMR_PRODUCER_START_TICKS='$PYNMR_TICKS' '$PYTHON_BIN' -u -m online_fitter.epics_run --nmr-protected --nmr-source pynmr --pynmr-port 8779 --pynmr-ipc-path /run/genesis-nmr-ipc/events.sock --pynmr-ipc-allowed-uid '$(id -u)' --material d-butanol --mode equilibrium >> '$ROOT/logs/genesis-ssrf-fitter.log' 2>&1"
+screen -dmS genesis-ssrf-fitter bash -lc "cd '$ROOT' && exec env EPICS_CAS_SERVER_PORT=5100 EPICS_PVA_SERVER_PORT=5101 EPICS_CA_MAX_ARRAY_BYTES=262144 EPICS_CA_AUTO_ADDR_LIST=NO EPICS_CA_ADDR_LIST=127.0.0.1:5071 PYTHONPATH='$ROOT' GENESIS_PYNMR_PRODUCER_PID='$PYNMR_PID' GENESIS_PYNMR_PRODUCER_START_TICKS='$PYNMR_TICKS' '$PYTHON_BIN' -u -m online_fitter.epics_run --nmr-protected --nmr-source pynmr --pynmr-port 8779 --pynmr-ipc-path /run/genesis-nmr-ipc/events.sock --pynmr-ipc-allowed-uid '$(id -u)' --pynmr-ipc-shared-gid '$(stat -c %g /run/genesis-nmr-ipc)' --material d-butanol --mode equilibrium >> '$ROOT/logs/genesis-ssrf-fitter.log' 2>&1"
 sleep 3
 session_exists genesis-ssrf-fitter || { tail -100 "$ROOT/logs/genesis-ssrf-fitter.log"; exit 1; }
 start_local_ioc genesis-ssrf-recipe configs/ssrf_physical/burn_recipe burn_recipe 5090 5091
