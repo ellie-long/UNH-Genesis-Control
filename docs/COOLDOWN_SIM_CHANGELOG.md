@@ -7,6 +7,10 @@ findings are in `COOLDOWN_SIM_PROGRESS.md`; questions for the lab are in
 
 ## 2026-10-16
 
+* Channel map: the serial gateways are DIE WU serial device servers, a TXI040
+  8-port at 192.168.1.251 (7 devices; Genesis's 4 RS-232 instruments) and a
+  TXI017 4-port at 192.168.1.250 (2 devices, none in Genesis). Question 14
+  settled; new question 45 (the 5 unidentified devices).
 * Channel map: LabVIEW's "Roots Pressure (Torr)" is the top Roots gauge
   (TPG 262 gauge 1), now high confidence; question 3's second half settled.
 * Shells-vacuum (IONIVAC) alarm limits recorded: 1e-4 Torr with the magnet

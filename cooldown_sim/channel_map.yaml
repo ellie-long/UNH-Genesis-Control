@@ -237,15 +237,25 @@ equipment:
     confidence: high
     note: "Ells 2026-10-15: an SPD1305X with a sticker reading IP 192.168.1.5, the IOC's address. Before Genesis the cold board ran from an external DC supply, never recorded."
   - genesis: (serial gateway)
-    equipment: Serial-to-Ethernet gateway (model not recorded in Genesis)
-    role: Carries the four RS-232 instruments
+    equipment: DIE WU TXI040 8-port RS-232/422/485 serial device server
+    role: Carries Genesis's four RS-232 instruments (MKS 902B, IONIVAC, LS455, TPG 262)
     link: 192.168.1.251, TCP ports 5004 / 5005 / 5007 / 5011
     prefix: "-"
     control: transport only
     map: "-"
     sim: the emulators listen on loopback instead
-    confidence: medium
-    note: "Ells 2026-10-15: possibly a Raspberry Pi (uncertain). CHECK: make and model, for the record"
+    confidence: high
+    note: "Ells 2026-10-16: a DIE WU TXI040 (8 serial ports to Ethernet) with 7 devices plugged in; Genesis uses 4 of them. CHECK: what the other 3 are (open question 45)"
+  - genesis: (serial gateway 2)
+    equipment: DIE WU TXI017 4-port RS-232/485/422 serial device server
+    role: Serial-to-Ethernet for 2 devices; none of them used by Genesis
+    link: 192.168.1.250
+    prefix: "-"
+    control: transport only
+    map: "-"
+    sim: not emulated (nothing in Genesis behind it)
+    confidence: high
+    note: "Ells 2026-10-16: 2 devices plugged in. CHECK: which (open question 45)"
   # ----------------------------------------------------------- microwave
   - genesis: mw_spd1305x
     equipment: "Siglent SPD1305X single-channel DC supply (confirmed by Ells, 2026-10-15)"

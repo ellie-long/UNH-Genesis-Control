@@ -12,7 +12,11 @@ named in each item. Numbers are stable: answered items move to *Settled*.
 - [ ] 3. Vacuum: beyond the IONIVAC alarm (limits now set, see 25), should
       the interlock also ACT on the IONIVAC (trip something: what?), or is
       the alarm enough? (LabVIEW's `Roots Pressure` = the top gauge: settled.)
-- [ ] 14. Serial gateway at 192.168.1.251: make and model (possibly a Pi).
+- [ ] 45. Serial device servers: which devices are on the 3 TXI040 ports
+      (192.168.1.251) that Genesis doesn't use, and on the 2 occupied TXI017
+      ports (192.168.1.250)? Their TCP ports too, if easy (the servers' web
+      pages list them). Likely candidates are instruments the record has but
+      Genesis lacks (AMI level meters, flow meters, thermocouple readers).
 - [ ] 12. (Optional) cold-board voltage to Q-curve tune: MHz per volt, or
       the tune at 0 V and 19 V.
 
@@ -218,9 +222,6 @@ named in each item. Numbers are stable: answered items move to *Settled*.
 
 ### Smaller items
 
-14. **Serial gateway.** The box at 192.168.1.251 carrying the four RS-232
-    instruments (TCP ports 5004/5005/5007/5011). Ells thinks it may be a
-    Raspberry Pi; it is neither the `keysight` Pi nor `mmWaveRobot.local`.
 15. **Target stick and T2.** Thermometer names carry the stick version in
     the lab's calibration list (1-T#, 2-T#). Genesis's calibration file
     matches stick 2 (T1 C2, T3 C4, no T2).
@@ -262,6 +263,12 @@ named in each item. Numbers are stable: answered items move to *Settled*.
     varactors at 0-19 V. Keep a rule, change it, or drop it?
 
 ## Settled
+
+* Serial gateways (question 14): Ells (2026-10-16), 192.168.1.251 is a DIE WU
+  TXI040 8-port RS-232/422/485 serial device server with 7 devices plugged in
+  (Genesis uses 4: MKS 902B :5004, IONIVAC :5005, LS455 :5007, TPG 262 :5011).
+  192.168.1.250 is a DIE WU TXI017 4-port server with 2 devices, none used by
+  Genesis. Not a Raspberry Pi. What the other 5 devices are: question 45.
 
 * XCG range (question 13): Ells (2026-10-16), the Manometer-Lo head is an
   XCG-HT-FB-1: 10 Torr full scale, Torr units, 0.5 % of reading class;
