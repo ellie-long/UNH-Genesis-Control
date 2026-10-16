@@ -26,9 +26,6 @@ named in each item. Numbers are stable: answered items move to *Settled*.
 - [ ] 10. (Parked) ssRF heat vs power at the coil. **REMINDER for Ells:**
       send the ssRF heat data taken in the prep for the 2026-06 cool-down,
       once you have analyzed it (2026-10-16).
-- [ ] 28. Were LabVIEW's microwave Sweep (FM between two frequencies) or Hop
-      ever used for DNP? The record has no on/off flag; span is always 0 and
-      the time always 1 s. Genesis has only a one-pass stepped sweep.
 
 **Target physics**
 - [ ] 33. Which target material (and radical) was in each cool-down, and
@@ -263,6 +260,17 @@ named in each item. Numbers are stable: answered items move to *Settled*.
     varactors at 0-19 V. Keep a rule, change it, or drop it?
 
 ## Settled
+
+* Microwave Sweep / Hop (question 28): Ells (2026-10-16), used only extremely
+  rarely; extremely low priority for Genesis. The "slow sweep" (frequency
+  moved a set df in a set time) was extremely useful and is MID priority for
+  Genesis. Genesis already has it in essence: the microwave supervisor's
+  software sweep (`SUP:SweepStart/Stop/Step/Dwell`, on the Microwave screen)
+  steps `Step` GHz every `Dwell` s, one pass. Gaps against a LabVIEW-style
+  slow sweep: the dwell starts after each frequency command completes, so
+  the real rate is a little slower than Step/Dwell; one pass only (no
+  repeat or return); entered as step and dwell, not as a rate. See
+  COOLDOWN_SIM_PROGRESS.md.
 
 * Serial gateways (question 14): Ells (2026-10-16), 192.168.1.251 is a DIE WU
   TXI040 8-port RS-232/422/485 serial device server with 7 devices plugged in

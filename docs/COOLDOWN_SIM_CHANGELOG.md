@@ -7,6 +7,9 @@ findings are in `COOLDOWN_SIM_PROGRESS.md`; questions for the lab are in
 
 ## 2026-10-16
 
+* Question 28 settled: Sweep/Hop extremely rarely used (very low priority); the
+  slow sweep (set df per set time) is mid priority -- Genesis has it as the
+  supervisor's step-per-dwell software sweep (gaps noted).
 * Channel map: the serial gateways are DIE WU serial device servers, a TXI040
   8-port at 192.168.1.251 (7 devices; Genesis's 4 RS-232 instruments) and a
   TXI017 4-port at 192.168.1.250 (2 devices, none in Genesis). Question 14

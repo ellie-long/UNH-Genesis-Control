@@ -441,7 +441,7 @@ record_only:
   - instrument: Microwave sweep / hop settings (LabVIEW)
     columns: [mw_freq_set2, mw_sweep_span, mw_sweep_time]
     used_by: nothing
-    note: "LabVIEW could FM-sweep or hop between the main and a second frequency. Not logged whether either was ON; span is always 0 and the time always 1 s with RF on, so probably unused. Genesis has a supervised one-pass stepped software sweep (SUP:Sweep*); the Vaunix IOC exposes hardware repeat/triangle sweep settings but deliberately does not authorize starting one; nothing in Genesis hops. CHECK: were Sweep or Hop ever used for DNP?"
+    note: "LabVIEW could FM-sweep or hop between the main and a second frequency. Not logged whether either was ON; span is always 0 and the time always 1 s with RF on, so probably unused. Genesis has a supervised one-pass stepped software sweep (SUP:Sweep*); the Vaunix IOC exposes hardware repeat/triangle sweep settings but deliberately does not authorize starting one; nothing in Genesis hops. Ells 2026-10-16: Sweep/Hop used only extremely rarely (extremely low priority); the slow sweep (set df in a set time) was very useful and is mid priority -- Genesis's SUP:Sweep* provides it as step-per-dwell."
   - instrument: EPR coil waveform generator (Agilent 33220A)
     columns: [epr_freq, epr_amplitude]
     used_by: nothing
