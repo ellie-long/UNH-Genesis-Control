@@ -33,6 +33,8 @@ class Device:
         # the target's dopant is chosen with the material on the Cryo Safety
         # screen (UNH:GEN:CRYO:STATE:dopant); the supervisor adopts each change
         self.follow_dopant_pv = settings.get("follow_dopant_pv")
+        # Magic constants depend on the target material too (cryo selection)
+        self.material_pv = settings.get("material_pv")
         self._followed_dopant = None
         self._next_dopant_check = 0.0
         self._rf_lock = asyncio.Lock()
@@ -259,8 +261,11 @@ class Device:
 
     async def _magic(self, sign):
         try:
+            material = None
+            if self.material_pv:
+                material = await aioca.caget(self.material_pv, datatype=str, timeout=1.0)
             value = configured_magic(self.dopants, self.pvs["Dopant"].get(),
-                                     sign, self.pvs["CentralFrequency"].get())
+                                     sign, self.pvs["CentralFrequency"].get(), material)
             await self._command_frequency(value)
             self._error("")
         except Exception as exc:

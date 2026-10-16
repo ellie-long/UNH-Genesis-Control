@@ -8,14 +8,14 @@ legs: [cryo, mw, nmr]
 deviates_from_record: true
 autopilot: []
 # 138.40 GHz at 4.939 T = 28.022 GHz/T (the irradiated d-butanol optimum);
-# 138.49 GHz = 28.0405 GHz/T, the irradiated d-butanol Magic - (2024-09 logbook
-# "good negative"), on the alpha plateau measured in the 2024-09-18 slow sweep
+# 138.51 GHz = 28.0438 GHz/T x 4.939 T, the irradiated d-butanol Magic - (Ells),
+# on the alpha plateau measured in the 2024-09-18 slow sweep
 actions:
   - {at: 1, do: caput, pv: "UNH:GEN:MW:SUP:OutputFrequency", value: 138.40}
   - {at: 1.5, do: caput, pv: "UNH:GEN:MW:SUP:RFEnable", value: 1}
   - {at: 3, do: caput, pv: "UNH:GEN:MW:PS:VSET_CMD", value: 0.0}
   - {at: 45, do: caput, pv: "UNH:GEN:MW:PS:VSET_CMD", value: 5.0}
-  - {at: 55, do: caput, pv: "UNH:GEN:MW:SUP:OutputFrequency", value: 138.49}
+  - {at: 55, do: caput, pv: "UNH:GEN:MW:SUP:OutputFrequency", value: 138.51}
   - {at: 56, do: caput, pv: "UNH:GEN:MW:PS:VSET_CMD", value: 0.0}
 expect:
   - {label: "UCA at 5 V: no pumping yet", truth: true_P, from: 2, to: 2.9, op: lt, value: 3}

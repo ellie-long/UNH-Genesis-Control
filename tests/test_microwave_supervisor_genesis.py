@@ -95,12 +95,18 @@ class GenesisSupervisorConfig(unittest.TestCase):
         self.assertEqual(freq["output_max_ghz"], 142.0)
 
     def test_magic_constants_are_not_invented(self):
-        # the dopant menu is configured, but no Magic constant may be invented
+        # the dopant menu and Ells's Magic factors (2026-10-16), nothing else:
+        # gamma_d_over_2pi stays unset until the CentralFrequency units are settled
         self.assertEqual([d["name"] for d in self.dev["dopants"]],
                          ["None", "Irradiated", "TEMPO", "Trityl"])
+        magic = {d["name"]: d.get("magic") for d in self.dev["dopants"]}
+        self.assertEqual(magic["Irradiated"]["d-butanol"], {"plus": 28.0236, "minus": 28.0438})
+        self.assertEqual(magic["Irradiated"]["ND3"], {"plus": 28.0245, "minus": 28.0605})
+        self.assertEqual(magic["TEMPO"]["d-butanol"], {"plus": 28.0527, "minus": 28.0919})
+        self.assertEqual(magic["Trityl"]["d-propanediol"], {"plus": 28.0316, "minus": 28.0468})
+        self.assertIsNone(magic["None"])
         for dopant in self.dev["dopants"]:
-            self.assertNotIn("magic_plus_factor", dopant)
-            self.assertNotIn("magic_minus_factor", dopant)
+            self.assertNotIn("gamma_d_over_2pi", dopant)
 
     def test_supervisor_device_initializes_frequency_command(self):
         source = (
@@ -237,6 +243,23 @@ class GenesisSupervisorLogic(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             validate_dwell(0)
+
+    def test_magic_factor_is_per_material(self):
+        dopants = [{"name": "Irradiated", "gamma_d_over_2pi": 6.53566,
+                    "magic": {"d-butanol": {"plus": 28.0236, "minus": 28.0438},
+                              "ND3": {"plus": 28.0245, "minus": 28.0605}}}]
+        # NMR centre 32.28 MHz -> 4.939 T
+        self.assertAlmostEqual(configured_magic(dopants, 0, "+", 32.28, "d-butanol"),
+                               32.28 / 6.53566 * 28.0236, places=9)
+        self.assertAlmostEqual(configured_magic(dopants, 0, "-", 32.28, "nd3"),
+                               32.28 / 6.53566 * 28.0605, places=9)
+        with self.assertRaises(ValueError):
+            configured_magic(dopants, 0, "+", 32.28, "NH3")          # no constant for NH3
+        with self.assertRaises(ValueError):
+            configured_magic(dopants, 0, "+", 32.28, None)           # material unknown
+        no_gamma = [dict(dopants[0], gamma_d_over_2pi=None)]
+        with self.assertRaises(ValueError):
+            configured_magic(no_gamma, 0, "+", 32.28, "d-butanol")
 
     def test_magic_unconfigured_is_rejected(self):
         with self.assertRaises(ValueError):

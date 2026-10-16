@@ -65,10 +65,9 @@ materials:
       2025-12 MAE 7.05 -> 6.89, 2026-06 4.77 -> 4.82 pp (medians 2.17 -> 2.04,
       2.14 -> 2.11).  Known: steady state ~5 pp above 2024-09's 43.7 % plateau.
     x_opt: 28.023
-    # Magic +: the DAQ's 28.025 until Ells's numbers (open question 34);
-    # Magic -: 28.0405, the 2024-09 logbook's "good negative", on the measured
-    # alpha plateau (the old 28.077 was TEMPO's spacing, past the measured range)
-    magic: {plus: 28.025, minus: 28.0405}
+    # Magic +/- from Ells (2026-10-16): + sits on the measured beta peak
+    # (28.023 +- 0.001), - on the measured alpha plateau (28.039-28.045)
+    magic: {plus: 28.0236, minus: 28.0438}
     lineshape:
       source: NIST-irradiated d-butanol, 2024-09-18 slow microwave sweep (net drive)
       peak_x: 28.023
@@ -90,7 +89,7 @@ materials:
       d-butanol, Dec 2020 sign-flip sequence fit (B 5.0498 T, T 1.05 K); x_opt
       is the lineshape's own beta peak.
     x_opt: 28.052
-    magic: {plus: 28.052, minus: 28.108}
+    magic: {plus: 28.0527, minus: 28.0919}   # Ells 2026-10-16
     rates: {k_e: 0.1, k_s: 0.0001, k_zeta1: 0.0, k_zeta2: 0.000769,
             k_phitheta1: 6.6e-05, k_phitheta2: 0.0, k_alpha1: 3.153481, k_alpha2: 1.0e-05,
             k_beta1: 5.498735, k_beta2: 2.678993, k_sigma1: 43.107754, k_sigma2: 65.269232,
@@ -108,7 +107,15 @@ materials:
       relaxation data: T1 is the default.
     phenomenological: {P_max: 0.39, tau_up_s: 1565.0, optimum_offset_GHz: 0.038,
                        lobe_width_GHz: 0.026, neg_scale: 1.32, neg_side: 1}
-    magic: {plus: 28.033, minus: 28.043}
+    magic: {plus: 28.0316, minus: 28.0468}   # Ells 2026-10-16
+
+  nd3:
+    basis: >-
+      Irradiated deuterated ammonia (ND3).  No rate-equation fit: the
+      phenomenological DNP with the cool-down's fitted values applies.  Magic
+      +/- from Ells (2026-10-16); she notes ND3 needs a slow sweep for better
+      numbers.
+    magic: {plus: 28.0245, minus: 28.0605}
 
 # Which material each past cool-down had (lab-local times; the last entry
 # whose start is <= t applies).  Source: the cool-downs technote

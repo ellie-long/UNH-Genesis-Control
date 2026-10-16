@@ -25,14 +25,25 @@ microwave_supervisor:
   interlock:
     required_voltage: 5.0
     tolerance: 0.1
-  # Ells 2026-10-16. Magic +/- constants deliberately NOT set yet (open
-  # questions 34, 36): Magic refuses a dopant without them.
   follow_dopant_pv: UNH:GEN:CRYO:STATE:dopant   # set with the material, Cryo Safety screen
+  material_pv: UNH:GEN:CRYO:STATE:material      # Magic constants are per material
+  # Magic +/- factors (GHz/T x field) from Ells, 2026-10-16, per dopant and
+  # material.  gamma_d_over_2pi is deliberately NOT set yet: the Magic
+  # formula divides CentralFrequency by it, and whether CentralFrequency is
+  # the NMR centre in MHz (then 6.53566 MHz/T) is an open question, so
+  # Magic stays refused until it is answered.
   dopants:
   - name: None
   - name: Irradiated
+    magic:
+      d-butanol: {plus: 28.0236, minus: 28.0438}
+      ND3: {plus: 28.0245, minus: 28.0605}     # ND3 needs a slow sweep for better numbers
   - name: TEMPO
+    magic:
+      d-butanol: {plus: 28.0527, minus: 28.0919}
   - name: Trityl
+    magic:
+      d-propanediol: {plus: 28.0316, minus: 28.0468}
   archive_records:
   - SystemConnected
   - UCAConnected

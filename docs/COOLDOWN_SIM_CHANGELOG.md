@@ -7,6 +7,13 @@ findings are in `COOLDOWN_SIM_PROGRESS.md`; questions for the lab are in
 
 ## 2026-10-16
 
+* Ells's Magic +/- constants (question 34 settled): sim materials (new `nd3`)
+  and the Genesis supervisor's dopants, per dopant and material
+  (`configured_magic(..., material)`, supervisor reads `CRYO:STATE:material`).
+  gamma_d_over_2pi still unset, so Magic stays refused until question 36.
+  operator-microwaves P-down step now at Magic - (138.51 GHz).
+
+
 * Target dopant beside the material on the Cryo Safety screen's Target
   Operating State card: a new cryo record `UNH:GEN:CRYO:STATE:dopant` (None /
   Irradiated / TEMPO / Trityl, saved by name); the microwave supervisor

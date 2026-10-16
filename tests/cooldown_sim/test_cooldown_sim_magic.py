@@ -24,7 +24,13 @@ B = 4.939
 def test_magic_ratios():
     assert spin1.magic_ratio("+") == pytest.approx(28.025)          # the LabVIEW DAQ's value
     assert spin1.magic_ratio("-") > spin1.magic_ratio("+")
-    assert spin1.magic_ratio("+", "tempo_d_butanol") == pytest.approx(28.052)
+    # Ells's Magic +/- (2026-10-16), GHz/T
+    for material, plus, minus in (("irradiated_d_butanol", 28.0236, 28.0438),
+                                  ("tempo_d_butanol", 28.0527, 28.0919),
+                                  ("trityl_d_propanediol", 28.0316, 28.0468),
+                                  ("nd3", 28.0245, 28.0605)):
+        assert spin1.magic_ratio("+", material) == pytest.approx(plus)
+        assert spin1.magic_ratio("-", material) == pytest.approx(minus)
 
 
 @pytest.fixture
@@ -44,7 +50,7 @@ def engine(tmp_path):
 
 def test_magic_queues_the_frequency_and_takes_the_microwaves(engine):
     engine.handle({"cmd": "magic", "sign": "+"})
-    assert engine.mw_requests.popleft() == ("frequency", round(28.025 * B, 4))
+    assert engine.mw_requests.popleft() == ("frequency", round(28.0236 * B, 4))
     assert engine.autopilot["mw"] is False                          # the operator took over
     engine.handle({"cmd": "magic", "sign": "-"})
     kind, f = engine.mw_requests.popleft()
@@ -63,5 +69,5 @@ def test_mw_leg_applies_queued_requests_through_operator_ca(engine):
     leg = MicrowaveLeg(engine, ca)
     engine.handle({"cmd": "magic", "sign": "+"})
     asyncio.run(leg.apply_requests())
-    assert ca.puts == [(f"{SUP}:OutputFrequency", round(28.025 * B, 4))]
+    assert ca.puts == [(f"{SUP}:OutputFrequency", round(28.0236 * B, 4))]
     assert not engine.mw_requests

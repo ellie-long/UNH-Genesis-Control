@@ -33,11 +33,6 @@ named in each item. Numbers are stable: answered items move to *Settled*.
       the coil) taken in the prep for the 2026-06 cool-down, once analyzed.
 
 **Target physics**
-- [ ] 34. **REMINDER for Ells (afternoon 2026-10-16):** the actual Magic + /
-      Magic - constants (GHz/T) per material. The sim uses irradiated
-      d-butanol 28.025 / 28.0405 (minus from the 2024-09 logbook's "good
-      negative"; the measured beta peak is 28.023), TEMPO d-butanol
-      28.052 / 28.108, trityl d-propanediol 28.033 / 28.043.
 - [ ] 51. Which spin-up is `fit_asym_pq.json` (the irradiated d-butanol rate
       set) from? Its JSON records B 5.077 T and 0.997 K (the Dec 2025
       cool-down), but its data file is 2026-06-18 (4.939 T). Also, its input
@@ -53,10 +48,12 @@ named in each item. Numbers are stable: answered items move to *Settled*.
       f/B >= 28.06 GHz/T on irradiated d-butanol would locate the alpha
       (P-down) maximum, which the 2024-09-18 sweep (ending at 28.045, still on
       the alpha plateau) could not.
-- [ ] 36. Genesis Magic +/- (live): the supervisor's `CentralFrequency` is
-      declared in GHz (default 140, the output band's middle), but its Magic
-      formula needs the NMR centre in MHz (field = CentralFrequency /
-      6.53566 MHz/T). Which is intended? (Details below.)
+- [ ] 36. **The last thing blocking Magic +/- in Genesis:** the supervisor's
+      `CentralFrequency` is declared in GHz (default 140, the output band's
+      middle), but its Magic formula needs the NMR centre in MHz (field =
+      CentralFrequency / 6.53566 MHz/T). Which is intended? Your constants
+      are in (Settled, 34); `gamma_d_over_2pi` is left unset until this is
+      answered, so Magic is still refused. (Details below.)
 - [ ] 47. Panopticon magnet neck: drawn to scale, the AMI drawing puts all
       five neck baffles (31.6, 33.5, 36.4, 40.4, 45.4") inside the magnet's
       LHe neck, which runs from the belly top (31.5") to the top flange
@@ -274,6 +271,16 @@ named in each item. Numbers are stable: answered items move to *Settled*.
     varactors at 0-19 V. Keep a rule, change it, or drop it?
 
 ## Settled
+
+* Magic +/- constants (question 34): Ells (2026-10-16), GHz/T:
+  TEMPO d-butanol 28.0527 / 28.0919; trityl d-propanediol 28.0316 / 28.0468;
+  irradiated d-butanol 28.0236 / 28.0438; irradiated ND3 28.0245 / 28.0605
+  (ND3 needs a slow sweep for better numbers). In the sim
+  (`spin1_materials.yaml`, new `nd3` material) and the Genesis supervisor's
+  dopant list, per dopant AND material (the supervisor reads the cryo
+  material when Magic is pressed). Irradiated d-butanol's agree with the
+  2024-09 slow sweep: + on the measured beta peak (28.023 +- 0.001), - on
+  the alpha plateau (28.039-28.045).
 
 * Sim vacuum rework (question 20): Ells (2026-10-16), go ahead. Do NOT feed
   TPG gauge 2 (`OVC_PI`, the bottom Roots gauge) from the record (LabVIEW

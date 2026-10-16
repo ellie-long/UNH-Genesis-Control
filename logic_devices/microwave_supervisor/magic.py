@@ -16,16 +16,36 @@ def magic_frequency(central_ghz, gamma_d_over_2pi, factor):
     return values[0] / values[1] * values[2]
 
 
-def configured_magic(dopants, dopant_index, sign, central_ghz):
+def magic_factor(dopant, sign, material=None):
+    """The Magic factor (GHz/T) for this dopant, or None if not configured.
+
+    A dopant may carry one pair per target material (``magic: {material:
+    {plus: .., minus: ..}}``, matched case-insensitively), since e.g.
+    irradiated d-butanol and irradiated ND3 polarize best at different f/B;
+    the older flat ``magic_plus_factor`` / ``magic_minus_factor`` keys still
+    apply when there is no per-material table."""
+    table = dopant.get("magic")
+    if table:
+        if material is None:
+            return None
+        want = str(material).strip().lower()
+        pair = next((v for k, v in table.items() if str(k).strip().lower() == want), None)
+        return None if pair is None else pair.get("plus" if sign == "+" else "minus")
+    return dopant.get("magic_plus_factor" if sign == "+" else "magic_minus_factor")
+
+
+def configured_magic(dopants, dopant_index, sign, central_ghz, material=None):
     try:
         dopant = dopants[int(dopant_index)]
     except (IndexError, TypeError, ValueError):
         raise ValueError("invalid dopant selection") from None
-    key = "magic_plus_factor" if sign == "+" else "magic_minus_factor"
-    gamma, factor = dopant.get("gamma_d_over_2pi"), dopant.get(key)
-    if gamma is None or factor is None:
-        raise ValueError(
-            f"{dopant['name']} {sign} constants are not configured; see settings.yaml")
+    gamma, factor = dopant.get("gamma_d_over_2pi"), magic_factor(dopant, sign, material)
+    if factor is None:
+        raise ValueError(f"no Magic {sign} constant for {dopant['name']}"
+                         + (f" / {material}" if material else "") + "; see settings.yaml")
+    if gamma is None:
+        raise ValueError(f"{dopant['name']}: gamma_d_over_2pi not configured (open question "
+                         "on CentralFrequency units); see settings.yaml")
     return magic_frequency(central_ghz, gamma, factor)
 
 
