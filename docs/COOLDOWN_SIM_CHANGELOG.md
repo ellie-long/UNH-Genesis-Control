@@ -17,6 +17,8 @@ findings are in `COOLDOWN_SIM_PROGRESS.md`; questions for the lab are in
   longer taken as the bath temperature (falls back to T1); test added.
 * Question 10 (ssRF heat): reminder that Ells has data from the 2026-06 prep
   to analyze and send.
+* Checked Ells's 4He `t90_torr_to_k` against the record: Med/Hi/VHi agree to
+  < 0.1 mK; LabVIEW's Lo range is ~1.6 mK colder (new question 40).
 
 * Phoebus ini also names each IOC's PVA server
   (`org.phoebus.pv.pva/epics_pva_name_servers`), so `pva://` screens such as

@@ -78,6 +78,13 @@ named in each item. Numbers are stable: answered items move to *Settled*.
 - [ ] 25. Shells-vacuum alarm (live fix): limits set (bottom of the magnet
       > 300 K: alarm above 1e-4 Torr; < 80 K: above 1e-5 Torr). Still open:
       how rapid a rise counts as rapid?
+- [ ] 40. (Low priority) LabVIEW's vapor-pressure temperature in its "Lo"
+      range (Manometer-Lo, below ~0.86 Torr) reads ~1.6 mK colder than
+      Ells's `t90_torr_to_k` (ITS-90 above 1.25 K, Donnelly & Barenghi below),
+      nearly constant from 0.1 to 0.9 Torr (2025-12, 2026-06); Med, Hi and VHi
+      match it to < 0.1 mK. A constant fraction like this looks like a ~1 %
+      pressure scale or an older temperature scale in LabVIEW's Lo branch.
+      Known? (Only matters if Genesis's VP readout must reproduce LabVIEW.)
 - [ ] 39. Shells-vacuum alarm between 80 and 300 K: which limit applies
       (1e-4 until the magnet bottom is below 80 K? stepped or log-interpolated
       in between?). And is "the bottom of the magnet" M5 (`M5_TI`, LS224
