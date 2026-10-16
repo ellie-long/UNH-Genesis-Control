@@ -387,11 +387,11 @@ record_only:
   - instrument: "Low-range cell manometer: KJLC XCG carbon capacitance manometer on a Kurt J. Lesker KJL-SPARC controller"
     columns: [manometer_lo]
     used_by: "nothing (the MKS 902B is Manometer-Hi)"
-    note: "Ells 2026-10-15: added from 2021 because the 902B struggled with helium near 1 K. The KJL-SPARC answers a Pfeiffer-TPG-style serial protocol, which is how the Pi should read it (Ells). The gauge head is a KJLC XCG carbon capacitance manometer, cabled to the KJL-SPARC with a black RJ45-style cable that carries the gauge's power and signals (not Ethernet). The KJL-SPARC's micro-USB output goes to a USB-A port on the Raspberry Pi 'keysight' (192.168.1.24), which also hosts the Genesis Keysight WaveGen IOC. CHECK: the XCG's full-scale range; what on the Pi reads it and how the reading reaches LabVIEW"
+    note: "Ells 2026-10-15: added from 2021 because the 902B struggled with helium near 1 K. The KJL-SPARC answers a Pfeiffer-TPG-style serial protocol, which is how the Pi should read it (Ells). The gauge head is a KJLC XCG carbon capacitance manometer, cabled to the KJL-SPARC with a black RJ45-style cable that carries the gauge's power and signals (not Ethernet). The KJL-SPARC's micro-USB output goes to a USB-A port on the Raspberry Pi 'keysight' (192.168.1.24), which also hosts the Genesis Keysight WaveGen IOC. Ells (2026-10-16): the head is an XCG-HT-FB-1, i.e. 10 Torr full scale, Torr units, DN16 ISO-KF, 0.5 % of reading accuracy class; analog 0-10 V linear (p = U/10 V x 10 Torr), resolution 0.05 % F.S. = 0.005 Torr, zero drift 0.02 % F.S./degC. Lower usable limit not specified by the maker; works for LHe to at least 0.9 K (~0.04 Torr), likely somewhat lower. CHECK: what on the Pi reads it and how the reading reaches LabVIEW"
   - instrument: Vapor-pressure readout (LabVIEW)
     columns: [vp_range, vp_temp]
-    used_by: "vp_temp is a model-fit channel (fit-params)"
-    note: "CHECK: is this computed in LabVIEW from the manometers (range picks Hi or Lo)?"
+    used_by: "vp_temp is a model-fit channel (fit-params) and the model's bath temperature (0.650 K dropouts skipped)"
+    note: "Computed in LabVIEW from the manometers, 4He ITS-90 vapor pressure. Ells (2026-10-16): crossover from Manometer-Hi to Manometer-Lo at 5 Torr. The record agrees: ranges Lo and Med follow Manometer-Lo, Hi and VHi follow Manometer-Hi (Med/Hi switch where Manometer-Hi = 5 Torr; Med, Hi, VHi match ITS-90 to < 1 mK; Lo, below 1.25 K, is within ~2 mK, a different low-T equation). vp_temp = 0.650 K exactly is a dropout (Manometer-Lo read 0), not a temperature. Lowest genuine reading in the record: 0.053 Torr, ~0.92 K (2026-06)."
   - instrument: Target-cup thermometer T2 (target stick 1 only)
     columns: [T2]
     used_by: "model-fit channel"

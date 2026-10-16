@@ -12,7 +12,6 @@ named in each item. Numbers are stable: answered items move to *Settled*.
 - [ ] 3. Vacuum: beyond the IONIVAC alarm (limits now set, see 25), should
       the interlock also ACT on the IONIVAC (trip something: what?), or is
       the alarm enough? (LabVIEW's `Roots Pressure` = the top gauge: settled.)
-- [ ] 13. Manometer-Lo: the XCG gauge's full-scale range.
 - [ ] 14. Serial gateway at 192.168.1.251: make and model (possibly a Pi).
 - [ ] 12. (Optional) cold-board voltage to Q-curve tune: MHz per volt, or
       the tune at 0 V and 19 V.
@@ -20,7 +19,9 @@ named in each item. Numbers are stable: answered items move to *Settled*.
 **Microwave and ssRF power**
 - [ ] 9. SIG's calibration (reflected power); roughly when the manual supply
       replaced the analog-output drive. (UCA curve: settled, see below.)
-- [ ] 10. (Parked) ssRF heat vs power at the coil.
+- [ ] 10. (Parked) ssRF heat vs power at the coil. **REMINDER for Ells:**
+      send the ssRF heat data taken in the prep for the 2026-06 cool-down,
+      once you have analyzed it (2026-10-16).
 - [ ] 28. Were LabVIEW's microwave Sweep (FM between two frequencies) or Hop
       ever used for DNP? The record has no on/off flag; span is always 0 and
       the time always 1 s. Genesis has only a one-pass stepped sweep.
@@ -158,6 +159,10 @@ named in each item. Numbers are stable: answered items move to *Settled*.
       boil-off caught only part of it;
     * the line was different in December 2024?
 
+    Ells (2026-10-16): there are measurements, probably taken in the prep for
+    the 2026-06 cool-down; she will analyze them and send the result. Waiting
+    on that data, not on a decision.
+
     The measured heat stays right for boil-off and temperatures. The power at
     the coil (B1) is what should set the hole-burning rate, which the sim
     currently assumes. Ells has the details in a private lab note; keep them
@@ -192,8 +197,6 @@ named in each item. Numbers are stable: answered items move to *Settled*.
 
 ### Smaller items
 
-13. **XCG full-scale range.** Sets the valid range for `Manometer-Lo` and
-    when the vapor-pressure readout should switch gauges.
 14. **Serial gateway.** The box at 192.168.1.251 carrying the four RS-232
     instruments (TCP ports 5004/5005/5007/5011). Ells thinks it may be a
     Raspberry Pi; it is neither the `keysight` Pi nor `mmWaveRobot.local`.
@@ -238,6 +241,16 @@ named in each item. Numbers are stable: answered items move to *Settled*.
     varactors at 0-19 V. Keep a rule, change it, or drop it?
 
 ## Settled
+
+* XCG range (question 13): Ells (2026-10-16), the Manometer-Lo head is an
+  XCG-HT-FB-1: 10 Torr full scale, Torr units, 0.5 % of reading class;
+  resolution 0.005 Torr (0.05 % F.S.). The maker gives no lower limit; it has
+  worked for LHe down to at least 0.9 K (~0.04 Torr). The old DAQ crossed from
+  Manometer-Hi to Manometer-Lo at 5 Torr, and the record confirms it (LabVIEW
+  ranges Lo/Med use Manometer-Lo, Hi/VHi Manometer-Hi; the Med/Hi switch is at
+  Manometer-Hi = 5 Torr). A vapor-pressure temperature of exactly 0.650 K is a
+  dropout (Manometer-Lo read 0); the model now skips it. Lowest genuine
+  reading in the record: 0.053 Torr, ~0.92 K.
 
 * Q during spin-ups (question 5, mostly): the June 2026 P&Q data put Q on the
   Boltzmann curve to < 0.006 % (Spin-1-Rates-Fit technote: fast d-d flip-flop,

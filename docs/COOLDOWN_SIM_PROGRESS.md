@@ -57,6 +57,11 @@ lab answers are in `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`.
   from `M5_TI`, then alarm). Also `Ion_PI` has PREC 4, so a widget not in
   exponential format shows 1e-5 Torr as 0.0000. Open: 80-300 K, M5 as the
   sensor, severity (question 39); rise rate (25).
+* Manometer-Lo is an XCG-HT-FB-1, 10 Torr full scale (question 13 settled).
+  The record confirms the old DAQ's 5 Torr Hi-to-Lo crossover. Found: a VP
+  temperature of exactly 0.650 K is a Manometer-Lo dropout (it read 0); up to
+  ~100 rows per cool-down, which the model took as a 0.65 K bath. Fixed.
+* Question 10: Ells has ssRF heat data from the 2026-06 prep to analyze.
 
 ### 2026-10-16: pre-demo screen check
 * All four demo screens rendered offscreen against a 2026-06-17 replay: Sim

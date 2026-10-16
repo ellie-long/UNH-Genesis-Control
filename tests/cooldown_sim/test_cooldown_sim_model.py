@@ -85,6 +85,18 @@ def params():
     return load_params()
 
 
+def test_vapor_pressure_dropout_is_not_a_bath_temperature(params):
+    # LabVIEW's VP temperature reads exactly 0.650 K when Manometer-Lo reads 0
+    tl = record()
+    n = len(tl.table.t)
+    vp = np.full(n, 1.05)
+    vp[n // 2:] = 0.650
+    tl = Timeline(SlowTable(t=tl.table.t, numeric={**tl.table.numeric, "vp_temp": vp}), max_hold_s=60)
+    m = TargetModel(tl, 60.0, params)
+    assert m.hist_bath_T(600.0) == pytest.approx(1.05)
+    assert m.hist_bath_T(tl.table.t[-10]) == pytest.approx(1.0)     # falls back to T1
+
+
 def test_repeating_history_reproduces_the_record(params):
     m = TargetModel(record(), 60.0, params)
     for t in (600.0, 3600.0, 7200.0):

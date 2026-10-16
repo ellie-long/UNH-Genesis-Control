@@ -106,6 +106,10 @@ FIELD_T_PER_A = 0.10274113
 #: NMR sweep span (MHz) when neither the operator nor the record gives one
 NMR_DEFAULT_SPAN_MHZ = 0.4
 
+#: the LabVIEW vapor-pressure temperature reads exactly this when Manometer-Lo
+#: reads 0 (a dropout, not a bath temperature): treat it as missing
+VP_DROPOUT_K = 0.650
+
 @dataclass
 class Inputs:
     """Operator-side inputs (Sim Control, scenarios, or the MW leg in phase C)."""
@@ -231,15 +235,16 @@ class TargetModel:
 
     def hist_lattice_T(self, t: float) -> float:
         """Recorded cup temperature (T1, else T3, else the bath)."""
-        for ch in ("T1", "T3", "vp_temp"):
-            v = self.tl.value_at(ch, t)
-            if math.isfinite(v) and 0.05 < v < 400:
-                return v
-        return float("nan")
+        return self._first_valid_T(("T1", "T3", "vp_temp"), t)
 
     def hist_bath_T(self, t: float) -> float:
-        for ch in ("vp_temp", "T1"):
+        return self._first_valid_T(("vp_temp", "T1"), t)
+
+    def _first_valid_T(self, channels, t: float) -> float:
+        for ch in channels:
             v = self.tl.value_at(ch, t)
+            if ch == "vp_temp" and abs(v - VP_DROPOUT_K) < 5e-4:
+                continue
             if math.isfinite(v) and 0.05 < v < 400:
                 return v
         return float("nan")
