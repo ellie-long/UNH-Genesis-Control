@@ -55,6 +55,11 @@ named in each item. Numbers are stable: answered items move to *Settled*.
       saturates near 25 % at the same conditions. Does the LabVIEW area P read
       high against the lineshape P there (calibration), or is the fit's drive
       low?
+- [ ] 38. Panopticon (dev-visualizer): the heat-exchanger plates are drawn from
+      the fridge blueprints -- 5 upper plates (1.94" spacers) and 10 lower
+      plates (0.75" spacers), from the 2011 JLab Hall A g2p refrigerator
+      assembly (lower-stack spacer drawing revised 2015). Do these drawings
+      match the fridge as installed at UNH?
 - [ ] 5. Does Q lag Q_B(P) as P rebuilds after a quench or anneal?
 - [ ] 8. Quench field: dump time and level, re-ramp delay and rate, starting
       P after the re-ramp.

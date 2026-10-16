@@ -7,6 +7,11 @@ findings are in `COOLDOWN_SIM_PROGRESS.md`; questions for the lab are in
 
 ## 2026-10-15
 
+* Branch `dev-visualizer` `0f90686`: Panopticon insert -- heat exchanger as two
+  stacks from the fridge blueprints (5 upper plates, 10 lower, spacing ratio
+  2.6), the separator as a large can between them with F5 just above and F6
+  just below, M1-M5 on the dewar's right side at their LabVIEW depths (M1
+  ~36", M2 31", M3 17", M4 13", M5 3.5").
 * `21ab5c2` Trityl d-propanediol values fitted to the 2020-09 and 2020-12
   records together (P_max 39 %, tau_up 1565 s, positive optimum ~28.033 GHz/T,
   narrow lobes, deep negative lobe). Hindcast 2020-09 MAE 9.35 pp (median
