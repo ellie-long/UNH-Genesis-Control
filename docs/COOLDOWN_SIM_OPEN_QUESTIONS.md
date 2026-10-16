@@ -9,6 +9,15 @@ named in each item. Numbers are stable: answered items move to *Settled*.
 ## Checklist (all open items)
 
 **Equipment and wiring**
+- [ ] 59. **NMR switch meaning (ssRF interlock, live safety logic):** Ells
+      (2026-10-16): 192.168.1.8/SETP=0 = NMR ON, SETP=3 = NMR OFF. The
+      interlock's docstring agrees (PORT1 = Q-meter connected, PORT2 =
+      disconnected/protected), but its logic (`logic_devices/ssrf_interlock.py`
+      ~196-209) treats BOTH ports as live NMR ("Port 1 = legacy LabVIEW;
+      Port 2 = JLab PyNMR"), so with SETP=3 it reports NMR_LIVE and never
+      sees the NMR path off (no ssRF burn permit ever). Is SETP=3 a full NMR
+      disconnect, or the route to the JLab PyNMR system? Not changed until
+      answered.
 - [ ] 49. Models, and Genesis priority: (a) `Magnet_IPS` on the TXI017
       (TCP 5001, 9600 8N2) -- the Oxford IPS120-10? (b) `Magnet_LHE_Prob`
       (TCP 23) -- which level meter (AMI model)? (c) Should the portable
@@ -267,6 +276,13 @@ named in each item. Numbers are stable: answered items move to *Settled*.
     varactors at 0-19 V. Keep a rule, change it, or drop it?
 
 ## Settled
+
+* NMR / ssRF switches (Ells, 2026-10-16): NMR switch 192.168.1.8: /SETP=0 =
+  NMR ON, /SETP=3 = NMR OFF. ssRF switch 192.168.1.11: /SETP=0 = ssRF ON,
+  /SETP=3 = ssRF OFF. Sequencing rule: the NMR must always be OFF before the
+  ssRF is switched ON, and the ssRF must always be OFF before the NMR may be
+  switched ON. (The interlock's stated principles agree; its NMR-port logic
+  is question 59.)
 
 * Switch and supply IPs (question 58): Ells (2026-10-16), the NMR switch is
   192.168.1.8 and the ssRF switch 192.168.1.11 (as configured); the cold-board

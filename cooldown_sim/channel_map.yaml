@@ -351,7 +351,7 @@ equipment:
     map: "-"
     sim: tools/sim_minicircuits_switch.py
     confidence: medium
-    note: Model from the ssRF commissioning doc
+    note: "Model from the ssRF commissioning doc. Ells 2026-10-16: GET /SETP=0 (both switches to PORT1) = NMR ON; /SETP=3 (PORT2) = NMR OFF. The ssRF interlock logic treats PORT2 as PyNMR live (open question 59). Rule: the ssRF must be OFF before the NMR may be switched ON"
   - genesis: ssrf_rf_switch
     equipment: Mini-Circuits RC-2SPDT-A18 dual SPDT switch
     role: Routes the ssRF signal path
@@ -361,7 +361,7 @@ equipment:
     map: "-"
     sim: tools/sim_minicircuits_switch.py
     confidence: medium
-    note: Model from the ssRF commissioning doc
+    note: "Model from the ssRF commissioning doc. Ells 2026-10-16: GET /SETP=0 (PORT1) = ssRF ON; /SETP=3 (PORT2) = ssRF OFF (as the interlock assumes). Rule: the NMR must be OFF before the ssRF may be switched ON"
   # ----------------------------------------------------------------- NMR
   - genesis: (online fitter input)
     equipment: NMR DAQ / Q-meter, read out by LabVIEW or PyNMR

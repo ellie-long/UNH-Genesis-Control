@@ -7,6 +7,11 @@ findings are in `COOLDOWN_SIM_PROGRESS.md`; questions for the lab are in
 
 ## 2026-10-16
 
+* NMR / ssRF switch meanings and Ells's sequencing rule recorded (NMR off before
+  ssRF on; ssRF off before NMR on); question 59: the ssRF interlock logic treats
+  NMR PORT2 as PyNMR live, against Ells's "SETP=3 = NMR OFF".
+
+
 * Channel map: NMR switch 192.168.1.8 (was mis-copied as .18) and ssRF switch
   192.168.1.11, both confirmed (question 58 settled).
 
