@@ -133,7 +133,43 @@ start_local_ioc genesis-ssrf-sequencer configs/ssrf_physical/sequencer ssrf_sequ
 echo
 echo "===== START FITTER + BURN SETUP ANALYSIS ====="
 mkdir -p "$ROOT/logs"
-screen -dmS genesis-ssrf-fitter bash -lc "cd '$ROOT' && env EPICS_CAS_SERVER_PORT=5100 EPICS_PVA_SERVER_PORT=5101 EPICS_CA_MAX_ARRAY_BYTES=262144 PYTHONPATH='$ROOT' '$PYTHON_BIN' -u -m online_fitter.epics_run --material d-butanol --mode equilibrium >> '$ROOT/logs/genesis-ssrf-fitter.log' 2>&1"
+# Pin the existing physical PyNMR Deuteron process at each startup.
+PYNMR_ID="$("$PYTHON_BIN" - <<'PY_PYNMR'
+from pathlib import Path
+from online_fitter.pynmr_producer_session import (
+    PinnedPyNMRProducer,
+    process_start_ticks,
+)
+
+matches = []
+for proc in Path("/proc").iterdir():
+    if not proc.name.isdigit():
+        continue
+    try:
+        pid = int(proc.name)
+        ticks = process_start_ticks(pid)
+        if PinnedPyNMRProducer(pid, ticks).matches_process():
+            matches.append((pid, ticks))
+    except (OSError, ValueError):
+        continue
+
+if len(matches) != 1:
+    raise SystemExit(
+        f"Expected one authorized PyNMR Deuteron process; found {len(matches)}"
+    )
+
+print(*matches[0])
+PY_PYNMR
+)"
+
+read -r PYNMR_PID PYNMR_TICKS <<< "$PYNMR_ID"
+[[ "$PYNMR_PID" =~ ^[0-9]+$ && "$PYNMR_TICKS" =~ ^[0-9]+$ ]] || {
+    echo "[FAIL] Invalid PyNMR producer identity" >&2
+    exit 1
+}
+echo "[PASS] Authorized PyNMR producer PID=$PYNMR_PID"
+
+screen -dmS genesis-ssrf-fitter bash -lc "cd '$ROOT' && exec env EPICS_CAS_SERVER_PORT=5100 EPICS_PVA_SERVER_PORT=5101 EPICS_CA_MAX_ARRAY_BYTES=262144 PYTHONPATH='$ROOT' GENESIS_PYNMR_PRODUCER_PID='$PYNMR_PID' GENESIS_PYNMR_PRODUCER_START_TICKS='$PYNMR_TICKS' '$PYTHON_BIN' -u -m online_fitter.epics_run --nmr-protected --nmr-source pynmr --pynmr-port 8779 --pynmr-ipc-path /run/genesis-nmr-ipc/events.sock --pynmr-ipc-allowed-uid '$(id -u)' --material d-butanol --mode equilibrium >> '$ROOT/logs/genesis-ssrf-fitter.log' 2>&1"
 sleep 3
 session_exists genesis-ssrf-fitter || { tail -100 "$ROOT/logs/genesis-ssrf-fitter.log"; exit 1; }
 start_local_ioc genesis-ssrf-recipe configs/ssrf_physical/burn_recipe burn_recipe 5090 5091
