@@ -282,7 +282,7 @@ def nmr_plot(x, y, w, h):
                 f"<point_type>1</point_type><point_size>{size}</point_size></trace>")
     return (f'<widget type="xyplot" version="3.0.0"><name>NMR_Signal</name>'
             f"<x>{x}</x><y>{y}</y><width>{w}</width><height>{h}</height>"
-            f"<title>Processed NMR signal (online fitter)</title><show_toolbar>true</show_toolbar>"
+            f"<title></title><show_toolbar>true</show_toolbar><show_legend>false</show_legend>"
             f"<x_axis><title>Frequency (MHz)</title><autoscale>false</autoscale><minimum>31.9</minimum>"
             f"<maximum>33.1</maximum><log_scale>false</log_scale><show_grid>true</show_grid></x_axis>"
             f"<y_axes><y_axis><title>Signal (arb.)</title><autoscale>true</autoscale><minimum>0.0</minimum>"
@@ -709,27 +709,30 @@ def nmr():
         w.append(label(cap, 1032 + i * 100, 80, 76, 20, 10))
     w.append(label("Mode", 1316, 80, 40, 20, 10, False, MUTED))
     w.append(update(f"{FIT}:MODE_RBV", 1356, 80, 180, 20, 10, True))
-    w.append(nmr_plot(1010, 106, 312, 350))
-    # The DAQ's "Polarization" is the area method: P_AREA is the headline,
-    # the lineshape fit's P alongside it.
+    # the polarization numbers in a column on the left, P area (the DAQ's
+    # "Polarization", the area method) as the headline
+    cx, cw = 1010, 130
+    w.append(label("Polarization (area)", cx, 106, cw, 14, 9, True, MUTED))
+    w.append(update(f"{FIT}:P_AREA", cx, 120, 108, 38, 20, True, prec=2, units=False, bg=GREEN_LIGHT,
+                    align=2, name="NMR_P"))
+    w.append(label("%", cx + 110, 120, 20, 38, 16, True))
+    for i, (cap, pv) in enumerate((("P (fit)", "P_FIT"), ("Q (fit)", "Q_FIT"), ("Q (equilibrium)", "Q_EQ"))):
+        yy = 170 + i * 50
+        w.append(label(cap, cx, yy, cw, 14, 9, True, MUTED))
+        w.append(update(f"{FIT}:{pv}", cx, yy + 14, 108, 30, 14, True, prec=2, units=False, align=2))
+        w.append(label("%", cx + 110, yy + 14, 20, 30, 12, True))
+    w.append(field("red. chi2", f"{FIT}:RED_CHISQ", cx, 324, cw, 10, prec=3))
+    w.append(field("Last fit", f"{FIT}:LAST_TS", cx, 364, cw, 9))
+    # the processed NMR signal above the polarization history, right of the column
+    px, pw = 1146, 490
+    w.append(nmr_plot(px, 104, pw, 230))
     w.append(stripchart("Polarization", "P area (green), P fit (grey), Q fit (magenta), Q eq (orange)",
-                        1326, 106, 310, 350,
+                        px, 338, pw, 226,
                         [("P area", f"{FIT}:P_AREA", (0, 140, 40), 0),
                          ("P fit", f"{FIT}:P_FIT", (140, 140, 140), 0),
                          ("Q fit", f"{FIT}:Q_FIT", (200, 0, 160), 0),
                          ("Q eq", f"{FIT}:Q_EQ", (225, 135, 0), 0)],
                         [("%", False, -60, 60)], "3 hours"))
-    w.append(label("Polarization (area)", 1012, 462, 150, 16, 10, True, MUTED))
-    w.append(update(f"{FIT}:P_AREA", 1012, 478, 122, 36, 20, True, prec=2, units=False, bg=GREEN_LIGHT,
-                    align=2, name="NMR_P"))
-    w.append(label("%", 1136, 478, 20, 36, 16, True))
-    for i, (cap, pv) in enumerate((("P (fit)", "P_FIT"), ("Q (fit)", "Q_FIT"), ("Q (equilibrium)", "Q_EQ"))):
-        xx = 1176 + i * 120
-        w.append(label(cap, xx, 462, 114, 16, 10, True, MUTED))
-        w.append(update(f"{FIT}:{pv}", xx, 478, 92, 36, 14, True, prec=2, units=False, align=2))
-        w.append(label("%", xx + 93, 478, 16, 36, 12, True))
-    w.append(inline("red. chi2", f"{FIT}:RED_CHISQ", 1012, 524, 60, 90, prec=3))
-    w.append(inline("Last fit", f"{FIT}:LAST_TS", 1176, 524, 60, 270))
     return w
 
 

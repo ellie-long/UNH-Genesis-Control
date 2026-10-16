@@ -430,3 +430,20 @@ def test_fits_one_maximized_phoebus_window_at_100_percent(tmp_path):
         assert x + int(el.findtext("width")) <= w and y + int(el.findtext("height")) <= h, el.findtext("name")
     # no global zoom: Sim Control and the other screens open at 100 %
     assert "default_zoom_factor" not in phoebus.write_ini(tmp_path, [6116]).read_text()
+
+
+def test_nmr_card_numbers_column_beside_stacked_plots():
+    widgets = _by_name()
+    nmr, pol, p_area = widgets["NMR_Signal"], widgets["Trend_Polarization"], widgets["NMR_P"]
+    # the NMR signal above the polarization history, same column, decent size
+    assert int(nmr.findtext("y")) + int(nmr.findtext("height")) <= int(pol.findtext("y"))
+    assert nmr.findtext("x") == pol.findtext("x") and nmr.findtext("width") == pol.findtext("width")
+    assert all(int(w.findtext("width")) >= 450 and int(w.findtext("height")) >= 200 for w in (nmr, pol))
+    assert not (nmr.findtext("title") or "").strip()            # no title: the space goes to the plot
+    # the numbers in a column to the left of the plots, P area at its top
+    numbers = [w for w in _widgets() if w.get("type") == "textupdate"
+               and re.search(r"SSRF:FIT:(P_AREA|P_FIT|Q_FIT|Q_EQ|RED_CHISQ|LAST_TS)$", w.findtext("pv_name") or "")]
+    assert len(numbers) == 6
+    right = max(int(w.findtext("x")) + int(w.findtext("width")) for w in numbers)
+    assert right <= int(nmr.findtext("x"))
+    assert int(p_area.findtext("y")) == min(int(w.findtext("y")) for w in numbers)
