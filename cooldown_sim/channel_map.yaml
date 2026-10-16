@@ -216,7 +216,7 @@ equipment:
     map: ionivac.Ion
     sim: IONIVAC emulator
     confidence: high
-    note: "Ells 2026-10-15: the shells' vacuum. CHECK: is that the volume Genesis calls OVC (open question 3)?"
+    note: "Ells 2026-10-15: the shells' vacuum. CHECK: is that the volume Genesis calls OVC (open question 3)? Ells 2026-10-16: very important to track; alarm above 1e-4 Torr with the magnet bottom > 300 K, above 1e-5 Torr with it < 80 K (Genesis has HIGH/HIHI 800/900 Torr; open questions 25, 39)"
   - genesis: ls455
     equipment: Lake Shore 455 DSP gaussmeter
     role: Magnet fringe field

@@ -9,6 +9,8 @@ findings are in `COOLDOWN_SIM_PROGRESS.md`; questions for the lab are in
 
 * Channel map: LabVIEW's "Roots Pressure (Torr)" is the top Roots gauge
   (TPG 262 gauge 1), now high confidence; question 3's second half settled.
+* Shells-vacuum (IONIVAC) alarm limits recorded: 1e-4 Torr with the magnet
+  bottom > 300 K, 1e-5 Torr below 80 K (questions 25, new 39; channel map).
 
 * Phoebus ini also names each IOC's PVA server
   (`org.phoebus.pv.pva/epics_pva_name_servers`), so `pva://` screens such as

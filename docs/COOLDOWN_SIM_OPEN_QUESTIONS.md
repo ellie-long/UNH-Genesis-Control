@@ -9,8 +9,9 @@ named in each item. Numbers are stable: answered items move to *Settled*.
 ## Checklist (all open items)
 
 **Equipment and wiring**
-- [ ] 3. Vacuum: should the interlock watch the IONIVAC, at what trip
-      pressure? (LabVIEW's `Roots Pressure` = the top gauge: settled.)
+- [ ] 3. Vacuum: beyond the IONIVAC alarm (limits now set, see 25), should
+      the interlock also ACT on the IONIVAC (trip something: what?), or is
+      the alarm enough? (LabVIEW's `Roots Pressure` = the top gauge: settled.)
 - [ ] 13. Manometer-Lo: the XCG gauge's full-scale range.
 - [ ] 14. Serial gateway at 192.168.1.251: make and model (possibly a Pi).
 - [ ] 12. (Optional) cold-board voltage to Q-curve tune: MHz per volt, or
@@ -73,8 +74,13 @@ named in each item. Numbers are stable: answered items move to *Settled*.
       only the SPD1305X's own 5 V read-back. An unplugged or broken UCA cable
       would pass the check and give full power. Can it be detected (e.g. SIG
       response, a sense line, or a procedural check)?
-- [ ] 25. Shells-vacuum alarm (live fix): warn on a rapid rise and above
-      the 1e-4 Torr range. How rapid counts as rapid?
+- [ ] 25. Shells-vacuum alarm (live fix): limits set (bottom of the magnet
+      > 300 K: alarm above 1e-4 Torr; < 80 K: above 1e-5 Torr). Still open:
+      how rapid a rise counts as rapid?
+- [ ] 39. Shells-vacuum alarm between 80 and 300 K: which limit applies
+      (1e-4 until the magnet bottom is below 80 K? stepped or log-interpolated
+      in between?). And is "the bottom of the magnet" M5 (`M5_TI`, LS224
+      magnet)? Should the alarm be a warning (MINOR) or MAJOR at those limits?
 - [ ] 18. When to schedule the live fixes (findings 1-8 plus the vacuum and
       F1 interlock rules).
 
@@ -203,9 +209,14 @@ named in each item. Numbers are stable: answered items move to *Settled*.
 25. **Shells-vacuum alarm.** Genesis's IONIVAC record alarms at 800 / 900 Torr
     (HIGH / HIHI), which never fires on a vacuum loss in the shells. Ells
     (2026-10-15): it should warn on a rapid rise, and particularly if the
-    pressure ever gets above the 1e-4 Torr range. Still to set: what rate
-    counts as rapid. Whether the vacuum interlock should also act on it is
-    question 3.
+    pressure ever gets above the 1e-4 Torr range. Ells (2026-10-16): the
+    IONIVAC is the vacuum of the fridge's shells and very important to track;
+    the alarm limit depends on how cold the magnet is: with the thermometry
+    at the bottom of the magnet above 300 K, alarm above 1e-4 Torr; below
+    80 K, alarm above 1e-5 Torr. A static HIGH/HIHI cannot do this: Genesis
+    needs logic that picks the limit from the magnet-bottom temperature.
+    Still to set: what rate counts as rapid; 80-300 K (question 39). Whether
+    the vacuum interlock should also act on it is question 3.
 29. **Cernox (CCX) support for T1/T3.** Lake Shore's Chebyshev form, per
     range: Z = log10(R), k = ((Z - ZL) - (ZU - Z)) / (ZU - ZL),
     T = sum_i A_i cos(i arccos k). The lab's calibration rows hold four ranges

@@ -45,6 +45,19 @@ lab answers are in `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`.
 
 ## Log
 
+### 2026-10-16: Roots gauge and shells-vacuum alarm limits
+* LabVIEW only read the top Roots gauge, so "Roots Pressure (Torr)" is TPG 262
+  gauge 1 (question 3, second half, settled; the sim already assumed it).
+* **Finding (live system): the shells-vacuum alarm needs a temperature-
+  dependent limit.** Ells: the IONIVAC is the vacuum of the fridge's shells
+  and very important to track. Alarm above 1e-4 Torr while the bottom of the
+  magnet is above 300 K, above 1e-5 Torr once it is below 80 K. Genesis's
+  `ION:Ion_PI` has static HIGH/HIHI 800/900 Torr, and static limits cannot
+  follow the magnet temperature: this needs a small logic step (pick the limit
+  from `M5_TI`, then alarm). Also `Ion_PI` has PREC 4, so a widget not in
+  exponential format shows 1e-5 Torr as 0.0000. Open: 80-300 K, M5 as the
+  sensor, severity (question 39); rise rate (25).
+
 ### 2026-10-16: pre-demo screen check
 * All four demo screens rendered offscreen against a 2026-06-17 replay: Sim
   Control 74/74 PVs, NMR fitter 38/38, Panopticon 72/73 (SSRF:SEQ:STATE is
