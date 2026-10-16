@@ -1,6 +1,8 @@
 import asyncio
 import unittest
 
+from logic_devices.ssrf_interlock import evaluate_interlock
+
 from logic_devices.ssrf_sequence_core import (
     BurnParameters,
 )
@@ -82,43 +84,24 @@ class FakeIO:
         self._update_permits()
 
     def _update_permits(self):
-        nmr_mask = int(
-            self.state[
-                f"{NMR_SW}:MASK_RBV"
-            ]
-        )
-        ssrf_mask = int(
-            self.state[
-                f"{SSRF_SW}:MASK_RBV"
-            ]
-        )
-        rf_on = int(
-            self.state[
-                f"{SMC}:RF_RBV"
-            ]
+        """Use the real interlock evaluator for simulated switch transitions."""
+        decision = evaluate_interlock(
+            nmr_comm=1,
+            nmr_mask=self.state[f"{NMR_SW}:MASK_RBV"],
+            ssrf_comm=1,
+            ssrf_mask=self.state[f"{SSRF_SW}:MASK_RBV"],
+            smc_comm=1,
+            smc_rf=self.state[f"{SMC}:RF_RBV"],
         )
 
-        self.state[
-            f"{ILK}:NMR_CONNECT_PERMIT"
-        ] = int(
-            rf_on == 0
-            and ssrf_mask == 3
+        self.state[f"{ILK}:NMR_CONNECT_PERMIT"] = (
+            decision.nmr_connect_permit
         )
-
-        self.state[
-            f"{ILK}:SSRF_CONNECT_PERMIT"
-        ] = int(
-            rf_on == 0
-            and nmr_mask == 3
+        self.state[f"{ILK}:SSRF_CONNECT_PERMIT"] = (
+            decision.ssrf_connect_permit
         )
-
-        # Permit remains asserted in both SSRF_READY and BURNING
-        # when NMR is protected and the ssRF path is connected.
-        self.state[
-            f"{ILK}:RF_ENABLE_PERMIT"
-        ] = int(
-            nmr_mask == 3
-            and ssrf_mask == 0
+        self.state[f"{ILK}:RF_ENABLE_PERMIT"] = (
+            decision.rf_enable_permit
         )
 
     async def read(self, pv):
