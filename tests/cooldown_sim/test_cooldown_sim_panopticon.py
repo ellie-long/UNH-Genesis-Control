@@ -99,10 +99,12 @@ def test_screen_pvs_exist_and_links_resolve():
     assert len(pvs) > 60
     missing = pvs - served_pvs()
     assert not missing, sorted(missing)
-    # Channel Access only, never a sim or local PV
+    # Channel Access only, never a sim or local PV; the one formula is the
+    # TPG gauges' mbar -> Torr conversion
     names = re.findall(r"<(?:pv_name|x_pv|y_pv)>([^<]*)<", text)
-    assert names and all(n.startswith("ca://UNH:GEN:") for n in names), \
-        [n for n in names if not n.startswith("ca://UNH:GEN:")]
+    formula = re.compile(r"=0\.750062\*`ca://UNH:GEN:CRYO:VAC:(Pump|OVC)_PI`")
+    odd = [n for n in names if not (n.startswith("ca://UNH:GEN:") or formula.fullmatch(n))]
+    assert names and not odd, odd
     assert "UNH:GEN:SIM" not in text and "SIMULATION" not in text
     root = ET.parse(BOB).getroot()
     files = [f.text for f in root.iter("file")]
@@ -175,14 +177,23 @@ def test_insert_follows_the_sensor_positions_and_trace_colours():
         w = widgets[name]
         return int(w.findtext("x")) + int(w.findtext("width")) / 2
 
-    # F1 on the pump-out line to the right; F3 left of F4; F7 left of F8
-    assert centre_x("Marker_F1") > centre_x("Shape_Pumping_Tube") + 40
+    def box(name):
+        w = widgets[name]
+        x, y = int(w.findtext("x")), int(w.findtext("y"))
+        return x, y, x + int(w.findtext("width")), y + int(w.findtext("height"))
+
+    # F1 inside the upper insert, about halfway from its wall to the pumping tube
+    ins, tube, f1 = box("Shape_Upper_Insert"), box("Shape_Pumping_Tube"), box("Marker_F1")
+    assert ins[1] < f1[1] and f1[3] < ins[3] and tube[2] < f1[0] and f1[2] < ins[2]
+    assert abs(centre_x("Marker_F1") - (tube[2] + ins[2]) / 2) <= 5
     assert centre_x("Marker_F3") < centre_x("Marker_F4") and centre_x("Marker_F7") < centre_x("Marker_F8")
-    # F5 just above the separator can, F6 just below it; T1 and T3 in the target cup
+    # F3 hangs from the bottom of the lowest upper plate
+    lowest_upper = max((box(n) for n in widgets if re.fullmatch(r"Baffle_U\d+", n)), key=lambda b: b[1])
+    assert box("Marker_F3")[1] == lowest_upper[3]
+    # F5 sits on the separator's top, F6 hangs from its bottom; T1 and T3 in the target cup
     sep, cup = widgets["Shape_Separator"], widgets["Target_Cup"]
     sep_top, sep_bottom = int(sep.findtext("y")), int(sep.findtext("y")) + int(sep.findtext("height"))
-    assert sep_top - 15 <= centre_y("Marker_F5") < sep_top
-    assert sep_bottom < centre_y("Marker_F6") <= sep_bottom + 15
+    assert box("Marker_F5")[3] == sep_top and box("Marker_F6")[1] == sep_bottom
     can = widgets["Shape_Fridge_Can"]
     assert int(sep.findtext("width")) > int(can.findtext("width"))     # the can is wider than the column
     for s in ("T1", "T3"):
@@ -230,27 +241,71 @@ def test_heat_exchanger_is_two_stacks_around_the_separator():
     assert lower[-1] < y("F11") < edge("Shape_Nose", "top")                    # F11 just below it, no plates in the nose
 
 
-def test_magnet_sensors_sit_at_their_lhe_depths():
+def test_magnet_space_baffles_solenoid_and_sensors():
     gen = _generator()
     widgets = _by_name()
 
-    def inches(sensor):
-        w = widgets[f"Marker_{sensor}"]
-        return gen.level_inches(int(w.findtext("y")) + int(w.findtext("height")) / 2)
+    def box(name):
+        w = widgets[name]
+        x, y = int(w.findtext("x")), int(w.findtext("y"))
+        return x, y, x + int(w.findtext("width")), y + int(w.findtext("height"))
 
-    m = {s: inches(s) for s in ("M1", "M2", "M3", "M4", "M5")}
-    coil = widgets["Coil_R"]
-    coil_in = (gen.level_inches(int(coil.findtext("y")) + int(coil.findtext("height"))),
-               gen.level_inches(int(coil.findtext("y"))))
-    assert m["M1"] > 31.5                          # above the top of the scale
-    assert 29.5 <= m["M2"] <= 32.5                 # about 31"
-    assert 16.5 < m["M3"] <= 18.5                  # just above the 16.5" magnet top
-    assert coil_in[0] <= m["M5"] < m["M4"] <= coil_in[1] and m["M4"] > 10 and m["M5"] < 6
-    assert abs(coil_in[1] - 16.5) < 0.5            # the coils reach the magnet-top line
-    # right side of the dewar, outside the insert and the coil
-    for s in m:
-        x = int(widgets[f"Marker_{s}"].findtext("x"))
-        assert x >= int(coil.findtext("x")) + int(coil.findtext("width")), s
+    def inches(y):
+        return gen.level_inches(y)
+
+    # the solenoid: the nose fits in its bore; its top just under the 16.5" support baffle
+    coil_l, coil_r, nose = box("Coil_L"), box("Coil_R"), box("Shape_Nose")
+    assert coil_l[2] <= nose[0] and nose[2] <= coil_r[0]
+    top_in, bottom_in = inches(coil_r[1]), inches(coil_r[3])
+    assert 15.5 <= top_in < 16.5 and bottom_in < 2
+    support = box("Magnet_Baffle_Support")
+    assert abs(inches(support[3]) - 16.5) <= 0.5 and support[3] <= coil_r[1]
+    # 5 neck baffles above the belly, spacing growing upward
+    neck = sorted((box(n)[1] for n in widgets if re.fullmatch(r"Magnet_Baffle_N\d", n)), reverse=True)
+    assert len(neck) == 5
+    gaps = [a - b for a, b in zip(neck, neck[1:])]
+    assert all(g2 > g1 for g1, g2 in zip(gaps, gaps[1:])), gaps
+    # the belly is wider than the bore and the neck
+    pts = [(float(p.get("x")), float(p.get("y"))) for p in widgets["Magnet_LHe_Space"].iter("point")]
+    xs = sorted({x for x, _ in pts})
+    assert len(xs) == 6                       # bore, belly and neck walls on each side
+    assert xs[-1] - xs[0] > xs[-2] - xs[1] and xs[-1] - xs[0] > xs[-3] - xs[2]
+
+    # sensors sit on what the lab says they sit on
+    def marker(s):
+        return box(f"Marker_{s}")
+
+    assert marker("M2")[3] == box("Magnet_Baffle_N1")[1]          # on the lowest neck baffle
+    assert marker("M3")[3] == support[1]                          # on the support baffle
+    assert abs(inches((marker("M4")[1] + marker("M4")[3]) / 2) - top_in) <= 0.5      # solenoid top
+    assert abs(inches((marker("M5")[1] + marker("M5")[3]) / 2) - bottom_in) <= 0.5   # solenoid bottom
+    assert marker("M1")[3] < marker("M2")[1]                      # M1 higher, in the neck
+    for s in ("M1", "M2", "M3", "M4", "M5"):                      # right side, outside the solenoid
+        assert marker(s)[0] >= coil_r[2], s
+
+
+def test_no_stray_labels_and_buttons_in_card_headers():
+    text = BOB.read_text(encoding="utf-8")
+    assert "S1-S3" not in text and "LHe / gas" not in text and "mbar" not in text
+    widgets = _by_name()
+    for card, bob in (("Magnet", "genesis_cryo_magnet.bob"), ("Fridge", "genesis_cryo_fridge.bob"),
+                      ("Microwaves", "genesis_microwave.bob")):
+        btn, head = widgets[f"Card_{card}_Link"], widgets[f"Card_{card}_Header"]
+        assert btn.findtext("actions/action/file") == bob
+        y, h = int(btn.findtext("y")), int(btn.findtext("height"))
+        assert int(head.findtext("y")) <= y and y + h <= int(head.findtext("y")) + int(head.findtext("height"))
+    slow = widgets["Card_Slowsweep"]
+    in_slow = [w for w in _widgets() if w.get("type") == "action_button"
+               and int(slow.findtext("y")) <= int(w.findtext("y")) <= int(slow.findtext("y")) + 192
+               and int(w.findtext("x")) >= int(slow.findtext("x"))]
+    assert not in_slow
+
+
+def test_every_plot_can_be_zoomed_and_nmr_shows_the_processed_signal():
+    plots = [w for w in _widgets() if w.get("type") in ("stripchart", "xyplot")]
+    assert plots and all(w.findtext("show_toolbar") == "true" for w in plots)
+    nmr = _by_name()["NMR_Signal"]
+    assert [t.findtext("y_pv") for t in nmr.iter("trace")] == ["ca://UNH:GEN:SSRF:FIT:DATA"]
 
 
 def test_trends_have_the_daq_windows_and_log_pressures():
@@ -259,6 +314,13 @@ def test_trends_have_the_daq_windows_and_log_pressures():
     assert charts["Trend_Polarization"].findtext("start") == "3 hours"
     for name in ("Trend_ShellsVacuum", "Trend_FridgePressures"):
         assert {a.findtext("log_scale") for a in charts[name].iter("y_axis")} == {"true"}, name
+    # one common scale: all pressures in Torr, all polarizations in %
+    for name in ("Trend_FridgePressures", "Trend_Polarization"):
+        assert len(list(charts[name].iter("y_axis"))) == 1, name
+        assert {t.findtext("axis") for t in charts[name].iter("trace")} == {"0"}, name
+    assert [a.findtext("title") for a in charts["Trend_FridgePressures"].iter("y_axis")] == ["Torr"]
+    pol = {t.findtext("y_pv").rsplit(":", 1)[-1] for t in charts["Trend_Polarization"].iter("trace")}
+    assert pol == {"P_AREA", "P_FIT", "Q_FIT", "Q_EQ"}
     for w in charts.values():                    # log axes must not autoscale (a 0 reading breaks them)
         for a in w.iter("y_axis"):
             assert not (a.findtext("log_scale") == "true" and a.findtext("autoscale") == "true"), w.findtext("name")
@@ -275,3 +337,15 @@ def test_polarization_headline_is_the_area_method():
 def test_screen_opens_from_the_simulator():
     assert phoebus.LIVE_SCREENS["panopticon"] == BOB.name
     assert (ROOT / "gui" / phoebus.LIVE_SCREENS["panopticon"]).exists()
+
+
+def test_simulator_opens_it_zoomed_to_fit_the_monitor(tmp_path):
+    root = ET.parse(BOB).getroot()
+    w, h = int(root.findtext("width")), int(root.findtext("height"))
+    zoom = phoebus.PANOPTICON_ZOOM / 100
+    # 1920x1032 work area less ~180 px of Phoebus chrome (title, menu, toolbar,
+    # tab, display toolbar, status line); the 1600-wide primary monitor
+    assert w * zoom <= 1600 - 20 and h * zoom <= 1032 - 180
+    ini = phoebus.write_ini(tmp_path, [6116], zoom=phoebus.PANOPTICON_ZOOM).read_text()
+    assert f"org.csstudio.display.builder.runtime/default_zoom_factor={phoebus.PANOPTICON_ZOOM}" in ini
+    assert "default_zoom_factor" not in phoebus.write_ini(tmp_path, [6116]).read_text()

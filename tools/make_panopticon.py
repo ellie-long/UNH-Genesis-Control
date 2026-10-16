@@ -112,13 +112,39 @@ def _name(prefix):
     return f"{prefix}{_n[0]}"
 
 
-def rect(x, y, w, h, bg, line=None, line_width=1, corner=0, name=None, transparent=False):
+#: TPG 262 gauges report mbar; the screen shows every pressure in Torr
+MBAR_TO_TORR = 0.750062
+
+
+def pvref(pv):
+    """PV name as written on the screen: Channel Access, or a formula PV ("=...")."""
+    return pv if pv.startswith("=") else f"ca://{pv}"
+
+
+def torr_from_mbar(pv):
+    """Formula PV showing an mbar reading in Torr.  The constant comes first:
+    a formula takes its units from its first operand, so this drops "mbar"."""
+    return f"={MBAR_TO_TORR}*`ca://{pv}`"
+
+
+def rect(x, y, w, h, bg, line=None, line_width=1, corner=0, name=None, transparent=False, tooltip=None):
     border = (f"<line_width>{line_width}</line_width><line_color>{col(line)}</line_color>" if line
               else "<line_width>0</line_width>")
     corners = f"<corner_width>{corner}</corner_width><corner_height>{corner}</corner_height>" if corner else ""
     fill = "<transparent>true</transparent>" if transparent else f"<background_color>{col(bg)}</background_color>"
+    tip = f"<tooltip>{escape(tooltip)}</tooltip>" if tooltip else ""
     return (f'<widget type="rectangle" version="2.0.0"><name>{name or _name("Rect")}</name>'
-            f"<x>{x}</x><y>{y}</y><width>{w}</width><height>{h}</height>{border}{corners}{fill}</widget>")
+            f"<x>{x}</x><y>{y}</y><width>{w}</width><height>{h}</height>{border}{corners}{fill}{tip}</widget>")
+
+
+def polygon(points, bg, line, line_width=2, name=None):
+    xs, ys = [p[0] for p in points], [p[1] for p in points]
+    x0, y0 = min(xs), min(ys)
+    pts = "".join(f'<point x="{px - x0}.0" y="{py - y0}.0"/>' for px, py in points)
+    return (f'<widget type="polygon" version="2.0.0"><name>{name or _name("Polygon")}</name>'
+            f"<x>{x0}</x><y>{y0}</y><width>{max(xs) - x0 + 1}</width><height>{max(ys) - y0 + 1}</height>"
+            f"<points>{pts}</points><line_width>{line_width}</line_width><line_color>{col(line)}</line_color>"
+            f"<background_color>{col(bg)}</background_color></widget>")
 
 
 def dashed(x, y, w, rgb, name=None):
@@ -148,7 +174,7 @@ def update(pv, x, y, w, h, size=11, bold=False, fmt=None, prec=None, units=True,
     extra += f"<precision>{prec}</precision>" if prec is not None else ""
     extra += "" if units else "<show_units>false</show_units>"
     return (f'<widget type="textupdate" version="2.0.0"><name>{name or _name("Upd")}</name>'
-            f"<pv_name>ca://{pv}</pv_name><x>{x}</x><y>{y}</y><width>{w}</width><height>{h}</height>"
+            f"<pv_name>{escape(pvref(pv))}</pv_name><x>{x}</x><y>{y}</y><width>{w}</width><height>{h}</height>"
             f"{font(size, bold)}<background_color>{col(bg)}</background_color>"
             f"<foreground_color>{col(fg)}</foreground_color>"
             f"<horizontal_alignment>{align}</horizontal_alignment>{extra}</widget>")
@@ -160,18 +186,24 @@ def led(pv, x, y, size=16):
             f"<height>{size}</height></widget>")
 
 
-def open_button(text, bob, x, y, w=110, h=28):
-    return (f'<widget type="action_button" version="3.0.0"><name>{_name("Open")}</name>'
+def open_button(text, bob, x, y, w=110, h=28, name=None):
+    return (f'<widget type="action_button" version="3.0.0"><name>{name or _name("Open")}</name>'
             f"<x>{x}</x><y>{y}</y><width>{w}</width><height>{h}</height>"
             f'<actions><action type="open_display"><file>{escape(bob)}</file><target>tab</target>'
             f"<description>{escape(text)}</description></action></actions>"
             f"<text>{escape(text)}</text></widget>")
 
 
-def card(title, x, y, w, h, key):
-    return (rect(x, y, w, h, CARD, CARD_HEADER, name=f"Card_{key}")
-            + rect(x, y, w, 26, CARD_HEADER, name=f"Card_{key}_Header")
-            + label(title, x + 8, y + 1, w - 16, 24, 13, True, NAVY, name=f"Card_{key}_Title"))
+def card(title, x, y, w, h, key, link=None):
+    """A titled card; link = (button text, .bob) adds a button in its header."""
+    out = (rect(x, y, w, h, CARD, CARD_HEADER, name=f"Card_{key}")
+           + rect(x, y, w, 26, CARD_HEADER, name=f"Card_{key}_Header")
+           + label(title, x + 8, y + 1, w - 16, 24, 13, True, NAVY, name=f"Card_{key}_Title"))
+    if link:
+        text, bob = link
+        bw = 20 + 8 * len(text)
+        out += open_button(text, bob, x + w - bw - 4, y + 2, bw, 22, name=f"Card_{key}_Link")
+    return out
 
 
 def field(caption, pv, x, y, w, size=11, prec=None, fmt=None, units=True, bold=True):
@@ -215,7 +247,7 @@ def stripchart(key, title, x, y, w, h, traces, axes, time_range):
         f"<minimum>{lo}</minimum><maximum>{hi}</maximum><show_grid>true</show_grid><visible>true</visible>"
         f"</y_axis>" for t, log, lo, hi in axes)
     tr = "".join(
-        f"<trace><name>{escape(n)}</name><y_pv>ca://{pv}</y_pv><axis>{a}</axis><trace_type>1</trace_type>"
+        f"<trace><name>{escape(n)}</name><y_pv>{escape(pvref(pv))}</y_pv><axis>{a}</axis><trace_type>1</trace_type>"
         f"<color>{col(rgb)}</color><line_width>2</line_width><point_type>0</point_type>"
         f"<point_size>4</point_size><visible>true</visible></trace>" for n, pv, rgb, a in traces)
     small = '<font family="Liberation Sans" style="REGULAR" size="9.0"/>'
@@ -224,7 +256,7 @@ def stripchart(key, title, x, y, w, h, traces, axes, time_range):
             f"<title>{escape(title)}</title>"
             f'<title_font><font family="Liberation Sans" style="BOLD" size="10.0"/></title_font>'
             f"<label_font>{small}</label_font><scale_font>{small}</scale_font>"
-            f"<show_toolbar>false</show_toolbar><show_legend>false</show_legend>"
+            f"<show_toolbar>true</show_toolbar><show_legend>false</show_legend>"
             f"<show_grid>true</show_grid><start>{time_range}</start><y_axes>{ax}</y_axes><traces>{tr}</traces></widget>")
 
 
@@ -234,22 +266,22 @@ def key(x, y, items, wid):
 
 
 def nmr_plot(x, y, w, h):
-    # Points, not lines: Phoebus reads the fitter's waveforms at their full
-    # length, so the unused tail (zeros) would draw a line back to 0 MHz.
+    # The processed NMR signal only.  Points, not lines: Phoebus reads the
+    # fitter's waveforms at their full length, so the unused tail (zeros)
+    # would draw a line back to 0 MHz.
     def trace(name, pv, rgb, size):
         return (f"<trace><name>{name}</name><x_pv>ca://{FIT}:FREQS_MHZ</x_pv><y_pv>ca://{FIT}:{pv}</y_pv>"
                 f"<axis>0</axis><trace_type>0</trace_type><color>{col(rgb)}</color>"
                 f"<point_type>1</point_type><point_size>{size}</point_size></trace>")
     return (f'<widget type="xyplot" version="3.0.0"><name>NMR_Signal</name>'
             f"<x>{x}</x><y>{y}</y><width>{w}</width><height>{h}</height>"
-            f"<title>NMR signal (online fitter)</title><show_toolbar>false</show_toolbar>"
+            f"<title>Processed NMR signal (online fitter)</title><show_toolbar>true</show_toolbar>"
             f"<x_axis><title>Frequency (MHz)</title><autoscale>false</autoscale><minimum>31.9</minimum>"
             f"<maximum>33.1</maximum><log_scale>false</log_scale><show_grid>true</show_grid></x_axis>"
             f"<y_axes><y_axis><title>Signal (arb.)</title><autoscale>true</autoscale><minimum>0.0</minimum>"
             f"<maximum>1.0</maximum><log_scale>false</log_scale><show_grid>true</show_grid>"
             f"<on_right>false</on_right></y_axis></y_axes>"
-            f"<traces>{trace('incoming', 'RAW', (150, 150, 150), 2)}{trace('processed', 'DATA', NAVY, 3)}"
-            f"{trace('total fit', 'TOTAL_FIT', RED, 3)}</traces></widget>")
+            f"<traces>{trace('processed NMR', 'DATA', RED, 3)}</traces></widget>")
 
 
 # ------------------------------------------------------------------ panels
@@ -276,7 +308,7 @@ def header():
 
 def magnet_space():
     x, y = 6, 50
-    w = [card("Magnet Space", x, y, 710, 282, "Magnet")]
+    w = [card("Magnet Space", x, y, 710, 282, "Magnet", ("Magnet", "genesis_cryo_magnet.bob"))]
     w.append(placeholder_plot("MagnetLevelTrend", "Magnet LHe level (AMI meter), 40 min",
                               14, 82, 228, 242, "Magnet LHe level meter (AMI)"))
     w.append(stripchart("MagnetThermometry", "Magnet thermometry (K)", 248, 82, 352, 226,
@@ -285,7 +317,7 @@ def magnet_space():
     w.append(key(270, 310, list(MAGNET_T.items()), 60))
     # magnet LHe level bar: 0-31 inch, alarm at 20", magnet top at 16.5"
     top, h = 100, 180
-    w.append(label("Level (in)", 606, 82, 104, 18, 10, True, GREY_TEXT))
+    w.append(label("Level (in)", 624, 82, 86, 18, 10, True, GREY_TEXT))
     w.append(rect(620, top, 34, h, GREY_FILL, GREY_LINE, name="Placeholder_MagnetLevelBar"))
     for inch, rgb, text in ((20.0, RED, '20" alarm'), (16.5, AMBER, '16.5" top')):
         yy = top + h - round(inch / 31.0 * h)
@@ -298,10 +330,10 @@ def magnet_space():
 FRIDGE_READOUTS = (
     ("placeholder", "FridgeLevel", "Fridge LHe level (in)", "Fridge LHe level meter (AMI)"),
     ("placeholder", "VaporTemp", "Vapor-pressure T (K)", "Vapor-pressure temperature"),
-    ("live", f"{CRYO}:CELL:Cell_PI", "Mano. Hi (MKS 902B)", None),
+    ("live", f"{CRYO}:CELL:Cell_PI", "Mano. Hi, Torr (MKS 902B)", None),
     ("placeholder", "ManometerLo", "Mano. Lo", "Manometer Lo"),
-    ("live", f"{CRYO}:VAC:Pump_PI", "Roots top (TPG 262 g1)", None),
-    ("live", f"{CRYO}:VAC:OVC_PI", "Roots bottom (TPG 262 g2)", None),
+    ("live", torr_from_mbar(f"{CRYO}:VAC:Pump_PI"), "Roots top, Torr (TPG 262 g1)", None),
+    ("live", torr_from_mbar(f"{CRYO}:VAC:OVC_PI"), "Roots bottom, Torr (TPG 262 g2)", None),
     ("placeholder", "Pirani", "Pirani", "Pirani gauge"),
     ("placeholder", "SeparatorFlow", "Separator flow (slm)", "Separator flow meter"),
     ("placeholder", "RootsTotalFlow", "Roots total flow", "Roots flow meters"),
@@ -312,16 +344,16 @@ FRIDGE_READOUTS = (
 
 def fridge_space():
     x, y = 6, 338
-    w = [card("Fridge Space", x, y, 710, 456, "Fridge")]
+    w = [card("Fridge Space", x, y, 710, 456, "Fridge", ("Fridge", "genesis_cryo_fridge.bob"))]
     w.append(placeholder_plot("FlowTrend", "Flows: separator, Roots L / R / total (1 h)",
                               14, 370, 250, 200, "Flow meters (separator, Roots L/R)"))
-    w.append(stripchart("FridgePressures", "Pressures (log)", 14, 576, 250, 194,
-                        [("Mano. Hi (Torr)", f"{CRYO}:CELL:Cell_PI", (230, 110, 0), 0),
-                         ("Roots top (mbar)", f"{CRYO}:VAC:Pump_PI", (220, 0, 160), 1),
-                         ("Roots bottom (mbar)", f"{CRYO}:VAC:OVC_PI", (120, 40, 200), 1)],
-                        [("Torr", True, 0.01, 100), ("mbar", True, 0.01, 100)], "1 hour"))
-    w.append(key(16, 772, [("Mano. Hi (Torr)", (230, 110, 0)), ("Roots top (mbar)", (220, 0, 160)),
-                           ("Roots bot. (mbar)", (120, 40, 200))], 83))
+    w.append(stripchart("FridgePressures", "Pressures (Torr, log)", 14, 576, 250, 194,
+                        [("Mano. Hi", f"{CRYO}:CELL:Cell_PI", (230, 110, 0), 0),
+                         ("Roots top", torr_from_mbar(f"{CRYO}:VAC:Pump_PI"), (220, 0, 160), 0),
+                         ("Roots bottom", torr_from_mbar(f"{CRYO}:VAC:OVC_PI"), (120, 40, 200), 0)],
+                        [("Torr", True, 0.01, 100)], "1 hour"))
+    w.append(key(16, 772, [("Mano. Hi", (230, 110, 0)), ("Roots top", (220, 0, 160)),
+                           ("Roots bottom", (120, 40, 200))], 83))
     w.append(stripchart("FridgeThermometry", "Fridge thermometry (K, log): colours as the insert",
                         270, 370, 300, 270,
                         [(s, thermometer_pv(s), c, 0) for s, c in FRIDGE_T.items()],
@@ -331,7 +363,7 @@ def fridge_space():
     for i, (kind, ref, caption, what) in enumerate(FRIDGE_READOUTS):
         yy = 370 + i * 37
         if kind == "live":
-            w.append(field(caption, ref, 576, yy, 132, 10, prec=3, fmt=2))
+            w.append(field(caption, ref, 576, yy, 132, 10, prec=3, fmt=2, units=not ref.startswith("=")))
         else:
             w.append(placeholder(ref, caption, 576, yy, 132, what))
     return w
@@ -378,15 +410,32 @@ SEPARATOR = (834, 584, 132, 84)          # x, y, width, height: wider than the c
 #: readout boxes stand in a column on the right, joined to their markers by
 #: leader lines.
 CARTOON_MARKERS = {
-    "F1": (990, 298), "F2": (873, 403), "F3": (870, 532), "F4": (935, 540), "F5": (893, 576),
-    "F6": (913, 677), "F8": (913, 702), "F7": (877, 712), "F9": (891, 745), "F10": (927, 765),
+    # F1 inside the upper insert, halfway from its wall to the pumping tube;
+    # F3 under the lowest upper plate; F5 / F6 on the separator's top / bottom
+    "F1": (947, 298), "F2": (873, 403), "F3": (870, 527), "F4": (935, 540), "F5": (893, 579),
+    "F6": (913, 673), "F8": (913, 702), "F7": (877, 712), "F9": (891, 745), "F10": (927, 765),
     "F11": (873, 808), "T1": (900, 925), "T3": (900, 1000),
-    # magnet sensors: right side of the magnet dewar, in its LHe space, at their
-    # heights on the LHe depth scale (see level_y): M1 above the scale's top,
-    # M2 at about 31", M3 just above the 16.5" magnet top, M4 on the top of the
-    # coils (about 13"), M5 at the bottom of the coils (about 3.5")
-    "M1": (1006, 520), "M2": (1006, 595), "M3": (1006, 805), "M4": (1006, 865), "M5": (1006, 1007),
+    # magnet sensors, right side of the magnet LHe space: M1 high in the neck,
+    # M2 on the lowest neck baffle (top of the belly), M3 on the magnet-support
+    # baffle at 16.5", M4 at the solenoid's top, M5 at its bottom
+    "M1": (985, 530), "M2": (985, 579), "M3": (1005, 801), "M4": (958, 822), "M5": (958, 1044),
 }
+
+#: Magnet LHe space (inches on the depth scale, 15 px/in, radii about the
+#: insert axis x=900): a 12"-wide bore holds the solenoid up to the 16.5"
+#: magnet-support baffle; above it the 16"-wide belly up to 31.5", then the
+#: 13"-wide neck with 5 baffles whose spacing grows upward (as built: 31.6,
+#: 33.5, 36.4, 40.4, 45.4"; the neck is drawn compressed to end at the
+#: fridge flange).  The solenoid: 4" bore, 7" outside, 0.9-16.0" (its top just
+#: under the support baffle).
+AXIS_X = 900
+BORE_HALF, BELLY_HALF, NECK_HALF = 90, 120, 98
+BELLY_IN, NECK_IN = (16.5, 31.5), 31.5
+NECK_TOP_Y = 408
+NECK_BAFFLES_IN = (31.6, 33.5, 36.4, 40.4, 45.4)
+NECK_SPAN_IN = (31.5, 51.5)
+SOLENOID_IN = (0.9, 16.0)
+SOLENOID_ID_HALF, SOLENOID_OD_HALF = 30, 52
 #: shell sensors S1-S3 (temporary, since removed; never in Genesis): grey markers only
 REMOVED_SENSORS = {"S1": (851, 430), "S2": (851, 470), "S3": (851, 528)}
 COPPER = (184, 115, 51)
@@ -395,6 +444,18 @@ LEADER = (50, 50, 50)
 
 # depth scale for the magnet LHe level: 0" at y=1060, 15 px per inch
 LEVEL_Y0, PX_PER_INCH = 1060, 15
+
+
+def level_y(inches):
+    """Screen y of a height on the magnet LHe depth scale."""
+    return round(LEVEL_Y0 - inches * PX_PER_INCH)
+
+
+def neck_baffle_ys():
+    """The neck baffles' y, bottom to top, scaled into the drawn (compressed) neck."""
+    belly_top = level_y(NECK_IN)
+    lo, hi = NECK_SPAN_IN
+    return [round(belly_top - (b - lo) / (hi - lo) * (belly_top - NECK_TOP_Y)) for b in NECK_BAFFLES_IN]
 
 
 def level_inches(y):
@@ -429,21 +490,28 @@ def insert_cartoon():
     w.append(field("Fitter material", f"{FIT}:MATERIAL_RBV", 922, 80, 186, 11))
     w.append(field("Dopant (MW supervisor)", f"{MW}:SUP:Dopant", 730, 120, 186, 11))
     w.append(placeholder("TargetStick", "Target stick", 922, 120, 186, "Target stick selection"))
-    # magnet cryostat and its LHe depth scale
-    w.append(rect(740, 450, 284, 612, DEWAR, NAVY, 2, name="Dewar"))
-    w.append(label("magnet cryostat", 744, 452, 120, 14, 8, False, NAVY))
+    # magnet LHe space: bore, belly, neck (one outline), and its depth scale
+    belly_top, support_y, bottom = level_y(NECK_IN), level_y(BELLY_IN[0]), level_y(0) + 2
+    a, b, n = AXIS_X, belly_top, NECK_TOP_Y
+    w.append(polygon([(a - NECK_HALF, n), (a - NECK_HALF, b), (a - BELLY_HALF, b), (a - BELLY_HALF, support_y),
+                      (a - BORE_HALF, support_y), (a - BORE_HALF, bottom), (a + BORE_HALF, bottom),
+                      (a + BORE_HALF, support_y), (a + BELLY_HALF, support_y), (a + BELLY_HALF, b),
+                      (a + NECK_HALF, b), (a + NECK_HALF, n)], DEWAR, NAVY, 2, name="Magnet_LHe_Space"))
+    w.append(label("magnet LHe", a - BELLY_HALF + 3, b + 3, 62, 12, 8, False, NAVY))
     for inch in range(0, 31, 5):
-        yy = LEVEL_Y0 - inch * PX_PER_INCH
-        w.append(rect(742, yy, 8, 1, NAVY))
+        yy = level_y(inch)
+        w.append(rect(766, yy, 10, 1, NAVY))
         if inch != 20:
-            w.append(label(str(inch), 752, yy - 6, 22, 12, 8, False, NAVY))
-    w.append(label(f"magnet LHe (in): {NOT_YET}", 776, 626, 68, 52, 8, False, GREY_TEXT, italic=True,
+            w.append(label(str(inch), 744, yy - 6, 20, 12, 8, False, NAVY, align=2))
+    w.append(label(f"magnet LHe (in): {NOT_YET}", 726, 452, 74, 50, 8, False, GREY_TEXT, italic=True,
                    wrap=True, name="Placeholder_MagnetLevelScale"))
-    alarm_y = LEVEL_Y0 - 20 * PX_PER_INCH
-    top_y = round(LEVEL_Y0 - 16.5 * PX_PER_INCH)
-    # the coils reach the magnet top, around the target nose
-    w.append(rect(806, top_y, 56, LEVEL_Y0 - top_y - 6, COIL, COIL_LINE, corner=10, name="Coil_L"))
-    w.append(rect(938, top_y, 56, LEVEL_Y0 - top_y - 6, COIL, COIL_LINE, corner=10, name="Coil_R"))
+    alarm_y = level_y(20)
+    top_y = support_y
+    # solenoid (the nose fits in its bore), from 0.9" to just under the 16.5" support baffle
+    s_top, s_bot = level_y(SOLENOID_IN[1]), level_y(SOLENOID_IN[0])
+    wall = SOLENOID_OD_HALF - SOLENOID_ID_HALF
+    w.append(rect(a - SOLENOID_OD_HALF, s_top, wall, s_bot - s_top, COIL, COIL_LINE, name="Coil_L"))
+    w.append(rect(a + SOLENOID_ID_HALF, s_top, wall, s_bot - s_top, COIL, COIL_LINE, name="Coil_R"))
     # insert head: feedthroughs, top plate, pump-out line to the right
     for fx in (846, 866, 934, 954):
         w.append(rect(fx, 180, 6, 36, (120, 126, 136)))
@@ -469,23 +537,28 @@ def insert_cartoon():
                           name=f"Baffle_{stack}{i + 1}"))
     sx, sy, sw, sh = SEPARATOR
     w.append(rect(sx, sy, sw, sh, (165, 171, 181), (70, 76, 86), 2, corner=6, name="Shape_Separator"))
-    w.append(label("separator", sx, sy + sh // 2 - 15, sw, 15, 9, True, TEXT, align=1))
-    w.append(label("(LHe / gas)", sx, sy + sh // 2, sw, 14, 8, False, TEXT, align=1))
+    w.append(label("separator", sx, sy + sh // 2 - 8, sw, 15, 9, True, TEXT, align=1))
     w.append(label("fridge", 952, 812, 40, 14, 8, True, FRIDGE_LINE))
+    # magnet-space baffles: 5 in the neck (ring from the wall to the insert),
+    # and the magnet-support baffle at 16.5"
+    for i, by in enumerate(neck_baffle_ys()):
+        w.append(rect(a - NECK_HALF + 2, by - 3, NECK_HALF - 56, 3, STEEL, name=f"Magnet_Baffle_N{i + 1}_L"))
+        w.append(rect(a + 54, by - 3, NECK_HALF - 56, 3, STEEL, name=f"Magnet_Baffle_N{i + 1}"))
+    w.append(rect(a - BELLY_HALF + 2, support_y - 6, BELLY_HALF - 29, 5, STEEL, name="Magnet_Baffle_Support_L"))
+    w.append(rect(a + 27, support_y - 6, BELLY_HALF - 29, 5, STEEL, name="Magnet_Baffle_Support"))
     # nose (tail) and target cup
     w.append(rect(873, 832, 54, 214, INSERT, MUTED, name="Shape_Nose"))
     w.append(rect(879, 900, 42, 140, CUP, CUP_LINE, 2, name="Target_Cup"))
     w.append(label("cup", 879, 1040, 42, 12, 8, True, CUP_LINE, align=1))
     # the alarm and magnet-top lines go over the coils
-    w.append(rect(740, alarm_y, 284, 2, RED, name="Level_Alarm_Line"))
-    w.append(label('20" alarm', 744, alarm_y - 14, 60, 13, 8, True, RED))
-    w.append(dashed(740, top_y, 284, AMBER, name="Magnet_Top_Line"))
-    w.append(label('16.5" top', 744, top_y - 14, 60, 13, 8, True, AMBER))
+    w.append(rect(a - BELLY_HALF, alarm_y, 2 * BELLY_HALF, 2, RED, name="Level_Alarm_Line"))
+    w.append(label('20" alarm', 726, alarm_y - 14, 54, 13, 8, True, RED))
+    w.append(dashed(a - BELLY_HALF, top_y, 2 * BELLY_HALF, AMBER, name="Magnet_Top_Line"))
+    w.append(label('16.5"', 726, top_y - 14, 54, 13, 8, True, AMBER))
     # shell sensors: removed
     for sensor, (mx, my) in REMOVED_SENSORS.items():
-        w.append(rect(mx - 4, my - 4, 8, 8, (205, 205, 205), GREY_LINE, name=f"Removed_{sensor}"))
-    w.append(label("S1-S3 shell sensors (removed)", 742, 476, 100, 30, 8, False, GREY_TEXT, italic=True,
-                   wrap=True))
+        w.append(rect(mx - 4, my - 4, 8, 8, (205, 205, 205), GREY_LINE, name=f"Removed_{sensor}",
+                      tooltip=f"{sensor}: shell sensor, removed"))
     # thermometers: marker, leader line, readout box
     tops = readout_tops()
     for sensor, (mx, my) in CARTOON_MARKERS.items():
@@ -513,11 +586,13 @@ def nmr():
     w.append(nmr_plot(1130, 110, 504, 280))
     # The DAQ's "Polarization" is the area method: P_AREA is the headline,
     # the lineshape fit's P alongside it.
-    w.append(stripchart("Polarization", "P area (green), P fit (grey), Q fit (magenta), %", 1130, 396, 504, 214,
-                        [("P area (%)", f"{FIT}:P_AREA", (0, 140, 40), 0),
-                         ("P fit (%)", f"{FIT}:P_FIT", (140, 140, 140), 0),
-                         ("Q fit (%)", f"{FIT}:Q_FIT", (200, 0, 160), 1)],
-                        [("P (%)", False, -60, 60), ("Q (%)", False, -30, 30)], "3 hours"))
+    w.append(stripchart("Polarization", "P area (green), P fit (grey), Q fit (magenta), Q eq (orange)",
+                        1130, 396, 504, 214,
+                        [("P area", f"{FIT}:P_AREA", (0, 140, 40), 0),
+                         ("P fit", f"{FIT}:P_FIT", (140, 140, 140), 0),
+                         ("Q fit", f"{FIT}:Q_FIT", (200, 0, 160), 0),
+                         ("Q eq", f"{FIT}:Q_EQ", (225, 135, 0), 0)],
+                        [("%", False, -60, 60)], "3 hours"))
     w.append(label("Polarization (area)", 1132, 614, 150, 16, 10, True, MUTED))
     w.append(update(f"{FIT}:P_AREA", 1132, 630, 122, 36, 20, True, prec=2, units=False, bg=GREEN_LIGHT,
                     align=2, name="NMR_P"))
@@ -567,7 +642,7 @@ def sc_magnet():
 
 def microwaves():
     x, y = 1508, 706
-    w = [card("Microwaves", x, y, 386, 190, "Microwaves")]
+    w = [card("Microwaves", x, y, 386, 190, "Microwaves", ("Microwave screen", "genesis_microwave.bob"))]
     w.append(field("Output frequency", f"{MW}:SUP:OutputFrequencyRBV", 1518, 738, 176, 11, prec=4))
     w.append(field("Source power", f"{MW}:SRC:MW_PWRI", 1704, 738, 176, 11, prec=1))
     w.append(field("UCA voltage", f"{MW}:PS:VMEAS", 1518, 778, 176, 11, prec=3))
@@ -608,7 +683,6 @@ def slowsweep():
     w.append(inline("Frequency", f"{MW}:SUP:SweepCurrentFrequency", 1518, 1038, 70, 110, prec=4))
     w.append(inline("Step", f"{MW}:SUP:SweepStep", 1704, 990, 60, 120, prec=4))
     w.append(inline("Dwell", f"{MW}:SUP:SweepDwell", 1704, 1014, 60, 120, prec=1))
-    w.append(open_button("Microwave screen", "genesis_microwave.bob", 1704, 1040, 180, 26))
     return w
 
 
