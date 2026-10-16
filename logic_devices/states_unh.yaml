@@ -42,6 +42,12 @@ options:
     - d-propanediol
     - NH3
 
+  dopant:            # Ells 2026-10-16; the microwave supervisor follows it
+    - None
+    - Irradiated
+    - TEMPO
+    - Trityl
+
   reports:          # production reading when that state's conditions are satisfied
     Warm: Warm
     Cooldown: Cooling

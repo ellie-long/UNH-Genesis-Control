@@ -913,6 +913,28 @@
     <pv_name>ca://UNH:GEN:CRYO:STATE:material</pv_name>
   </widget>
   <widget type="label" version="2.0.0">
+    <name>DopantL</name>
+    <x>430</x>
+    <y>650</y>
+    <width>90</width>
+    <height>24</height>
+    <text>Dopant:</text>
+    <transparent>true</transparent>
+    <horizontal_alignment>0</horizontal_alignment>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="12.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="combo" version="2.0.0">
+    <name>Dopant</name>
+    <x>525</x><y>646</y>
+    <width>220</width><height>30</height>
+    <pv_name>ca://UNH:GEN:CRYO:STATE:dopant</pv_name>
+  </widget>
+  <widget type="label" version="2.0.0">
     <name>AutoL</name>
     <x>42</x>
     <y>650</y>

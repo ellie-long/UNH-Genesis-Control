@@ -1570,6 +1570,21 @@ w += [
         "UNH:GEN:CRYO:STATE:material",
     ),
 
+    # the dopant beside the material (Ells 2026-10-16); the microwave
+    # supervisor follows it (its Magic +/- constants depend on it)
+    label(
+        "DopantL",
+        430, 650, 90, 24,
+        "Dopant:",
+        12,
+        True,
+    ),
+    combo(
+        "Dopant",
+        525, 646, 220,
+        "UNH:GEN:CRYO:STATE:dopant",
+    ),
+
     label(
         "AutoL",
         42, 650, 130, 24,

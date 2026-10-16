@@ -27,3 +27,12 @@ def configured_magic(dopants, dopant_index, sign, central_ghz):
         raise ValueError(
             f"{dopant['name']} {sign} constants are not configured; see settings.yaml")
     return magic_frequency(central_ghz, gamma, factor)
+
+
+def dopant_index(names, selected):
+    """Index of the dopant named ``selected`` (case-insensitive) in ``names``, or None."""
+    want = str(selected).strip().lower()
+    for i, name in enumerate(names):
+        if str(name).strip().lower() == want:
+            return i
+    return None

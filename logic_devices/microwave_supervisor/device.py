@@ -13,6 +13,7 @@ from microwave_ioc.rf_safety import read_snapshot, validate_on, flag, fresh, fin
 from .conversions import FrequencyConversion
 from .magic import configured_magic
 from .sweep import sweep_points, validate_dwell
+from .magic import dopant_index
 
 
 class Device:
@@ -29,6 +30,11 @@ class Device:
             limits["multiplier"], limits["output_min_ghz"],
             limits["output_max_ghz"])
         self.dopants = settings.get("dopants", [])
+        # the target's dopant is chosen with the material on the Cryo Safety
+        # screen (UNH:GEN:CRYO:STATE:dopant); the supervisor adopts each change
+        self.follow_dopant_pv = settings.get("follow_dopant_pv")
+        self._followed_dopant = None
+        self._next_dopant_check = 0.0
         self._rf_lock = asyncio.Lock()
         self._rf_generation = 0
         self._rf_request = False
@@ -353,7 +359,24 @@ class Device:
         self._source_session = session
         return changed
 
+    async def _follow_dopant(self):
+        """Adopt the cryo target-dopant selection when it changes (every ~2 s)."""
+        if not self.follow_dopant_pv or time.monotonic() < self._next_dopant_check:
+            return
+        self._next_dopant_check = time.monotonic() + 2.0
+        try:
+            value = await aioca.caget(self.follow_dopant_pv, datatype=str, timeout=1.0)
+        except Exception:  # noqa: BLE001 - the cryo IOC may be down; keep the current choice
+            return
+        if value == self._followed_dopant:
+            return
+        self._followed_dopant = value
+        index = dopant_index([d["name"] for d in self.dopants], value)
+        if index is not None and index != self.pvs["Dopant"].get():
+            self.pvs["Dopant"].set(index)
+
     async def do_reads(self):
+        await self._follow_dopant()
         if self._rf_lock.locked():
             return True  # RF transition owns confirmation; do not overwrite it.
         rf_observed = False

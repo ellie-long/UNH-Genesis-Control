@@ -27,6 +27,8 @@ PVs (prefix from settings.yaml general:prefix, e.g. UNH:)
 
     status        mbbOut   intended state; writing applies the whole table
     material      mbbOut   Empty / ND3 / d-butanol / d-propanediol / NH3
+    dopant        mbbOut   None / Irradiated / TEMPO / Trityl (selection only;
+                           the microwave supervisor follows it for Magic +/-)
     auto          boolOut  allow automatic state advances
     production    mbbIn    the state actually satisfied right now
     conditions    boolIn   1 = every condition of `status` is met
@@ -100,6 +102,7 @@ class Device:
         opts = self.states["options"]
         self.status_names = list(opts["status"])
         self.material_names = list(opts["material"])
+        self.dopant_names = list(opts.get("dopant") or ["None"])
         self.thresholds = opts.get("thresholds", {})
         self.advance = opts.get("advance", {})
         # which production index each state reports when its conditions hold
@@ -115,6 +118,10 @@ class Device:
                                             on_update_name=self.stat_update)
         self.pvs["material"] = builder.mbbOut("material", *self.material_names,
                                               on_update_name=self.stat_update)
+        # the target's dopant: an operator selection, saved like the material
+        # but never part of a state page (no push)
+        self.pvs["dopant"] = builder.mbbOut("dopant", *self.dopant_names,
+                                            on_update=lambda _v: self._remember())
         self.pvs["auto"] = builder.boolOut("auto", ZNAM="Manual", ONAM="Auto")
         self.pvs["production"] = builder.mbbIn("production", *PRODUCTION)
         self.pvs["conditions"] = builder.boolIn("conditions", ZNAM="Unmet", ONAM="Met")
@@ -209,6 +216,9 @@ class Device:
         si, mi = int(self.pvs["status"].get()), int(self.pvs["material"].get())
         last = {"status": si, "material": mi,
                 "status_name": self.status_names[si], "material_name": self.material_names[mi]}
+        if "dopant" in self.pvs:
+            di = int(self.pvs["dopant"].get())
+            last.update(dopant=di, dopant_name=self.dopant_names[di])
         try:
             os.makedirs(os.path.dirname(self.last_file) or ".", exist_ok=True)
             with open(self.last_file, "w") as f:
@@ -227,8 +237,11 @@ class Device:
                 last = yaml.safe_load(f) or {}
         except (OSError, yaml.YAMLError):
             last = {}
-        names = {"status": self.status_names, "material": self.material_names}
-        for key in ("status", "material"):
+        names = {"status": self.status_names, "material": self.material_names,
+                 "dopant": getattr(self, "dopant_names", [])}
+        for key in ("status", "material", "dopant"):
+            if key not in self.pvs:
+                continue
             name = last.get(f"{key}_name")
             if name in names[key]:
                 last[key] = names[key].index(name)

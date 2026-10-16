@@ -47,3 +47,24 @@ def test_old_index_only_file_still_restores(tmp_path):
     dev = fake(tmp_path, ["Empty", "ND3", "d-butanol", "d-propanediol", "NH3"])
     dev.connect()
     assert dev.pvs["material"].get() == 1 and dev.pvs["status"].get() == 1
+
+
+def test_dopant_saved_and_restored_by_name(tmp_path):
+    dev = fake(tmp_path, ["Empty", "ND3", "d-butanol", "d-propanediol", "NH3"], material=2)
+    dev.dopant_names = ["None", "Irradiated", "TEMPO", "Trityl"]
+    dev.pvs["dopant"] = FakePV(1)
+    dev._remember()
+    new = fake(tmp_path, ["Empty", "ND3", "d-butanol", "d-propanediol", "NH3"])
+    new.dopant_names = ["None", "TEMPO", "Irradiated", "Trityl"]        # reordered
+    new.pvs["dopant"] = FakePV(0)
+    new.connect()
+    assert new.dopant_names[new.pvs["dopant"].get()] == "Irradiated"
+    assert new.material_names[new.pvs["material"].get()] == "d-butanol"
+
+
+def test_supervisor_matches_the_cryo_dopant_by_name():
+    from logic_devices.microwave_supervisor.magic import dopant_index
+    names = ["None", "Irradiated", "TEMPO", "Trityl"]
+    assert dopant_index(names, "TEMPO") == 2
+    assert dopant_index(names, " irradiated ") == 1
+    assert dopant_index(names, "Unknown") is None

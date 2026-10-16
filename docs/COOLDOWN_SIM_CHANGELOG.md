@@ -7,6 +7,14 @@ findings are in `COOLDOWN_SIM_PROGRESS.md`; questions for the lab are in
 
 ## 2026-10-16
 
+* Target dopant beside the material on the Cryo Safety screen's Target
+  Operating State card: a new cryo record `UNH:GEN:CRYO:STATE:dopant` (None /
+  Irradiated / TEMPO / Trityl, saved by name); the microwave supervisor
+  follows it (`follow_dopant_pv`), so cryo screens still never write a
+  microwave PV (the cryo GUI ownership guard). The Microwave screen's Dopant
+  combo stays, for the microwave side.
+
+
 * Genesis (Ells's request): Target material drop-down on the Cryo Safety
   screen with Empty / ND3 / d-butanol / d-propanediol / NH3 (state table:
   the two new materials copy ND3's entries; selection saved and restored by
