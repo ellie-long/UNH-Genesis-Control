@@ -7,6 +7,14 @@ findings are in `COOLDOWN_SIM_PROGRESS.md`; questions for the lab are in
 
 ## 2026-10-16
 
+* Questions file: checklist now holds only what is still open; answered
+  parts moved to Settled (5, 35, 40, and the answered halves of 3, 10, 25,
+  34). 8 rephrased; new 46 (was the 2024-11 / 2025 d-butanol irradiated?).
+* Material schedule for every cool-down from the technote; `dnp: fitted`
+  labels a material without switching the model (the Dec 2025 rates and the
+  trityl block hindcast worse elsewhere, 2026-10-16 trial).
+
+
 * Questions 33 (materials per cool-down, from the cool-downs technote) and 38
   (fridge built from the JLab g2p design) settled; 35: 2024-09 rates fit
   started, 2025-02-13 passed; 37 low priority; 34: what Magic +/- mean,

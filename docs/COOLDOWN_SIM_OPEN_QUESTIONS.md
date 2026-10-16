@@ -9,9 +9,9 @@ named in each item. Numbers are stable: answered items move to *Settled*.
 ## Checklist (all open items)
 
 **Equipment and wiring**
-- [ ] 3. Vacuum: beyond the IONIVAC alarm (limits now set, see 25), should
-      the interlock also ACT on the IONIVAC (trip something: what?), or is
-      the alarm enough? (LabVIEW's `Roots Pressure` = the top gauge: settled.)
+- [ ] 3. Vacuum interlock: beyond the IONIVAC alarm (limits in Settled),
+      should the interlock also ACT on the IONIVAC (trip something: what?),
+      or is the alarm enough?
 - [ ] 45. Serial device servers: which devices are on the 3 TXI040 ports
       (192.168.1.251) that Genesis doesn't use, and on the 2 occupied TXI017
       ports (192.168.1.250)? Their TCP ports too, if easy (the servers' web
@@ -22,64 +22,34 @@ named in each item. Numbers are stable: answered items move to *Settled*.
 
 **Microwave and ssRF power**
 - [ ] 9. SIG's calibration (reflected power); roughly when the manual supply
-      replaced the analog-output drive. (UCA curve: settled, see below.)
-- [ ] 10. (Parked) ssRF heat vs power at the coil. **REMINDER for Ells:**
-      send the ssRF heat data taken in the prep for the 2026-06 cool-down,
-      once you have analyzed it (2026-10-16).
+      replaced the analog-output drive.
+- [ ] 10. **REMINDER for Ells:** send the ssRF heat data (heat vs power at
+      the coil) taken in the prep for the 2026-06 cool-down, once analyzed.
 
 **Target physics**
-- [ ] 34. Magic - : what constant did the LabVIEW DAQ use for "Magic -" (and is
-      Magic + exactly 28.025 GHz/T)? The sim uses 28.077 GHz/T for Magic -
-      (the P-down peak of the measured lineshape). **REMINDER for Ells
-      (afternoon 2026-10-16):** send the actual per-material numbers.
-      Ells (2026-10-16): Magic +/- are the mmwave frequency / field ratios
-      (GHz/T) at which each material was found to polarize well positive /
-      negative; the DAQ multiplies them by the present field and sets the
-      mmwave output, a quick way to start polarizing. Ideally they sit at the
-      highest beta (+) and alpha (-) of the rate equations. The sim's values
-      follow that rule: Magic - is the alpha peak, and Magic + the beta
-      plateau (for irradiated d-butanol the sim keeps the DAQ's 28.025, 0.004
-      above the rate model's optimum 28.021).
-- [ ] 35. Slow microwave sweeps on irradiated d-butanol for an alpha/beta fit:
-      candidates in the record are 2024-09-17 11:36-16:31 (f/B 27.87-28.09),
-      2025-11-20 22:17-23:17 and 2025-02-13 19:40-20:39 (narrow). 2024-09 was
-      NIST-irradiated d-butanol (cool-downs technote), so it is a real
-      candidate; the 2025-02-13 file is the Excel comma re-save with an
-      off-by-one column shift (technote), so that one is unreliable until the
-      original is re-exported. (The rates fit hasn't been run on these.)
-      Ells (2026-10-16): run the rates fit on 2024-09 (agent started, using
-      the McClellan-fitted P/Q, not the miscalibrated online P); pass on
-      2025-02-13 for now.
-- [ ] 36. Genesis Magic +/- (live): the microwave supervisor ALREADY has
-      Magic +/- (`SUP:MagicPlus`/`MagicMinus`), disabled because its dopant
-      list is empty (`dopants: []` -> Dopant "UNCONFIGURED"). It computes
-      f = CentralFrequency / gamma_d_over_2pi x magic factor per dopant, i.e.
-      field x factor, with the field from the NMR centre frequency (no magnet
-      IOC needed). But `CentralFrequency` is declared in GHz and defaults to
-      140 GHz (the OUTPUT band's middle), which only fits the formula if it
-      is meant to be the NMR centre in MHz. Which is intended? To certify:
-      per dopant, gamma_d/2pi = 6.53566 MHz/T and the +/- factors (sim
-      values: irradiated d-butanol 28.025 / 28.077, TEMPO d-butanol
-      28.052 / 28.108, trityl d-propanediol 28.026 / 28.041 GHz/T).
-- [ ] 37. 2020-12-10/11 (TEMPO d-butanol at the beta peak, f/B 28.0505,
-      1.05 K): the record's area P reaches ~35 % within an hour, but the
-      TEMPO rate fit (stage 5, fitted to that night's lineshape-derived P)
-      saturates near 25 % at the same conditions. Does the LabVIEW area P read
-      high against the lineshape P there (calibration), or is the fit's drive
-      low? Ells (2026-10-16): uncertain; needs deeper analysis -- LOW
-      PRIORITY. Highest priority is a working estimate for irradiated
-      d-butanol.
-- [ ] 42. Panopticon magnet drawing: the 5 neck baffles (31.6-45.4") are
-      drawn compressed to fit under the fridge flange (proportional, not to
-      the depth scale above 31.5"). Acceptable?
-- [ ] 43. Panopticon: where does M1 sit? Placed high in the neck (~35");
-      the magnet drawing does not give it.
+- [ ] 34. **REMINDER for Ells (afternoon 2026-10-16):** the actual Magic + /
+      Magic - constants (GHz/T) per material. The sim uses irradiated
+      d-butanol 28.025 / 28.077, TEMPO d-butanol 28.052 / 28.108, trityl
+      d-propanediol 28.033 / 28.043.
+- [ ] 36. Genesis Magic +/- (live): the supervisor's `CentralFrequency` is
+      declared in GHz (default 140, the output band's middle), but its Magic
+      formula needs the NMR centre in MHz (field = CentralFrequency /
+      6.53566 MHz/T). Which is intended? (Details below.)
+- [ ] 46. Was the d-butanol in 2024-11, 2025-02 and 2025-11 irradiated (like
+      2024-09's NIST batch and 2025-12 onward), or doped another way? The
+      sim labels it plain "d-butanol" until known.
 - [ ] 44. Panopticon plot toolbars (zoom/pan/axis limits) take ~30 px from
       each plot; the small pressure and shells plots are tight. Keep them, or
       hide them and rely on Ctrl+drag zoom / Shift+drag pan?
-- [ ] 5. Does Q lag Q_B(P) as P rebuilds after a quench or anneal?
-- [ ] 8. Quench field: dump time and level, re-ramp delay and rate, starting
-      P after the re-ramp.
+- [ ] 8. After a magnet quench, what does the field do, so the sim's quench
+      can follow it? (a) How fast does the field fall, and to what (all the
+      way to 0 T)? (b) How long until the magnet is ramped back up, and at
+      what rate (the handbook's 3 A/min)? (c) After the re-ramp, does the
+      polarization start again from thermal equilibrium (near 0), or is
+      some of it left?
+- [ ] 37. (Low priority) 2020-12-10/11 TEMPO d-butanol: the record's area P
+      reaches ~35 % within an hour, but the TEMPO rate fit saturates near
+      25 % at the same conditions. Calibration, or the fit's drive?
 
 **Live-system fixes (Genesis itself; listed in COOLDOWN_SIM_PROGRESS.md)**
 - [ ] 16. Over-flood alarm: F1_TI LOW/LOLO values (about 5 K / 4.5 K?), and
@@ -91,18 +61,8 @@ named in each item. Numbers are stable: answered items move to *Settled*.
       only the SPD1305X's own 5 V read-back. An unplugged or broken UCA cable
       would pass the check and give full power. Can it be detected (e.g. SIG
       response, a sense line, or a procedural check)?
-- [ ] 25. Shells-vacuum alarm (live fix): limits set (bottom of the magnet
-      > 300 K: alarm above 1e-4 Torr; < 80 K: above 1e-5 Torr). Still open:
-      how rapid a rise counts as rapid?
-- [ ] 40. (Low priority) LabVIEW's vapor-pressure temperature in its "Lo"
-      range (Manometer-Lo, below ~0.86 Torr) reads ~1.6 mK colder than
-      Ells's `t90_torr_to_k` (ITS-90 above 1.25 K, Donnelly & Barenghi below),
-      nearly constant from 0.1 to 0.9 Torr (2025-12, 2026-06); Med, Hi and VHi
-      match it to < 0.1 mK. A constant fraction like this looks like a ~1 %
-      pressure scale or an older temperature scale in LabVIEW's Lo branch.
-      Known? (Only matters if Genesis's VP readout must reproduce LabVIEW.)
-      Ells (2026-10-16): trust her offline code over the online readout; the
-      sim now computes the bath T90 from the manometers with it.
+- [ ] 25. Shells-vacuum alarm: how rapid a pressure rise counts as "rapid"
+      (e.g. a factor of 10 within some minutes)?
 - [ ] 39. Shells-vacuum alarm between 80 and 300 K: which limit applies
       (1e-4 until the magnet bottom is below 80 K? stepped or log-interpolated
       in between?). And is "the bottom of the magnet" M5 (`M5_TI`, LS224
@@ -263,6 +223,36 @@ named in each item. Numbers are stable: answered items move to *Settled*.
     varactors at 0-19 V. Keep a rule, change it, or drop it?
 
 ## Settled
+
+* Q after a quench (question 5): Ells (2026-10-16), no -- Q does not lag; it
+  follows the Boltzmann curve Q_B(P) as P rebuilds (as the June 2026 P&Q data
+  showed).
+* LabVIEW's Lo-range VP temperature (question 40): Ells (2026-10-16), trust
+  her offline `t90_torr_to_k` over LabVIEW's online readout (which reads
+  ~1.6 mK colder below ~0.86 Torr). The sim computes the bath T90 from the
+  manometers with it.
+* 2024-09 slow sweep (question 35): Ells (2026-10-16), run the rates fit on
+  2024-09-17 11:36-16:31 (NIST-irradiated d-butanol; agent started, using the
+  McClellan-fitted P/Q rather than the miscalibrated online P); pass on the
+  2025-02-13 file (the Excel comma re-save with a column shift).
+* Magic +/- meaning (question 34, part): Ells (2026-10-16), Magic +/- are the
+  mmwave frequency / field ratios (GHz/T) at which each material polarizes
+  well positive / negative; the DAQ multiplies them by the present field and
+  sets the mmwave output. Ideally they sit at the beta (+) and alpha (-)
+  maxima of the rate equations; the sim's values follow that rule. Numbers
+  to come (checklist 34).
+* Shells-vacuum alarm limits (questions 3 and 25, part): Ells (2026-10-16),
+  the IONIVAC is the vacuum of the fridge's shells and very important to
+  track: alarm above 1e-4 Torr while the bottom of the magnet is above 300 K,
+  above 1e-5 Torr once it is below 80 K. LabVIEW's `Roots Pressure` is the
+  top Roots gauge (LabVIEW never read the bottom one).
+* ssRF heat (question 10, part): Ells has measurements from the prep for the
+  2026-06 cool-down; she will analyze and send them (checklist 10).
+
+* Panopticon magnet neck and M1 (questions 42, 43): Ells (2026-10-16), draw
+  the neck baffles to scale and match the drawings as closely as possible
+  (some baffles may lie outside the magnet space); M1 sits on the highest
+  magnet baffle. Sent to the Panopticon work on dev-visualizer.
 
 * TPG 262 units (question 41): Ells (2026-10-16), yes, the TPG 262 is always
   set to mbar, so the Panopticon's x0.750062 conversion to Torr stands.
