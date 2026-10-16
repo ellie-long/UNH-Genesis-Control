@@ -63,6 +63,15 @@ named in each item. Numbers are stable: answered items move to *Settled*.
       (51.5"), so none falls outside the magnet space. Which baffles did you
       mean as lying outside it? (The fridge's own plates are its
       heat-exchanger stacks, inside the insert.)
+- [ ] 54. Trend-history service (`UNH:GEN:HIST`, dev-visualizer 3bf8c3d; the
+      Panopticon's trends now come from it, full on open): (a) deploy it live
+      (an IOC-manager entry, suggested CA/PVA 5123/5223, plus the Phoebus ini
+      address list)? (b) window and sampling OK (6 h at 12 s; shells vacuum
+      2 days at 120 s), and which PVs? (c) add the fitter's P/Q PVs to the
+      archiver, so the polarization history survives a restart (now it fills
+      from service start)? (d) `max_hold` 900 s: a reading that stays exactly
+      constant is not re-archived, so after a restart a long steady stretch
+      shows as a gap -- longer?
 - [ ] 44. Panopticon plot toolbars (zoom/pan/axis limits) take ~30 px from
       each plot; the small pressure and shells plots are tight. Keep them, or
       hide them and rely on Ctrl+drag zoom / Shift+drag pan?
