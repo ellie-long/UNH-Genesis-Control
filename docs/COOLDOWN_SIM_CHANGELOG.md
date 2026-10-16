@@ -7,6 +7,14 @@ findings are in `COOLDOWN_SIM_PROGRESS.md`; questions for the lab are in
 
 ## 2026-10-15
 
+* `21ab5c2` Trityl d-propanediol values fitted to the 2020-09 and 2020-12
+  records together (P_max 39 %, tau_up 1565 s, positive optimum ~28.033 GHz/T,
+  narrow lobes, deep negative lobe). Hindcast 2020-09 MAE 9.35 pp (median
+  3.66), 2020-12 9.29 (median 2.41).
+* Branch `dev-visualizer` `e2afc74`: Panopticon centre redrawn after the lab's
+  fridge thermometry diagram (head and pump-out line, baffled column,
+  separator, nose and target cup, sensor markers with leader lines to
+  readouts, magnet cryostat around it); log-axis trends fixed.
 * `3091ac7` Fitter autopilot presses Update Constants only once the target is
   polarized (true P >= 10 %) as well as after 40 sweeps -- at high speed from
   a cold start it had calibrated on a near-zero line and the fitted P stuck at
