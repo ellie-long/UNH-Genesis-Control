@@ -151,24 +151,48 @@ def _trace_colours():
     return colours
 
 
-def test_insert_readouts_follow_the_sensor_order_and_trace_colours():
+def _rgb(node):
+    return int(node.get("red")), int(node.get("green")), int(node.get("blue"))
+
+
+def test_insert_follows_the_sensor_positions_and_trace_colours():
     widgets = _by_name()
     traces = _trace_colours()
 
-    def top(sensor):
-        return int(widgets[f"Insert_{sensor}"].findtext("y"))
+    def centre_y(name):
+        w = widgets[name]
+        return int(w.findtext("y")) + int(w.findtext("height")) / 2
 
-    for order in (FRIDGE_ORDER, MAGNET_ORDER):
-        ys = [top(s) for s in order]
-        assert ys == sorted(ys) and len(set(ys)) == len(ys), dict(zip(order, ys))
-    # F8 sits above F7; the target cup is below the bottom of the fridge
-    assert top("F8") < top("F7") and top("F11") < top("T1") < top("T3")
+    for kind in ("Marker", "Insert"):           # markers on the drawing, and their readout boxes
+        for order in (FRIDGE_ORDER, MAGNET_ORDER):
+            ys = [centre_y(f"{kind}_{s}") for s in order]
+            assert ys == sorted(ys) and len(set(ys)) == len(ys), (kind, dict(zip(order, ys)))
+        # F8 sits above F7; the target cup is below the bottom of the fridge
+        assert centre_y(f"{kind}_F8") < centre_y(f"{kind}_F7")
+        assert centre_y(f"{kind}_F11") < centre_y(f"{kind}_T1") < centre_y(f"{kind}_T3")
+
+    def centre_x(name):
+        w = widgets[name]
+        return int(w.findtext("x")) + int(w.findtext("width")) / 2
+
+    # F1 on the pump-out line to the right; F3 left of F4; F7 left of F8
+    assert centre_x("Marker_F1") > centre_x("Shape_Pumping_Tube") + 40
+    assert centre_x("Marker_F3") < centre_x("Marker_F4") and centre_x("Marker_F7") < centre_x("Marker_F8")
+    # F5 on the separator, T1 and T3 in the target cup
+    sep, cup = widgets["Shape_Separator"], widgets["Target_Cup"]
+    assert int(sep.findtext("y")) <= centre_y("Marker_F5") <= int(sep.findtext("y")) + int(sep.findtext("height"))
+    for s in ("T1", "T3"):
+        assert int(cup.findtext("y")) <= centre_y(f"Marker_{s}") <= int(cup.findtext("y")) + int(cup.findtext("height"))
     for sensor in FRIDGE_ORDER + MAGNET_ORDER:
         w = widgets[f"Insert_{sensor}"]
         pv = w.findtext("pv_name")
         assert pv.endswith(f":{sensor}_TI"), pv
-        bg = w.find("background_color/color")
-        assert traces[pv] == (int(bg.get("red")), int(bg.get("green")), int(bg.get("blue"))), sensor
+        colour = traces[pv]
+        assert colour == _rgb(w.find("background_color/color")), sensor
+        assert colour == _rgb(widgets[f"Marker_{sensor}"].find("background_color/color")), sensor
+    # the removed shell sensors are drawn grey, with no PV
+    for s in ("S1", "S2", "S3"):
+        assert widgets[f"Removed_{s}"].find("pv_name") is None
 
 
 def test_trends_have_the_daq_windows_and_log_pressures():
@@ -177,6 +201,9 @@ def test_trends_have_the_daq_windows_and_log_pressures():
     assert charts["Trend_Polarization"].findtext("start") == "3 hours"
     for name in ("Trend_ShellsVacuum", "Trend_FridgePressures"):
         assert {a.findtext("log_scale") for a in charts[name].iter("y_axis")} == {"true"}, name
+    for w in charts.values():                    # log axes must not autoscale (a 0 reading breaks them)
+        for a in w.iter("y_axis"):
+            assert not (a.findtext("log_scale") == "true" and a.findtext("autoscale") == "true"), w.findtext("name")
     for w in charts.values():
         assert w.get("version") == "2.1.0"          # 'start' is the 2.1.0 time-range property
         assert w.findtext("start")

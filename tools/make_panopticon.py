@@ -204,9 +204,14 @@ def placeholder_plot(key, title, x, y, w, h, what):
 
 
 def stripchart(key, title, x, y, w, h, traces, axes, time_range):
-    """traces: (name, pv, rgb, axis); axes: (title, log, minimum, maximum) (autoscaled)."""
+    """traces: (name, pv, rgb, axis); axes: (title, log, minimum, maximum).
+
+    Linear axes autoscale.  Log axes keep their fixed range: autoscaling a log
+    axis breaks (a 1E-323 lower limit) as soon as a trace holds a 0, as it
+    does before an IOC's first reading."""
     ax = "".join(
-        f"<y_axis><title>{escape(t)}</title><autoscale>true</autoscale><log_scale>{str(log).lower()}</log_scale>"
+        f"<y_axis><title>{escape(t)}</title><autoscale>{str(not log).lower()}</autoscale>"
+        f"<log_scale>{str(log).lower()}</log_scale>"
         f"<minimum>{lo}</minimum><maximum>{hi}</maximum><show_grid>true</show_grid><visible>true</visible>"
         f"</y_axis>" for t, log, lo, hi in axes)
     tr = "".join(
@@ -314,7 +319,7 @@ def fridge_space():
                         [("Mano. Hi (Torr)", f"{CRYO}:CELL:Cell_PI", (230, 110, 0), 0),
                          ("Roots top (mbar)", f"{CRYO}:VAC:Pump_PI", (220, 0, 160), 1),
                          ("Roots bottom (mbar)", f"{CRYO}:VAC:OVC_PI", (120, 40, 200), 1)],
-                        [("Torr", True, 0.001, 1000), ("mbar", True, 0.001, 1000)], "1 hour"))
+                        [("Torr", True, 0.01, 100), ("mbar", True, 0.01, 100)], "1 hour"))
     w.append(key(16, 772, [("Mano. Hi (Torr)", (230, 110, 0)), ("Roots top (mbar)", (220, 0, 160)),
                            ("Roots bot. (mbar)", (120, 40, 200))], 83))
     w.append(stripchart("FridgeThermometry", "Fridge thermometry (K, log): colours as the insert",
@@ -354,23 +359,45 @@ def lab_space():
     return w
 
 
-#: Insert drawing: (sensor, column, top of the readout box).  The vertical
-#: order is the physical order of the sensors, top to bottom: F1 by the
-#: pump-out line, F2, F3 and F4, F5, F6, F8 above F7, F9, F10, F11 at the
-#: bottom of the fridge, then the target cup's T1 and T3; M1-M5 run down
-#: alongside the magnet.
-CARTOON_SENSORS = (
-    ("F1", "right", 232), ("F2", "left", 250), ("F3", "left", 304), ("F4", "right", 326),
-    ("F5", "left", 372), ("F6", "left", 430), ("F8", "left", 486), ("F7", "right", 512),
-    ("F9", "right", 600), ("F10", "left", 650), ("F11", "right", 770),
-    ("T1", "left", 885), ("T3", "left", 960),
-    ("M1", "magnet", 470), ("M2", "magnet", 600), ("M3", "magnet", 830), ("M4", "magnet", 900),
-    ("M5", "magnet", 1030),
-)
-CARTOON_X = {"left": (798, 68), "right": (974, 68), "magnet": (1046, 64)}
+#: Insert drawing: each thermometer's marker sits at the sensor's physical
+#: position (x, y) on the fridge insert or magnet, top to bottom: F1 on the
+#: pump-out line, F2 at the flange, F3 (left) and F4 (right) at the upper
+#: heat-exchanger baffles, F5 at the separator, F6 below it, F8 ABOVE F7,
+#: F9, F10, F11 near the bottom of the fridge column, then T1 and T3 in the
+#: target cup (nose); M1-M5 run down the magnet coil.  The readout boxes stand
+#: in a column on the right, joined to their markers by leader lines.
+CARTOON_MARKERS = {
+    "F1": (990, 298), "F2": (873, 403), "F3": (891, 535), "F4": (940, 548), "F5": (889, 582),
+    "F6": (913, 638), "F8": (913, 679), "F7": (877, 692), "F9": (891, 724), "F10": (927, 738),
+    "F11": (873, 796), "T1": (900, 925), "T3": (900, 1000),
+    "M1": (994, 830), "M2": (994, 880), "M3": (994, 930), "M4": (994, 980), "M5": (994, 1035),
+}
+#: shell sensors S1-S3 (temporary, since removed; never in Genesis): grey markers only
+REMOVED_SENSORS = {"S1": (851, 422), "S2": (851, 459), "S3": (851, 535)}
+READOUT_X, READOUT_GAP = 1026, 24      # sensor label at x, box at x + 22; minimum box spacing
+LEADER = (50, 50, 50)
 
 # depth scale for the magnet LHe level: 0" at y=1060, 15 px per inch
 LEVEL_Y0, PX_PER_INCH = 1060, 15
+
+
+def leader(points, rgb=LEADER, name=None):
+    xs, ys = [p[0] for p in points], [p[1] for p in points]
+    x0, y0 = min(xs), min(ys)
+    pts = "".join(f'<point x="{px - x0}.0" y="{py - y0}.0"/>' for px, py in points)
+    return (f'<widget type="polyline" version="2.0.0"><name>{name or _name("Leader")}</name>'
+            f"<x>{x0}</x><y>{y0}</y><width>{max(xs) - x0 + 1}</width><height>{max(ys) - y0 + 1}</height>"
+            f"<points>{pts}</points><line_width>1</line_width><line_color>{col(rgb)}</line_color></widget>")
+
+
+def readout_tops():
+    """Top of each readout box: level with its marker, pushed down to keep the
+    boxes apart, so the boxes keep the markers' top-to-bottom order."""
+    tops, last = {}, None
+    for sensor, (_, my) in sorted(CARTOON_MARKERS.items(), key=lambda kv: kv[1][1]):
+        top = my - 10 if last is None else max(my - 10, last + READOUT_GAP)
+        tops[sensor] = last = top
+    return tops
 
 
 def insert_cartoon():
@@ -382,48 +409,65 @@ def insert_cartoon():
     w.append(field("Dopant (MW supervisor)", f"{MW}:SUP:Dopant", 730, 120, 186, 11))
     w.append(placeholder("TargetStick", "Target stick", 922, 120, 186, "Target stick selection"))
     # magnet cryostat and its LHe depth scale
-    w.append(rect(760, 300, 320, 768, DEWAR, NAVY, 2, name="Dewar"))
-    w.append(label("magnet cryostat", 764, 302, 120, 14, 8, False, NAVY))
+    w.append(rect(740, 450, 284, 612, DEWAR, NAVY, 2, name="Dewar"))
+    w.append(label("magnet cryostat", 744, 452, 120, 14, 8, False, NAVY))
     for inch in range(0, 31, 5):
         yy = LEVEL_Y0 - inch * PX_PER_INCH
-        w.append(rect(762, yy, 9, 1, NAVY))
+        w.append(rect(742, yy, 8, 1, NAVY))
         if inch != 20:
-            w.append(label(str(inch), 772, yy - 6, 22, 12, 8, False, NAVY))
-    w.append(label(f"magnet LHe (in): {NOT_YET}", 762, 548, 104, 30, 8, False, GREY_TEXT, italic=True,
+            w.append(label(str(inch), 752, yy - 6, 22, 12, 8, False, NAVY))
+    w.append(label(f"magnet LHe (in): {NOT_YET}", 776, 626, 68, 52, 8, False, GREY_TEXT, italic=True,
                    wrap=True, name="Placeholder_MagnetLevelScale"))
     alarm_y = LEVEL_Y0 - 20 * PX_PER_INCH
     top_y = round(LEVEL_Y0 - 16.5 * PX_PER_INCH)
-    # the coils reach the magnet top
-    w.append(rect(808, top_y, 58, LEVEL_Y0 - top_y - 6, COIL, COIL_LINE, corner=10, name="Coil_L"))
-    w.append(rect(974, top_y, 58, LEVEL_Y0 - top_y - 6, COIL, COIL_LINE, corner=10, name="Coil_R"))
-    # insert: tail, pump-out head, fridge, pumping tube, baffles, separator, cup
-    w.append(rect(870, 262, 100, 790, INSERT, MUTED, name="Insert_Tail"))
-    w.append(rect(878, 470, 84, 356, FRIDGE, FRIDGE_LINE, 2, name="Fridge"))
-    w.append(rect(898, 166, 44, 100, STEEL, name="Insert_Head"))
-    w.append(rect(790, 186, 260, 24, STEEL, name="PumpOut_Line"))
-    w.append(label("pump-out (Roots)", 794, 190, 100, 16, 8, False, WHITE))
-    w.append(rect(904, 262, 32, 600, STEEL, name="Pumping_Tube"))
-    for yy in list(range(280, 461, 30)) + list(range(500, 811, 40)):
-        w.append(rect(880, yy, 80, 5, BAFFLE))
-    w.append(rect(938, 360, 30, 30, (170, 176, 186), MUTED, name="Separator"))
-    w.append(label("sep.", 938, 368, 30, 14, 8, False, TEXT, align=1))
-    w.append(label("fridge", 880, 806, 40, 14, 8, True, FRIDGE_LINE))
-    w.append(rect(902, 866, 36, 170, CUP, CUP_LINE, 2, name="Target_Cup"))
-    w.append(label("cup", 902, 1038, 36, 12, 8, True, CUP_LINE, align=1))
+    # the coils reach the magnet top, around the target nose
+    w.append(rect(806, top_y, 56, LEVEL_Y0 - top_y - 6, COIL, COIL_LINE, corner=10, name="Coil_L"))
+    w.append(rect(938, top_y, 56, LEVEL_Y0 - top_y - 6, COIL, COIL_LINE, corner=10, name="Coil_R"))
+    # insert head: feedthroughs, top plate, pump-out line to the right
+    for fx in (846, 866, 934, 954):
+        w.append(rect(fx, 180, 6, 36, (120, 126, 136)))
+    w.append(rect(996, 176, 16, 130, STEEL, name="Shape_PumpOut_Riser"))
+    w.append(label("pump-out", 950, 176, 46, 12, 8, False, MUTED))
+    w.append(rect(820, 216, 160, 12, STEEL, name="Shape_Head_Plate"))
+    w.append(rect(828, 228, 144, 170, INSERT, MUTED, name="Shape_Upper_Insert"))
+    w.append(rect(972, 290, 40, 16, STEEL, name="Shape_PumpOut_Line"))
+    w.append(rect(812, 398, 176, 10, STEEL, name="Shape_Flange"))
+    # fridge column: can, liquid, central tube, heat-exchanger baffles, separator
+    w.append(rect(846, 408, 108, 424, INSERT, MUTED, name="Shape_Fridge_Can"))
+    w.append(rect(850, 650, 100, 180, FRIDGE, FRIDGE_LINE, name="Shape_Fridge_Liquid"))
+    w.append(rect(878, 228, 44, 604, STEEL, name="Shape_Pumping_Tube"))
+    for yy in range(416, 830, 16):
+        if not 562 <= yy <= 630:
+            w.append(rect(850, yy, 100, 4, BAFFLE))
+    w.append(rect(856, 571, 64, 54, (170, 176, 186), MUTED, name="Shape_Separator"))
+    w.append(label("separator", 856, 604, 64, 14, 8, False, TEXT, align=1))
+    w.append(label("fridge", 952, 812, 40, 14, 8, True, FRIDGE_LINE))
+    # nose (tail) and target cup
+    w.append(rect(873, 832, 54, 214, INSERT, MUTED, name="Shape_Nose"))
+    w.append(rect(879, 900, 42, 140, CUP, CUP_LINE, 2, name="Target_Cup"))
+    w.append(label("cup", 879, 1040, 42, 12, 8, True, CUP_LINE, align=1))
     # the alarm and magnet-top lines go over the coils
-    w.append(rect(760, alarm_y, 320, 2, RED, name="Level_Alarm_Line"))
-    w.append(label('20" alarm', 762, alarm_y - 14, 60, 13, 8, True, RED))
-    w.append(dashed(760, top_y, 320, AMBER, name="Magnet_Top_Line"))
-    w.append(label('16.5" top', 762, top_y - 14, 60, 13, 8, True, AMBER))
-    # thermometer readouts
-    for sensor, column, top in CARTOON_SENSORS:
-        x0, wid = CARTOON_X[column]
+    w.append(rect(740, alarm_y, 284, 2, RED, name="Level_Alarm_Line"))
+    w.append(label('20" alarm', 744, alarm_y - 14, 60, 13, 8, True, RED))
+    w.append(dashed(740, top_y, 284, AMBER, name="Magnet_Top_Line"))
+    w.append(label('16.5" top', 744, top_y - 14, 60, 13, 8, True, AMBER))
+    # shell sensors: removed
+    for sensor, (mx, my) in REMOVED_SENSORS.items():
+        w.append(rect(mx - 4, my - 4, 8, 8, (205, 205, 205), GREY_LINE, name=f"Removed_{sensor}"))
+    w.append(label("S1-S3 shell sensors (removed)", 742, 476, 100, 30, 8, False, GREY_TEXT, italic=True,
+                   wrap=True))
+    # thermometers: marker, leader line, readout box
+    tops = readout_tops()
+    for sensor, (mx, my) in CARTOON_MARKERS.items():
         rgb = FRIDGE_T.get(sensor) or MAGNET_T[sensor]
-        w.append(label(sensor, x0, top - 15, wid, 15, 9, True, TEXT))
-        w.append(update(thermometer_pv(sensor), x0, top, wid, 20, 10, True, prec=2, bg=rgb, fg=ink(rgb),
-                        align=1, name=f"Insert_{sensor}"))
-    w.append(label("Readouts sit in the physical order of the sensors; box colours match the trend traces.",
-                   728, 1070, 382, 22, 8, False, MUTED, wrap=True))
+        top = tops[sensor]
+        w.append(leader([(mx, my), (1008, my), (READOUT_X - 2, top + 10)]))
+        w.append(rect(mx - 5, my - 5, 10, 10, rgb, (30, 30, 30), name=f"Marker_{sensor}"))
+        w.append(label(sensor, READOUT_X, top, 22, 20, 9, True, TEXT))
+        w.append(update(thermometer_pv(sensor), READOUT_X + 22, top, 66, 20, 10, True, prec=2, bg=rgb,
+                        fg=ink(rgb), align=1, name=f"Insert_{sensor}"))
+    w.append(label("Markers sit at the sensors' physical positions; boxes are coloured like the trend traces.",
+                   728, 1066, 382, 26, 8, False, MUTED, wrap=True))
     return w
 
 
