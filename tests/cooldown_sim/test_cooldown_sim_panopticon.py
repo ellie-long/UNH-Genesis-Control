@@ -205,9 +205,8 @@ def test_insert_follows_the_sensor_positions_and_trace_colours():
         colour = traces[pv]
         assert colour == _rgb(w.find("background_color/color")), sensor
         assert colour == _rgb(widgets[f"Marker_{sensor}"].find("background_color/color")), sensor
-    # the removed shell sensors are drawn grey, with no PV
-    for s in ("S1", "S2", "S3"):
-        assert widgets[f"Removed_{s}"].find("pv_name") is None
+    # the long-removed shell sensors S1-S3 are not drawn at all
+    assert not [n for n in widgets if n.startswith("Removed_") or n.startswith("Marker_S")]
 
 
 def test_heat_exchanger_is_two_stacks_around_the_separator():
@@ -221,7 +220,8 @@ def test_heat_exchanger_is_two_stacks_around_the_separator():
     lower, lower_pitch = plates("L")
     # as built: 5 upper plates on 1.94" spacers, 10 lower plates on 0.75" spacers
     assert len(upper) == 5 and len(lower) == 10
-    assert len(set(upper_pitch)) == 1 and len(set(lower_pitch)) == 1          # each stack evenly spaced
+    for pitch in (upper_pitch, lower_pitch):                                  # each stack evenly spaced
+        assert max(pitch) - min(pitch) <= 1, pitch
     assert 2.0 <= upper_pitch[0] / lower_pitch[0] <= 3.2                      # 1.94 / 0.75 = 2.6
     assert len([n for n in widgets if n.startswith("Baffle_")]) == 15         # no other plates
 
@@ -259,6 +259,11 @@ def test_magnet_space_baffles_solenoid_and_sensors():
     top_in, bottom_in = inches(coil_r[1]), inches(coil_r[3])
     assert 15.5 <= top_in < 16.5 and bottom_in < 2
     support = box("Magnet_Baffle_Support")
+    # the support baffle is as wide as the neck baffles
+    assert abs((support[2] - support[0]) - (box("Magnet_Baffle_N1")[2] - box("Magnet_Baffle_N1")[0])) <= 1
+    # the dewar's outer wall encloses the whole LHe space
+    outer, space = box("Magnet_Dewar_Outer"), box("Magnet_LHe_Space")
+    assert outer[0] < space[0] and outer[2] > space[2] and outer[1] <= space[1] and outer[3] > space[3]
     assert abs(inches(support[3]) - 16.5) <= 0.5 and support[3] <= coil_r[1]
     # 5 neck baffles above the belly, spacing growing upward
     neck = sorted((box(n)[1] for n in widgets if re.fullmatch(r"Magnet_Baffle_N\d", n)), reverse=True)
@@ -275,13 +280,13 @@ def test_magnet_space_baffles_solenoid_and_sensors():
     def marker(s):
         return box(f"Marker_{s}")
 
-    assert marker("M2")[3] == box("Magnet_Baffle_N1")[1]          # on the lowest neck baffle
-    assert marker("M3")[3] == support[1]                          # on the support baffle
+    assert marker("M2")[3] == box("Magnet_Baffle_N1_L")[1]        # on the lowest neck baffle
+    assert marker("M3")[3] == box("Magnet_Baffle_Support_L")[1]   # on the support baffle
     assert abs(inches((marker("M4")[1] + marker("M4")[3]) / 2) - top_in) <= 0.5      # solenoid top
     assert abs(inches((marker("M5")[1] + marker("M5")[3]) / 2) - bottom_in) <= 0.5   # solenoid bottom
     assert marker("M1")[3] < marker("M2")[1]                      # M1 higher, in the neck
-    for s in ("M1", "M2", "M3", "M4", "M5"):                      # right side, outside the solenoid
-        assert marker(s)[0] >= coil_r[2], s
+    for s in ("M1", "M2", "M3", "M4", "M5"):                      # left side, outside the solenoid
+        assert marker(s)[2] <= coil_l[0], s
 
 
 def test_no_stray_labels_and_buttons_in_card_headers():
@@ -296,7 +301,8 @@ def test_no_stray_labels_and_buttons_in_card_headers():
         assert int(head.findtext("y")) <= y and y + h <= int(head.findtext("y")) + int(head.findtext("height"))
     slow = widgets["Card_Slowsweep"]
     in_slow = [w for w in _widgets() if w.get("type") == "action_button"
-               and int(slow.findtext("y")) <= int(w.findtext("y")) <= int(slow.findtext("y")) + 192
+               and int(slow.findtext("y")) <= int(w.findtext("y"))
+               <= int(slow.findtext("y")) + int(slow.findtext("height"))
                and int(w.findtext("x")) >= int(slow.findtext("x"))]
     assert not in_slow
 
@@ -306,6 +312,73 @@ def test_every_plot_can_be_zoomed_and_nmr_shows_the_processed_signal():
     assert plots and all(w.findtext("show_toolbar") == "true" for w in plots)
     nmr = _by_name()["NMR_Signal"]
     assert [t.findtext("y_pv") for t in nmr.iter("trace")] == ["ca://UNH:GEN:SSRF:FIT:DATA"]
+
+
+def _segments(widget):
+    x0, y0 = float(widget.findtext("x")), float(widget.findtext("y"))
+    pts = [(x0 + float(p.get("x")), y0 + float(p.get("y"))) for p in widget.iter("point")]
+    return list(zip(pts, pts[1:]))
+
+
+def _cross(s1, s2):
+    """Do two segments intersect (touching counts)?"""
+    def orient(a, b, c):
+        v = (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0])
+        return 0 if abs(v) < 1e-9 else (1 if v > 0 else -1)
+
+    def on(a, b, c):
+        return min(a[0], b[0]) - 1e-9 <= c[0] <= max(a[0], b[0]) + 1e-9 and \
+            min(a[1], b[1]) - 1e-9 <= c[1] <= max(a[1], b[1]) + 1e-9
+    (p1, p2), (p3, p4) = s1, s2
+    d1, d2, d3, d4 = orient(p3, p4, p1), orient(p3, p4, p2), orient(p1, p2, p3), orient(p1, p2, p4)
+    if d1 != d2 and d3 != d4:
+        return True
+    return any(d == 0 and on(a, b, c) for d, a, b, c in
+               ((d1, p3, p4, p1), (d2, p3, p4, p2), (d3, p1, p2, p3), (d4, p1, p2, p4)))
+
+
+def _hits_box(seg, box, pad=0):
+    (x0, y0, x1, y1) = box
+    x0, y0, x1, y1 = x0 - pad, y0 - pad, x1 + pad, y1 + pad
+    (a, b) = seg
+    inside = lambda p: x0 <= p[0] <= x1 and y0 <= p[1] <= y1
+    if inside(a) or inside(b):
+        return True
+    edges = [((x0, y0), (x1, y0)), ((x1, y0), (x1, y1)), ((x1, y1), (x0, y1)), ((x0, y1), (x0, y0))]
+    return any(_cross(seg, e) for e in edges)
+
+
+def test_leader_lines_are_clear():
+    """No leader crosses another, passes through another sensor's marker or
+    value box, or runs along a thin dark part of the drawing."""
+    gen = _generator()
+    widgets = _by_name()
+
+    def box(w):
+        x, y = int(w.findtext("x")), int(w.findtext("y"))
+        return x, y, x + int(w.findtext("width")), y + int(w.findtext("height"))
+
+    sensors = FRIDGE_ORDER + MAGNET_ORDER
+    leaders = {s: _segments(widgets[f"Leader_{s}"]) for s in sensors}
+    # fridge and cup values on the right of the insert, magnet values on the left
+    insert_x = box(widgets["Shape_Fridge_Can"])
+    for s in sensors:
+        vb = box(widgets[f"Insert_{s}"])
+        assert (vb[2] < insert_x[0]) if s.startswith("M") else (vb[0] > insert_x[2]), s
+    for i, a in enumerate(sensors):
+        for b in sensors[i + 1:]:
+            assert not any(_cross(sa, sb) for sa in leaders[a] for sb in leaders[b]), (a, b)
+    for a in sensors:
+        for b in sensors:
+            if a == b:
+                continue
+            for part in (f"Marker_{b}", f"Insert_{b}"):
+                assert not any(_hits_box(seg, box(widgets[part])) for seg in leaders[a]), (a, part)
+    dark = {n: box(w) for n, w in widgets.items() if gen.DARK_PARTS.match(n)}
+    for s in sensors:
+        for (x0, y0), (x1, y1) in leaders[s]:
+            if y0 == y1:
+                assert not gen.runs_along(y0, x0, x1, dark), s
 
 
 def test_trends_have_the_daq_windows_and_log_pressures():
@@ -339,13 +412,15 @@ def test_screen_opens_from_the_simulator():
     assert (ROOT / "gui" / phoebus.LIVE_SCREENS["panopticon"]).exists()
 
 
-def test_simulator_opens_it_zoomed_to_fit_the_monitor(tmp_path):
+def test_fits_one_maximized_phoebus_window_at_100_percent(tmp_path):
+    # Phoebus maximized on a 1920x1080 monitor shows displays in about
+    # 1910 x 920 px (below its menu/toolbar/tab/zoom rows, above the status
+    # bar); the screen must fit that at 100 % zoom, with no scrolling
     root = ET.parse(BOB).getroot()
     w, h = int(root.findtext("width")), int(root.findtext("height"))
-    zoom = phoebus.PANOPTICON_ZOOM / 100
-    # 1920x1032 work area less ~180 px of Phoebus chrome (title, menu, toolbar,
-    # tab, display toolbar, status line); the 1600-wide primary monitor
-    assert w * zoom <= 1600 - 20 and h * zoom <= 1032 - 180
-    ini = phoebus.write_ini(tmp_path, [6116], zoom=phoebus.PANOPTICON_ZOOM).read_text()
-    assert f"org.csstudio.display.builder.runtime/default_zoom_factor={phoebus.PANOPTICON_ZOOM}" in ini
+    assert w <= 1910 and h <= 920
+    for el in root.iter("widget"):                # nothing outside the canvas
+        x, y = int(el.findtext("x")), int(el.findtext("y"))
+        assert x + int(el.findtext("width")) <= w and y + int(el.findtext("height")) <= h, el.findtext("name")
+    # no global zoom: Sim Control and the other screens open at 100 %
     assert "default_zoom_factor" not in phoebus.write_ini(tmp_path, [6116]).read_text()

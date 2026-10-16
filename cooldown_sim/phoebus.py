@@ -25,10 +25,6 @@ from pathlib import Path
 from . import REPO_ROOT, run_dir
 
 SIM_CONTROL = Path(__file__).with_name("gui") / "genesis_sim_control.bob"
-#: Display zoom (%) when the Panopticon is opened: its 1900x1100 layout then
-#: fits a 1920x1032 work area with the Phoebus window chrome, and the
-#: 1600-wide primary monitor.  The display toolbar's zoom box ("All") refits.
-PANOPTICON_ZOOM = 75
 LIVE_SCREENS = {"cryo": "genesis_cryo.bob", "mw": "genesis_microwave.bob", "ssrf": "genesis_ssrf.bob",
                 "fitter": "genesis_ssrf_fitter.bob", "panopticon": "genesis_panopticon.bob"}
 
@@ -57,7 +53,7 @@ def find_phoebus() -> list[str] | None:
     return None
 
 
-def write_ini(run: Path, ca_ports: list[int], pva_ports: list[int] = (), zoom: int | None = None) -> Path:
+def write_ini(run: Path, ca_ports: list[int], pva_ports: list[int] = ()) -> Path:
     path = Path(run) / "phoebus_replay.ini"
     # Pin BOTH Phoebus Channel Access clients to this run's replay ports:
     # Phoebus 4 serves ca:// with JCA (org.phoebus.pv.ca/*); Phoebus 5 also
@@ -81,9 +77,7 @@ def write_ini(run: Path, ca_ports: list[int], pva_ports: list[int] = (), zoom: i
         "org.phoebus.pv.jackie/use_env=false\n"
         f"org.phoebus.pv.jackie/ca_address_list={addr}\n"
         "org.phoebus.pv.jackie/ca_auto_address_list=false\n"
-        "org.phoebus.pv.jackie/ca_max_array_bytes=262144\n" + pva
-        + (f"org.csstudio.display.builder.runtime/default_zoom_factor={zoom}\n" if zoom else ""),
-        encoding="utf-8")
+        "org.phoebus.pv.jackie/ca_max_array_bytes=262144\n" + pva, encoding="utf-8")
     return path
 
 
@@ -114,8 +108,7 @@ def command(run: Path, screens: list[str]) -> list[str] | None:
     prefix = find_phoebus()
     if prefix is None:
         return None
-    ini = write_ini(run, run_ca_ports(run), run_pva_ports(run),
-                    zoom=PANOPTICON_ZOOM if "panopticon" in screens else None)
+    ini = write_ini(run, run_ca_ports(run), run_pva_ports(run))
     user = Path(run) / "phoebus_user"
     user.mkdir(exist_ok=True)
     # JVM options must precede -jar
