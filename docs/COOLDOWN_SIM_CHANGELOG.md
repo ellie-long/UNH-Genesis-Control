@@ -7,6 +7,11 @@ findings are in `COOLDOWN_SIM_PROGRESS.md`; questions for the lab are in
 
 ## 2026-10-16
 
+* Questions 33 (materials per cool-down, from the cool-downs technote) and 38
+  (fridge built from the JLab g2p design) settled; 35: 2024-09 rates fit
+  started, 2025-02-13 passed; 37 low priority; 34: what Magic +/- mean,
+  numbers to come.
+
 * Question 28 settled: Sweep/Hop extremely rarely used (very low priority); the
   slow sweep (set df per set time) is mid priority -- Genesis has it as the
   supervisor's step-per-dwell software sweep (gaps noted).

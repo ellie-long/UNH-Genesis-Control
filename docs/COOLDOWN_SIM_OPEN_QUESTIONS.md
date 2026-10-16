@@ -28,18 +28,28 @@ named in each item. Numbers are stable: answered items move to *Settled*.
       once you have analyzed it (2026-10-16).
 
 **Target physics**
-- [ ] 33. Which target material (and radical) was in each cool-down, and
-      when were targets swapped? The fitted per-cool-down P_max and spin-up
-      times differ a lot (e.g. 2024-09 reached only ~9 % where 2025-12 reached
-      ~50 %); knowing the materials would show whether that is the material,
-      the microwave power, or the NMR calibration.
 - [ ] 34. Magic - : what constant did the LabVIEW DAQ use for "Magic -" (and is
       Magic + exactly 28.025 GHz/T)? The sim uses 28.077 GHz/T for Magic -
-      (the P-down peak of the measured lineshape).
+      (the P-down peak of the measured lineshape). **REMINDER for Ells
+      (afternoon 2026-10-16):** send the actual per-material numbers.
+      Ells (2026-10-16): Magic +/- are the mmwave frequency / field ratios
+      (GHz/T) at which each material was found to polarize well positive /
+      negative; the DAQ multiplies them by the present field and sets the
+      mmwave output, a quick way to start polarizing. Ideally they sit at the
+      highest beta (+) and alpha (-) of the rate equations. The sim's values
+      follow that rule: Magic - is the alpha peak, and Magic + the beta
+      plateau (for irradiated d-butanol the sim keeps the DAQ's 28.025, 0.004
+      above the rate model's optimum 28.021).
 - [ ] 35. Slow microwave sweeps on irradiated d-butanol for an alpha/beta fit:
       candidates in the record are 2024-09-17 11:36-16:31 (f/B 27.87-28.09),
-      2025-11-20 22:17-23:17 and 2025-02-13 19:40-20:39 (narrow). Which
-      material was in 2024-09? (The rates fit hasn't been run on these.)
+      2025-11-20 22:17-23:17 and 2025-02-13 19:40-20:39 (narrow). 2024-09 was
+      NIST-irradiated d-butanol (cool-downs technote), so it is a real
+      candidate; the 2025-02-13 file is the Excel comma re-save with an
+      off-by-one column shift (technote), so that one is unreliable until the
+      original is re-exported. (The rates fit hasn't been run on these.)
+      Ells (2026-10-16): run the rates fit on 2024-09 (agent started, using
+      the McClellan-fitted P/Q, not the miscalibrated online P); pass on
+      2025-02-13 for now.
 - [ ] 36. Genesis Magic +/- (live): the microwave supervisor ALREADY has
       Magic +/- (`SUP:MagicPlus`/`MagicMinus`), disabled because its dopant
       list is empty (`dopants: []` -> Dopant "UNCONFIGURED"). It computes
@@ -56,12 +66,9 @@ named in each item. Numbers are stable: answered items move to *Settled*.
       TEMPO rate fit (stage 5, fitted to that night's lineshape-derived P)
       saturates near 25 % at the same conditions. Does the LabVIEW area P read
       high against the lineshape P there (calibration), or is the fit's drive
-      low?
-- [ ] 38. Panopticon (dev-visualizer): the heat-exchanger plates are drawn from
-      the fridge blueprints -- 5 upper plates (1.94" spacers) and 10 lower
-      plates (0.75" spacers), from the 2011 JLab Hall A g2p refrigerator
-      assembly (lower-stack spacer drawing revised 2015). Do these drawings
-      match the fridge as installed at UNH?
+      low? Ells (2026-10-16): uncertain; needs deeper analysis -- LOW
+      PRIORITY. Highest priority is a working estimate for irradiated
+      d-butanol.
 - [ ] 41. Panopticon: is the TPG 262 always set to mbar? Its two Roots
       readings are converted x0.750062 to Torr on screen; if the controller
       were ever switched to Torr they would read 25 % low (`VAC:Pump_Unit`
@@ -260,6 +267,30 @@ named in each item. Numbers are stable: answered items move to *Settled*.
     varactors at 0-19 V. Keep a rule, change it, or drop it?
 
 ## Settled
+
+* Fridge blueprints vs the installed fridge (question 38): Ells (2026-10-16),
+  they should match very closely; the UNH fridge was built from the JLab g2p
+  fridge design. The Panopticon's heat-exchanger plates (5 upper, 10 lower)
+  stand as drawn.
+
+* Materials per cool-down (question 33): Ells pointed to the cool-downs
+  technote (Optimizied-McClellan-Fits docs/cooldowns; dissertation section
+  5.6 is the authority):
+  * trityl-doped d-propanediol: 2020-09, 2021-09, 2022-05, 2024-08 (08/29-30;
+    08/27-28 was TEMPO d-butanol with no deuteron signal);
+  * 2020-12: d-propanediol 12/06-12/09 (not in the data files), then
+    TEMPO-doped d-butanol 12/10-12/11;
+  * d-butanol: 2024-09 (NIST-irradiated), 2024-11 (11/15, after an ND3
+    attempt 11/13-14 that did not polarize), 2025-02, 2025-11, 2025-12,
+    2026-06, 2026-07;
+  * deuterated ammonia (ND3): 2024-12 (first ammonia polarization, ~9 %);
+  * 2025-07: unknown, and no DNP was achieved (max online P 0.5 %).
+  The premise was wrong for 2024-09: it reached 43.9 % (validated against the
+  dissertation). Its online P column was poorly calibrated then (median
+  ~+32 % offset from equilibrium, also 2024-11), so the hindcast's "truth"
+  there is suspect. Also from the technote: 2020-09 frequency-hopped (09-13
+  ~00-03, 139.000 / 139.065 GHz at 1 Hz), and on 2024-11-15 the microwaves
+  maxed out, forcing an off-tune run.
 
 * Microwave Sweep / Hop (question 28): Ells (2026-10-16), used only extremely
   rarely; extremely low priority for Genesis. The "slow sweep" (frequency
