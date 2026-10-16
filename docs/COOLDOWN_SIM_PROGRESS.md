@@ -280,7 +280,9 @@ lab answers are in `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`.
     operator alarm: F1_TI LOW/LOLO near 5 K / 4.5 K (values Ells's call), and
     F1 taken out of the cold-board rule.
 
-  Live fix, not made here.
+  Live fix, not made here. Ells (2026-10-16): the IONIVAC alarm is enough,
+  so the fix is to drop this rule and add the temperature-dependent IONIVAC
+  alarm (questions 3, 25, 39).
 * New private folders `ref_technotes/` and `ref_equipment/` (Ells's reference
   material). Each has its own `.gitignore` of `*`, and both are in the
   repository's `.git/info/exclude`, so they can never be committed or pushed.

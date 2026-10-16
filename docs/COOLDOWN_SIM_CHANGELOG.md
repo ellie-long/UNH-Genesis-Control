@@ -7,6 +7,10 @@ findings are in `COOLDOWN_SIM_PROGRESS.md`; questions for the lab are in
 
 ## 2026-10-16
 
+* Question 3 settled: the IONIVAC alarm is enough (no interlock action).
+  Question 20 rephrased: the sim vacuum rework is unblocked, awaiting go-ahead.
+
+
 * Questions file: checklist now holds only what is still open; answered
   parts moved to Settled (5, 35, 40, and the answered halves of 3, 10, 25,
   34). 8 rephrased; new 46 (was the 2024-11 / 2025 d-butanol irradiated?).
