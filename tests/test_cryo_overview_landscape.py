@@ -35,14 +35,14 @@ def test_overview_landscape_canvas_and_widget_inventory():
         int(root.findtext("height")),
     ) == (1600, 900)
 
-    assert len(widgets) == len(by_name) == 148
+    assert len(widgets) == len(by_name) == 160
 
     assert Counter(w.get("type") for w in widgets) == {
         "rectangle": 18,
-        "label": 77,
-        "textupdate": 39,
+        "label": 81,
+        "textupdate": 43,
         "led": 6,
-        "action_button": 8,
+        "action_button": 12,
     }
 
     for name, widget in by_name.items():
@@ -110,6 +110,10 @@ def test_overview_navigation_and_operator_note():
         "genesis_cryo_safety.bob",
         "genesis_cryo_data.bob",
         "genesis_cryo_diagnostics.bob",
+        "genesis_cryo_flow.bob",
+        "genesis_cryo_cell_expert.bob",
+        "genesis_cryo_ion_expert.bob",
+        "genesis_cryo_vacuum_expert.bob",
     )
 
     assert rect(widgets["Navigation_Card"]) == (
@@ -120,9 +124,9 @@ def test_overview_navigation_and_operator_note():
         widget = widgets[f"Nav{i}"]
 
         assert rect(widget) == (
-            42 + 191 * i,
+            42 + 126 * i,
             820,
-            175,
+            120,
             34,
         )
 
@@ -140,7 +144,7 @@ def test_overview_navigation_and_operator_note():
         )
     ]
 
-    assert len(all_routes) == len(set(all_routes)) == 8
+    assert len(all_routes) == len(set(all_routes)) == 12
 
     note = widgets["OperatorNote"]
 

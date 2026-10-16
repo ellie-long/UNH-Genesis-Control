@@ -23,12 +23,16 @@ ls224_magnet:
   - M3
   - M4
   - M5
+  - T1
+  - T3
   slots:
   - D3
   - D1
   - D2
   - D4
   - D5
+  - C2
+  - C4
   records:
     M1_TI:
       DESC: Magnet M1 temperature (CCS2 sensor)

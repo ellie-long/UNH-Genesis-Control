@@ -47,7 +47,7 @@
     <height>20</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F1_TI</pv_name>
     <format>1</format>
-    <precision>4</precision>
+    <precision>2</precision>
   </widget>
   <widget type="label" version="2.0.0">
     <name>L_UNH:GEN:CRYO:FRIDGE:F1_RI</name>
@@ -65,7 +65,7 @@
     <height>20</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F1_RI</pv_name>
     <format>1</format>
-    <precision>4</precision>
+    <precision>2</precision>
   </widget>
   <widget type="label" version="2.0.0">
     <name>L_UNH:GEN:CRYO:FRIDGE:F1_Status</name>
@@ -118,7 +118,7 @@
     <height>20</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F2_TI</pv_name>
     <format>1</format>
-    <precision>4</precision>
+    <precision>2</precision>
   </widget>
   <widget type="label" version="2.0.0">
     <name>L_UNH:GEN:CRYO:FRIDGE:F2_RI</name>
@@ -136,7 +136,7 @@
     <height>20</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F2_RI</pv_name>
     <format>1</format>
-    <precision>4</precision>
+    <precision>2</precision>
   </widget>
   <widget type="label" version="2.0.0">
     <name>L_UNH:GEN:CRYO:FRIDGE:F2_Status</name>
@@ -189,7 +189,7 @@
     <height>20</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F3_TI</pv_name>
     <format>1</format>
-    <precision>4</precision>
+    <precision>2</precision>
   </widget>
   <widget type="label" version="2.0.0">
     <name>L_UNH:GEN:CRYO:FRIDGE:F3_RI</name>
@@ -207,7 +207,7 @@
     <height>20</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F3_RI</pv_name>
     <format>1</format>
-    <precision>4</precision>
+    <precision>2</precision>
   </widget>
   <widget type="label" version="2.0.0">
     <name>L_UNH:GEN:CRYO:FRIDGE:F3_Status</name>
@@ -260,7 +260,7 @@
     <height>20</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F4_TI</pv_name>
     <format>1</format>
-    <precision>4</precision>
+    <precision>2</precision>
   </widget>
   <widget type="label" version="2.0.0">
     <name>L_UNH:GEN:CRYO:FRIDGE:F4_RI</name>
@@ -278,7 +278,7 @@
     <height>20</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F4_RI</pv_name>
     <format>1</format>
-    <precision>4</precision>
+    <precision>2</precision>
   </widget>
   <widget type="label" version="2.0.0">
     <name>L_UNH:GEN:CRYO:FRIDGE:F4_Status</name>
@@ -331,7 +331,7 @@
     <height>20</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F5_TI</pv_name>
     <format>1</format>
-    <precision>4</precision>
+    <precision>2</precision>
   </widget>
   <widget type="label" version="2.0.0">
     <name>L_UNH:GEN:CRYO:FRIDGE:F5_RI</name>
@@ -349,7 +349,7 @@
     <height>20</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F5_RI</pv_name>
     <format>1</format>
-    <precision>4</precision>
+    <precision>2</precision>
   </widget>
   <widget type="label" version="2.0.0">
     <name>L_UNH:GEN:CRYO:FRIDGE:F5_Status</name>
@@ -402,7 +402,7 @@
     <height>20</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F6_TI</pv_name>
     <format>1</format>
-    <precision>4</precision>
+    <precision>2</precision>
   </widget>
   <widget type="label" version="2.0.0">
     <name>L_UNH:GEN:CRYO:FRIDGE:F6_RI</name>
@@ -420,7 +420,7 @@
     <height>20</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F6_RI</pv_name>
     <format>1</format>
-    <precision>4</precision>
+    <precision>2</precision>
   </widget>
   <widget type="label" version="2.0.0">
     <name>L_UNH:GEN:CRYO:FRIDGE:F6_Status</name>
@@ -473,7 +473,7 @@
     <height>20</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F7_TI</pv_name>
     <format>1</format>
-    <precision>4</precision>
+    <precision>2</precision>
   </widget>
   <widget type="label" version="2.0.0">
     <name>L_UNH:GEN:CRYO:FRIDGE:F7_RI</name>
@@ -491,7 +491,7 @@
     <height>20</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F7_RI</pv_name>
     <format>1</format>
-    <precision>4</precision>
+    <precision>2</precision>
   </widget>
   <widget type="label" version="2.0.0">
     <name>L_UNH:GEN:CRYO:FRIDGE:F7_Status</name>
@@ -544,7 +544,7 @@
     <height>20</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F8_TI</pv_name>
     <format>1</format>
-    <precision>4</precision>
+    <precision>2</precision>
   </widget>
   <widget type="label" version="2.0.0">
     <name>L_UNH:GEN:CRYO:FRIDGE:F8_RI</name>
@@ -562,7 +562,7 @@
     <height>20</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F8_RI</pv_name>
     <format>1</format>
-    <precision>4</precision>
+    <precision>2</precision>
   </widget>
   <widget type="label" version="2.0.0">
     <name>L_UNH:GEN:CRYO:FRIDGE:F8_Status</name>
@@ -615,7 +615,7 @@
     <height>20</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F9_TI</pv_name>
     <format>1</format>
-    <precision>4</precision>
+    <precision>2</precision>
   </widget>
   <widget type="label" version="2.0.0">
     <name>L_UNH:GEN:CRYO:FRIDGE:F9_RI</name>
@@ -633,7 +633,7 @@
     <height>20</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F9_RI</pv_name>
     <format>1</format>
-    <precision>4</precision>
+    <precision>2</precision>
   </widget>
   <widget type="label" version="2.0.0">
     <name>L_UNH:GEN:CRYO:FRIDGE:F9_Status</name>
@@ -686,7 +686,7 @@
     <height>20</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F10_TI</pv_name>
     <format>1</format>
-    <precision>4</precision>
+    <precision>2</precision>
   </widget>
   <widget type="label" version="2.0.0">
     <name>L_UNH:GEN:CRYO:FRIDGE:F10_RI</name>
@@ -704,7 +704,7 @@
     <height>20</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F10_RI</pv_name>
     <format>1</format>
-    <precision>4</precision>
+    <precision>2</precision>
   </widget>
   <widget type="label" version="2.0.0">
     <name>L_UNH:GEN:CRYO:FRIDGE:F10_Status</name>
@@ -757,7 +757,7 @@
     <height>20</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F11_TI</pv_name>
     <format>1</format>
-    <precision>4</precision>
+    <precision>2</precision>
   </widget>
   <widget type="label" version="2.0.0">
     <name>L_UNH:GEN:CRYO:FRIDGE:F11_RI</name>
@@ -775,7 +775,7 @@
     <height>20</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F11_RI</pv_name>
     <format>1</format>
-    <precision>4</precision>
+    <precision>2</precision>
   </widget>
   <widget type="label" version="2.0.0">
     <name>L_UNH:GEN:CRYO:FRIDGE:F11_Status</name>
@@ -1009,6 +1009,7 @@
     <width>106</width>
     <height>25</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:LHE:Fridge_LI</pv_name>
+    <precision>2</precision>
   </widget>
 <widget type="label" version="2.0.0">
     <name>Genesis_LHe_Status_L</name>

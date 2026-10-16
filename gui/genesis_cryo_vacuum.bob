@@ -577,7 +577,7 @@
     <height>24</height>
     <pv_name>ca://UNH:GEN:CRYO:VAC:LOW:Mano_VapT</pv_name>
     <format>1</format>
-    <precision>4</precision>
+    <precision>2</precision>
     <font>
       <font family="Liberation Sans" style="REGULAR" size="11.0" />
     </font>

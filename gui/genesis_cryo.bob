@@ -103,7 +103,7 @@
     <name>Status0L</name>
     <x>40</x>
     <y>134</y>
-    <width>95</width>
+    <width>120</width>
     <height>22</height>
     <text>Target:</text>
     <transparent>true</transparent>
@@ -117,7 +117,7 @@
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Status0V</name>
-    <x>135</x>
+    <x>165</x>
     <y>132</y>
     <width>105</width>
     <height>26</height>
@@ -134,9 +134,9 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>Status1L</name>
-    <x>260</x>
+    <x>295</x>
     <y>134</y>
-    <width>95</width>
+    <width>120</width>
     <height>22</height>
     <text>Material:</text>
     <transparent>true</transparent>
@@ -150,7 +150,7 @@
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Status1V</name>
-    <x>355</x>
+    <x>420</x>
     <y>132</y>
     <width>105</width>
     <height>26</height>
@@ -167,9 +167,9 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>Status2L</name>
-    <x>470</x>
+    <x>550</x>
     <y>134</y>
-    <width>95</width>
+    <width>120</width>
     <height>22</height>
     <text>Safety:</text>
     <transparent>true</transparent>
@@ -183,7 +183,7 @@
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Status2V</name>
-    <x>565</x>
+    <x>675</x>
     <y>132</y>
     <width>105</width>
     <height>26</height>
@@ -200,9 +200,9 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>Status3L</name>
-    <x>650</x>
+    <x>805</x>
     <y>134</y>
-    <width>95</width>
+    <width>120</width>
     <height>22</height>
     <text>Alarms:</text>
     <transparent>true</transparent>
@@ -216,7 +216,7 @@
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Status3V</name>
-    <x>745</x>
+    <x>930</x>
     <y>132</y>
     <width>105</width>
     <height>26</height>
@@ -233,9 +233,9 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>Status4L</name>
-    <x>820</x>
+    <x>1060</x>
     <y>134</y>
-    <width>95</width>
+    <width>120</width>
     <height>22</height>
     <text>Archive:</text>
     <transparent>true</transparent>
@@ -249,7 +249,7 @@
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Status4V</name>
-    <x>915</x>
+    <x>1185</x>
     <y>132</y>
     <width>105</width>
     <height>26</height>
@@ -266,9 +266,9 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>Status5L</name>
-    <x>1010</x>
+    <x>1315</x>
     <y>134</y>
-    <width>95</width>
+    <width>120</width>
     <height>22</height>
     <text>Missing PVs:</text>
     <transparent>true</transparent>
@@ -282,7 +282,7 @@
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Status5V</name>
-    <x>1105</x>
+    <x>1440</x>
     <y>132</y>
     <width>105</width>
     <height>26</height>
@@ -371,6 +371,7 @@
     <foreground_color>
       <color red="28" green="38" blue="48" alpha="255" />
     </foreground_color>
+    <precision>2</precision>
   </widget>
   <widget type="label" version="2.0.0">
     <name>M1U</name>
@@ -420,6 +421,7 @@
     <foreground_color>
       <color red="28" green="38" blue="48" alpha="255" />
     </foreground_color>
+    <precision>2</precision>
   </widget>
   <widget type="label" version="2.0.0">
     <name>M2U</name>
@@ -469,6 +471,7 @@
     <foreground_color>
       <color red="28" green="38" blue="48" alpha="255" />
     </foreground_color>
+    <precision>2</precision>
   </widget>
   <widget type="label" version="2.0.0">
     <name>M3U</name>
@@ -518,6 +521,7 @@
     <foreground_color>
       <color red="28" green="38" blue="48" alpha="255" />
     </foreground_color>
+    <precision>2</precision>
   </widget>
   <widget type="label" version="2.0.0">
     <name>M4U</name>
@@ -567,6 +571,7 @@
     <foreground_color>
       <color red="28" green="38" blue="48" alpha="255" />
     </foreground_color>
+    <precision>2</precision>
   </widget>
   <widget type="label" version="2.0.0">
     <name>M5U</name>
@@ -755,6 +760,7 @@
     <foreground_color>
       <color red="28" green="38" blue="48" alpha="255" />
     </foreground_color>
+    <precision>2</precision>
   </widget>
   <widget type="label" version="2.0.0">
     <name>F1U</name>
@@ -804,6 +810,7 @@
     <foreground_color>
       <color red="28" green="38" blue="48" alpha="255" />
     </foreground_color>
+    <precision>2</precision>
   </widget>
   <widget type="label" version="2.0.0">
     <name>F2U</name>
@@ -853,6 +860,7 @@
     <foreground_color>
       <color red="28" green="38" blue="48" alpha="255" />
     </foreground_color>
+    <precision>2</precision>
   </widget>
   <widget type="label" version="2.0.0">
     <name>F3U</name>
@@ -902,6 +910,7 @@
     <foreground_color>
       <color red="28" green="38" blue="48" alpha="255" />
     </foreground_color>
+    <precision>2</precision>
   </widget>
   <widget type="label" version="2.0.0">
     <name>F4U</name>
@@ -951,6 +960,7 @@
     <foreground_color>
       <color red="28" green="38" blue="48" alpha="255" />
     </foreground_color>
+    <precision>2</precision>
   </widget>
   <widget type="label" version="2.0.0">
     <name>F5U</name>
@@ -1000,6 +1010,7 @@
     <foreground_color>
       <color red="28" green="38" blue="48" alpha="255" />
     </foreground_color>
+    <precision>2</precision>
   </widget>
   <widget type="label" version="2.0.0">
     <name>F6U</name>
@@ -1049,6 +1060,7 @@
     <foreground_color>
       <color red="28" green="38" blue="48" alpha="255" />
     </foreground_color>
+    <precision>2</precision>
   </widget>
   <widget type="label" version="2.0.0">
     <name>F7U</name>
@@ -1098,6 +1110,7 @@
     <foreground_color>
       <color red="28" green="38" blue="48" alpha="255" />
     </foreground_color>
+    <precision>2</precision>
   </widget>
   <widget type="label" version="2.0.0">
     <name>F8U</name>
@@ -1147,6 +1160,7 @@
     <foreground_color>
       <color red="28" green="38" blue="48" alpha="255" />
     </foreground_color>
+    <precision>2</precision>
   </widget>
   <widget type="label" version="2.0.0">
     <name>F9U</name>
@@ -1196,6 +1210,7 @@
     <foreground_color>
       <color red="28" green="38" blue="48" alpha="255" />
     </foreground_color>
+    <precision>2</precision>
   </widget>
   <widget type="label" version="2.0.0">
     <name>F10U</name>
@@ -1245,6 +1260,7 @@
     <foreground_color>
       <color red="28" green="38" blue="48" alpha="255" />
     </foreground_color>
+    <precision>2</precision>
   </widget>
   <widget type="label" version="2.0.0">
     <name>F11U</name>
@@ -2030,7 +2046,7 @@
     <name>Nav0</name>
     <x>42</x>
     <y>820</y>
-    <width>175</width>
+    <width>120</width>
     <height>34</height>
     <actions>
       <action type="open_display">
@@ -2043,9 +2059,9 @@
   </widget>
   <widget type="action_button" version="3.0.0">
     <name>Nav1</name>
-    <x>233</x>
+    <x>168</x>
     <y>820</y>
-    <width>175</width>
+    <width>120</width>
     <height>34</height>
     <actions>
       <action type="open_display">
@@ -2058,9 +2074,9 @@
   </widget>
   <widget type="action_button" version="3.0.0">
     <name>Nav2</name>
-    <x>424</x>
+    <x>294</x>
     <y>820</y>
-    <width>175</width>
+    <width>120</width>
     <height>34</height>
     <actions>
       <action type="open_display">
@@ -2073,9 +2089,9 @@
   </widget>
   <widget type="action_button" version="3.0.0">
     <name>Nav3</name>
-    <x>615</x>
+    <x>420</x>
     <y>820</y>
-    <width>175</width>
+    <width>120</width>
     <height>34</height>
     <actions>
       <action type="open_display">
@@ -2088,9 +2104,9 @@
   </widget>
   <widget type="action_button" version="3.0.0">
     <name>Nav4</name>
-    <x>806</x>
+    <x>546</x>
     <y>820</y>
-    <width>175</width>
+    <width>120</width>
     <height>34</height>
     <actions>
       <action type="open_display">
@@ -2103,9 +2119,9 @@
   </widget>
   <widget type="action_button" version="3.0.0">
     <name>Nav5</name>
-    <x>997</x>
+    <x>672</x>
     <y>820</y>
-    <width>175</width>
+    <width>120</width>
     <height>34</height>
     <actions>
       <action type="open_display">
@@ -2114,13 +2130,13 @@
         <description>Open Safety / State</description>
       </action>
     </actions>
-    <text>Safety / State</text>
+    <text>Safety</text>
   </widget>
   <widget type="action_button" version="3.0.0">
     <name>Nav6</name>
-    <x>1188</x>
+    <x>798</x>
     <y>820</y>
-    <width>175</width>
+    <width>120</width>
     <height>34</height>
     <actions>
       <action type="open_display">
@@ -2129,13 +2145,13 @@
         <description>Open Data / Trends</description>
       </action>
     </actions>
-    <text>Data / Trends</text>
+    <text>Trends</text>
   </widget>
   <widget type="action_button" version="3.0.0">
     <name>Nav7</name>
-    <x>1379</x>
+    <x>924</x>
     <y>820</y>
-    <width>175</width>
+    <width>120</width>
     <height>34</height>
     <actions>
       <action type="open_display">
@@ -2145,6 +2161,66 @@
       </action>
     </actions>
     <text>Diagnostics</text>
+  </widget>
+<widget type="action_button" version="3.0.0">
+    <name>Nav8</name>
+    <x>1050</x>
+    <y>820</y>
+    <width>120</width>
+    <height>34</height>
+    <actions>
+      <action type="open_display">
+        <file>genesis_cryo_flow.bob</file>
+        <target>tab</target>
+        <description>Open Diagnostics</description>
+      </action>
+    </actions>
+    <text>Flow</text>
+  </widget>
+<widget type="action_button" version="3.0.0">
+    <name>Nav9</name>
+    <x>1176</x>
+    <y>820</y>
+    <width>120</width>
+    <height>34</height>
+    <actions>
+      <action type="open_display">
+        <file>genesis_cryo_cell_expert.bob</file>
+        <target>tab</target>
+        <description>Open Diagnostics</description>
+      </action>
+    </actions>
+    <text>Cell Expert</text>
+  </widget>
+<widget type="action_button" version="3.0.0">
+    <name>Nav10</name>
+    <x>1302</x>
+    <y>820</y>
+    <width>120</width>
+    <height>34</height>
+    <actions>
+      <action type="open_display">
+        <file>genesis_cryo_ion_expert.bob</file>
+        <target>tab</target>
+        <description>Open Diagnostics</description>
+      </action>
+    </actions>
+    <text>Ion Expert</text>
+  </widget>
+<widget type="action_button" version="3.0.0">
+    <name>Nav11</name>
+    <x>1428</x>
+    <y>820</y>
+    <width>120</width>
+    <height>34</height>
+    <actions>
+      <action type="open_display">
+        <file>genesis_cryo_vacuum_expert.bob</file>
+        <target>tab</target>
+        <description>Open Diagnostics</description>
+      </action>
+    </actions>
+    <text>Vac Expert</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>OperatorNote</name>
@@ -2316,4 +2392,146 @@
       <color red="28" green="38" blue="48" alpha="255" />
     </foreground_color>
   </widget>
+<widget type="label" version="2.0.0">
+    <name>TargetTempHeader</name>
+    <x>855</x>
+    <y>516</y>
+    <width>215</width>
+    <height>23</height>
+    <text>TARGET STICK / CERNOX</text>
+    <transparent>true</transparent>
+    <horizontal_alignment>0</horizontal_alignment>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+
+<widget type="label" version="2.0.0">
+    <name>TargetT1Label</name>
+    <x>855</x>
+    <y>549</y>
+    <width>84</width>
+    <height>24</height>
+    <text>T1 C2 (K)</text>
+    <transparent>true</transparent>
+    <horizontal_alignment>0</horizontal_alignment>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+
+<widget type="textupdate" version="2.0.0">
+    <name>TargetT1Value</name>
+    <x>941</x>
+    <y>549</y>
+    <width>119</width>
+    <height>26</height>
+    <pv_name>ca://UNH:GEN:CRYO:MAG:T1_TI</pv_name>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+    <precision>2</precision>
+  </widget>
+
+<widget type="textupdate" version="2.0.0">
+    <name>TargetT1Status</name>
+    <x>855</x>
+    <y>577</y>
+    <width>208</width>
+    <height>23</height>
+    <pv_name>ca://UNH:GEN:CRYO:MAG:T1_Status</pv_name>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="12.0" />
+    </font>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+
+<widget type="label" version="2.0.0">
+    <name>TargetT3Label</name>
+    <x>855</x>
+    <y>606</y>
+    <width>84</width>
+    <height>24</height>
+    <text>T3 C4 (K)</text>
+    <transparent>true</transparent>
+    <horizontal_alignment>0</horizontal_alignment>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+
+<widget type="textupdate" version="2.0.0">
+    <name>TargetT3Value</name>
+    <x>941</x>
+    <y>606</y>
+    <width>119</width>
+    <height>26</height>
+    <pv_name>ca://UNH:GEN:CRYO:MAG:T3_TI</pv_name>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+    <precision>2</precision>
+  </widget>
+
+<widget type="textupdate" version="2.0.0">
+    <name>TargetT3Status</name>
+    <x>855</x>
+    <y>634</y>
+    <width>208</width>
+    <height>23</height>
+    <pv_name>ca://UNH:GEN:CRYO:MAG:T3_Status</pv_name>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="12.0" />
+    </font>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+
+<widget type="label" version="2.0.0">
+    <name>TargetTempNote</name>
+    <x>855</x>
+    <y>665</y>
+    <width>214</width>
+    <height>20</height>
+    <text>T3 disconnected; C4 label differs</text>
+    <transparent>true</transparent>
+    <horizontal_alignment>0</horizontal_alignment>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+
 </display>

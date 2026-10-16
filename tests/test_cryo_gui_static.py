@@ -296,6 +296,10 @@ def test_cryo_main_navigation_is_unique():
         "genesis_cryo_safety.bob",
         "genesis_cryo_data.bob",
         "genesis_cryo_diagnostics.bob",
+        "genesis_cryo_flow.bob",
+        "genesis_cryo_cell_expert.bob",
+        "genesis_cryo_ion_expert.bob",
+        "genesis_cryo_vacuum_expert.bob",
     ]
 
     assert sorted(destinations) == sorted(required)

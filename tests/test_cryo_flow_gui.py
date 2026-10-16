@@ -109,7 +109,7 @@ def test_data_page_has_one_flow_route():
         ROOT / "gui/genesis_cryo.bob"
     ).getroot()
 
-    # The original eight overview navigation routes remain unchanged.
+    # All eight original routes and four added routes must be present.
     routes = [
         a.findtext("file")
         for a in overview.findall(
@@ -117,5 +117,21 @@ def test_data_page_has_one_flow_route():
         )
     ]
 
-    assert len(routes) == len(set(routes)) == 8
-    assert "genesis_cryo_flow.bob" not in routes
+    expected_routes = {
+        "genesis_cryo_fridge.bob",
+        "genesis_cryo_magnet.bob",
+        "genesis_cryo_field.bob",
+        "genesis_cryo_vacuum.bob",
+        "genesis_cryo_coldboard.bob",
+        "genesis_cryo_safety.bob",
+        "genesis_cryo_data.bob",
+        "genesis_cryo_diagnostics.bob",
+        "genesis_cryo_flow.bob",
+        "genesis_cryo_cell_expert.bob",
+        "genesis_cryo_ion_expert.bob",
+        "genesis_cryo_vacuum_expert.bob",
+    }
+
+    assert len(routes) == len(set(routes)) == 12
+    assert set(routes) == expected_routes
+    assert "genesis_cryo_flow.bob" in routes
