@@ -419,28 +419,26 @@ SEPARATOR = (834, 584, 132, 84)          # x, y, width, height: wider than the c
 CARTOON_MARKERS = {
     # F1 inside the upper insert, halfway from its wall to the pumping tube;
     # F3 under the lowest upper plate; F5 / F6 on the separator's top / bottom
-    "F1": (947, 298), "F2": (873, 403), "F3": (870, 527), "F4": (935, 540), "F5": (893, 579),
+    "F1": (947, 333), "F2": (873, 403), "F3": (870, 527), "F4": (935, 540), "F5": (893, 579),
     "F6": (913, 673), "F8": (913, 702), "F7": (877, 712), "F9": (891, 745), "F10": (927, 765),
     "F11": (873, 800), "T1": (900, 925), "T3": (900, 1000),
-    # magnet sensors, right side of the magnet LHe space: M1 high in the neck,
+    # magnet sensors, right side of the magnet LHe space: M1 on the highest neck baffle,
     # M2 on the lowest neck baffle (top of the belly), M3 on the magnet-support
     # baffle at 16.5", M4 at the solenoid's top, M5 at its bottom
-    "M1": (985, 530), "M2": (985, 579), "M3": (985, 801), "M4": (960, 822), "M5": (960, 1044),
+    "M1": (985, 376), "M2": (985, 579), "M3": (985, 801), "M4": (960, 822), "M5": (960, 1044),
 }
 
 #: Magnet LHe space (inches on the depth scale, 15 px/in, radii about the
 #: insert axis x=900): a 12"-wide bore holds the solenoid up to the 16.5"
 #: magnet-support baffle; above it the 16"-wide belly up to 31.5", then the
 #: 13"-wide neck with 5 baffles whose spacing grows upward (as built: 31.6,
-#: 33.5, 36.4, 40.4, 45.4"; the neck is drawn compressed to end at the
-#: fridge flange).  The solenoid: 4" bore, 7" outside, 0.9-16.0" (its top just
+#: 33.5, 36.4, 40.4, 45.4"), drawn to scale up to the top flange at 51.5".  The solenoid: 4" bore, 7" outside, 0.9-16.0" (its top just
 #: under the support baffle).
 AXIS_X = 900
 BORE_HALF, BELLY_HALF, NECK_HALF = 90, 120, 98
 BELLY_IN, NECK_IN = (16.5, 31.5), 31.5
-NECK_TOP_Y = 408
+NECK_TOP_IN = 51.5                      # the dewar's top flange; the fridge's top plate sits on it
 NECK_BAFFLES_IN = (31.6, 33.5, 36.4, 40.4, 45.4)
-NECK_SPAN_IN = (31.5, 51.5)
 SOLENOID_IN = (0.9, 16.0)
 SOLENOID_ID_HALF, SOLENOID_OD_HALF = 30, 52
 COPPER = (184, 115, 51)
@@ -456,14 +454,16 @@ def level_y(inches):
     return round(LEVEL_Y0 - inches * PX_PER_INCH)
 
 
+def head_y(y):
+    """The upper insert (first drawn from 228 to the HX flange at 398) shortened
+    so the fridge's top plate sits on the dewar's top flange."""
+    top = level_y(NECK_TOP_IN)
+    return round(top + (y - 228) * (398 - top) / (398 - 228))
+
+
 def neck_baffle_ys():
-    """The neck baffles' y, bottom to top, scaled into the drawn (compressed) neck."""
-    belly_top = level_y(NECK_IN)
-    lo, hi = NECK_SPAN_IN
-    return [round(belly_top - (b - lo) / (hi - lo) * (belly_top - NECK_TOP_Y)) for b in NECK_BAFFLES_IN]
-
-
-
+    """The neck baffles' y, bottom to top, at their true heights."""
+    return [level_y(b) for b in NECK_BAFFLES_IN]
 
 
 def leader(points, rgb=LEADER, name=None):
@@ -481,9 +481,9 @@ def leader(points, rgb=LEADER, name=None):
 #: The insert is drawn in its own coordinates (the numbers above and in
 #: _insert_drawing) and placed on the screen scaled by INSERT_SCALE about the
 #: point INSERT_SRC -> INSERT_DST, keeping all its proportions.
-INSERT_SRC = (726, 166)
+INSERT_SRC = (726, 226)
 INSERT_DST = (622, 152)
-INSERT_SCALE = 0.84
+INSERT_SCALE = 0.86
 MARKER = 9                               # marker square on screen (px)
 
 
@@ -520,13 +520,13 @@ def _box(widget_xml):
 
 
 #: markers that sit on (above) or hang from (below) a drawn part
-ATTACH = {"F3": ("below", "Baffle_U5"), "F5": ("above", "Shape_Separator"),
+ATTACH = {"M1": ("above", "Magnet_Baffle_N5"), "F3": ("below", "Baffle_U5"), "F5": ("above", "Shape_Separator"),
           "F6": ("below", "Shape_Separator"), "M2": ("above", "Magnet_Baffle_N1"),
           "M3": ("above", "Magnet_Baffle_Support")}
 
 #: readout columns (screen), right of the insert: fridge and cup sensors,
 #: and the magnet sensors set off further right; leader lines turn at ELBOW
-F_COLUMN, M_COLUMN, ELBOW = 902, 926, 878
+F_COLUMN, M_COLUMN, ELBOW = 902, 926, 884
 #: thin dark parts a leader line must not run along (it would vanish)
 DARK_PARTS = re.compile(r"^(Baffle_|Magnet_Baffle_|Shape_Separator|Shape_PumpOut|Shape_Flange|Shape_Head_Plate)")
 
@@ -626,7 +626,7 @@ def _insert_drawing():
     w = []
     # magnet LHe space: bore, belly, neck (one outline), and its depth scale
     belly_top, support_y, bottom = level_y(NECK_IN), level_y(BELLY_IN[0]), level_y(0) + 2
-    a, b, n = AXIS_X, belly_top, NECK_TOP_Y
+    a, b, n = AXIS_X, belly_top, level_y(NECK_TOP_IN)
     # the dewar's outer wall, light, around the whole LHe space
     w.append(rect(a - BELLY_HALF - 6, n, 2 * BELLY_HALF + 12, bottom + 6 - n, DEWAR, (150, 170, 200),
                   name="Magnet_Dewar_Outer", transparent=True))
@@ -649,21 +649,23 @@ def _insert_drawing():
     wall = SOLENOID_OD_HALF - SOLENOID_ID_HALF
     w.append(rect(a - SOLENOID_OD_HALF, s_top, wall, s_bot - s_top, COIL, COIL_LINE, name="Coil_L"))
     w.append(rect(a + SOLENOID_ID_HALF, s_top, wall, s_bot - s_top, COIL, COIL_LINE, name="Coil_R"))
-    # insert head: feedthroughs, top plate, pump-out line to the right
+    # insert head: feedthroughs, top plate (on the dewar's top flange),
+    # pump-out line to the right
+    top = level_y(NECK_TOP_IN)
     for fx in (846, 866, 934, 954):
-        w.append(rect(fx, 180, 6, 36, (120, 126, 136)))
-    w.append(rect(996, 176, 16, 130, STEEL, name="Shape_PumpOut_Riser"))
-    w.append(label("pump-out", 950, 176, 46, 12, 8, False, MUTED))
-    w.append(rect(820, 216, 160, 12, STEEL, name="Shape_Head_Plate"))
-    w.append(rect(828, 228, 144, 170, INSERT, MUTED, name="Shape_Upper_Insert"))
-    w.append(rect(972, 290, 40, 16, STEEL, name="Shape_PumpOut_Line"))
+        w.append(rect(fx, top - 48, 6, 36, (120, 126, 136)))
+    w.append(rect(996, top - 52, 16, head_y(306) - top + 52, STEEL, name="Shape_PumpOut_Riser"))
+    w.append(label("pump-out", 950, top - 52, 46, 12, 8, False, MUTED))
+    w.append(rect(820, top - 12, 160, 12, STEEL, name="Shape_Head_Plate"))
+    w.append(rect(828, top, 144, 398 - top, INSERT, MUTED, name="Shape_Upper_Insert"))
+    w.append(rect(972, head_y(290), 40, head_y(306) - head_y(290), STEEL, name="Shape_PumpOut_Line"))
     w.append(rect(812, 398, 176, 10, STEEL, name="Shape_Flange"))
     # fridge column: can, liquid, central tube, the two heat-exchanger stacks
     # (copper tubing staggered between the upper plates), and the separator
     w.append(rect(846, 408, 108, 424, INSERT, MUTED, name="Shape_Fridge_Can"))
     n, y0, pitch = LOWER_HX
     w.append(rect(850, y0 - 4, 100, 830 - y0 + 4, FRIDGE, FRIDGE_LINE, name="Shape_Fridge_Liquid"))
-    w.append(rect(878, 228, 44, 604, STEEL, name="Shape_Pumping_Tube"))
+    w.append(rect(878, level_y(NECK_TOP_IN), 44, 832 - level_y(NECK_TOP_IN), STEEL, name="Shape_Pumping_Tube"))
     n, y0, pitch = UPPER_HX
     for i in range(n - 1):
         for tx in ((858, 896, 934) if i % 2 == 0 else (877, 915)):
@@ -679,8 +681,10 @@ def _insert_drawing():
     # magnet-space baffles: 5 in the neck (ring from the wall to the insert),
     # and the magnet-support baffle at 16.5"
     for i, by in enumerate(neck_baffle_ys()):
-        w.append(rect(a - NECK_HALF + 2, by - 3, NECK_HALF - 56, 3, STEEL, name=f"Magnet_Baffle_N{i + 1}_L"))
-        w.append(rect(a + 54, by - 3, NECK_HALF - 56, 3, STEEL, name=f"Magnet_Baffle_N{i + 1}"))
+        inner = 72 if by < 398 else 54          # upper insert above the HX flange, fridge can below
+        w.append(rect(a - NECK_HALF + 2, by - 3, NECK_HALF - inner - 2, 3, STEEL,
+                      name=f"Magnet_Baffle_N{i + 1}_L"))
+        w.append(rect(a + inner, by - 3, NECK_HALF - inner - 2, 3, STEEL, name=f"Magnet_Baffle_N{i + 1}"))
     # the support baffle is the same ring as the neck baffles
     w.append(rect(a - NECK_HALF + 2, support_y - 6, NECK_HALF - 56, 5, STEEL, name="Magnet_Baffle_Support_L"))
     w.append(rect(a + 54, support_y - 6, NECK_HALF - 56, 5, STEEL, name="Magnet_Baffle_Support"))
