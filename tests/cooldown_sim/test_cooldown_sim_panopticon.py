@@ -178,9 +178,13 @@ def test_insert_follows_the_sensor_positions_and_trace_colours():
     # F1 on the pump-out line to the right; F3 left of F4; F7 left of F8
     assert centre_x("Marker_F1") > centre_x("Shape_Pumping_Tube") + 40
     assert centre_x("Marker_F3") < centre_x("Marker_F4") and centre_x("Marker_F7") < centre_x("Marker_F8")
-    # F5 on the separator, T1 and T3 in the target cup
+    # F5 just above the separator can, F6 just below it; T1 and T3 in the target cup
     sep, cup = widgets["Shape_Separator"], widgets["Target_Cup"]
-    assert int(sep.findtext("y")) <= centre_y("Marker_F5") <= int(sep.findtext("y")) + int(sep.findtext("height"))
+    sep_top, sep_bottom = int(sep.findtext("y")), int(sep.findtext("y")) + int(sep.findtext("height"))
+    assert sep_top - 15 <= centre_y("Marker_F5") < sep_top
+    assert sep_bottom < centre_y("Marker_F6") <= sep_bottom + 15
+    can = widgets["Shape_Fridge_Can"]
+    assert int(sep.findtext("width")) > int(can.findtext("width"))     # the can is wider than the column
     for s in ("T1", "T3"):
         assert int(cup.findtext("y")) <= centre_y(f"Marker_{s}") <= int(cup.findtext("y")) + int(cup.findtext("height"))
     for sensor in FRIDGE_ORDER + MAGNET_ORDER:
@@ -193,6 +197,60 @@ def test_insert_follows_the_sensor_positions_and_trace_colours():
     # the removed shell sensors are drawn grey, with no PV
     for s in ("S1", "S2", "S3"):
         assert widgets[f"Removed_{s}"].find("pv_name") is None
+
+
+def test_heat_exchanger_is_two_stacks_around_the_separator():
+    widgets = _by_name()
+
+    def plates(stack):
+        ys = sorted(int(w.findtext("y")) for n, w in widgets.items() if re.fullmatch(rf"Baffle_{stack}\d+", n))
+        return ys, [b - a for a, b in zip(ys, ys[1:])]
+
+    upper, upper_pitch = plates("U")
+    lower, lower_pitch = plates("L")
+    # as built: 5 upper plates on 1.94" spacers, 10 lower plates on 0.75" spacers
+    assert len(upper) == 5 and len(lower) == 10
+    assert len(set(upper_pitch)) == 1 and len(set(lower_pitch)) == 1          # each stack evenly spaced
+    assert 2.0 <= upper_pitch[0] / lower_pitch[0] <= 3.2                      # 1.94 / 0.75 = 2.6
+    assert len([n for n in widgets if n.startswith("Baffle_")]) == 15         # no other plates
+
+    def edge(name, key):
+        w = widgets[name]
+        return int(w.findtext("y")) + (int(w.findtext("height")) if key == "bottom" else 0)
+
+    def y(sensor):
+        w = widgets[f"Marker_{sensor}"]
+        return int(w.findtext("y")) + int(w.findtext("height")) / 2
+
+    # the separator sits in the gap: no plate between the stacks
+    assert upper[-1] < edge("Shape_Separator", "top") and edge("Shape_Separator", "bottom") < lower[0]
+    assert upper[-1] < y("F3") < y("F4") < y("F5") and y("F6") < y("F8") < y("F7")
+    assert upper[0] > y("F2")                                                 # F2 above the upper stack
+    assert abs(y("F8") - lower[0]) <= 2 * lower_pitch[0]                       # F8/F7 at the top of the lower stack
+    assert lower[-1] < y("F11") < edge("Shape_Nose", "top")                    # F11 just below it, no plates in the nose
+
+
+def test_magnet_sensors_sit_at_their_lhe_depths():
+    gen = _generator()
+    widgets = _by_name()
+
+    def inches(sensor):
+        w = widgets[f"Marker_{sensor}"]
+        return gen.level_inches(int(w.findtext("y")) + int(w.findtext("height")) / 2)
+
+    m = {s: inches(s) for s in ("M1", "M2", "M3", "M4", "M5")}
+    coil = widgets["Coil_R"]
+    coil_in = (gen.level_inches(int(coil.findtext("y")) + int(coil.findtext("height"))),
+               gen.level_inches(int(coil.findtext("y"))))
+    assert m["M1"] > 31.5                          # above the top of the scale
+    assert 29.5 <= m["M2"] <= 32.5                 # about 31"
+    assert 16.5 < m["M3"] <= 18.5                  # just above the 16.5" magnet top
+    assert coil_in[0] <= m["M5"] < m["M4"] <= coil_in[1] and m["M4"] > 10 and m["M5"] < 6
+    assert abs(coil_in[1] - 16.5) < 0.5            # the coils reach the magnet-top line
+    # right side of the dewar, outside the insert and the coil
+    for s in m:
+        x = int(widgets[f"Marker_{s}"].findtext("x"))
+        assert x >= int(coil.findtext("x")) + int(coil.findtext("width")), s
 
 
 def test_trends_have_the_daq_windows_and_log_pressures():

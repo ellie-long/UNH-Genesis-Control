@@ -359,26 +359,47 @@ def lab_space():
     return w
 
 
+#: Heat exchanger: two stacks of plates on the fridge column, with the
+#: separator can in the gap between them.  The as-built counts and spacer
+#: lengths: 5 upper plates on 1.94" spacers, 10 lower plates (6 middle + 4
+#: lower) on 0.75" spacers, so the lower stack's pitch is about 2.6 times
+#: tighter.  (count, y of the first plate, pitch in px)
+UPPER_HX = (5, 414, 26)
+LOWER_HX = (10, 700, 10)
+SEPARATOR = (834, 584, 132, 84)          # x, y, width, height: wider than the column
+
 #: Insert drawing: each thermometer's marker sits at the sensor's physical
 #: position (x, y) on the fridge insert or magnet, top to bottom: F1 on the
-#: pump-out line, F2 at the flange, F3 (left) and F4 (right) at the upper
-#: heat-exchanger baffles, F5 at the separator, F6 below it, F8 ABOVE F7,
-#: F9, F10, F11 near the bottom of the fridge column, then T1 and T3 in the
-#: target cup (nose); M1-M5 run down the magnet coil.  The readout boxes stand
-#: in a column on the right, joined to their markers by leader lines.
+#: pump-out line, F2 at the flange above the upper heat-exchanger stack, F3
+#: (left) and F4 (right) just below that stack, F5 just above the separator
+#: can and F6 just below it, F8 ABOVE F7 at the top of the lower stack, F9
+#: and F10 in it, F11 just below it at the bottom of the fridge column, then
+#: T1 and T3 in the target cup (nose); M1-M5 run down the magnet coil.  The
+#: readout boxes stand in a column on the right, joined to their markers by
+#: leader lines.
 CARTOON_MARKERS = {
-    "F1": (990, 298), "F2": (873, 403), "F3": (891, 535), "F4": (940, 548), "F5": (889, 582),
-    "F6": (913, 638), "F8": (913, 679), "F7": (877, 692), "F9": (891, 724), "F10": (927, 738),
-    "F11": (873, 796), "T1": (900, 925), "T3": (900, 1000),
-    "M1": (994, 830), "M2": (994, 880), "M3": (994, 930), "M4": (994, 980), "M5": (994, 1035),
+    "F1": (990, 298), "F2": (873, 403), "F3": (870, 532), "F4": (935, 540), "F5": (893, 576),
+    "F6": (913, 677), "F8": (913, 702), "F7": (877, 712), "F9": (891, 745), "F10": (927, 765),
+    "F11": (873, 808), "T1": (900, 925), "T3": (900, 1000),
+    # magnet sensors: right side of the magnet dewar, in its LHe space, at their
+    # heights on the LHe depth scale (see level_y): M1 above the scale's top,
+    # M2 at about 31", M3 just above the 16.5" magnet top, M4 on the top of the
+    # coils (about 13"), M5 at the bottom of the coils (about 3.5")
+    "M1": (1006, 520), "M2": (1006, 595), "M3": (1006, 805), "M4": (1006, 865), "M5": (1006, 1007),
 }
 #: shell sensors S1-S3 (temporary, since removed; never in Genesis): grey markers only
-REMOVED_SENSORS = {"S1": (851, 422), "S2": (851, 459), "S3": (851, 535)}
+REMOVED_SENSORS = {"S1": (851, 430), "S2": (851, 470), "S3": (851, 528)}
+COPPER = (184, 115, 51)
 READOUT_X, READOUT_GAP = 1026, 24      # sensor label at x, box at x + 22; minimum box spacing
 LEADER = (50, 50, 50)
 
 # depth scale for the magnet LHe level: 0" at y=1060, 15 px per inch
 LEVEL_Y0, PX_PER_INCH = 1060, 15
+
+
+def level_inches(y):
+    """Height on the magnet LHe depth scale (inches) of screen y."""
+    return (LEVEL_Y0 - y) / PX_PER_INCH
 
 
 def leader(points, rgb=LEADER, name=None):
@@ -432,15 +453,24 @@ def insert_cartoon():
     w.append(rect(828, 228, 144, 170, INSERT, MUTED, name="Shape_Upper_Insert"))
     w.append(rect(972, 290, 40, 16, STEEL, name="Shape_PumpOut_Line"))
     w.append(rect(812, 398, 176, 10, STEEL, name="Shape_Flange"))
-    # fridge column: can, liquid, central tube, heat-exchanger baffles, separator
+    # fridge column: can, liquid, central tube, the two heat-exchanger stacks
+    # (copper tubing staggered between the upper plates), and the separator
     w.append(rect(846, 408, 108, 424, INSERT, MUTED, name="Shape_Fridge_Can"))
-    w.append(rect(850, 650, 100, 180, FRIDGE, FRIDGE_LINE, name="Shape_Fridge_Liquid"))
+    n, y0, pitch = LOWER_HX
+    w.append(rect(850, y0 - 4, 100, 830 - y0 + 4, FRIDGE, FRIDGE_LINE, name="Shape_Fridge_Liquid"))
     w.append(rect(878, 228, 44, 604, STEEL, name="Shape_Pumping_Tube"))
-    for yy in range(416, 830, 16):
-        if not 562 <= yy <= 630:
-            w.append(rect(850, yy, 100, 4, BAFFLE))
-    w.append(rect(856, 571, 64, 54, (170, 176, 186), MUTED, name="Shape_Separator"))
-    w.append(label("separator", 856, 604, 64, 14, 8, False, TEXT, align=1))
+    n, y0, pitch = UPPER_HX
+    for i in range(n - 1):
+        for tx in ((858, 896, 934) if i % 2 == 0 else (877, 915)):
+            w.append(rect(tx, y0 + i * pitch + 4, 3, pitch - 4, COPPER, name=f"Coil_Tube_{i}_{tx}"))
+    for stack, (n, y0, pitch) in (("U", UPPER_HX), ("L", LOWER_HX)):
+        for i in range(n):
+            w.append(rect(850, y0 + i * pitch, 100, 4 if stack == "U" else 3, BAFFLE,
+                          name=f"Baffle_{stack}{i + 1}"))
+    sx, sy, sw, sh = SEPARATOR
+    w.append(rect(sx, sy, sw, sh, (165, 171, 181), (70, 76, 86), 2, corner=6, name="Shape_Separator"))
+    w.append(label("separator", sx, sy + sh // 2 - 15, sw, 15, 9, True, TEXT, align=1))
+    w.append(label("(LHe / gas)", sx, sy + sh // 2, sw, 14, 8, False, TEXT, align=1))
     w.append(label("fridge", 952, 812, 40, 14, 8, True, FRIDGE_LINE))
     # nose (tail) and target cup
     w.append(rect(873, 832, 54, 214, INSERT, MUTED, name="Shape_Nose"))
