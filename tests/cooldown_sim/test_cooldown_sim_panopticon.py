@@ -304,9 +304,17 @@ def test_magnet_space_baffles_solenoid_and_sensors():
     # the neck and its baffles to scale: as built 31.6, 33.5, 36.4, 40.4, 45.4"
     for i, want in enumerate((31.6, 33.5, 36.4, 40.4, 45.4), start=1):
         assert abs(inches(box(f"Magnet_Baffle_N{i}")[3]) - want) <= 0.3, (i, inches(box(f"Magnet_Baffle_N{i}")[3]))
-    # the fridge's top plate sits on the dewar's top flange (51.5")
-    assert abs(inches(box("Shape_Head_Plate")[3]) - 51.5) <= 0.3
+    # the dewar's top flange (51.5") is the insert's lower dark bar, the HX flange
+    assert abs(inches(box("Shape_Flange")[3]) - 51.5) <= 0.3
     assert abs(inches(box("Magnet_LHe_Space")[1]) - 51.5) <= 0.3
+    # the solenoid sits in the bore, clear below the fridge column
+    assert coil_r[1] - box("Shape_Fridge_Can")[3] >= 10
+    # the target cup's centre is the solenoid's mid-height, the magnet centre
+    # 42.5" below the top flange
+    cup = box("Target_Cup")
+    cup_in = inches((cup[1] + cup[3]) / 2)
+    assert abs(cup_in - (top_in + bottom_in) / 2) <= 0.1, (cup_in, top_in, bottom_in)
+    assert abs(cup_in - gen.MAGNET_CENTRE_IN) <= 0.1
     for s in ("M1", "M2", "M3", "M4", "M5"):                      # right side, outside the solenoid
         assert marker(s)[0] >= coil_r[2], s
 
