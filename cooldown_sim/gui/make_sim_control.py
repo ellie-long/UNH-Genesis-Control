@@ -87,7 +87,7 @@ def led(pv, x, y, size=20):
 
 
 def button(text, pv, value, x, y, w=90, h=30, confirm=None, bg=None):
-    conf = (f"<confirm_dialog>true</confirm_dialog><confirm_message>{escape(confirm)}</confirm_message>"
+    conf = (f"<show_confirm_dialog>true</show_confirm_dialog><confirm_message>{escape(confirm)}</confirm_message>"
             if confirm else "")
     back = f"<background_color>{col(bg)}</background_color>" if bg else ""
     return (f'<widget type="action_button" version="3.0.0"><name>{_name("Btn")}</name>'
@@ -110,13 +110,13 @@ def entry(pv, x, y, w, h=28, tooltip=""):
     return (f'<widget type="textentry" version="3.0.0"><name>{_name("Entry")}</name>'
             f"<pv_name>ca://{pv}</pv_name><x>{x}</x><y>{y}</y><width>{w}</width><height>{h}</height>"
             f"<tooltip>{escape(tooltip)}</tooltip><background_color>{col(WHITE)}</background_color>"
-            f"{fmt}</widget>")
+            f"<border_alarm_sensitive>false</border_alarm_sensitive>{fmt}</widget>")
 
 
 def combo(pv, x, y, w, h=26):
     return (f'<widget type="combo" version="2.0.0"><name>{_name("Combo")}</name>'
             f"<pv_name>ca://{pv}</pv_name><x>{x}</x><y>{y}</y><width>{w}</width><height>{h}</height>"
-            f"<items_from_pv>true</items_from_pv></widget>")
+            f"<items_from_pv>true</items_from_pv><border_alarm_sensitive>false</border_alarm_sensitive></widget>")
 
 
 def card(title, x, y, w, h):
@@ -196,12 +196,12 @@ def build() -> str:
     x, y = 20, 345
     w.append(card("Instrument faults (emulated hardware)", x, y, 680, 330))
     for i, inst in enumerate(FAULT_INSTRUMENTS):
-        yy = y + 38 + i * 35
+        yy = y + 38 + i * 33
         key = inst.upper()
         w.append(label(inst, x + 15, yy, 190, 28, 11, True))
         w.append(combo(f"{P}:FAULT_{key}_CMD", x + 210, yy, 170, 28))
         w.append(update(f"{P}:FAULT_{key}_RBV", x + 395, yy, 120, 28, 11, True))
-    w.append(label("none / refuse (unplugged) / absent / silent / garbage / nak", x + 15, y + 300,
+    w.append(label("none / refuse (unplugged) / absent / silent / garbage / nak", x + 15, y + 304,
                    650, 22, 9, False, MUTED))
 
     # target model card
@@ -233,15 +233,15 @@ def build() -> str:
         w.append(label(lab, cx, cy, 112, 26, 10, False, MUTED))
         w.append(entry(f"{P}:{pv}", cx + 112, cy, 93, 26))
     yb = y + 278
-    w.append(button("MW on", f"{P}:MW_ON_CMD", 1, x + 15, yb, 68, 30))
-    w.append(button("MW off", f"{P}:MW_ON_CMD", 0, x + 88, yb, 68, 30))
+    w.append(button("MW on", f"{P}:MW_ON_CMD", 1, x + 15, yb, 70, 30))
+    w.append(button("MW off", f"{P}:MW_ON_CMD", 0, x + 89, yb, 70, 30))
     # the DAQ's quick tune: microwave frequency to the best P-up / P-down value
-    w.append(button("Magic +", f"{P}:MAGIC_PLUS_CMD", 1, x + 166, yb, 78, 30, bg=(200, 235, 205)))
-    w.append(button("Magic -", f"{P}:MAGIC_MINUS_CMD", 1, x + 249, yb, 78, 30, bg=(250, 230, 200)))
-    w.append(button("Take baseline", f"{P}:TAKE_BASELINE_CMD", 1, x + 337, yb, 112, 30))
-    w.append(button("QUENCH", f"{P}:QUENCH_CMD", 1, x + 454, yb, 88, 30,
+    w.append(button("Magic +", f"{P}:MAGIC_PLUS_CMD", 1, x + 163, yb, 72, 30, bg=(200, 235, 205)))
+    w.append(button("Magic -", f"{P}:MAGIC_MINUS_CMD", 1, x + 239, yb, 72, 30, bg=(250, 230, 200)))
+    w.append(button("Take baseline", f"{P}:TAKE_BASELINE_CMD", 1, x + 315, yb, 112, 30))
+    w.append(button("QUENCH", f"{P}:QUENCH_CMD", 1, x + 431, yb, 84, 30,
                     confirm="Inject a quench-like warm-up into the simulated target?", bg=(245, 205, 205)))
-    w.append(button("Clear quench", f"{P}:QUENCH_CMD", 0, x + 547, yb, 100, 30))
+    w.append(button("Clear quench", f"{P}:QUENCH_CMD", 0, x + 519, yb, 120, 30))
 
     # autopilot + navigation card
     x, y = 20, 690

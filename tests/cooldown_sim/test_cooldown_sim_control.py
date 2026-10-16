@@ -163,6 +163,15 @@ def test_screen_pvs_exist_and_links_resolve():
     assert "SIMULATION - NOT LIVE HARDWARE" in text
 
 
+def test_destructive_buttons_ask_first():
+    # Phoebus's property is show_confirm_dialog; an unknown element is silently ignored
+    root = ET.parse(BOB).getroot()
+    asking = {w.findtext("text") for w in root.iter("widget")
+              if w.get("type") == "action_button" and w.findtext("show_confirm_dialog") == "true"}
+    assert {"End session", "QUENCH"} <= asking, asking
+    assert "<confirm_dialog>" not in BOB.read_text(encoding="utf-8")
+
+
 def test_screen_is_not_among_live_displays():
     assert not (ROOT / "gui" / "genesis_sim_control.bob").exists()
 
