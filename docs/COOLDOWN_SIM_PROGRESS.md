@@ -45,6 +45,19 @@ lab answers are in `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`.
 
 ## Log
 
+### 2026-10-16: material and dopant drop-downs (Genesis change, Ells's request)
+* No screen could set `STATE:material` (both Cryo screens showed it
+  read-only, by a deliberate test) or `MW:SUP:Dopant` (empty dopant list ->
+  "UNCONFIGURED"). Now: a material combo on the Cryo Safety screen (Empty,
+  ND3, d-butanol, d-propanediol, NH3) and a Dopant combo on the Microwave
+  screen (None, Irradiated, TEMPO, Trityl). Safe while the state table is
+  unvalidated / apply disabled: a material write is advisory only. Changed
+  live files: `logic_devices/states_unh.yaml`, `logic_devices/target_status.py`,
+  `gui/genesis_cryo_safety.bob` (+ its generator), `gui/genesis_microwave.bob`,
+  the supervisor settings (both commissioning configs). Still to do: Magic
+  constants per dopant/material (questions 34, 36); thresholds for the new
+  materials copy ND3's.
+
 ### 2026-10-16: measured irradiated d-butanol lineshape (2024-09 slow sweep)
 * The 2024-09-17 window was not a sweep; the real slow sweep is 2024-09-18
   10:16-11:56. Fitted (agent, Spin-1-Rates-Fit method, McClellan freq-hop P):

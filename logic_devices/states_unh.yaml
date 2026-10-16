@@ -35,9 +35,11 @@ options:
     - Anneal
     - Safe
 
-  material:
+  material:          # Ells 2026-10-16; d-butanol / d-propanediol copy ND3's entries
     - Empty
     - ND3
+    - d-butanol
+    - d-propanediol
     - NH3
 
   reports:          # production reading when that state's conditions are satisfied
@@ -76,6 +78,8 @@ options:
         F1_TI: [0.3, 350]
 
     ND3: *bare_conditions     # same conditions until the group's numbers differ
+    d-butanol: *bare_conditions
+    d-propanediol: *bare_conditions
     NH3: *bare_conditions
 
 # ---------------------------------------------------------------------------
@@ -87,89 +91,127 @@ Warm:
   F1_TI:
     Empty: [350, 320, 200, 150]
     ND3:   [350, 320, 200, 150]
+    d-butanol: [350, 320, 200, 150]
+    d-propanediol: [350, 320, 200, 150]
     NH3:   [350, 320, 200, 150]
   F7_TI:
     Empty: [350, 320, 200, 150]
     ND3:   [350, 320, 200, 150]
+    d-butanol: [350, 320, 200, 150]
+    d-propanediol: [350, 320, 200, 150]
     NH3:   [350, 320, 200, 150]
   OVC_PI:
     Empty: [1.0e+3, 1.0e+3, -1, -1]
     ND3:   [1.0e+3, 1.0e+3, -1, -1]
+    d-butanol: [1.0e+3, 1.0e+3, -1, -1]
+    d-propanediol: [1.0e+3, 1.0e+3, -1, -1]
     NH3:   [1.0e+3, 1.0e+3, -1, -1]
 
 Cooldown:
   F1_TI:
     Empty: [320, 310, 0.8, 0.5]
     ND3:   [320, 310, 0.8, 0.5]
+    d-butanol: [320, 310, 0.8, 0.5]
+    d-propanediol: [320, 310, 0.8, 0.5]
     NH3:   [320, 310, 0.8, 0.5]
   F7_TI:
     Empty: [320, 310, 0.8, 0.5]
     ND3:   [320, 310, 0.8, 0.5]
+    d-butanol: [320, 310, 0.8, 0.5]
+    d-propanediol: [320, 310, 0.8, 0.5]
     NH3:   [320, 310, 0.8, 0.5]
   OVC_PI:
     Empty: [1.0e-2, 1.0e-3, -1, -1]
     ND3:   [1.0e-2, 1.0e-3, -1, -1]
+    d-butanol: [1.0e-2, 1.0e-3, -1, -1]
+    d-propanediol: [1.0e-2, 1.0e-3, -1, -1]
     NH3:   [1.0e-2, 1.0e-3, -1, -1]
 
 Cold:
   F1_TI:
     Empty: [4.5, 4.2, 0.6, 0.5]
     ND3:   [4.5, 4.2, 0.6, 0.5]
+    d-butanol: [4.5, 4.2, 0.6, 0.5]
+    d-propanediol: [4.5, 4.2, 0.6, 0.5]
     NH3:   [4.5, 4.2, 0.6, 0.5]
   F7_TI:
     Empty: [6.0, 5.0, 0.6, 0.5]
     ND3:   [6.0, 5.0, 0.6, 0.5]
+    d-butanol: [6.0, 5.0, 0.6, 0.5]
+    d-propanediol: [6.0, 5.0, 0.6, 0.5]
     NH3:   [6.0, 5.0, 0.6, 0.5]
   M1_TI:
     Empty: [6.0, 5.0, 3.0, 2.0]
     ND3:   [6.0, 5.0, 3.0, 2.0]
+    d-butanol: [6.0, 5.0, 3.0, 2.0]
+    d-propanediol: [6.0, 5.0, 3.0, 2.0]
     NH3:   [6.0, 5.0, 3.0, 2.0]
   OVC_PI:
     Empty: [1.0e-4, 1.0e-5, -1, -1]
     ND3:   [1.0e-4, 1.0e-5, -1, -1]
+    d-butanol: [1.0e-4, 1.0e-5, -1, -1]
+    d-propanediol: [1.0e-4, 1.0e-5, -1, -1]
     NH3:   [1.0e-4, 1.0e-5, -1, -1]
 
 Polarizing:
   F1_TI:
     Empty: [2.0, 1.6, 0.8, 0.6]
     ND3:   [2.0, 1.6, 0.8, 0.6]
+    d-butanol: [2.0, 1.6, 0.8, 0.6]
+    d-propanediol: [2.0, 1.6, 0.8, 0.6]
     NH3:   [2.0, 1.6, 0.8, 0.6]
   M1_TI:
     Empty: [6.0, 5.0, 3.0, 2.0]
     ND3:   [6.0, 5.0, 3.0, 2.0]
+    d-butanol: [6.0, 5.0, 3.0, 2.0]
+    d-propanediol: [6.0, 5.0, 3.0, 2.0]
     NH3:   [6.0, 5.0, 3.0, 2.0]
   OVC_PI:
     Empty: [1.0e-4, 1.0e-5, -1, -1]
     ND3:   [1.0e-4, 1.0e-5, -1, -1]
+    d-butanol: [1.0e-4, 1.0e-5, -1, -1]
+    d-propanediol: [1.0e-4, 1.0e-5, -1, -1]
     NH3:   [1.0e-4, 1.0e-5, -1, -1]
   Fringe_FieldT:
     Empty: [6.0, 5.5, 0.01, 0.005]
     ND3:   [6.0, 5.5, 0.01, 0.005]
+    d-butanol: [6.0, 5.5, 0.01, 0.005]
+    d-propanediol: [6.0, 5.5, 0.01, 0.005]
     NH3:   [6.0, 5.5, 0.01, 0.005]
 
 TE:
   F1_TI:
     Empty: [1.6, 1.4, 0.9, 0.8]
     ND3:   [1.6, 1.4, 0.9, 0.8]
+    d-butanol: [1.6, 1.4, 0.9, 0.8]
+    d-propanediol: [1.6, 1.4, 0.9, 0.8]
     NH3:   [1.6, 1.4, 0.9, 0.8]
   Fringe_FieldT:
     Empty: [6.0, 5.5, 0.01, 0.005]
     ND3:   [6.0, 5.5, 0.01, 0.005]
+    d-butanol: [6.0, 5.5, 0.01, 0.005]
+    d-propanediol: [6.0, 5.5, 0.01, 0.005]
     NH3:   [6.0, 5.5, 0.01, 0.005]
   # a TE measurement is taken with no RF on the coil
   Gen_RF:
     Empty: 0
     ND3:   0
+    d-butanol: 0
+    d-propanediol: 0
     NH3:   0
 
 Anneal:
   F1_TI:
     Empty: [130, 120, 70, 60]
     ND3:   [130, 120, 70, 60]
+    d-butanol: [130, 120, 70, 60]
+    d-propanediol: [130, 120, 70, 60]
     NH3:   [130, 120, 70, 60]
   Gen_RF:
     Empty: 0
     ND3:   0
+    d-butanol: 0
+    d-propanediol: 0
     NH3:   0
 
 # Safe is the one page that drives outputs, and every write on it turns
@@ -192,12 +234,18 @@ Safe:
   Gen_RF:
     Empty: 0
     ND3:   0
+    d-butanol: 0
+    d-propanediol: 0
     NH3:   0
   Trig_Output:
     Empty: 0
     ND3:   0
+    d-butanol: 0
+    d-propanediol: 0
     NH3:   0
   SSRF_Connected:
     Empty: 0
     ND3:   0
+    d-butanol: 0
+    d-propanediol: 0
     NH3:   0

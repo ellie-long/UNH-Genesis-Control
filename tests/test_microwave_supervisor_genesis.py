@@ -95,10 +95,12 @@ class GenesisSupervisorConfig(unittest.TestCase):
         self.assertEqual(freq["output_max_ghz"], 142.0)
 
     def test_magic_constants_are_not_invented(self):
-        self.assertEqual(
-            self.dev["dopants"],
-            [],
-        )
+        # the dopant menu is configured, but no Magic constant may be invented
+        self.assertEqual([d["name"] for d in self.dev["dopants"]],
+                         ["None", "Irradiated", "TEMPO", "Trityl"])
+        for dopant in self.dev["dopants"]:
+            self.assertNotIn("magic_plus_factor", dopant)
+            self.assertNotIn("magic_minus_factor", dopant)
 
     def test_supervisor_device_initializes_frequency_command(self):
         source = (

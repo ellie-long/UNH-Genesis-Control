@@ -26,7 +26,7 @@ Three things differ from his, for reasons written at each one:
 PVs (prefix from settings.yaml general:prefix, e.g. UNH:)
 
     status        mbbOut   intended state; writing applies the whole table
-    material      mbbOut   ND3 / NH3 / Empty
+    material      mbbOut   Empty / ND3 / d-butanol / d-propanediol / NH3
     auto          boolOut  allow automatic state advances
     production    mbbIn    the state actually satisfied right now
     conditions    boolIn   1 = every condition of `status` is met
@@ -204,7 +204,11 @@ class Device:
         log.info("state %s / %s applied", status, material)
 
     def _remember(self):
-        last = {"status": self.pvs["status"].get(), "material": self.pvs["material"].get()}
+        # indices plus names: restore by name, so reordering a menu never
+        # restores a different state or material
+        si, mi = int(self.pvs["status"].get()), int(self.pvs["material"].get())
+        last = {"status": si, "material": mi,
+                "status_name": self.status_names[si], "material_name": self.material_names[mi]}
         try:
             os.makedirs(os.path.dirname(self.last_file) or ".", exist_ok=True)
             with open(self.last_file, "w") as f:
@@ -223,7 +227,11 @@ class Device:
                 last = yaml.safe_load(f) or {}
         except (OSError, yaml.YAMLError):
             last = {}
+        names = {"status": self.status_names, "material": self.material_names}
         for key in ("status", "material"):
+            name = last.get(f"{key}_name")
+            if name in names[key]:
+                last[key] = names[key].index(name)
             if key in last:
                 try:
                     self.pvs[key].set(int(last[key]))

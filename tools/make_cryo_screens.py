@@ -1564,12 +1564,10 @@ w += [
         12,
         True,
     ),
-    textupdate(
+    combo(
         "Material",
-        525, 596, 220, 30,
+        525, 596, 220,
         "UNH:GEN:CRYO:STATE:material",
-        12,
-        True,
     ),
 
     label(

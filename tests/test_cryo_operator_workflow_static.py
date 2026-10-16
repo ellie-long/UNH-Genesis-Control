@@ -197,9 +197,14 @@ class CryoOperatorWorkflowStatic(unittest.TestCase):
             if pv in state_pvs:
                 seen.add(pv)
 
+                # the target material is an operator selection (Ells,
+                # 2026-10-16): a drop-down. While the state table is
+                # unvalidated / apply is disabled, target_status treats it as
+                # advisory only and pushes nothing. The requested state and
+                # auto-advance stay read-only.
                 self.assertEqual(
                     widget.get("type"),
-                    "textupdate",
+                    "combo" if pv.endswith(":material") else "textupdate",
                     pv,
                 )
 

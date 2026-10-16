@@ -7,6 +7,15 @@ findings are in `COOLDOWN_SIM_PROGRESS.md`; questions for the lab are in
 
 ## 2026-10-16
 
+* Genesis (Ells's request): Target material drop-down on the Cryo Safety
+  screen with Empty / ND3 / d-butanol / d-propanediol / NH3 (state table:
+  the two new materials copy ND3's entries; selection saved and restored by
+  NAME so the reordered menu restores correctly). Dopant drop-down on the
+  Microwave screen with None / Irradiated / TEMPO / Trityl (supervisor dopant
+  list; no Magic constants yet). The read-only guard test now allows the
+  material combo only; tests added.
+
+
 * Irradiated d-butanol now uses its own MEASURED microwave lineshape, from
   the 2024-09-18 slow sweep (beta peak 28.023 GHz/T, x_opt 28.021 -> 28.023;
   alpha on its plateau at the sweep end, extended to 28.060 as an assumption).

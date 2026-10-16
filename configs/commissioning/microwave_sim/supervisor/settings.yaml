@@ -25,7 +25,13 @@ microwave_supervisor:
   interlock:
     required_voltage: 5.0
     tolerance: 0.1
-  dopants: []
+  # Ells 2026-10-16. Magic +/- constants deliberately NOT set yet (open
+  # questions 34, 36): Magic refuses a dopant without them.
+  dopants:
+  - name: None
+  - name: Irradiated
+  - name: TEMPO
+  - name: Trityl
   archive_records:
   - SystemConnected
   - UCAConnected

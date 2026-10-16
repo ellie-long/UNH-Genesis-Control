@@ -906,22 +906,11 @@
       <color red="28" green="38" blue="48" alpha="255" />
     </foreground_color>
   </widget>
-  <widget type="textupdate" version="2.0.0">
+  <widget type="combo" version="2.0.0">
     <name>Material</name>
-    <x>525</x>
-    <y>596</y>
-    <width>220</width>
-    <height>30</height>
+    <x>525</x><y>596</y>
+    <width>220</width><height>30</height>
     <pv_name>ca://UNH:GEN:CRYO:STATE:material</pv_name>
-    <font>
-      <font family="Liberation Sans" style="BOLD" size="12.0" />
-    </font>
-    <background_color>
-      <color red="255" green="255" blue="255" alpha="255" />
-    </background_color>
-    <foreground_color>
-      <color red="28" green="38" blue="48" alpha="255" />
-    </foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>AutoL</name>
