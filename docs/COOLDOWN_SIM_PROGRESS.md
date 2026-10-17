@@ -56,6 +56,10 @@ lab answers are in `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`.
   two cool-downs its rates came from, and to ~12 pp unfitted on 2024-09. The
   2024-11 / 2025-02 / 2025-11 gaps (rate model high by 5-18 pp) look like
   run conditions (2024-11: microwaves maxed out, off-tune), not the material.
+* Full scenario library in WSL (dev-visualizer, 2026-10-17): 11/11 PASS, incl.
+  quench (its earlier failure was Windows-only fitter timing) and the new
+  vacuum-trip (shells-vacuum alarm KNOWN). Also KNOWN: ssRF burns stop at the
+  connect permit the interlock never grants (question 59).
 * A few McClellan lines are outliers (2024-09 shows |P| up to 79 %); the
   hindcast's despike leaves some; worth a cut at the source.
 
