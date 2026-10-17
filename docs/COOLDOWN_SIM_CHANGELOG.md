@@ -5,6 +5,15 @@ Each entry gives the commit, what changed, and why. The narrative and the
 findings are in `COOLDOWN_SIM_PROGRESS.md`; questions for the lab are in
 `COOLDOWN_SIM_OPEN_QUESTIONS.md`.
 
+## 2026-10-17
+
+* Hindcast `--truth mcclellan`: scores the model against the McClellan
+  equilibrium line fits (`cooldown_sim/data/mcclellan.py`) instead of the
+  record's online P (miscalibrated in 2024-09/2024-11). Irradiated d-butanol
+  rate model, free-run MAE: 2025-12 3.3, 2026-06 3.1 pp (online-P scoring said
+  6.9 / 4.8). 2024-09 switched to the rate model (25.6 -> 11.8 pp, bias -23 ->
+  -0.4); 2024-11, 2025-02, 2025-11 keep their fitted DNP (better there).
+
 ## 2026-10-16
 
 * NMR / ssRF switch meanings and Ells's sequencing rule recorded (NMR off before

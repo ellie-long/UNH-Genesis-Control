@@ -76,6 +76,9 @@ def add_model_parsers(sub) -> None:
     p = sub.add_parser("hindcast", help="score the target model against past cool-downs' recorded P")
     p.add_argument("--data", default=os.environ.get(DATA_ENV))
     p.add_argument("--cooldowns", help="comma list (default: every cool-down)")
+    p.add_argument("--truth", choices=["online", "mcclellan"], default="online",
+                   help="score against the record's online P, or the McClellan equilibrium line fits "
+                        "($MCCLELLAN_RESULTS, default ../results beside the records)")
     p.add_argument("--defaults", action="store_true",
                    help="ignore the per-cool-down fitted DNP values (cooldown_dnp.yaml)")
     p.add_argument("--html", help="also write an HTML report with plots to this file")
@@ -139,12 +142,12 @@ def _hindcast(args) -> int:
     for cd in _hindcast_dirs(args):
         params = load_params() if args.defaults else None
         tl = hindcast.load(cd)
-        scores, series = hindcast.evaluate(cd, params, tl=tl)
+        scores, series = hindcast.evaluate(cd, params, tl=tl, truth=args.truth)
         for s in scores:
             print(s.line(), flush=True)
         default = None
         if args.html and not args.defaults:
-            default = hindcast.evaluate(cd, load_params(), tl=tl)[0]
+            default = hindcast.evaluate(cd, load_params(), tl=tl, truth=args.truth)[0]
         results.append((cd.name, scores, series, default))
     if args.html:
         print(f"wrote {hindcast.write_html(Path(args.html), results)}")
