@@ -643,7 +643,7 @@
     <y>573</y>
     <width>140</width>
     <height>21</height>
-    <text>T1 C2 / CCX</text>
+    <text>T1 C4 / 2-T1</text>
   </widget>
 
 <widget type="textupdate" version="2.0.0">
@@ -702,7 +702,7 @@
     <y>600</y>
     <width>140</width>
     <height>21</height>
-    <text>T3 C4 / offline</text>
+    <text>T3 C2 / 2-T3</text>
   </widget>
 
 <widget type="textupdate" version="2.0.0">

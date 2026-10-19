@@ -2415,7 +2415,7 @@
     <y>549</y>
     <width>84</width>
     <height>24</height>
-    <text>T1 C2 (K)</text>
+    <text>T1 C4 (K)</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
     <font>
@@ -2469,7 +2469,7 @@
     <y>606</y>
     <width>84</width>
     <height>24</height>
-    <text>T3 C4 (K)</text>
+    <text>T3 C2 (K)</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
     <font>
@@ -2523,7 +2523,7 @@
     <y>665</y>
     <width>214</width>
     <height>20</height>
-    <text>T1 provisional / T3 N/A</text>
+    <text>T1/T3: 2-T1 / 2-T3</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
     <font>

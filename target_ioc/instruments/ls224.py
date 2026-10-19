@@ -67,6 +67,7 @@ from softioc import builder
 
 from genesis_common.serial_tcp_base import SerialTcpConnection, SerialTcpDevice
 from genesis_common.cernox_ccx import load_ccx_bands, ccx_kelvin
+from genesis_common.thermometry_ods import load_classic_ods
 
 log = logging.getLogger(__name__)
 
@@ -193,14 +194,23 @@ class Device(SerialTcpDevice):
         if cal_path:
             path = cal_path if os.path.isabs(cal_path) else os.path.join(os.getcwd(), cal_path)
             try:
-                self._cal = load_calibration(path)
+                if str(path).lower().endswith('.ods'):
+                    ccx_channels = set(self.settings.get('ccx_sensors', {}))
+                    expected = {
+                        name: self._slot_of(name, i)
+                        for i, name in enumerate(self._skip_none_channels(), start=1)
+                        if name not in ccx_channels
+                    }
+                    self._cal = load_classic_ods(path, expected)
+                else:
+                    self._cal = load_calibration(path)  # legacy file support
                 log.info("%s: calibration for %d slots from %s",
                          self.device_name, len(self._cal), path)
-            except OSError as e:
-                log.error("calibration file %s could not be read (%s); falling back to "
-                          "the instrument's own KRDG?", path, e)
+            except (OSError, ValueError) as e:
+                log.error("calibration file %s invalid (%s); configured channels "
+                          "will remain invalid (no KRDG fallback)", path, e)
         # Explicit CCX source row selection. A missing/bad calibration must never
-        # silently fall back to the 224's unknown KRDG curve for T1/C2 or T3/C4.
+        # silently fall back to the 224's unknown KRDG curve for T1/C4 or T3/C2.
         self._ccx = {}
         ccx_file = self.settings.get("ccx_calibration")
         if ccx_file:
@@ -229,28 +239,60 @@ class Device(SerialTcpDevice):
     def read_all(self, channel, index):
         slot = self._slot_of(channel, index)
         ohms = self.t.sensor_reading(slot)
-        status = decode_status(self.t.reading_status(slot))
+        raw_status = self.t.reading_status(slot)
+        status = decode_status(raw_status)
         cal = getattr(self, "_cal", {}).get(slot)
         ccx_map = self.settings.get("ccx_sensors", {})
         required_ccx = set(self.settings.get("ccx_required", []))
         if channel in required_ccx or channel in ccx_map:
             source = ccx_map.get(channel)
             bands = getattr(self, "_ccx", {}).get(source)
-            limits = self.settings.get("ccx_kelvin_bounds", {}).get(channel)
-            kelvin = ccx_kelvin(bands, ohms, kelvin_bounds=limits)
-            if not status:
-                if not source:
-                    status = "CCX UNASSIGNED (NO TEMP)"
-                elif not bands:
-                    status = "CCX CALIBRATION MISSING"
-                elif not math.isfinite(kelvin):
-                    status = "CCX OUT OF CALIBRATION RANGE"
-                else:
-                    label = self.settings.get("ccx_provisional", {}).get(channel)
-                    status = "OK PROVISIONAL " + str(label) if label else "OK"
+            kelvin = ccx_kelvin(bands, ohms)
+            # RDGST? bits 16/32 refer to the instrument's KRDG curve; the
+            # spreadsheet conversion uses SRDG resistance, not KRDG Kelvin.
+            # Reject invalid-reading, sensor-units, and unknown bits instead.
+            try:
+                raw_number = float(str(raw_status).strip())
+                bits = (int(raw_number) if math.isfinite(raw_number) and
+                        raw_number >= 0 and raw_number.is_integer() else -1)
+            except (TypeError, ValueError, OverflowError):
+                bits = -1
+            if bits < 0 or (bits & ~(16 | 32)):
+                status = status or "INVALID RDGST SENSOR STATUS"
+            elif not source:
+                status = "CCX UNASSIGNED (NO TEMP)"
+            elif not bands:
+                status = "CCX CALIBRATION MISSING"
+            elif not math.isfinite(kelvin):
+                status = "CCX OUT OF CALIBRATION RANGE"
+            else:
+                status = "OK; 224 TEMP RANGE" if bits & (16 | 32) else "OK"
         else:
-            kelvin = resistance_to_kelvin(cal, ohms) if cal else self.t.kelvin(slot)
-        if status and status != "OK" and not status.startswith("OK PROVISIONAL"):
+            if self.settings.get("calibration"):
+                # A configured external curve is mandatory. Never substitute
+                # the Lake Shore's unknown internal KRDG curve on a bad file.
+                if cal is None or cal[2] != channel:
+                    kelvin = float("nan")
+                    status = "CALIBRATION MISSING/MISMATCH"
+                else:
+                    kelvin = resistance_to_kelvin(cal, ohms)
+                    # Temperature range bits refer to the Lake Shore's own
+                    # KRDG curve, not the independently calculated ODS Kelvin.
+                    try:
+                        raw_number = float(str(raw_status).strip())
+                        bits = (int(raw_number) if math.isfinite(raw_number) and
+                                raw_number >= 0 and raw_number.is_integer() else -1)
+                    except (TypeError, ValueError, OverflowError):
+                        bits = -1
+                    if bits < 0 or (bits & ~(16 | 32)):
+                        status = status or "INVALID RDGST SENSOR STATUS"
+                    elif not math.isfinite(kelvin):
+                        status = "CALIBRATION INVALID"
+                    else:
+                        status = "OK; 224 TEMP RANGE" if bits & (16 | 32) else "OK"
+            else:
+                kelvin = self.t.kelvin(slot)
+        if status and status not in ("OK", "OK; 224 TEMP RANGE"):
             kelvin = float("nan")
         if not math.isfinite(kelvin) and (not status or status == "OK"):
             status = "INVALID TEMPERATURE"
