@@ -49,7 +49,10 @@ def _settings(spec) -> dict:
         return yaml.safe_load(fh)[spec.ioc]
 
 
-def device_channels(stack: GeneratedStack, run: Path, known_clamps: dict | None = None) -> list[Check]:
+def device_channels(stack: GeneratedStack, run: Path, known_clamps: dict | None = None,
+                    absent: dict | None = None) -> list[Check]:
+    """``absent``: instruments not present in this era's record; their reading
+    PVs must stay invalid (NaN), since nothing was ever served."""
     served = loaders.served(run)
     probe = loaders.probe(run)
     probe = probe[probe["connected"] == 1]
@@ -59,6 +62,14 @@ def device_channels(stack: GeneratedStack, run: Path, known_clamps: dict | None 
         if kind not in TOLERANCE:
             continue
         rel, factor, *rest = TOLERANCE[kind]
+        if spec.name in (absent or {}):
+            for pv in device_channel_pvs(spec, _settings(spec)):
+                nums = probe[probe["pv"] == pv]["num"].to_numpy()
+                ok = bool(np.isnan(nums).all())
+                checks.append(Check(f"roundtrip {pv}", "PASS" if ok else "FAIL",
+                                    "instrument absent in this era's record: PV stays invalid (NaN)"
+                                    if ok else "instrument absent, yet the PV took a number"))
+            continue
         for pv, (inst, ch) in device_channel_pvs(spec, _settings(spec)).items():
             s = served[(served["instrument"] == inst) & (served["channel"] == ch)]
             p = probe[probe["pv"] == pv]

@@ -89,6 +89,25 @@ def build(spec: LaunchSpec, settings: dict, source, initial: dict | None = None)
     raise ValueError(f"no emulator for kind {kind!r}")
 
 
+ABSENT_NOTE = "absent in this era's record: connection refused"
+
+
+def absent_instruments(stack: GeneratedStack, cmap: ChannelMap, timeline) -> dict[str, str]:
+    """Emulated instruments the replayed record has no value for at all, whose
+    channel map says ``absent: refuse``: they are simply not there (the IOC
+    sees a refused connection).  Shared by the host and the validators."""
+    out: dict[str, str] = {}
+    if timeline is None:
+        return out
+    for spec in stack.iocs:
+        if not spec.emulator:
+            continue
+        chans = cmap.instruments.get(spec.name, {})
+        if chans and all(c.absent == "refuse" and not c.available(timeline) for c in chans.values()):
+            out[spec.name] = ABSENT_NOTE
+    return out
+
+
 class EmulatorHost:
     def __init__(self, stack: GeneratedStack, provider, cmap: ChannelMap, timeline=None,
                  supply_initial: dict | None = None):
@@ -100,6 +119,7 @@ class EmulatorHost:
         self.hosted: dict[str, HostedEmulator] = {}
 
     def start(self) -> None:
+        absent = absent_instruments(self.stack, self.cmap, self.timeline)
         for spec in self.stack.iocs:
             if not spec.emulator:
                 continue
@@ -112,15 +132,17 @@ class EmulatorHost:
             hosted = HostedEmulator(spec, emu, server, bool(settings.get("write_enabled", False)))
             # an instrument absent from this era's record and marked 'refuse'
             # in the channel map is simply not there
-            chans = self.cmap.instruments.get(spec.name, {})
-            if self.timeline is not None and chans and all(
-                    c.absent == "refuse" and not c.available(self.timeline) for c in chans.values()):
+            if spec.name in absent:
                 emu.fault.set("absent")
-                hosted.notes.append("absent in this era's record: connection refused")
+                hosted.notes.append(absent[spec.name])
             server.start()
             self.hosted[spec.name] = hosted
             log.info("emulator %s on 127.0.0.1:%s%s", spec.name, server.port,
                      " (absent)" if emu.fault.get() == "absent" else "")
+
+    def absent(self) -> dict[str, str]:
+        """Instruments started absent (for the run's runtime facts)."""
+        return {n: ABSENT_NOTE for n, h in self.hosted.items() if ABSENT_NOTE in h.notes}
 
     def stop(self) -> None:
         for h in self.hosted.values():

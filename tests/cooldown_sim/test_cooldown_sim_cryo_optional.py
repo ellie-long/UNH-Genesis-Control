@@ -248,3 +248,32 @@ def test_model_provider_routes_the_new_instruments():
     t = 600.0 + 20 * prov.model.heat["flow_tau_s"]
     assert prov.recorded("flowmeter_left", "LPump", t) > 6.0
     assert prov.recorded("flowmeter_pi", "RPump", t) > 2.0
+
+
+# ------------------------------------------- instruments absent in an era
+def test_absent_instrument_is_refused_and_validated_as_absent(tmp_path):
+    """2026-06 has no Roots Flow L at all: flowmeter_left is 'not there'
+    (connection refused), and the validators expect COMM 0 and a NaN reading
+    instead of failing it as a dead device loop."""
+    from cooldown_sim.validate import logic, roundtrip
+    stack = profile.generate(tmp_path, legs=("cryo",))
+    cmap = channel_map.load()
+    tl = flows_record()
+    no_left = Timeline(SlowTable(t=tl.table.t, numeric={
+        k: (np.full(len(tl.table.t), np.nan) if k == "roots_flow_l" else v)
+        for k, v in tl.table.numeric.items()}), max_hold_s=60)
+    absent = host.absent_instruments(stack, cmap, no_left)
+    assert set(absent) >= {"flowmeter_left"} and "flowmeter_pi" not in absent
+    spec = stack.by_name("flowmeter_left")
+    pfx = spec.prefix
+    rows = ["wall,pv,value,severity,connected",
+            f"1.0,{pfx}:COMM,0,2,1", f"1.0,{pfx}:LPump_SLM,nan,3,1",
+            f"1.0,{pfx}:MAN:flowmeter_left_time,1.0,0,1"]
+    (tmp_path / "probe.csv").write_text("\n".join(rows) + "\n", encoding="utf-8")
+    (tmp_path / "served.csv").write_text("wall,sim,instrument,channel,value\n", encoding="utf-8")
+    only = profile.GeneratedStack(stack.run_dir, iocs=[spec])
+    hb = logic.heartbeats(only, tmp_path, {}, absent)
+    assert [c.verdict for c in hb] == ["PASS"] and "COMM 0" in hb[0].summary
+    assert logic.heartbeats(only, tmp_path, {}, {})[0].verdict == "FAIL"     # if it were expected
+    rt = roundtrip.device_channels(only, tmp_path, absent=absent)
+    assert [c.verdict for c in rt] == ["PASS"]

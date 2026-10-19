@@ -40,13 +40,19 @@ def run_all(run: Path, stack: GeneratedStack, *, runtime: dict, timeline=None,
     legs = {s.leg for s in stack.iocs}
     checks: list[Check] = []
     checks.append(logic.processes(runtime.get("deaths", [])))
-    checks += logic.heartbeats(stack, run, runtime.get("skipped", {}))
+    # instruments absent from this era's record (connection refused by design);
+    # older runtime.json files lack the key, so recompute from the record
+    absent = runtime.get("absent")
+    if absent is None:
+        from .emulators.host import absent_instruments
+        absent = absent_instruments(stack, cmap, timeline)
+    checks += logic.heartbeats(stack, run, runtime.get("skipped", {}), absent)
     checks.append(logic.read_only(runtime.get("read_only_violations", {})))
     checks += logic.never_connected(runtime.get("never_connected", []))
     checks.append(logic.clamps(runtime.get("clamps", {})))
     for name, reason in runtime.get("skipped_legs", {}).items():
         checks.append(Check(f"leg {name}", "SKIPPED", reason))
-    checks += roundtrip.device_channels(stack, run)
+    checks += roundtrip.device_channels(stack, run, absent=absent)
     synthetic = (str((meta or {}).get("source", "")).startswith("synthetic")
                  and not runtime.get("model_deviates"))
     checks += nmr.checks(run, runtime, timeline=timeline, synthetic=synthetic)
