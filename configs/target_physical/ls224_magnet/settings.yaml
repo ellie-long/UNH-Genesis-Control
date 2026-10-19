@@ -17,6 +17,19 @@ ls224_magnet:
   timeout: 3
   delay: 2
   calibration: calibration/magnet_thermometry.csv
+  # Operator-authorized provisional assignment; no curve uploaded to LS224.
+  # X141509 certificate 1078107 -> sheet row 1-T1 -> T1/C2.
+  # T3/C4 deliberately has no trusted sensor curve and must publish NaN.
+  ccx_calibration: calibration/ccx_cernox_multiband.csv
+  ccx_sensors:
+    T1: 1-T1
+  ccx_required:
+  - T1
+  - T3
+  ccx_provisional:
+    T1: X141509
+  ccx_kelvin_bounds:
+    T1: [0.30, 325.0]
   channels:
   - M1
   - M2

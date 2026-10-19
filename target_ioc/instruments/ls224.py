@@ -66,6 +66,7 @@ import os
 from softioc import builder
 
 from genesis_common.serial_tcp_base import SerialTcpConnection, SerialTcpDevice
+from genesis_common.cernox_ccx import load_ccx_bands, ccx_kelvin
 
 log = logging.getLogger(__name__)
 
@@ -198,6 +199,22 @@ class Device(SerialTcpDevice):
             except OSError as e:
                 log.error("calibration file %s could not be read (%s); falling back to "
                           "the instrument's own KRDG?", path, e)
+        # Explicit CCX source row selection. A missing/bad calibration must never
+        # silently fall back to the 224's unknown KRDG curve for T1/C2 or T3/C4.
+        self._ccx = {}
+        ccx_file = self.settings.get("ccx_calibration")
+        if ccx_file:
+            path = ccx_file if os.path.isabs(ccx_file) else os.path.join(os.getcwd(), ccx_file)
+            try:
+                self._ccx = load_ccx_bands(path)
+                log.info("%s: %d CCX source curves loaded", self.device_name, len(self._ccx))
+            except (OSError, ValueError) as error:
+                log.error("%s: CCX calibration unavailable; required channels invalid: %s",
+                          self.device_name, error)
+        for name, curve in self.settings.get("ccx_sensors", {}).items():
+            if curve not in self._ccx:
+                log.error("%s: %s requested missing CCX source %s", self.device_name, name, curve)
+
         try:
             self.pvs[self._info_channel + "_IDN"].set(self.t.idn()[:39])
             log.info("%s", self.pvs[self._info_channel + "_IDN"].get())
@@ -214,9 +231,29 @@ class Device(SerialTcpDevice):
         ohms = self.t.sensor_reading(slot)
         status = decode_status(self.t.reading_status(slot))
         cal = getattr(self, "_cal", {}).get(slot)
-        kelvin = resistance_to_kelvin(cal, ohms) if cal else self.t.kelvin(slot)
-        if status:                                        # flagged = not a measurement
+        ccx_map = self.settings.get("ccx_sensors", {})
+        required_ccx = set(self.settings.get("ccx_required", []))
+        if channel in required_ccx or channel in ccx_map:
+            source = ccx_map.get(channel)
+            bands = getattr(self, "_ccx", {}).get(source)
+            limits = self.settings.get("ccx_kelvin_bounds", {}).get(channel)
+            kelvin = ccx_kelvin(bands, ohms, kelvin_bounds=limits)
+            if not status:
+                if not source:
+                    status = "CCX UNASSIGNED (NO TEMP)"
+                elif not bands:
+                    status = "CCX CALIBRATION MISSING"
+                elif not math.isfinite(kelvin):
+                    status = "CCX OUT OF CALIBRATION RANGE"
+                else:
+                    label = self.settings.get("ccx_provisional", {}).get(channel)
+                    status = "OK PROVISIONAL " + str(label) if label else "OK"
+        else:
+            kelvin = resistance_to_kelvin(cal, ohms) if cal else self.t.kelvin(slot)
+        if status and status != "OK" and not status.startswith("OK PROVISIONAL"):
             kelvin = float("nan")
+        if not math.isfinite(kelvin) and (not status or status == "OK"):
+            status = "INVALID TEMPERATURE"
         return {channel + "_TI": kelvin,
                 channel + "_RI": ohms,
                 channel + "_Status": (status or "OK")[:39]}
