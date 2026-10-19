@@ -25,6 +25,7 @@ MICROWAVE_GROUP_OPTIONS = (
 
 CRYO_GROUP_OPTIONS = (
     "All Cryo",
+    "Flow",
     "Fridge",
     "Magnet",
     "Vacuum",
@@ -115,6 +116,26 @@ SSRF_PRESETS = {
 
 CRYO_PRESETS = {
     "Manual selection": (),
+
+    "Cryo - Pump / separator flow": (
+        "UNH_GEN_CRYO_FLOW_RIGHT_RPump_SLM",
+        "UNH_GEN_CRYO_FLOW_LEFT_LPump_SLM",
+        "UNH_GEN_CRYO_FLOW_SEP_SepFlow_SLM",
+    ),
+
+    "Cryo - Liquid helium levels": (
+        "UNH_GEN_CRYO_FRIDGE_LHE_Fridge_LI",
+        "UNH_GEN_CRYO_MAG_LHE_Magnet_LI",
+    ),
+
+    "Cryo - Low manometer pressure": (
+        "UNH_GEN_CRYO_VAC_LOW_Mano_PI",
+    ),
+
+    "Cryo - Helium vapor-pressure temperature": (
+        "UNH_GEN_CRYO_VAC_LOW_Mano_VapT",
+    ),
+
 
     "Cryo - Fridge F1-F4": (
         "UNH_GEN_CRYO_FRIDGE_F1_TI",
@@ -250,6 +271,7 @@ def cryo_group_for_pv(pv_name):
     key = normalized_archive_key(pv_name)
 
     groups = (
+        ("UNH_GEN_CRYO_FLOW_", "Flow"),
         ("UNH_GEN_CRYO_FRIDGE_", "Fridge"),
         ("UNH_GEN_CRYO_MAG_", "Magnet"),
         ("UNH_GEN_CRYO_VAC_", "Vacuum"),

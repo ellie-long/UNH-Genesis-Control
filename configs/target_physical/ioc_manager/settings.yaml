@@ -3,7 +3,7 @@ general:
   log_dir: logs
   epics_addr_list: 127.0.0.1:5111 127.0.0.1:5112 127.0.0.1:5113 127.0.0.1:5114 127.0.0.1:5115
     127.0.0.1:5116 127.0.0.1:5117 127.0.0.1:5118 127.0.0.1:5119 127.0.0.1:5120 127.0.0.1:5121
-    127.0.0.1:5122
+    127.0.0.1:5122 127.0.0.1:5123 127.0.0.1:5124 127.0.0.1:5125 127.0.0.1:5126 127.0.0.1:5127 127.0.0.1:5128
   manager_ca_server_port: 5110
   manager_pva_server_port: 5210
   delay: 0.5
@@ -91,3 +91,51 @@ archiver:
   heartbeat_pv: UNH:GEN:CRYO:ARCH:MAN:archiver_time
   ca_server_port: 5122
   pva_server_port: 5222
+
+flowmeter_pi:
+  autostart: false
+  settings_folder: configs/target_physical/flowmeter_pi
+  ioc: flowmeter_pi
+  heartbeat_pv: UNH:GEN:CRYO:FLOW:RIGHT:MAN:flowmeter_pi_time
+  ca_server_port: 5123
+  pva_server_port: 5223
+
+flowmeter_left:
+  autostart: false
+  settings_folder: configs/target_physical/flowmeter_left
+  ioc: flowmeter_left
+  heartbeat_pv: UNH:GEN:CRYO:FLOW:LEFT:MAN:flowmeter_left_time
+  ca_server_port: 5124
+  pva_server_port: 5224
+
+flowmeter_sep:
+  autostart: false
+  settings_folder: configs/target_physical/flowmeter_sep
+  ioc: flowmeter_sep
+  heartbeat_pv: UNH:GEN:CRYO:FLOW:SEP:MAN:flowmeter_sep_time
+  ca_server_port: 5125
+  pva_server_port: 5225
+
+lhe_fridge:
+  autostart: false
+  settings_folder: configs/target_physical/lhe_fridge
+  ioc: lhe_fridge
+  heartbeat_pv: UNH:GEN:CRYO:FRIDGE:LHE:MAN:lhe_fridge_time
+  ca_server_port: 5126
+  pva_server_port: 5226
+
+lhe_magnet:
+  autostart: false
+  settings_folder: configs/target_physical/lhe_magnet
+  ioc: lhe_magnet
+  heartbeat_pv: UNH:GEN:CRYO:MAG:LHE:MAN:lhe_magnet_time
+  ca_server_port: 5127
+  pva_server_port: 5227
+
+manometer_low:
+  autostart: false
+  settings_folder: configs/target_physical/manometer_low
+  ioc: manometer_low
+  heartbeat_pv: UNH:GEN:CRYO:VAC:LOW:MAN:manometer_low_time
+  ca_server_port: 5128
+  pva_server_port: 5228

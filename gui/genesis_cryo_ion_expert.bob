@@ -65,7 +65,7 @@
     <height>20</height>
     <pv_name>ca://UNH:GEN:CRYO:ION:Ion_Raw</pv_name>
     <format>1</format>
-    <precision>4</precision>
+    <precision>2</precision>
   </widget>
   <widget type="label" version="2.0.0">
     <name>L_UNH:GEN:CRYO:ION:Ion_Conn</name>

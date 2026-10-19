@@ -2,13 +2,13 @@
 <display version="2.0.0">
   <name>Genesis Cryo Data</name>
   <width>1280</width>
-  <height>900</height>
+  <height>720</height>
   <widget type="rectangle" version="2.0.0">
     <name>Page</name>
     <x>0</x>
     <y>0</y>
     <width>1280</width>
-    <height>900</height>
+    <height>720</height>
     <line_width>0</line_width>
     <background_color>
       <color red="255" green="255" blue="255" alpha="255" />
@@ -44,9 +44,9 @@
   <widget type="rectangle" version="2.0.0">
     <name>Archive_Card</name>
     <x>20</x>
-    <y>95</y>
+    <y>86</y>
     <width>1240</width>
-    <height>180</height>
+    <height>140</height>
     <line_width>0</line_width>
     <corner_width>8</corner_width>
     <corner_height>8</corner_height>
@@ -57,7 +57,7 @@
   <widget type="rectangle" version="2.0.0">
     <name>Archive_Header</name>
     <x>20</x>
-    <y>95</y>
+    <y>86</y>
     <width>1240</width>
     <height>38</height>
     <line_width>0</line_width>
@@ -70,7 +70,7 @@
   <widget type="label" version="2.0.0">
     <name>Archive_Title</name>
     <x>34</x>
-    <y>102</y>
+    <y>93</y>
     <width>1212</width>
     <height>24</height>
     <text>ARCHIVER / LOGGER</text>
@@ -86,7 +86,7 @@
   <widget type="label" version="2.0.0">
     <name>Arch0L</name>
     <x>45</x>
-    <y>150</y>
+    <y>140</y>
     <width>100</width>
     <height>22</height>
     <text>Status:</text>
@@ -102,7 +102,7 @@
   <widget type="textupdate" version="2.0.0">
     <name>Arch0V</name>
     <x>145</x>
-    <y>148</y>
+    <y>138</y>
     <width>145</width>
     <height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:ARCH:Archive_Status</pv_name>
@@ -119,7 +119,7 @@
   <widget type="label" version="2.0.0">
     <name>Arch1L</name>
     <x>330</x>
-    <y>150</y>
+    <y>140</y>
     <width>100</width>
     <height>22</height>
     <text>PV count:</text>
@@ -135,7 +135,7 @@
   <widget type="textupdate" version="2.0.0">
     <name>Arch1V</name>
     <x>430</x>
-    <y>148</y>
+    <y>138</y>
     <width>145</width>
     <height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:ARCH:Archive_PV_Count</pv_name>
@@ -152,7 +152,7 @@
   <widget type="label" version="2.0.0">
     <name>Arch2L</name>
     <x>615</x>
-    <y>150</y>
+    <y>140</y>
     <width>100</width>
     <height>22</height>
     <text>Rows written:</text>
@@ -168,7 +168,7 @@
   <widget type="textupdate" version="2.0.0">
     <name>Arch2V</name>
     <x>715</x>
-    <y>148</y>
+    <y>138</y>
     <width>145</width>
     <height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:ARCH:Archive_Writes</pv_name>
@@ -185,7 +185,7 @@
   <widget type="label" version="2.0.0">
     <name>Arch3L</name>
     <x>900</x>
-    <y>150</y>
+    <y>140</y>
     <width>100</width>
     <height>22</height>
     <text>Enabled:</text>
@@ -201,7 +201,7 @@
   <widget type="textupdate" version="2.0.0">
     <name>Arch3V</name>
     <x>1000</x>
-    <y>148</y>
+    <y>138</y>
     <width>145</width>
     <height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:ARCH:Archive_Enable</pv_name>
@@ -219,7 +219,7 @@
   <widget type="bool_button" version="2.0.0">
     <name>ArchiveEnable</name>
     <x>45</x>
-    <y>205</y>
+    <y>181</y>
     <width>170</width>
     <height>32</height>
     <pv_name>ca://UNH:GEN:CRYO:ARCH:Archive_Enable</pv_name>
@@ -228,7 +228,7 @@
   <widget type="label" version="2.0.0">
     <name>ViewerInfo</name>
     <x>250</x>
-    <y>208</y>
+    <y>184</y>
     <width>950</width>
     <height>24</height>
     <text>Combined historical viewer: archive/start_archive_viewer.sh (Genesis Streamlit viewer, default port 8501)</text>
@@ -244,9 +244,9 @@
   <widget type="rectangle" version="2.0.0">
     <name>Trend_Card</name>
     <x>20</x>
-    <y>300</y>
+    <y>242</y>
     <width>1240</width>
-    <height>490</height>
+    <height>393</height>
     <line_width>0</line_width>
     <corner_width>8</corner_width>
     <corner_height>8</corner_height>
@@ -257,7 +257,7 @@
   <widget type="rectangle" version="2.0.0">
     <name>Trend_Header</name>
     <x>20</x>
-    <y>300</y>
+    <y>242</y>
     <width>1240</width>
     <height>38</height>
     <line_width>0</line_width>
@@ -270,7 +270,7 @@
   <widget type="label" version="2.0.0">
     <name>Trend_Title</name>
     <x>34</x>
-    <y>307</y>
+    <y>249</y>
     <width>1212</width>
     <height>24</height>
     <text>QUICK TRENDS</text>
@@ -286,25 +286,25 @@
   <widget type="databrowser" version="2.0.0">
     <name>FridgeTrend</name>
     <x>40</x>
-    <y>350</y>
+    <y>292</y>
     <width>585</width>
-    <height>390</height>
+    <height>318</height>
     <file>genesis_cryo_fridge.plt</file>
     <show_toolbar>true</show_toolbar>
   </widget>
   <widget type="databrowser" version="2.0.0">
     <name>VacuumTrend</name>
     <x>650</x>
-    <y>350</y>
+    <y>292</y>
     <width>585</width>
-    <height>390</height>
+    <height>318</height>
     <file>genesis_cryo_vacuum.plt</file>
     <show_toolbar>true</show_toolbar>
   </widget>
   <widget type="action_button" version="3.0.0">
     <name>MagTrend</name>
     <x>40</x>
-    <y>810</y>
+    <y>655</y>
     <width>190</width>
     <height>34</height>
     <actions>
@@ -319,7 +319,7 @@
   <widget type="action_button" version="3.0.0">
     <name>FieldTrend</name>
     <x>245</x>
-    <y>810</y>
+    <y>655</y>
     <width>190</width>
     <height>34</height>
     <actions>
@@ -334,7 +334,7 @@
   <widget type="action_button" version="3.0.0">
     <name>Back</name>
     <x>1040</x>
-    <y>810</y>
+    <y>655</y>
     <width>195</width>
     <height>34</height>
     <actions>
@@ -346,4 +346,21 @@
     </actions>
     <text>&lt; Cryo Overview</text>
   </widget>
+
+<widget type="action_button" version="3.0.0">
+    <name>FlowTrendLink</name>
+    <x>450</x>
+    <y>655</y>
+    <width>190</width>
+    <height>34</height>
+    <actions>
+      <action type="open_display">
+        <file>genesis_cryo_flow.bob</file>
+        <target>tab</target>
+        <description>Open Flow Monitoring</description>
+      </action>
+    </actions>
+    <text>Flow Monitoring</text>
+  </widget>
+
 </display>
