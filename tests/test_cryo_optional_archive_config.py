@@ -29,7 +29,7 @@ def test_optional_archive_inventory():
 
     pvs = archive["archiver"]["explicit_pvs"]
 
-    assert len(pvs) == len(set(pvs)) == 164
+    assert len(pvs) == len(set(pvs)) == 170   # 164 + target-cup T1/T3 (TI, RI, Status), dev-sim
     assert archive["archiver"]["autostart"] is False
     assert archive["archiver"]["module"] == "logic_devices.archiver"
 
@@ -54,7 +54,7 @@ def test_optional_archive_inventory():
 
     assert len(new_pvs) == 28
     assert pvs[-28:] == new_pvs
-    assert len(pvs[:-28]) == 136
+    assert len(pvs[:-28]) == 142   # the original 136 + target-cup T1/T3 (dev-sim)
 
     assert not any(
         pv.startswith("UNH:GEN:CRYO:ARCH:")
