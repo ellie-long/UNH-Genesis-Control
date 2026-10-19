@@ -11,14 +11,14 @@ archiver:
   module: logic_devices.archiver
   autostart: false
 
-  archive_path: archive/data
+  archive_path: archive/subsystems/pv_csv
 
   # Discover only the Microwave simulation manager entries.
   settings_file: configs/commissioning/microwave_sim/ioc_manager/settings.yaml
 
   # Same Genesis PV-archive policy as normal operation.
   deadband: 0.01
-  time_increment: 300
+  time_increment: 1
 
   delay: 5
 

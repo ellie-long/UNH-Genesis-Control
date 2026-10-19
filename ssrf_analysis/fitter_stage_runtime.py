@@ -36,6 +36,7 @@ from typing import Any, Mapping
 
 import aioca
 
+from archive.data_paths import ssrf_session_dir
 from ssrf_analysis.event_logger import (
     DEFAULT_EVENT_DIR,
     JsonlEventLogger,
@@ -397,7 +398,7 @@ def build_parser():
 
     parser.add_argument(
         "--session-data-root",
-        default=str(DEFAULT_SESSION_DATA_ROOT),
+        default=str(ssrf_session_dir()),
         help=(
             "Root directory for numeric ssRF session "
             "data products."

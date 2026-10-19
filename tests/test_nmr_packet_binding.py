@@ -18,7 +18,7 @@ def setup(source="pynmr"):
 
     clock[0] = 101.0
     state.update_route(
-        1, 3 if source == "pynmr" else 0
+        1, 0
     )
 
     binding = PacketBoundAdmission(state)
@@ -119,10 +119,10 @@ def test_route_transition_revokes_packet():
     assert attest(clock, binding, "pynmr", message)
 
     clock[0] = 102.5
-    state.update_route(1, 0)
+    state.update_route(1, 3)
 
     clock[0] = 103.0
-    state.update_route(1, 3)
+    state.update_route(1, 0)
 
     assert not processor(
         None, message, "pynmr"

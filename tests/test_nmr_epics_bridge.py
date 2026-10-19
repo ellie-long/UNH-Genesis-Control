@@ -92,6 +92,7 @@ def make_interface(runtime=None):
     names = (
         "NMR_PROTECTED",
         "NMR_SOURCE_RBV",
+        "NMR_SOURCE_EPOCH_RBV",
         "NMR_PHYSICAL_RBV",
         "NMR_MASK_RBV",
         "NMR_ROUTE_OK",
@@ -137,7 +138,8 @@ def test_protected_source_status_is_observable():
     runtime = SimpleNamespace(
         snapshot=lambda: {
             "selected_source": "pynmr",
-            "nmr_mask": 3,
+            "route_epoch": 7,
+            "nmr_mask": 0,
             "nmr_comm": 1,
             "route_age_s": 0.2,
             "stream_connected": True,
@@ -150,7 +152,8 @@ def test_protected_source_status_is_observable():
 
     assert interface.pvs["NMR_PROTECTED"].value == 1
     assert interface.pvs["NMR_SOURCE_RBV"].value == "pynmr"
-    assert interface.pvs["NMR_PHYSICAL_RBV"].value == "pynmr"
+    assert interface.pvs["NMR_SOURCE_EPOCH_RBV"].value == 7
+    assert interface.pvs["NMR_PHYSICAL_RBV"].value == "CONNECTED"
     assert interface.pvs["NMR_ROUTE_OK"].value == 1
     assert interface.pvs["NMR_STREAM_OK"].value == 1
     assert interface.pvs["NMR_FIT_ELIGIBLE"].value == 0

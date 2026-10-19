@@ -8,6 +8,7 @@ ROOT="$(
 )"
 
 PORT="${GENESIS_ARCHIVE_VIEWER_PORT:-8501}"
+# The Python viewer resolves GENESIS_DATA_ROOT by itself if not supplied.
 
 cd "$ROOT/archive"
 

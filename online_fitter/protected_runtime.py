@@ -34,6 +34,9 @@ class ProtectedNMRRuntime:
         pynmr_ipc_path=None,
         pynmr_ipc_allowed_uids=None,
         pynmr_ipc_shared_gid=None,
+        nmr_source_control_path=None,
+        nmr_source_control_allowed_uid=None,
+        nmr_source_control_allowed_pid=None,
     ):
         if (
             type(poll_interval_s) not in (int, float)
@@ -116,6 +119,32 @@ class ProtectedNMRRuntime:
                     self.producer_session.peer_allowed
                     if self.producer_session is not None else None
                 ),
+            )
+
+        # Source control is a SEPARATE, opt-in Linux IPC endpoint.
+        # The PyNMR event stream retains its existing IPC and credentials.
+        self.source_control_ipc = None
+        self._source_control_worker = None
+        if nmr_source_control_path is None:
+            if (nmr_source_control_allowed_uid is not None
+                    or nmr_source_control_allowed_pid is not None):
+                raise ValueError("NMR source-control credentials without path")
+        else:
+            if (nmr_source_control_allowed_uid is None
+                    or nmr_source_control_allowed_pid is None):
+                raise ValueError("NMR source control requires pinned UID and PID")
+            from .nmr_source_control_ipc import NMRSourceControlIPC
+            from .nmr_source_ipc_lifecycle import NMRSourceIPCWorker
+
+            self.source_control_ipc = NMRSourceControlIPC(
+                nmr_source_control_path,
+                allowed_uid=nmr_source_control_allowed_uid,
+                allowed_pid=nmr_source_control_allowed_pid,
+                snapshot=self.snapshot,
+                select_source=self.select_source,
+            )
+            self._source_control_worker = NMRSourceIPCWorker(
+                self.source_control_ipc
             )
 
         self.poll_interval_s = poll_interval_s
@@ -218,8 +247,24 @@ class ProtectedNMRRuntime:
         )
 
     def select_source(self, source):
-        """Change software selection only; NEVER switch hardware."""
-        self.source_state.select(source)
+        """Select software input; invalidate prior acquisition authorization."""
+        with self.source_state.fit_guard():
+            current = self.source_state.snapshot()["selected_source"]
+            if source not in ("labview", "pynmr"):
+                raise ValueError(f"Unsupported NMR source: {source!r}")
+            if source == current:
+                return
+
+            # Prevent old PyNMR event credentials from authorizing
+            # an acquisition under the new source-selection epoch.
+            if self.event_adapter is not None:
+                self.event_adapter.invalidate()
+
+            self._commissioning_armed = False
+            self._commissioning_route_epoch = None
+            # Never clear _commissioning_invalid here. A prior
+            # authentication failure remains latched.
+            self.source_state.select(source)
 
     def _poll_loop(self):
         while not self._stop.wait(self.poll_interval_s):
@@ -248,6 +293,8 @@ class ProtectedNMRRuntime:
         try:
             if self.event_ipc is not None:
                 self.event_ipc.start()
+            if self._source_control_worker is not None:
+                self._source_control_worker.start()
 
             thread = threading.Thread(
                 target=self._poll_loop,
@@ -259,10 +306,14 @@ class ProtectedNMRRuntime:
         except BaseException:
             self._stop.set()
             try:
-                if self.event_ipc is not None:
-                    self.event_ipc.close()
+                if self._source_control_worker is not None:
+                    self._source_control_worker.close()
             finally:
-                self.transport.close()
+                try:
+                    if self.event_ipc is not None:
+                        self.event_ipc.close()
+                finally:
+                    self.transport.close()
             raise
 
         return self
@@ -275,15 +326,19 @@ class ProtectedNMRRuntime:
             self._thread = None
 
         try:
-            if self.event_ipc is not None:
-                self.event_ipc.close()
+            if self._source_control_worker is not None:
+                self._source_control_worker.close()
         finally:
-            if self.event_adapter is not None:
-                self.event_adapter.invalidate()
-                self.source_state.update_stream(
-                    "pynmr", False
-                )
-            self.transport.close()
+            try:
+                if self.event_ipc is not None:
+                    self.event_ipc.close()
+            finally:
+                if self.event_adapter is not None:
+                    self.event_adapter.invalidate()
+                    self.source_state.update_stream(
+                        "pynmr", False
+                    )
+                self.transport.close()
 
     def snapshot(self):
         return self.source_state.snapshot()

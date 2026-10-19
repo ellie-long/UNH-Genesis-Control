@@ -19,13 +19,14 @@ import json
 from pathlib import Path
 from typing import Any, Mapping
 from uuid import uuid4
+from archive.data_paths import ssrf_event_dir, resolve_recording_path
 
 import numpy as np
 
 
 EVENT_SCHEMA_VERSION = 1
 DEFAULT_SUBSYSTEM = "ssrf"
-DEFAULT_EVENT_DIR = Path("archive/events/ssrf")
+DEFAULT_EVENT_DIR = ssrf_event_dir()
 
 
 class EventLogError(RuntimeError):
@@ -187,12 +188,10 @@ class JsonlEventLogger:
     def __init__(
         self,
         *,
-        directory: str | Path = DEFAULT_EVENT_DIR,
+        directory: str | Path | None = None,
         subsystem: str = DEFAULT_SUBSYSTEM,
     ):
-        self.directory = Path(
-            directory
-        )
+        self.directory = resolve_recording_path(directory, ssrf_event_dir())
 
         self.subsystem = str(
             subsystem

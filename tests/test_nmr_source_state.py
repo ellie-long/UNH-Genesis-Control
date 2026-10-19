@@ -13,7 +13,7 @@ def prepare(source="labview"):
 
     clock[0] = 101.0
     state.update_route(
-        1, 0 if source == "labview" else 3
+        1, 0
     )
     return clock, state
 
@@ -42,7 +42,7 @@ def test_new_event_required_after_route_change():
 
     state.update_stream("pynmr", True)
     clock[0] = 103.0
-    state.update_route(1, 3)
+    state.update_route(1, 0)
 
     clock[0] = 104.0
     assert not state.completed_event(
@@ -71,7 +71,7 @@ def test_disconnect_invalidates_event():
     )
 
     clock[0] = 103.0
-    state.update_route(1, 3)
+    state.update_route(1, 0)
 
     clock[0] = 104.0
     assert state.completed_event(

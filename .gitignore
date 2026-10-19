@@ -17,3 +17,6 @@ last.yaml
 .DS_Store
 .coverage
 htmlcov/
+
+# Local runtime archive output (normal location is outside Git entirely)
+local_data/

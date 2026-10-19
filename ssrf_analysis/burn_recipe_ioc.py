@@ -25,6 +25,7 @@ from ssrf_analysis.waveform_planner import (
     build_waveform_plan,
 )
 from ssrf_analysis.waveform_stager import WaveformStager
+from archive.data_paths import ssrf_event_dir, ssrf_session_dir, resolve_recording_path
 from ssrf_analysis.event_logger import JsonlEventLogger, new_session_id
 from ssrf_analysis.session_data import SessionDataWriter
 from ssrf_analysis import legacy_deuts as deuts
@@ -66,10 +67,14 @@ class Device:
         self._generate_task = None
 
         self._event_logger = JsonlEventLogger(
-            directory=self.settings.get("event_log_dir", "archive/events/ssrf")
+            directory=resolve_recording_path(
+                self.settings.get("event_log_dir"), ssrf_event_dir()
+            )
         )
         self._session_writer = SessionDataWriter(
-            root=self.settings.get("session_data_root", "archive/sessions/ssrf")
+            root=resolve_recording_path(
+                self.settings.get("session_data_root"), ssrf_session_dir()
+            )
         )
         self._active_session_id = ""
         self._last_execution_state = None

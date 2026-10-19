@@ -26,10 +26,10 @@ from typing import Any, Mapping
 
 import numpy as np
 
+from archive.data_paths import ssrf_session_dir, resolve_recording_path
 
-DEFAULT_SESSION_DATA_ROOT = Path(
-    "archive/sessions/ssrf"
-)
+
+DEFAULT_SESSION_DATA_ROOT = ssrf_session_dir()
 
 _SAFE_SESSION_ID = re.compile(
     r"^[A-Za-z0-9][A-Za-z0-9._-]*$"
@@ -187,11 +187,9 @@ class SessionDataWriter:
     def __init__(
         self,
         *,
-        root: str | Path = DEFAULT_SESSION_DATA_ROOT,
+        root: str | Path | None = None,
     ):
-        self.root = Path(
-            root
-        )
+        self.root = resolve_recording_path(root, ssrf_session_dir())
 
     def session_directory(
         self,

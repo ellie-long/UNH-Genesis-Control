@@ -37,7 +37,7 @@ class PyNMRCompletedEventAdapter:
         return (
             snapshot.get("selected_source") == "pynmr"
             and type(snapshot.get("nmr_mask")) is int
-            and snapshot["nmr_mask"] == 3
+            and snapshot["nmr_mask"] == 0
             and type(snapshot.get("nmr_comm")) is int
             and snapshot["nmr_comm"] == 1
             and snapshot.get("stream_connected") is True

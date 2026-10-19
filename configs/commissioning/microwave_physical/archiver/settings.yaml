@@ -8,10 +8,10 @@ general:
 archiver:
   module: logic_devices.archiver
   autostart: false
-  archive_path: archive/data
+  archive_path: archive/subsystems/pv_csv
   settings_file: configs/commissioning/microwave_physical/ioc_manager/settings.yaml
   deadband: 0.01
-  time_increment: 300
+  time_increment: 1
   delay: 5
   channels:
   - None

@@ -148,11 +148,17 @@ SSRF SIMULATOR
                        Requires the dedicated ssrf-sim-manager session.
                        Leaves simulator backend processes untouched.
 
+MASTER ARCHIVER (READ-ONLY RECORDING)
+  master-archive-start  Start detached master PV recorder; does not start IOCs.
+  master-archive-status Show recorder state, snapshots, event counts and disk space.
+  master-archive-stop   Request clean recorder stop; verify DOWN afterward.
+  archive-viewer        Open read-only Streamlit viewer (master and subsystem data).
+                        Viewer shutdown does not stop the recorder.
+  Operator guide: docs/operations/MASTER_ARCHIVER_OPERATOR.md
+
 TESTS
   test-ssrf            Run all test_ssrf*.py unit/regression tests.
   test-mw              Run Microwave Phase-I unit/integration regression tests.
-  archive-viewer       Launch common read-only Genesis EPICS archive viewer.
-                       Includes Microwave/ssRF/Cryo subsystem filtering.
   test-fitter          Run fitter/planner/stager/runtime integration tests.
   test-auth            Run Genesis/ssRF authorization-security tests.
   test-all             Run all Python unittest tests under tests/.
@@ -198,8 +204,11 @@ Examples:
   genesis sim-status
   genesis sim-stop
 
-  genesis test-ssrf
+  genesis master-archive-status
+  genesis master-archive-start
   genesis archive-viewer
+  genesis master-archive-stop
+  genesis test-ssrf
   genesis test-fitter
   genesis git
 
@@ -437,6 +446,7 @@ show_status() {
     note "Use: genesis cryo-status"
     note "Use: genesis ssrf-physical-status"
     note "Use: genesis sim-status"
+    note "Use: genesis master-archive-status"
 }
 
 
@@ -1095,6 +1105,18 @@ case "${cmd}" in
         ;;
     sim-stop)
         sim_stop
+        ;;
+    master-archive-start)
+        cd "$ROOT"
+        PYTHONPATH="$ROOT" python -m archive.master_service start
+        ;;
+    master-archive-status)
+        cd "$ROOT"
+        PYTHONPATH="$ROOT" python -m archive.master_service status
+        ;;
+    master-archive-stop)
+        cd "$ROOT"
+        PYTHONPATH="$ROOT" python -m archive.master_service stop
         ;;
     archive-viewer)
         PORT="${GENESIS_ARCHIVE_VIEWER_PORT:-8501}"

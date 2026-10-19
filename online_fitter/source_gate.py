@@ -1,8 +1,8 @@
 """Fail-closed Genesis NMR fitter input-source policy.
 
-Physical mask 0: LabVIEW, A1/B1.
-Physical mask 3: PyNMR, A2/B2.
-Both positions connect an NMR acquisition system.
+Physical mask 0: NMR connected through A1/B1.
+Physical mask 3: NMR terminated through A2/B2.
+LabVIEW/PyNMR selection is independent of switch position.
 
 The trusted input adapter, not the incoming packet, supplies
 transport_source. This module never controls hardware.
@@ -41,7 +41,7 @@ def evaluate_source(
     payload = norm(payload_source)
 
     physical = (
-        {0: "labview", 3: "pynmr"}.get(nmr_mask)
+        {0: "connected", 3: "terminated"}.get(nmr_mask)
         if type(nmr_mask) is int else None
     )
 
@@ -54,8 +54,8 @@ def evaluate_source(
     if type(nmr_comm) is not int or nmr_comm != 1:
         return reject("Switch communication unavailable")
 
-    if physical is None:
-        return reject("Switch route mixed or unknown")
+    if physical != "connected":
+        return reject("NMR path terminated or unverified")
 
     for age, limit, name in (
         (route_age_s, max_route_age_s, "Switch readback"),
@@ -71,9 +71,6 @@ def evaluate_source(
             or age > limit
         ):
             return reject(f"{name} invalid or stale")
-
-    if physical != selected:
-        return reject("Physical route disagrees with selection")
 
     if stream_connected is not True:
         return reject("Selected stream disconnected")
@@ -96,5 +93,5 @@ def evaluate_source(
         True,
         selected,
         physical,
-        "Selected source and verified route agree",
+        "Selected source accepted with NMR path connected",
     )
