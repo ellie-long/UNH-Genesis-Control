@@ -106,6 +106,41 @@ def main(argv=None):
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--host", default=protocol.DEFAULT_HOST, help="loopback host (default 127.0.0.1)")
     ap.add_argument("--port", type=int, default=protocol.DEFAULT_PORT)
+    ap.add_argument(
+        "--nmr-protected",
+        action="store_true",
+        help="opt-in protected dual-source NMR receiving mode",
+    )
+    ap.add_argument(
+        "--nmr-source",
+        choices=("labview", "pynmr"),
+        default=None,
+        help="software source selection; does not move hardware",
+    )
+    ap.add_argument(
+        "--pynmr-port",
+        type=int,
+        default=8779,
+        help="protected local PyNMR input port",
+    )
+    ap.add_argument(
+        "--pynmr-ipc-path",
+        default=None,
+        help="Opt-in absolute PyNMR IPC Unix socket path",
+    )
+    ap.add_argument(
+        "--pynmr-ipc-allowed-uid",
+        type=int,
+        action="append",
+        default=None,
+        help="Allowed IPC peer UID; repeatable",
+    )
+    ap.add_argument(
+        "--pynmr-ipc-shared-gid",
+        type=int,
+        default=None,
+        help="Optional Unix socket shared-group GID",
+    )
     ap.add_argument("--material", default="d-butanol", choices=list(E.MATERIAL_NAMES))
     ap.add_argument("--mode", default=E.MODE_BASELINE, choices=list(E.ALL_MODES))
     ap.add_argument("--eq-buffer", type=int, default=E.EQ_BUFFER_DEFAULT,
@@ -131,7 +166,62 @@ def main(argv=None):
                          "'system': one uniform scale, clickable, but fractional scaling (e.g. 125 "
                          "percent) misplaces the plot axes. 'permonitor': crisp per-monitor, but can "
                          "misplace clicks on fractional scaling.")
+    ap.add_argument("--nmr-source-control-path", default=None,
+                    help="Opt-in Linux source-control Unix socket path")
+    ap.add_argument("--nmr-source-control-allowed-uid", type=int, default=None,
+                    help="Trusted sequencer Linux UID for source-control IPC")
+    ap.add_argument("--nmr-source-control-allowed-pid", type=int, default=None,
+                    help="Trusted sequencer Linux PID for source-control IPC")
+
     a = ap.parse_args(argv)
+    # All-or-none, opt-in, and separate from physical ssRF execution.
+    control_path = a.nmr_source_control_path
+    control_uid = a.nmr_source_control_allowed_uid
+    control_pid = a.nmr_source_control_allowed_pid
+    if any(value is not None for value in (control_path, control_uid, control_pid)):
+        from pathlib import Path as _NMRControlPath
+        if not a.nmr_protected:
+            ap.error("NMR source-control IPC requires protected NMR mode")
+        if (type(control_path) is not str or not control_path
+                or not _NMRControlPath(control_path).is_absolute()):
+            ap.error("NMR source-control IPC requires absolute socket path")
+        if type(control_uid) is not int or control_uid < 0:
+            ap.error("NMR source-control IPC requires trusted UID")
+        if type(control_pid) is not int or control_pid <= 0:
+            ap.error("NMR source-control IPC requires trusted PID")
+        if control_path == a.pynmr_ipc_path:
+            ap.error("NMR source-control and PyNMR event sockets must differ")
+    if a.nmr_protected:
+        if a.nmr_source is None:
+            ap.error("--nmr-protected requires --nmr-source")
+        if a.replace:
+            ap.error("--replace is disabled in protected NMR mode")
+        if len({a.port, a.pynmr_port, a.publish_port}) != 3:
+            ap.error("NMR input and publisher ports must differ")
+    elif a.nmr_source is not None:
+        ap.error("--nmr-source requires --nmr-protected")
+    # Protected PyNMR IPC is explicit and fail-closed.
+    if a.pynmr_ipc_path is not None:
+        from pathlib import Path as _IPCPath
+        if not a.nmr_protected:
+            ap.error("PyNMR IPC requires protected NMR mode")
+        if not _IPCPath(a.pynmr_ipc_path).is_absolute():
+            ap.error("PyNMR IPC socket path must be absolute")
+        if not a.pynmr_ipc_allowed_uid:
+            ap.error("PyNMR IPC requires explicit allowed UIDs")
+        if any(uid < 0 for uid in a.pynmr_ipc_allowed_uid):
+            ap.error("IPC UIDs must be nonnegative")
+        if (
+            a.pynmr_ipc_shared_gid is not None
+            and a.pynmr_ipc_shared_gid < 0
+        ):
+            ap.error("IPC shared GID must be nonnegative")
+    elif (
+        a.pynmr_ipc_allowed_uid is not None
+        or a.pynmr_ipc_shared_gid is not None
+    ):
+        ap.error("IPC credentials require --pynmr-ipc-path")
+
     _setup_logging()
 
     if a.replace and procctl is None:
@@ -157,21 +247,57 @@ def main(argv=None):
     state = S.SharedState(eng, mode=a.mode, publisher=pub)
     # Bind with a short retry: after --replace the just-killed instance's listening socket can linger
     # for a beat, and TCP servers on the same port fail with "address in use" until it releases.
-    deadline = time.time() + (6.0 if a.replace else 0.0)
-    while True:
-        try:
-            srv = S.make_server(state, host=a.host, port=a.port, verbose=a.verbose)
-            break
-        except OSError as exc:
-            if time.time() >= deadline:
-                print(f"[online_fitter] could not bind {a.host}:{a.port} -- {exc}\n"
-                      f"  another process may still hold the port. Try: python -m online_fitter.stop "
-                      f"--port {a.port}", flush=True)
-                raise
-            time.sleep(0.3)
-    S.serve_in_thread(srv)
-    print(f"[online_fitter] loopback fit server on {a.host}:{a.port}  "
-          f"(material={a.material}, mode={a.mode})", flush=True)
+    if a.nmr_protected:
+        from epics import PV
+        from .protected_runtime import ProtectedNMRRuntime
+
+        srv = ProtectedNMRRuntime(
+            state,
+            selected_source=a.nmr_source,
+            nmr_source_control_path=a.nmr_source_control_path,
+            nmr_source_control_allowed_uid=a.nmr_source_control_allowed_uid,
+            nmr_source_control_allowed_pid=a.nmr_source_control_allowed_pid,
+            pynmr_ipc_path=a.pynmr_ipc_path,
+            pynmr_ipc_allowed_uids=(
+                tuple(a.pynmr_ipc_allowed_uid)
+                if a.pynmr_ipc_path is not None
+                else None
+            ),
+            pynmr_ipc_shared_gid=a.pynmr_ipc_shared_gid,
+            pv_factory=PV,
+            labview_port=a.port,
+            pynmr_port=a.pynmr_port,
+            verbose=a.verbose,
+        )
+        srv.start()
+        state.genesis_nmr_protected_runtime = srv
+        print(
+            "[online_fitter] protected dual NMR receivers on "
+            f"127.0.0.1:{a.port} (LabVIEW) and "
+            f"127.0.0.1:{a.pynmr_port} (PyNMR)",
+            flush=True,
+        )
+        print(
+            "[online_fitter] fitting remains blocked until "
+            "trusted acquisition-event binding is implemented",
+            flush=True,
+        )
+    else:
+        deadline = time.time() + (6.0 if a.replace else 0.0)
+        while True:
+            try:
+                srv = S.make_server(state, host=a.host, port=a.port, verbose=a.verbose)
+                break
+            except OSError as exc:
+                if time.time() >= deadline:
+                    print(f"[online_fitter] could not bind {a.host}:{a.port} -- {exc}\n"
+                          f"  another process may still hold the port. Try: python -m online_fitter.stop "
+                          f"--port {a.port}", flush=True)
+                    raise
+                time.sleep(0.3)
+        S.serve_in_thread(srv)
+        print(f"[online_fitter] loopback fit server on {a.host}:{a.port}  "
+              f"(material={a.material}, mode={a.mode})", flush=True)
 
     if a.no_gui:
         print("[online_fitter] headless -- Ctrl+C to stop.", flush=True)
