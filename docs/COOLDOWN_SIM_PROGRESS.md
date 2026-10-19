@@ -45,6 +45,25 @@ lab answers are in `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`.
 
 ## Log
 
+### 2026-10-17: scoring against the McClellan fits
+* The record's online P is the wrong yardstick where it was miscalibrated.
+  New `hindcast --truth mcclellan` uses the McClellan equilibrium line fits
+  (P_area, else P_fit; hole-burnt lines skipped). Free-run MAE, fitted DNP vs
+  the irradiated d-butanol rate model: 2024-09 25.6 vs 11.8 (rate model now
+  drives it); 2024-11 7.4 vs 9.9; 2025-02 4.7 vs 17.7; 2025-11 4.4 vs 6.3
+  (fitted kept); 2025-12 3.3, 2026-06 3.1 (rate model; median ~2 pp).
+* So the irradiated d-butanol estimate (top priority) holds to ~3 pp on the
+  two cool-downs its rates came from, and to ~12 pp unfitted on 2024-09. The
+  2024-11 / 2025-02 / 2025-11 gaps (rate model high by 5-18 pp) look like
+  run conditions (2024-11: microwaves maxed out, off-tune), not the material.
+* Full scenario library in WSL (dev-visualizer, 2026-10-17): 11/11 PASS, incl.
+  quench (its earlier failure was Windows-only fitter timing) and the new
+  vacuum-trip (shells-vacuum alarm KNOWN). Also KNOWN: ssRF burns stop at the
+  connect permit the interlock never grants (question 59).
+* A few McClellan lines are outliers (2024-09 shows |P| up to 79 %); the
+  hindcast's despike leaves some; worth a cut at the source.
+
+
 ### 2026-10-16: material and dopant drop-downs (Genesis change, Ells's request)
 * No screen could set `STATE:material` (both Cryo screens showed it
   read-only, by a deliberate test) or `MW:SUP:Dopant` (empty dopant list ->

@@ -51,11 +51,12 @@ def test_lineshape_tapers_each_side_separately():
 
 
 def test_label_only_material_keeps_the_cooldown_fit():
-    # 2024-09 is labelled irradiated d-butanol (Magic +/-) but keeps its own fitted DNP
-    assert spin1.material_for("2024-09") == MAT
-    assert spin1.uses_cooldown_fit("2024-09")
-    params = load_params(cooldown="2024-09")
-    m = TargetModel(record(), 60.0, params, cooldown="2024-09")
+    # 2025-11 is labelled irradiated d-butanol (Magic +/-) but keeps its own fitted DNP
+    assert spin1.material_for("2025-11") == MAT
+    assert spin1.uses_cooldown_fit("2025-11")
+    assert not spin1.uses_cooldown_fit("2024-09")          # the rate model (McClellan-scored)
+    params = load_params(cooldown="2025-11")
+    m = TargetModel(record(), 60.0, params, cooldown="2025-11")
     assert m.spin1_engine(600.0) is None
     assert m.dnp_at(600.0) == m.dnp
     assert m.magic_GHz("+", 600.0) == pytest.approx(spin1.magic_ratio("+", MAT) * B)

@@ -35,6 +35,8 @@ from ..data.timeline import Timeline
 from ..autopilot.ssrf import apply_burn
 from ..data.blast_log import read_cooldown_burns
 from .target import TargetModel, load_params
+from . import physics as _ph
+from ..data import mcclellan
 
 STEP_S = 60.0
 
@@ -97,17 +99,31 @@ def despike(p: np.ndarray, half: int = 5, floor_pp: float = 3.0) -> np.ndarray:
 
 
 def run(tl: Timeline, params: dict | None = None, *, anchor_h: float | None = None,
-        step_s: float = STEP_S, cooldown: str | None = None, burns: list | None = None) -> Series:
-    """Step the model through the whole record; re-anchor every ``anchor_h`` hours."""
+        step_s: float = STEP_S, cooldown: str | None = None, burns: list | None = None,
+        truth: tuple | None = None) -> Series:
+    """Step the model through the whole record; re-anchor every ``anchor_h`` hours.
+
+    ``truth``: (t, P %) lines to score against (e.g. the McClellan equilibrium
+    fits) instead of the record's online P; the model then also starts from,
+    and re-anchors to, that P."""
     ts = np.arange(tl.start, tl.end, step_s)
     probe = TargetModel(tl, tl.start, params)
-    pr = despike(np.array([tl.value_at("online_p", t) for t in ts]))
+    if truth is not None:
+        pr = despike(mcclellan.on_grid(truth[0], truth[1], ts, 0.5 * step_s))
+    else:
+        pr = despike(np.array([tl.value_at("online_p", t) for t in ts]))
     b = np.array([probe.field_T(t) for t in ts])
     ok = _valid(pr, b)
     if not ok.any():
         return Series(ts, np.full_like(ts, np.nan), np.where(ok, pr, np.nan), np.zeros_like(ts), b)
     t0 = ts[np.argmax(ok)]
     model = TargetModel(tl, t0, params, cooldown)
+
+    def _seat(i):                                    # start / re-anchor on the truth's P
+        if truth is not None and np.isfinite(pr[i]):
+            model.state.P = pr[i] / 100.0
+            model.state.Q = _ph.q_boltzmann(model.state.P)
+    _seat(int(np.argmax(ok)))
     next_anchor = t0 + anchor_h * 3600.0 if anchor_h else math.inf
     pm, dr = np.full_like(ts, np.nan), np.zeros_like(ts)
     pending = sorted((b for b in (burns or []) if b.ok and b.end > t0), key=lambda b: b.end)
@@ -121,6 +137,7 @@ def run(tl: Timeline, params: dict | None = None, *, anchor_h: float | None = No
         if t >= next_anchor:
             if ok[i]:
                 model.reset(t)
+                _seat(i)
                 next_anchor = t + anchor_h * 3600.0
         s = model.advance(t)
         pm[i] = 100.0 * s.P
@@ -146,16 +163,23 @@ def score(name: str, view: str, s: Series, anchor_h: float | None = None) -> Sco
 
 
 def evaluate(cooldown_dir: Path, params: dict | None = None, anchor_h: float = 6.0,
-             tl: Timeline | None = None) -> tuple[list[Score], dict]:
+             tl: Timeline | None = None, truth: str = "online") -> tuple[list[Score], dict]:
     """Free-run and anchored scores for one cool-down, plus the series.
 
-    ``params`` None: the defaults plus this cool-down's fitted DNP values."""
+    ``params`` None: the defaults plus this cool-down's fitted DNP values.
+    ``truth``: "online" (the record's online P) or "mcclellan" (the line fits;
+    no scores if the cool-down has none)."""
     tl = tl or load(cooldown_dir)
     name = cooldown_dir.name
     params = params if params is not None else load_params(cooldown=name)
     burns = read_cooldown_burns(cooldown_dir)
-    free = run(tl, params, cooldown=name, burns=burns)
-    anch = run(tl, params, anchor_h=anchor_h, cooldown=name, burns=burns)
+    lines = None
+    if truth == "mcclellan":
+        lines = mcclellan.equilibrium_p(name, mcclellan.results_root(cooldown_dir.parent))
+        if lines is None or not len(lines[0]):
+            return [], {}
+    free = run(tl, params, cooldown=name, burns=burns, truth=lines)
+    anch = run(tl, params, anchor_h=anchor_h, cooldown=name, burns=burns, truth=lines)
     return ([score(name, "free", free), score(name, f"anchored {anchor_h:g}h", anch, anchor_h)],
             {"free": free, "anchored": anch})
 

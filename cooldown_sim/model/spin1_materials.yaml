@@ -134,6 +134,12 @@ materials:
 # runs and unlisted cool-downs; empty keeps them on the phenomenological DNP
 # (the synthetic day is designed with it).  2025-07 (material unknown, no DNP
 # achieved) is not listed.
+#
+# Re-scored 2026-10-17 against the McClellan equilibrium line fits (hindcast
+# --truth mcclellan; free-run MAE, pp, fitted DNP vs the irradiated d-butanol
+# rate model): 2024-09 25.6 vs 11.8 (bias -23 vs -0.4) -> rate model;
+# 2024-11 7.4 vs 9.9, 2025-02 4.7 vs 17.7, 2025-11 4.4 vs 6.3 -> keep fitted;
+# 2025-12 3.3 and 2026-06 3.1 (rate model).
 default: ""
 cooldowns:
   2020-09-Cooldown:
@@ -149,7 +155,7 @@ cooldowns:
     - {start: "2024-08-01 00:00", material: tempo_d_butanol, dnp: fitted}       # no deuteron signal
     - {start: "2024-08-29 00:00", material: trityl_d_propanediol, dnp: fitted}
   2024-09-Cooldown:
-    - {start: "2024-09-01 00:00", material: irradiated_d_butanol, dnp: fitted}  # NIST-irradiated
+    - {start: "2024-09-01 00:00", material: irradiated_d_butanol}  # NIST-irradiated; rate model (McClellan-scored)
   2024-11-Cooldown:
     - {start: "2024-11-01 00:00", material: nd3, dnp: fitted}                   # did not polarize
     - {start: "2024-11-15 00:00", material: irradiated_d_butanol, dnp: fitted}
