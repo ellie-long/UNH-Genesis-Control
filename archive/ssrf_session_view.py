@@ -17,6 +17,7 @@ import pandas as pd
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
+from archive.data_paths import ssrf_event_dir
 from ssrf_analysis.event_logger import read_jsonl
 from ssrf_analysis.session_data import load_npz_numeric
 from ssrf_analysis.session_record import (
@@ -26,7 +27,7 @@ from ssrf_analysis.session_record import (
 )
 
 
-DEFAULT_EVENT_DIR = Path("archive/events/ssrf")
+DEFAULT_EVENT_DIR = ssrf_event_dir()
 
 
 class SessionViewError(RuntimeError):

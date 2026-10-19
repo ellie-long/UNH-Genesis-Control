@@ -180,3 +180,49 @@ def test_multiple_pvs_share_one_consumer(tmp_path):
         recorder.close()
 
     asyncio.run(scenario())
+
+
+def test_aioca_error_callback_disconnects_and_reconnects(tmp_path):
+    """aioca sends CANothing(ok=False) rather than None on IOC loss."""
+    async def scenario():
+        pv = "UNH:GEN:CRYO:FRIDGE:F6_TI"
+        recorder = MasterRecorder(tmp_path, {pv: {}})
+        fake = FakeCA()
+        collector = MasterCACollector(recorder, monitor_factory=fake.monitor)
+        await collector.start()
+
+        try:
+            fake.publish(pv, SimpleNamespace(
+                ok=True, value=300.1, timestamp=1791813600.125,
+            ))
+            # Simulate aioca.CANothing, which has no .value field.
+            fake.publish(pv, SimpleNamespace(
+                ok=False, name=pv, errorcode=1,
+            ))
+            await collector.drain()
+            collector.check_health()
+
+            assert recorder.latest[pv]["connected"] is False
+            assert recorder.latest[pv]["value"] is None
+
+            fake.publish(pv, SimpleNamespace(
+                ok=True, value=300.2, timestamp=1791813601.125,
+            ))
+            await collector.drain()
+            collector.check_health()
+
+            assert recorder.latest[pv]["connected"] is True
+            assert recorder.latest[pv]["value"] == 300.2
+            assert collector.accepted_events == 3
+            assert collector.written_events == 3
+            assert collector.dropped_events == 0
+        finally:
+            await collector.stop()
+            recorder.close()
+
+        path, = list(tmp_path.glob("*/genesis_master.jsonl"))
+        events = [json.loads(line) for line in path.read_text().splitlines()]
+        assert [e["connected"] for e in events] == [True, False, True]
+        assert [e["value"] for e in events] == [300.1, None, 300.2]
+
+    asyncio.run(scenario())

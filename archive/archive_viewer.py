@@ -14,6 +14,8 @@ import plotly.express as px
 from plotly.subplots import make_subplots
 from datetime import datetime, timedelta
 from pathlib import Path
+from archive.data_paths import subsystem_csv_dir
+from archive.master_view import list_master_sessions, master_pvs, load_master_pv_data
 
 try:
     from viewer_filters import (
@@ -73,7 +75,7 @@ def get_archived_pvs(archive_path):
     """Get list of all archived PVs"""
     archive_dir = Path(archive_path)
     if not archive_dir.exists():
-        print("Error, directory does not exist.", archive_path)
+        # On a fresh deployment the subsystem archiver may not have run yet.
         return []
 
     pv_names = set()
@@ -275,18 +277,35 @@ def main():
     with st.sidebar:
         st.header("Configuration")
 
-        # Archive path
-        archive_path = st.text_input(
-            "Archive Path",
-            value="data",
-            help="Path to the archive directory"
+        archive_type = st.selectbox(
+            "Recording source", ["Subsystem PV CSV", "Master snapshots"]
         )
-
-        # Get available PVs
-        available_pvs = get_archived_pvs(archive_path)
+        session_dir = None
+        if archive_type == "Master snapshots":
+            sessions = list_master_sessions()
+            if not sessions:
+                st.info("No master sessions recorded yet")
+                return
+            selected = st.selectbox(
+                "Master recording session",
+                list(range(len(sessions))),
+                format_func=lambda i: (
+                    str(sessions[i][1].get("started_utc", ""))
+                    + " · " + str(sessions[i][1].get("git_sha", "unknown version"))[:12]
+                ),
+            )
+            session_dir = sessions[selected][0]
+            archive_path = str(session_dir)
+            available_pvs = master_pvs(session_dir)
+        else:
+            archive_path = st.text_input(
+                "Archive Path", value=str(subsystem_csv_dir()),
+                help="Persistent local subsystem PV CSV directory",
+            )
+            available_pvs = get_archived_pvs(archive_path)
 
         if not available_pvs:
-            st.error(f"No archived PVs found in '{archive_path}'")
+            st.info(f"No archived PVs found in '{archive_path}' yet")
             return
 
         # Optional organization layer over the existing generic
@@ -465,7 +484,11 @@ def main():
             # Load data for all selected PVs
             data_dict = {}
             for pv in selected_pvs:
-                df = load_pv_data(archive_path, pv, start_date, end_date)
+                df = (
+                    load_master_pv_data(session_dir, pv, start_date, end_date)
+                    if session_dir is not None else
+                    load_pv_data(archive_path, pv, start_date, end_date)
+                )
                 if not df.empty:
                     data_dict[pv] = df
 

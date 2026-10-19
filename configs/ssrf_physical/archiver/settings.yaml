@@ -8,7 +8,7 @@ archiver:
   module: logic_devices.archiver
   autostart: false
   delay: 1.0
-  archive_path: archive/data
+  archive_path: archive/subsystems/pv_csv
   deadband: 0.001
   time_increment: 1
   channels:

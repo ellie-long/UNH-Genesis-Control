@@ -25,6 +25,7 @@ if str(REPO_ROOT) not in sys.path:
         str(REPO_ROOT),
     )
 
+from archive.data_paths import ssrf_event_dir
 from archive.ssrf_session_view import (
     SessionViewError,
     create_arb_figure,
@@ -76,12 +77,7 @@ def main():
         "adaptive-waveform, and event data."
     )
 
-    default_event_dir = (
-        REPO_ROOT
-        / "archive"
-        / "events"
-        / "ssrf"
-    )
+    default_event_dir = ssrf_event_dir()
 
     with st.sidebar:
         st.header(

@@ -102,7 +102,13 @@ class MasterCACollector:
 
         try:
             received = datetime.now(UTC)
-            connected = raw is not None
+            # aioca notifies disconnections with CANothing(ok=False),
+            # not necessarily with None. These are ordinary PV state
+            # transitions, not malformed scalar values or collector faults.
+            connected = (
+                raw is not None
+                and bool(getattr(raw, "ok", True))
+            )
 
             value = ca_scalar(raw) if connected else None
             timestamp = (

@@ -51,7 +51,7 @@ class MicrowaveArchiverConfig(unittest.TestCase):
 
         self.assertEqual(
             cfg["archiver"]["archive_path"],
-            "archive/data",
+            "archive/subsystems/pv_csv",
         )
 
         self.assertEqual(
