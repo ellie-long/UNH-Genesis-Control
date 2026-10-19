@@ -321,6 +321,13 @@ named in each item. Numbers are stable: answered items move to *Settled*.
 
 ## Settled
 
+* Recording location (Ells, 2026-10-19): keep Utsav's design. Genesis
+  recordings (master archiver, subsystem PV CSVs, ssRF events and sessions)
+  live outside git under `$GENESIS_DATA_ROOT` or `UNH-Genesis-Control/local_data/`
+  (a flat clone uses the sibling `<checkout>-local_data/`), created
+  automatically on first start (`archive/data_paths.py`,
+  `docs/operations/MASTER_ARCHIVER_OPERATOR.md`). No in-repo data folder.
+
 * Push (question 23, part): Ells (2026-10-16), push `dev-visualizer` (it
   carries all of dev-sim) so others can run the Panopticon; quick start in
   `docs/PANOPTICON_QUICK_START.md` (dev-visualizer). The planned squash of the
