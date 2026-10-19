@@ -27,7 +27,7 @@ burn_recipe:
   records:
     FITTER_CONNECTED: {DESC: Fitter publisher connection}
     LATEST_FIT_VALID: {DESC: Latest calibrated fit usable}
-    BURN_MODE_RBV: {DESC: FIT or OPERATOR reference mode at startup}
+    BURN_MODE_RBV: {DESC: Active burn mode FIT or OPERATOR}
     MATERIAL: {DESC: Material from latest fitter result}
     FIT_TYPE: {DESC: Latest fitter analysis mode}
     FIT_TS: {DESC: Latest fitter timestamp}

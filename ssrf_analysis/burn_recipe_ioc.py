@@ -27,6 +27,7 @@ from ssrf_analysis.waveform_planner import (
 )
 from ssrf_analysis.waveform_stager import WaveformStager
 from ssrf_analysis.operator_waveform import build_operator_waveform_plan
+from ssrf_analysis.continuous_burn import run as run_continuous_burn, OperatorStop
 from ssrf_analysis.event_logger import JsonlEventLogger, new_session_id
 from ssrf_analysis.session_data import SessionDataWriter
 from ssrf_analysis import legacy_deuts as deuts
@@ -73,6 +74,10 @@ class Device:
 
         self._generate_requested = False
         self._generate_task = None
+        self._continuous_requested = False
+        self._continuous_stop_requested = False
+        self._continuous_stop = None
+        self._continuous_task = None
 
         self._event_logger = JsonlEventLogger(
             directory=self.settings.get("event_log_dir", "archive/events/ssrf")
@@ -160,6 +165,26 @@ class Device:
         p["STATE"] = builder.stringIn("STATE")
         p["REASON"] = builder.longStringIn("REASON", length=256)
 
+        # Continuous operation reuses the same one-shot sequencer and recipe IOC.
+        p["CONT_CYCLES"] = builder.longOut(
+            "CONT_CYCLES", initial_value=2, LOPR=0, HOPR=100000
+        )
+        p["CONT_DELAY_S"] = builder.aOut(
+            "CONT_DELAY_S", initial_value=10.0, LOPR=0.0, HOPR=3600.0, PREC=1
+        )
+        p["CONT_STATE"] = builder.stringIn("CONT_STATE")
+        p["CONT_REASON"] = builder.longStringIn("CONT_REASON", length=256)
+        p["CONT_CYCLE"] = builder.longIn("CONT_CYCLE")
+        p["CONT_ACTIVE"] = builder.boolIn("CONT_ACTIVE")
+        p["CONT_START_CMD"] = builder.boolOut(
+            "CONT_START_CMD", always_update=True,
+            on_update_name=self._continuous_start_command,
+        )
+        p["CONT_STOP_CMD"] = builder.boolOut(
+            "CONT_STOP_CMD", always_update=True,
+            on_update_name=self._continuous_stop_command,
+        )
+
         p["GENERATE_LOAD_CMD"] = builder.boolOut(
             "GENERATE_LOAD_CMD",
             ZNAM="IDLE",
@@ -189,6 +214,12 @@ class Device:
         p["VLOW_V"].set(0.0)
         p["VHIGH_V"].set(0.0)
         p["GENERATE_LOAD_CMD"].set(0, process=False)
+        p["CONT_START_CMD"].set(0, process=False)
+        p["CONT_STOP_CMD"].set(0, process=False)
+        p["CONT_STATE"].set("IDLE")
+        p["CONT_REASON"].set("Single burn available; continuous inactive")
+        p["CONT_CYCLE"].set(0)
+        p["CONT_ACTIVE"].set(0)
         if self.burn_mode == "fit":
             self._set_status("WAITING_FOR_FIT", "Waiting for calibrated fitter result")
         else:
@@ -270,6 +301,75 @@ class Device:
         self._generate_requested = True
         self.pvs["PLAN_VALID"].set(0)
         self._set_status("REQUESTED", "Generate/load requested")
+
+    def _continuous_start_command(self, value, _pv):
+        self.pvs["CONT_START_CMD"].set(0, process=False)
+        if not bool(value):
+            return
+        if self._continuous_requested or (
+            self._continuous_task is not None and not self._continuous_task.done()
+        ) or self._generate_requested or (
+            self._generate_task is not None and not self._generate_task.done()
+        ):
+            self.pvs["CONT_REASON"].set("Another burn/setup is already active")
+            return
+        try:
+            cycles = int(self.pvs["CONT_CYCLES"].get())
+            delay = float(self.pvs["CONT_DELAY_S"].get())
+            if cycles < 0 or cycles > 100000 or not math.isfinite(delay) or not 0 <= delay <= 3600:
+                raise ValueError("cycles must be 0..100000; delay 0..3600 seconds")
+        except (TypeError, ValueError) as exc:
+            self.pvs["CONT_STATE"].set("INVALID")
+            self.pvs["CONT_REASON"].set(str(exc)[:255])
+            return
+        self._continuous_requested = True
+        self._continuous_stop_requested = False
+        self.pvs["CONT_CYCLE"].set(0)
+        self.pvs["CONT_STATE"].set("REQUESTED")
+        self.pvs["CONT_REASON"].set("Starting guarded continuous sequence")
+
+    def _continuous_stop_command(self, value, _pv):
+        self.pvs["CONT_STOP_CMD"].set(0, process=False)
+        if not bool(value):
+            return
+        if self._continuous_requested or self._continuous_task is not None:
+            self._continuous_stop_requested = True
+            self.pvs["CONT_STATE"].set("STOPPING")
+            self.pvs["CONT_REASON"].set("STOP requested; sequencer ABORT and RF-off verification pending")
+
+    def _continuous_progress(self, cycle, phase):
+        self.pvs["CONT_CYCLE"].set(int(cycle))
+        if not self._continuous_stop_requested:
+            self.pvs["CONT_STATE"].set(str(phase))
+
+    async def _continuous_worker(self):
+        self._continuous_requested = False
+        self._continuous_stop = asyncio.Event()
+        if self._continuous_stop_requested:
+            self._continuous_stop.set()
+        self.pvs["CONT_ACTIVE"].set(1)
+        try:
+            await run_continuous_burn(
+                cycles=int(self.pvs["CONT_CYCLES"].get()),
+                delay=float(self.pvs["CONT_DELAY_S"].get()),
+                expected_mode=self.burn_mode,
+                stop=self._continuous_stop,
+                progress=self._continuous_progress,
+            )
+            stopped = self._continuous_stop.is_set()
+            self.pvs["CONT_STATE"].set("STOPPED" if stopped else "COMPLETE")
+            self.pvs["CONT_REASON"].set("ABORT and safe-off verified")
+        except OperatorStop:
+            self.pvs["CONT_STATE"].set("STOPPED")
+            self.pvs["CONT_REASON"].set("ABORT and safe-off verified")
+        except Exception as exc:
+            self.pvs["CONT_STATE"].set("FAILED")
+            self.pvs["CONT_REASON"].set(str(exc)[:255])
+        finally:
+            self.pvs["CONT_ACTIVE"].set(0)
+            self._continuous_stop = None
+            self._continuous_stop_requested = False
+            self._continuous_task = None
 
     def _subscriber_loop(self):
         while not self._stop.is_set():
@@ -541,5 +641,10 @@ class Device:
 
         if self._generate_requested and self._generate_task is None:
             self._generate_task = asyncio.create_task(self._generate_and_prepare())
+
+        if self._continuous_requested and self._continuous_task is None:
+            self._continuous_task = asyncio.create_task(self._continuous_worker())
+        if self._continuous_stop_requested and self._continuous_stop is not None:
+            self._continuous_stop.set()
 
         return True

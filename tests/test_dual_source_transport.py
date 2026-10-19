@@ -196,3 +196,20 @@ def test_port_conflict_closes_partial_startup():
         assert manager.ports == {}
 
         manager.close()
+
+
+def test_pynmr_only_opens_exactly_one_receiver():
+    selected = ["pynmr"]
+    processor = SourceAwareProcessor(
+        lambda: observation(selected[0]),
+        fit=lambda state, msg: {"ok": True},
+    )
+    manager = DualSourceTransport(
+        SimpleNamespace(n_received=0), processor,
+        labview_port=0, pynmr_port=0, pynmr_only=True,
+    )
+    with manager:
+        assert set(manager.ports) == {"pynmr"}
+        assert set(manager._listeners) == {"pynmr"}
+        assert manager._listeners["pynmr"].trusted_source == "pynmr"
+    assert manager.ports == {}

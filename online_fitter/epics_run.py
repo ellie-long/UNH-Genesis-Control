@@ -1015,6 +1015,8 @@ def _build_run_args(args):
             "--pynmr-port",
             str(args.pynmr_port),
         ])
+        if getattr(args, "pynmr_only", False):
+            run_args.append("--pynmr-only")
         if getattr(args, "pynmr_ipc_path", None) is not None:
             run_args.extend([
                 "--pynmr-ipc-path",
@@ -1077,6 +1079,10 @@ def main(argv=None):
         choices=("labview", "pynmr"),
         default=None,
         help="Software source selection only; no hardware switching",
+    )
+    parser.add_argument(
+        "--pynmr-only", action="store_true",
+        help="bind only the protected PyNMR receiver",
     )
     parser.add_argument(
         "--pynmr-port",
@@ -1174,6 +1180,10 @@ def main(argv=None):
     ):
         parser.error("IPC credentials require --pynmr-ipc-path")
 
+    if args.pynmr_only and (
+        not args.nmr_protected or args.nmr_source != "pynmr"
+    ):
+        parser.error("--pynmr-only requires protected PyNMR source")
     if args.nmr_protected:
         if args.nmr_source is None:
             parser.error(

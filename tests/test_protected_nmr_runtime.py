@@ -172,3 +172,29 @@ def test_runtime_stays_read_only():
 
     assert pvs
     assert all(pv.reads >= 2 for pv in pvs.values())
+
+
+def test_pynmr_only_runtime_no_labview_listener_or_switching():
+    pvs = {}
+    def factory(name, **kwargs):
+        pv = FakePV(name)
+        pvs[name] = pv
+        return pv
+    runtime = ProtectedNMRRuntime(
+        SimpleNamespace(n_received=0), selected_source="pynmr",
+        pv_factory=factory, labview_port=0, pynmr_port=0,
+        pynmr_only=True, poll_interval_s=0.1,
+    )
+    try:
+        runtime.start()
+        assert set(runtime.transport.ports) == {"pynmr"}
+        assert runtime.snapshot()["selected_source"] == "pynmr"
+        with pytest.raises(ValueError):
+            runtime.select_source("labview")
+        assert not send(
+            runtime.transport.ports["pynmr"],
+            {"type": "sweep", "source": "pynmr"},
+        )["ok"]
+    finally:
+        runtime.shutdown()
+    assert runtime.transport.ports == {}
