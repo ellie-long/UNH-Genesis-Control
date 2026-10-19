@@ -30,6 +30,7 @@ lab answers are in `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`.
 | D1 | Synthetic (data-free) cool-downs (seeded generator in memory, faults) | done |
 | D2 | Protected PyNMR mode: admission/protection rehearsal (Linux) | done |
 | D3 | Scenario library, fault scenarios, after-action report | done |
+| E1 | Utsav's optional cryo IOCs (flowmeters, LHe levels, Manometer-Lo) emulated and fed | done |
 
 **The planned build is complete.** What is left is Ells's call:
 
@@ -44,6 +45,47 @@ lab answers are in `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`.
    separate change to the live system, deliberately not made here.
 
 ## Log
+
+### 2026-10-19: Utsav's six optional cryo IOCs in the sim
+* After merging `feature/cryo-gui-completeness` (d769e24), the cryo leg now
+  launches `flowmeter_pi`, `flowmeter_left`, `flowmeter_sep`, `lhe_fridge`,
+  `lhe_magnet` and `manometer_low` (replay CA 6124-6129 / PVA 6224-6229;
+  6123/6223 stays free for dev-visualizer's trend-history IOC; emulators
+  16010 / 16032 / 16033 / 16180 / 16023 / 16031).
+* New emulators (`cooldown_sim/emulators/cryo_optional.py`), each in the
+  unchanged driver's wire format: the Hastings flowmeter (`F` CR ->
+  `<raw>>`; the Pi server adds CR LF and answers `ERROR <why>>` when it has
+  no reading), the AMI 1700 (SCPI on 7180, CR in, CR LF out, `*IDN?`), the
+  AMI 135 (echoes `LEVEL`, then cm to 0.1 cm) and the KJL-SPARC stream
+  (unprompted `Pr: 1.2345E-01` lines at 4 Hz; the real line layout is a
+  guess, question 62). The emulators undo each profile's constant (28/19,
+  0.393 cm->in) so Genesis's `_SLM` / `_LI` equal the record.
+* Channel map: six instrument blocks, equipment rows, out of `record_only`.
+  Record columns: Roots Flow R 2021-09 on; Roots Flow L 2020 (as the single
+  "Roots Flow") to 2025-07, empty from 2025-11; separator every era; magnet
+  LHe every era (2020 "Helium Level"); fridge level 2022-05 and 2024-08 on;
+  Manometer-Lo 2021-09 on. A cool-down with no value at all for an
+  instrument has it absent (connection refused), e.g. `flowmeter_left` in
+  2026-06; the heartbeat and round-trip validators now expect COMM 0 and a
+  NaN reading for it.
+* Alias fix: some day files (2024-08 to 2025-12) quote the level titles
+  CSV-style, `"Fridge He Level ("")"`, so 2024-08, 2024-11, 2025-02, 2025-07
+  and 2025-12 had read as having no level columns at all (2024-09/12, 2025-11
+  partly). Now matched; 2020-09 magnet level coverage 0.62 -> 0.97.
+* Model: Manometer-Lo takes the same modelled cell response as Manometer-Hi
+  (served as no reading above its 10 Torr full scale, e.g. in a quench); the
+  boil-off change `dflow` is added to the Roots L/R flowmeters in proportion to
+  their recorded flows (assumed). Separator flow and the levels are replayed.
+* Utsav's `genesis_common/its90_helium.py` against the lab conversion (not
+  changed): identical ITS-90 coefficients; it uses 133.322 Pa/Torr (lab
+  133.3), so +0.025 mK at 0.9 Torr, +0.037 mK at 5 Torr, +0.17 mK at 700
+  Torr; below 0.8606 Torr it gives NaN (lab: 0.9187 K at 0.05 Torr, 1.0028 K
+  at 0.12 Torr), so `Mano_VapT` is NaN whenever the fridge is cold
+  (question 63).
+* Scenarios (WSL): nominal PASS; real-2026-06 PASS (229 checks), with all
+  round trips for the new reading PVs exact within their wire precision.
+* New questions 60-64 (fridge-level zero, flow units/labels, Manometer-Lo
+  protocol, ITS-90 module, live port 5123 now taken).
 
 ### 2026-10-17: scoring against the McClellan fits
 * The record's online P is the wrong yardstick where it was miscalibrated.
@@ -617,6 +659,13 @@ Also observed:
   rule latches permanently, and nothing in Genesis (interlock or F1's alarm
   limits) catches an over-flood. See the 2026-10-15 log entry.
 * OVC (ColdCathode) and UCA voltage have no recorded data since 2025-11.
+* `manometer_low`'s `Mano_VapT` is NaN below 0.8606 Torr (1.25 K), i.e. for
+  the whole of a cold run, because `calibration/vapor_pressure_he4.csv` has no
+  sub-1.25 K band (question 63). Its `Mano_VapStatus` says "P below scale".
+* `lhe_fridge` (scale 1, offset 0) cannot show the record's negative fridge
+  levels; the LabVIEW zero is unknown (question 60).
+* Utsav's flowmeter IOC `flowmeter_pi` now owns live CA/PVA 5123/5223, the
+  ports question 54 suggested for the trend-history IOC (question 64).
 * With enforcement on, the safety interlock's only actuator is
   `COLDBOARD:Coldboard_Mode`. The coldboard IOC is `write_enabled: false`, so
   an enforced trip is logged as "driven off" but changes nothing at the
@@ -650,6 +699,12 @@ points. It does not reproduce deliberate fast depolarisations (AFP, anneals,
 unlogged burns).
 
 ## Test status (latest)
+
+* 2026-10-19 (optional cryo IOCs): `tests/cooldown_sim` **243 passed, 7
+  skipped on Windows** (14 new in `test_cooldown_sim_cryo_optional.py`). WSL:
+  `tests/test_cryo_*.py tests/test_master_*.py tests/test_target_cryo_integration.py
+  tests/cooldown_sim`: **390 passed, 7 skipped**. Scenarios nominal and
+  real-2026-06 PASS on WSL (real-2026-06: 229 PASS, 0 FAIL, 1 KNOWN).
 
 * `cooldown_sim` fast tests: **167 pass on Windows** (8 skipped: full-stack and
   POSIX-only), and the same on WSL inside the full suite.

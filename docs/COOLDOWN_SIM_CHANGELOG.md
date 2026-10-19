@@ -7,6 +7,25 @@ findings are in `COOLDOWN_SIM_PROGRESS.md`; questions for the lab are in
 
 ## 2026-10-19
 
+* `be9a602` Validators: an emulated instrument absent from the era's record
+  (connection refused by design, e.g. `flowmeter_left` in 2026-06) passes its
+  heartbeat check on COMM 0 and its round trip on a NaN reading, instead of
+  failing as a dead device loop. Questions 60-64 added.
+
+* `aaa92a1` The six optional cryo IOCs from Utsav's `feature/cryo-gui-completeness`
+  (`flowmeter_pi`, `flowmeter_left`, `flowmeter_sep`, `lhe_fridge`,
+  `lhe_magnet`, `manometer_low`) now launch in the cryo leg against new
+  emulators (`cooldown_sim/emulators/cryo_optional.py`: Hastings flowmeter via
+  the Pi server or the TXI040, AMI 1700 SCPI, AMI 135 with echo, KJL-SPARC
+  line stream) on CA 6124-6129 / PVA 6224-6229 (6123/6223 left for the
+  dev-visualizer trend-history IOC). Channel map: six instrument blocks and
+  equipment rows, out of `record_only`; level-meter aliases now also match the
+  CSV-quoted `"Fridge He Level ("")"` titles of some 2024-08..2025-12 days
+  (those eras had read as having no level columns). Model: Manometer-Lo follows
+  the modelled cell pressure, the Roots L/R flowmeters get the boil-off change.
+  Fixes the drift tests ("port 5123 has no replay IOC") and the equipment
+  inventory test.
+
 * Merged Utsav's `main` (master archiver, dual-source NMR, restart recovery;
   11 commits). Clean merge; his master-archiver tests pinned the Cryo PV count
   (136, total 337), now 142 / 343 with the target-cup T1/T3 PVs (TI, RI,

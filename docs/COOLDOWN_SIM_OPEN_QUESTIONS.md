@@ -18,12 +18,57 @@ named in each item. Numbers are stable: answered items move to *Settled*.
       sees the NMR path off (no ssRF burn permit ever). Is SETP=3 a full NMR
       disconnect, or the route to the JLab PyNMR system? Not changed until
       answered.
+- [ ] 60. **Fridge He Level zero:** the record's `Fridge He Level (")` is
+      NEGATIVE most of the time the fridge runs (2026-06-17: -9 to -26 in;
+      2022-05 down to -87, where `Fridge He Level Raw` is negative too) and
+      ~5-14 in when it is not pumped. An AMI 1700 reports a non-negative
+      level, and Genesis's `lhe_fridge` has scale 1.0, offset 0.0, so Genesis
+      will not show the numbers LabVIEW logged. What zero/offset (or other
+      instrument) produced the record? The sim replays it as recorded.
+- [ ] 61. **Flowmeter record units and labels:** (a) are the record's
+      `Roots Flow L/R` and `Seperator Flow (SLM)` corrected SLM (the 28/19
+      in Utsav's profiles already applied)? The sim assumes yes, so Genesis
+      `_SLM` = record (the logbook's ~1 slm per 60 mW supports He SLM).
+      (b) The 2020 single `Roots Flow (SLM)`: the left meter (as aliased), or
+      a total? (c) `Roots Flow L` is empty from 2025-11 on: meter broken?
+      (d) Separator flow is ~50 slm while running in 2026-06 but ~0.05 slm in
+      2020-22: same quantity? (e) Excursions such as -84 / +166 slm (R,
+      2026-06) and -308 slm (separator, 2021-09): real or DAQ artifacts? And
+      the repeated 105.49 maximum on L: a saturation?
+- [ ] 62. **Manometer-Lo protocol and record:** (a) Utsav's `manometer_low`
+      driver reads an unprompted line stream from `tools/pi_gateway.py`
+      (drop 4 characters, take the first number, Torr), but you said the
+      KJL-SPARC speaks a TPG-style serial protocol. Which is it, and what
+      does one line look like? (The emulator streams `Pr: 1.2345E-01`, a
+      guess.) (b) The record's Manometer-Lo reads exactly 0 whenever
+      Manometer-Hi is above ~9-10 Torr: over-range reported as 0, or a valve?
+      (c) Between 1 and 9 Torr, Manometer-Lo reads 1.1-1.6x Manometer-Hi in
+      every era; which gauge is right there?
+- [ ] 63. **ITS-90 in Utsav's `genesis_common/its90_helium.py` vs the lab's
+      conversion** (not changed; for you and Utsav): (a) it uses 133.322
+      Pa/Torr (exact) where the lab code uses 133.3, so it reads +0.025 mK
+      at 0.9 Torr up to +0.17 mK at 700 Torr warmer (same ITS-90
+      coefficients); (b) below 0.8606 Torr (1.25 K) it returns NaN, so
+      `Mano_VapT` is NaN whenever the fridge is cold (0.05 Torr: lab 0.9187 K;
+      0.12 Torr: 1.0028 K). The band CSV holds only T = poly(ln P), so the
+      lab's Donnelly-Barenghi branch needs either a fitted polynomial row or
+      code; (c) its docstring says the LabVIEW VI carries only the 2.18-5 K
+      equation, but the record's Med/Hi/VHi ranges match both ITS-90 bands to
+      < 1 mK and its Lo range is a sub-1.25 K equation.
+- [ ] 64. Port clash for question 54: the trend-history IOC's suggested live
+      CA/PVA 5123/5223 is now `flowmeter_pi`'s (Utsav's
+      `ioc_manager/settings.yaml`: flowmeters 5123-5125, level meters
+      5126-5127, Manometer-Lo 5128). Use e.g. 5129/5229 for it instead?
 - [ ] 49. Models, and Genesis priority: (a) `Magnet_IPS` on the TXI017
       (TCP 5001, 9600 8N2) -- the Oxford IPS120-10? (b) `Magnet_LHE_Prob`
-      (TCP 23) -- which level meter (AMI model)? (c) Should the portable
+      (TCP 23) -- which level meter (AMI model)? Utsav's `lhe_magnet` driver
+      says an AMI Model 135 (cm, echo on); the 2020 record's 0.1 cm steps
+      agree: confirm. (c) Should the portable
       pumping station's IONIVAC (:5005) get its own Genesis IOC (e.g. a
       second ionivac device, "cart vacuum")? (d) `left_Roots_Pump` (5012) and
-      `Separator_Pump` (5013): what are they, and do they belong in Genesis?
+      `Separator_Pump` (5013): Utsav's configs make them the left-Roots and
+      separator Hastings flowmeters (now Genesis IOCs `flowmeter_left`,
+      `flowmeter_sep`): confirm.
 - [ ] 50. (Housekeeping) TXI040 port 8 is vacant but set to TCP 5011, the
       same as port 5 (the TPG 262 that Genesis uses); give it a free port
       (e.g. 5014) before anything is plugged in. TXI017 port 2 uses TCP 23
@@ -543,7 +588,8 @@ named in each item. Numbers are stable: answered items move to *Settled*.
   * The 902B struggled with helium near 1 K, so a lower-range manometer was
     added from 2021: `Manometer-Lo`, on a Kurt J. Lesker KJL-SPARC
     controller.
-  * Genesis has no IOC for the KJL-SPARC.
+  * Genesis had no IOC for the KJL-SPARC until Utsav's `manometer_low`
+    (merged into dev-sim 2026-10-19; see question 62).
 * No fridge thermal time constants exist. The closed-loop thermal model fits
   them from past microwave on/off steps (`python -m cooldown_sim fit-params`).
 * Microwave heat: 62 mW at full drive, measured as a Roots-flow differential
