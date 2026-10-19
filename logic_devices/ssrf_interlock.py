@@ -194,60 +194,96 @@ def evaluate_interlock(
         )
 
 
-    # Both NMR switch positions now route to active acquisition
-    # systems. Port 1 = legacy LabVIEW; Port 2 = JLab PyNMR.
-    #
-    # Neither position is an NMR disconnect/termination.
-    # The NMR transmitters' RF-idle states are not yet monitored
-    # here. Therefore physical switching and ssRF RF permissions
-    # must remain inhibited.
-    #
-    # Preserve safe, read-only NMR acquisition status when the
-    # separate ssRF target path is off and SMC RF is off.
-
-    nmr_source = (
-        "LabVIEW" if nmr_mask == 0 else "PyNMR"
-    )
+    nmr_on = nmr_mask == 0
+    nmr_off = nmr_mask == 3
 
     ssrf_on = ssrf_mask == 0
+    ssrf_off = ssrf_mask == 3
+
     rf_off = not rf_on
 
-    if ssrf_on:
+    # ------------------------------------------------------------
+    # Hard conflicts
+    # ------------------------------------------------------------
+
+    if nmr_on and ssrf_on:
         return _blocked(
             CONFLICT,
-            f"{nmr_source} NMR path and ssRF path both connected",
+            "NMR and ssRF paths both connected",
             inputs_ok=1,
-            nmr_path_off=0,
-            ssrf_path_on=1,
+            nmr_path_off=int(nmr_off),
+            ssrf_path_off=int(ssrf_off),
+            ssrf_path_on=int(ssrf_on),
             rf_off=int(rf_off),
         )
 
-    if rf_on:
+    if nmr_on and rf_on:
         return _blocked(
             CONFLICT,
-            f"SMC RF enabled while {nmr_source} NMR path connected",
+            "SMC RF enabled while NMR path is connected",
             inputs_ok=1,
-            nmr_path_off=0,
-            ssrf_path_off=1,
+            nmr_path_off=int(nmr_off),
+            ssrf_path_off=int(ssrf_off),
+            ssrf_path_on=int(ssrf_on),
             rf_off=0,
         )
+
+    # ------------------------------------------------------------
+    # Permits
+    #
+    # Never move either switch while burn RF is active.
+    # ------------------------------------------------------------
+
+    nmr_connect_permit = int(
+        ssrf_off and rf_off
+    )
+
+    ssrf_connect_permit = int(
+        nmr_off and rf_off
+    )
+
+    rf_enable_permit = int(
+        nmr_off and ssrf_on
+    )
+
+    # ------------------------------------------------------------
+    # State description
+    # ------------------------------------------------------------
+
+    if nmr_on:
+        state = NMR_LIVE
+        reason = "NMR path connected"
+
+    elif ssrf_on and rf_on:
+        state = BURNING
+        reason = "ssRF path connected; RF active"
+
+    elif ssrf_on:
+        state = SSRF_READY
+        reason = "ssRF path connected; RF off"
+
+    elif rf_on:
+        state = RF_BLOCKED
+        reason = "RF active while both target paths are disconnected"
+
+    else:
+        state = SAFE_IDLE
+        reason = "both target paths disconnected; RF off"
 
     return InterlockDecision(
         inputs_ok=1,
         interlock_ok=1,
-        nmr_path_off=0,
-        ssrf_path_off=1,
-        ssrf_path_on=0,
-        rf_off=1,
-        nmr_connect_permit=0,
-        ssrf_connect_permit=0,
-        rf_enable_permit=0,
-        state=NMR_LIVE,
-        reason=(
-            f"{nmr_source} NMR routed; source switching "
-            "and ssRF RF inhibited pending RF-isolation validation"
-        ),
+        nmr_path_off=int(nmr_off),
+        ssrf_path_off=int(ssrf_off),
+        ssrf_path_on=int(ssrf_on),
+        rf_off=int(rf_off),
+        nmr_connect_permit=nmr_connect_permit,
+        ssrf_connect_permit=ssrf_connect_permit,
+        rf_enable_permit=rf_enable_permit,
+        state=state,
+        reason=reason,
     )
+
 class Device:
     """EPICS-facing Genesis ssRF safety interlock."""
 

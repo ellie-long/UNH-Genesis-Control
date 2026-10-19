@@ -39,7 +39,7 @@ def test_unprotected_ipc_rejected(module):
         "/tmp/nmr-ipc-test.sock",
     )
     assert result.returncode != 0
-    assert "requires protected PyNMR mode" in result.stderr
+    assert "PyNMR IPC requires protected NMR mode" in result.stderr
 
 
 @pytest.mark.parametrize("module", MODULES)

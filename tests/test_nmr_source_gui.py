@@ -1,4 +1,4 @@
-"""Validate read-only Genesis NMR source panel."""
+"""Validate the single-source PyNMR ssRF operator display."""
 
 from pathlib import Path
 import xml.etree.ElementTree as ET
@@ -6,64 +6,70 @@ import xml.etree.ElementTree as ET
 
 GUI = Path("gui/genesis_ssrf.bob")
 
-EXPECTED = {
-    "NMR_Source_Protected": "NMR_PROTECTED",
-    "NMR_Source_Selected_V": "NMR_SOURCE_RBV",
-    "NMR_Source_Physical_V": "NMR_PHYSICAL_RBV",
-    "NMR_Source_Route_LED": "NMR_ROUTE_OK",
-    "NMR_Source_Stream_LED": "NMR_STREAM_OK",
-    "NMR_Source_Eligible_LED": "NMR_FIT_ELIGIBLE",
-    "NMR_Source_Status_V": "NMR_STATUS",
-}
 
-
-def test_source_status_pvs_are_display_only():
+def _widgets():
     root = ET.parse(GUI).getroot()
-    widgets = list(root.iter("widget"))
+    return root, {
+        widget.findtext("name"): widget
+        for widget in root.iter("widget")
+        if widget.findtext("name")
+    }
 
-    by_name = {}
 
-    for widget in widgets:
-        name = widget.findtext("name")
-        if name and name.startswith("NMR_Source_"):
-            assert name not in by_name
-            by_name[name] = widget
+def test_obsolete_dual_source_panel_absent():
+    root, widgets = _widgets()
 
-    assert len(by_name) == 14
-
-    for name, pv in EXPECTED.items():
-        widget = by_name[name]
-        assert widget.get("type") in ("led", "textupdate")
-        assert widget.findtext("pv_name") == (
-            "ca://UNH:GEN:SSRF:FIT:" + pv
-        )
-        assert widget.find("actions") is None
-
-    assert all(
-        w.get("type") in ("label", "led", "textupdate")
-        for w in by_name.values()
+    assert not any(
+        name.startswith("NMR_Source_")
+        for name in widgets
     )
+
+    assert "GENESIS_NMR_SOURCE_STATUS_V1" not in GUI.read_text()
 
 
 def test_original_display_dimensions():
-    root = ET.parse(GUI).getroot()
+    root, _ = _widgets()
     assert root.findtext("width") == "1920"
     assert root.findtext("height") == "1390"
 
 
-def test_nmr_panel_stays_inside_display():
-    root = ET.parse(GUI).getroot()
+def test_original_ssrf_controls_preserved():
+    _, widgets = _widgets()
 
-    for widget in root.iter("widget"):
-        name = widget.findtext("name") or ""
-        if not name.startswith("NMR_Source_"):
-            continue
+    required = {
+        "Switch_Card",
+        "Safety_Interlock_Card",
+        "Workflow_BurnPanel",
+        "WF_MaterialND3",
+        "WF_MaterialButanol",
+        "WF_MaterialRBV",
+        "WF_Calibrate",
+        "WF_OpenFitter",
+    }
 
-        x, y, w, h = (
-            int(widget.findtext(key))
-            for key in ("x", "y", "width", "height")
+    assert required <= widgets.keys()
+
+
+def test_material_and_calibration_pvs_preserved():
+    _, widgets = _widgets()
+
+    expected = {
+        "WF_MaterialRBV": "UNH:GEN:SSRF:FIT:MATERIAL_RBV",
+        "WF_Calibrate": "UNH:GEN:SSRF:FIT:UPDATE_CONSTANTS_CMD",
+    }
+
+    for name, pv in expected.items():
+        assert widgets[name].findtext("pv_name") == "ca://" + pv
+
+    for name, material in (
+        ("WF_MaterialND3", "ND3"),
+        ("WF_MaterialButanol", "d-butanol"),
+    ):
+        actions = widgets[name].find("actions")
+        assert actions is not None
+        assert any(
+            action.findtext("pv_name")
+            == "ca://UNH:GEN:SSRF:FIT:MATERIAL_CMD"
+            and action.findtext("value") == material
+            for action in actions.findall("action")
         )
-
-        assert x >= 0 and y >= 0
-        assert x + w <= 1920
-        assert y + h <= 1390

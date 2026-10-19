@@ -5421,18 +5421,4 @@
     <transparent>true</transparent>
   </widget>
 
-  <widget type="action_button" version="3.0.0">
-    <name>Open_Dual_NMR_Monitor</name>
-    <x>1060</x>
-    <y>48</y>
-    <width>190</width>
-    <height>32</height>
-    <actions>
-      <action type="open_webpage">
-        <url>http://127.0.0.1:18880/</url>
-        <description>Open read-only dual NMR monitor</description>
-      </action>
-    </actions>
-    <text>Dual NMR Monitor</text>
-  </widget>
 </display>

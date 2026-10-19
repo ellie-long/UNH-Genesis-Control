@@ -13,6 +13,7 @@ from __future__ import annotations
 import asyncio
 import json
 import math
+import os
 import socket
 import threading
 import time
@@ -26,6 +27,7 @@ from ssrf_analysis.waveform_planner import (
 )
 from ssrf_analysis.waveform_stager import WaveformStager
 from archive.data_paths import ssrf_event_dir, ssrf_session_dir, resolve_recording_path
+from ssrf_analysis.operator_waveform import build_operator_waveform_plan
 from ssrf_analysis.event_logger import JsonlEventLogger, new_session_id
 from ssrf_analysis.session_data import SessionDataWriter
 from ssrf_analysis import legacy_deuts as deuts
@@ -53,6 +55,13 @@ class Device:
         if self.publish_host not in ("127.0.0.1", "localhost", "::1"):
             raise ValueError("burn recipe fitter publisher must remain loopback-only")
 
+        self.burn_mode = str(os.environ.get("GENESIS_SSRF_BURN_MODE", settings.get("burn_mode", "fit"))).strip().lower()
+        if self.burn_mode not in ("fit", "operator"):
+            raise ValueError("burn_mode must be fit or operator")
+        self.operator_material = str(os.environ.get("GENESIS_SSRF_OPERATOR_MATERIAL", settings.get("operator_material", "Butanol")))
+        self.operator_polarization = float(os.environ.get("GENESIS_SSRF_OPERATOR_POLARIZATION", settings.get("operator_polarization", 0.30)))
+        center = os.environ.get("GENESIS_SSRF_OPERATOR_CENTER_MHZ")
+        self.operator_center_mhz = None if not center else float(center)
         self.max_fit_age_s = float(settings.get("max_fit_age_s", 60.0))
         if self.max_fit_age_s <= 0:
             raise ValueError("max_fit_age_s must be positive")
@@ -90,6 +99,7 @@ class Device:
         p["LATEST_FIT_VALID"] = builder.boolIn(
             "LATEST_FIT_VALID", ZNAM="Invalid", ONAM="Valid"
         )
+        p["BURN_MODE_RBV"] = builder.stringIn("BURN_MODE_RBV")
         p["MATERIAL"] = builder.stringIn("MATERIAL")
         p["FIT_TYPE"] = builder.stringIn("FIT_TYPE")
         p["FIT_TS"] = builder.stringIn("FIT_TS")
@@ -171,6 +181,7 @@ class Device:
 
         p["FITTER_CONNECTED"].set(0)
         p["LATEST_FIT_VALID"].set(0)
+        p["BURN_MODE_RBV"].set(self.burn_mode.upper())
         p["PLAN_VALID"].set(0)
         p["SESSION_ID"].set("")
         p["ARCHIVE_STATUS"].set("IDLE")
@@ -183,7 +194,10 @@ class Device:
         p["VLOW_V"].set(0.0)
         p["VHIGH_V"].set(0.0)
         p["GENERATE_LOAD_CMD"].set(0, process=False)
-        self._set_status("WAITING_FOR_FIT", "Waiting for calibrated fitter result")
+        if self.burn_mode == "fit":
+            self._set_status("WAITING_FOR_FIT", "Waiting for calibrated fitter result")
+        else:
+            self._set_status("OPERATOR_MODE", "Reference waveform; fitter calibration not required")
 
     def connect(self):
         self._subscriber_thread = threading.Thread(
@@ -219,6 +233,7 @@ class Device:
 
     def _recipe_event_data(self):
         return {
+            "burn_mode": self.burn_mode,
             "objective": str(self.pvs["OBJECTIVE_RBV"].get()),
             "material": str(self.pvs["MATERIAL"].get()),
             "current_p_pct": float(self.pvs["CURRENT_POLARIZATION"].get()),
@@ -325,28 +340,40 @@ class Device:
         self._generate_requested = False
         try:
             msg, age = self._latest_snapshot()
-            if msg is None:
-                raise RuntimeError("no fitter result available")
-            if age > self.max_fit_age_s:
-                raise RuntimeError(f"latest fitter result is stale ({age:.1f} s)")
-            if msg.get("constants_good") is not True:
-                raise RuntimeError("fitter constants are not calibrated")
-
-            p_fit_pct = msg.get("P_fit")
-            if p_fit_pct is None or not math.isfinite(float(p_fit_pct)):
-                raise RuntimeError("latest fit has no valid P_fit polarization")
-
-            snapshot = FitSnapshot.from_message(msg)
-            reference_p = float(deuts.ratio_method(float(snapshot.constants["r"])))
-            current_p = float(p_fit_pct) / 100.0
             objective = str(self.pvs["OBJECTIVE_RBV"].get())
-
+            if self.burn_mode == "fit":
+                if msg is None:
+                    raise RuntimeError("no fitter result available")
+                if age > self.max_fit_age_s:
+                    raise RuntimeError(f"latest fitter result is stale ({age:.1f} s)")
+                if msg.get("constants_good") is not True:
+                    raise RuntimeError("fitter constants are not calibrated")
+                p_fit_pct = msg.get("P_fit")
+                if p_fit_pct is None or not math.isfinite(float(p_fit_pct)):
+                    raise RuntimeError("latest fit has no valid P_fit polarization")
+                snapshot = FitSnapshot.from_message(msg)
+                reference_p = float(deuts.ratio_method(float(snapshot.constants["r"])))
+                current_p = float(p_fit_pct) / 100.0
+                plan = build_waveform_plan(
+                    snapshot, case=objective, polarization=current_p,
+                    high_polarization=reference_p, v_edge_v=PHYSICAL_VHIGH_V,
+                )
+            else:
+                plan = build_operator_waveform_plan(
+                    material=self.operator_material, case=objective,
+                    polarization=self.operator_polarization,
+                    center_mhz=self.operator_center_mhz,
+                )
+                reference_p = current_p = self.operator_polarization
+                p_fit_pct = 100.0 * current_p
+                msg = {"material": plan.material, "fit_type": "OPERATOR_REFERENCE"}
             self._active_session_id = new_session_id(subsystem="ssrf")
             self.pvs["SESSION_ID"].set(self._active_session_id[:39])
             self.pvs["ARCHIVE_STATUS"].set("STARTED")
             self._emit(
                 "recipe_requested",
                 {
+                    "burn_mode": self.burn_mode,
                     "objective": objective,
                     "fit_ts": str(msg.get("ts") or ""),
                     "fit_type": str(msg.get("fit_type") or ""),
@@ -355,15 +382,7 @@ class Device:
                     "reference_p_pct": 100.0 * reference_p,
                 },
             )
-
-            self._set_status("PLANNING", "Building adaptive 8192-point waveform")
-            plan = build_waveform_plan(
-                snapshot,
-                case=objective,
-                polarization=current_p,
-                high_polarization=reference_p,
-            )
-
+            self._set_status("PLANNING", "Building 8192-point waveform")
             carrier = float(self.pvs["CARRIER_MHZ"].get())
             start_level = float(self.pvs["START_LEVEL_DBM"].get())
             target_level = float(self.pvs["TARGET_LEVEL_DBM"].get())
@@ -485,7 +504,7 @@ class Device:
         self.pvs["FIT_AGE_S"].set(0.0 if not math.isfinite(age) else age)
 
         valid = False
-        if msg is not None:
+        if msg is not None and self.burn_mode == "fit":
             self.pvs["MATERIAL"].set(str(msg.get("material") or "")[:39])
             self.pvs["FIT_TYPE"].set(str(msg.get("fit_type") or "")[:39])
             self.pvs["FIT_TS"].set(str(msg.get("ts") or "")[:39])

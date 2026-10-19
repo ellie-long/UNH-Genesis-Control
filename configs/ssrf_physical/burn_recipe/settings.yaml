@@ -11,6 +11,9 @@ burn_recipe:
   publish_host: 127.0.0.1
   publish_port: 8778
   max_fit_age_s: 60.0
+  burn_mode: fit
+  operator_material: Butanol
+  operator_polarization: 0.30
   event_log_dir: archive/events/ssrf
   session_data_root: archive/sessions/ssrf
   objective: Enhancement
@@ -24,6 +27,7 @@ burn_recipe:
   records:
     FITTER_CONNECTED: {DESC: Fitter publisher connection}
     LATEST_FIT_VALID: {DESC: Latest calibrated fit usable}
+    BURN_MODE_RBV: {DESC: FIT or OPERATOR reference mode at startup}
     MATERIAL: {DESC: Material from latest fitter result}
     FIT_TYPE: {DESC: Latest fitter analysis mode}
     FIT_TS: {DESC: Latest fitter timestamp}
