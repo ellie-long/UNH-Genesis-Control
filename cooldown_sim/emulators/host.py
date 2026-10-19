@@ -20,6 +20,7 @@ from ..channel_map import ChannelMap
 from ..profile import GeneratedStack, LaunchSpec
 from .base import Emulator, LoopbackServer
 from .cryo import IONIVAC, LS224, LS455, MKS902B, TPG262
+from .cryo_optional import AMI135, AMI1700, HastingsFlowmeter, KJLSparcStream
 from .scpi_supply import ScpiSupply
 
 log = logging.getLogger(__name__)
@@ -69,6 +70,16 @@ def build(spec: LaunchSpec, settings: dict, source, initial: dict | None = None)
         return IONIVAC(chans[0], source)
     if kind == "ls455":
         return LS455(chans[0], source)
+    if kind in ("flowmeter_pi", "flowmeter_diewu"):
+        return HastingsFlowmeter(chans[0], source, correction=float(settings.get("correction", 1.0)),
+                                 via_pi=kind == "flowmeter_pi")
+    if kind == "ami1700":
+        return AMI1700(chans[0], source, scale=float(settings.get("scale", 1.0)),
+                       offset=float(settings.get("offset", 0.0)))
+    if kind == "ami135":
+        return AMI135(chans[0], source, scale=float(settings.get("scale", 0.393)))
+    if kind == "manometer_low":
+        return KJLSparcStream(chans[0], source)
     if kind == "scpi_supply":
         init = dict(initial or {})
         return ScpiSupply(spec.emulator.get("model", "SPD1305X"),

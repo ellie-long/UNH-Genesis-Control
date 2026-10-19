@@ -1,9 +1,12 @@
 """ModelProvider: the record, plus the closed-loop target model's response.
 
 Drop-in replacement for ReplayProvider.  Thermometers, the cell pressure and
-the OVC pressure are passed through TargetModel; every other channel is the
-plain record.  Exposes ``truth()``, ``set_input()`` and ``reset()`` for the
-engine / Sim Control.
+the shells' vacuum (IONIVAC) are passed through TargetModel, as are
+Manometer-Lo (the same cell response as Manometer-Hi) and the two Roots
+flowmeters (the record plus the modelled boil-off change); every other channel
+-- separator flow, helium levels, fringe field -- is the plain record.
+Exposes ``truth()``, ``set_input()`` and ``reset()`` for the engine / Sim
+Control.
 """
 
 from __future__ import annotations
@@ -14,6 +17,8 @@ from ..providers import ReplayProvider
 from .target import TargetModel
 
 THERMO_INSTRUMENTS = ("ls224_fridge", "ls224_magnet")
+#: Roots-line flowmeter IOC -> side
+ROOTS_FLOWMETERS = {"flowmeter_left": "L", "flowmeter_pi": "R"}
 
 #: Sim Control / ctl model keys -> Inputs fields (with coercion)
 INPUT_KEYS = {
@@ -42,6 +47,10 @@ class ModelProvider(ReplayProvider):
             return self.model.cell_pressure(base, t)
         if instrument == "ionivac":
             return self.model.shells_pressure(base, t)
+        if instrument == "manometer_low":
+            return self.model.lo_cell_pressure(base, t)
+        if instrument in ROOTS_FLOWMETERS:
+            return self.model.roots_flow(ROOTS_FLOWMETERS[instrument], base, t)
         self.model.advance(t)
         return base
 

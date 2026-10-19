@@ -14,6 +14,8 @@ Header history (surveyed across all 15 cool-downs in Optimizied-McClellan-Fits):
   ``Fringe Field (g)``, ``Manometer-Hi/Lo``; T1-T3 split as ``0-T1``/``1-T1``.
 * 2022-05 onward -- the 91-93 named-column layout (``NMR Number`` present).
 * 2024-08 onward -- ``Fridge He Level (")``, ``T1/T2/T3 (K)``.
+  Some day files (2024-08 to 2025-12) quote the level titles CSV-style,
+  ``"Fridge He Level ("")"``; both spellings are aliased.
 """
 
 from __future__ import annotations
@@ -44,8 +46,11 @@ CHANNELS: dict[str, tuple[str, ...]] = {
     "magnet_current": ("Magnet Current (A)",),
     "central_field": ("Central Mag Field (T)",),
     # helium levels
-    "fridge_he_level": ('Fridge He Level (")', "Fridge He Level"),
-    "magnet_lhe_level": ('Magnet LHe Level (")', 'Helium Level (")'),
+    # some 2024-08 .. 2025-12 day files carry these titles CSV-quoted, with
+    # the inch mark doubled: "Fridge He Level ("")"
+    "fridge_he_level": ('Fridge He Level (")', "Fridge He Level", '"Fridge He Level ("")"'),
+    "magnet_lhe_level": ('Magnet LHe Level (")', 'Helium Level (")', '"Magnet LHe Level ("")"',
+                         '"Helium Level ("")"'),
     # flows
     "separator_flow": ("Seperator Flow (SLM)",),
     "roots_flow_l": ("Roots Flow L (SLM)", "Roots Flow (SLM)"),

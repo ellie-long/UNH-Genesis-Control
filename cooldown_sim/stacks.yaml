@@ -27,6 +27,14 @@ legs:
       target_status:     {ca: 6120, pva: 6220}
       save_restore:      {ca: 6121, pva: 6221}
       archiver:          {ca: 6122, pva: 6222}
+      # Utsav's optional cryo IOCs (feature/cryo-gui-completeness).  6123/6223
+      # is left free: the dev-visualizer branch's trend-history IOC uses it.
+      flowmeter_pi:      {ca: 6124, pva: 6224, emulator: {kind: flowmeter_pi, port: 16010}}
+      flowmeter_left:    {ca: 6125, pva: 6225, emulator: {kind: flowmeter_diewu, port: 16032}}
+      flowmeter_sep:     {ca: 6126, pva: 6226, emulator: {kind: flowmeter_diewu, port: 16033}}
+      lhe_fridge:        {ca: 6127, pva: 6227, emulator: {kind: ami1700, port: 16180}}
+      lhe_magnet:        {ca: 6128, pva: 6228, emulator: {kind: ami135, port: 16023}}
+      manometer_low:     {ca: 6129, pva: 6229, emulator: {kind: manometer_low, port: 16031}}
 
   ssrf:
     manager: configs/commissioning/ssrf_sim_active/ioc_manager/settings.yaml

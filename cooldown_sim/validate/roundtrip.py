@@ -22,13 +22,19 @@ from ..profile import GeneratedStack
 from ..pvlist import device_channel_pvs
 from . import Check, loaders
 
-#: kind -> (relative tolerance, factor applied to the served value)
+#: kind -> (relative tolerance, factor applied to the served value[, absolute
+#: tolerance in recorded units, for fixed-point wire formats])
 TOLERANCE = {
     "ls224": (3e-5, 1.0),                          # 7-digit ohms through the inverse curve
     "mks902b": (6e-4, 1.0),                        # '%.3E' on the wire
     "tpg262": (6e-5, conversions.TORR_TO_MBAR),    # '%.4E' mbar on the wire
     "ionivac": (conversions.IONIVAC_REL_QUANTUM * 1.05, 1.0),
     "ls455": (1e-5, 1.0),                          # '%+.5E' on the wire
+    "flowmeter_pi": (1e-9, 1.0, 1e-6),             # '%.6f' raw slm x 28/19
+    "flowmeter_diewu": (1e-9, 1.0, 1e-6),
+    "ami1700": (1e-9, 1.0, 6e-4),                  # '%.3f' inches
+    "ami135": (1e-9, 1.0, 0.0201),                 # '%.1f' cm x 0.393
+    "manometer_low": (6e-5, 1.0),                  # '%.4E' Torr in the stream
 }
 
 #: how far back (wall s) a probe sample may look for the served value
@@ -52,15 +58,16 @@ def device_channels(stack: GeneratedStack, run: Path, known_clamps: dict | None 
         kind = (spec.emulator or {}).get("kind")
         if kind not in TOLERANCE:
             continue
-        rel, factor = TOLERANCE[kind]
+        rel, factor, *rest = TOLERANCE[kind]
         for pv, (inst, ch) in device_channel_pvs(spec, _settings(spec)).items():
             s = served[(served["instrument"] == inst) & (served["channel"] == ch)]
             p = probe[probe["pv"] == pv]
-            checks.append(_match(pv, kind, s, p, rel, factor))
+            checks.append(_match(pv, kind, s, p, rel, factor, *rest))
     return checks
 
 
-def _match(pv, kind, served: pd.DataFrame, probe: pd.DataFrame, rel: float, factor: float) -> Check:
+def _match(pv, kind, served: pd.DataFrame, probe: pd.DataFrame, rel: float, factor: float,
+           abs_tol: float = 0.0) -> Check:
     if probe.empty:
         return Check(f"roundtrip {pv}", "FAIL", "no PV updates recorded")
     sw = served["wall"].to_numpy()
@@ -83,7 +90,8 @@ def _match(pv, kind, served: pd.DataFrame, probe: pd.DataFrame, rel: float, fact
             ok = bool(np.isnan(cand).any())
         else:
             fin = cand[np.isfinite(cand)]
-            ok = bool(len(fin)) and bool(np.any(np.abs(fin - num) <= rel * np.maximum(np.abs(fin), 1e-30)))
+            ok = bool(len(fin)) and bool(np.any(
+                np.abs(fin - num) <= np.maximum(rel * np.maximum(np.abs(fin), 1e-30), abs_tol)))
         if ok:
             matched += 1
         elif len(misses) < 5:
@@ -92,7 +100,8 @@ def _match(pv, kind, served: pd.DataFrame, probe: pd.DataFrame, rel: float, fact
                           f"{(near[-3:] if len(near) else cand[-3:]).tolist()}")
     frac = matched / total if total else 0.0
     verdict = "PASS" if total and frac >= MIN_MATCH_FRACTION else "FAIL"
-    summary = f"{matched}/{total} PV updates match a served value (tol {rel:.1e} rel)"
+    tol = f"{rel:.1e} rel" + (f" or {abs_tol:.1e} abs" if abs_tol else "")
+    summary = f"{matched}/{total} PV updates match a served value (tol {tol})"
     if total == 1 and matched and np.isnan(nums[-1]):
         summary = "record has no value: PV published invalid (NaN) as the instrument would"
     return Check(f"roundtrip {pv}", verdict, summary, misses,
