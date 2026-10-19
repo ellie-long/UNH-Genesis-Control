@@ -9,15 +9,6 @@ named in each item. Numbers are stable: answered items move to *Settled*.
 ## Checklist (all open items)
 
 **Equipment and wiring**
-- [ ] 59. **NMR switch meaning (ssRF interlock, live safety logic):** Ells
-      (2026-10-16): 192.168.1.8/SETP=0 = NMR ON, SETP=3 = NMR OFF. The
-      interlock's docstring agrees (PORT1 = Q-meter connected, PORT2 =
-      disconnected/protected), but its logic (`logic_devices/ssrf_interlock.py`
-      ~196-209) treats BOTH ports as live NMR ("Port 1 = legacy LabVIEW;
-      Port 2 = JLab PyNMR"), so with SETP=3 it reports NMR_LIVE and never
-      sees the NMR path off (no ssRF burn permit ever). Is SETP=3 a full NMR
-      disconnect, or the route to the JLab PyNMR system? Not changed until
-      answered.
 - [ ] 60. **Fridge He Level zero:** the record's `Fridge He Level (")` is
       NEGATIVE most of the time the fridge runs (2026-06-17: -9 to -26 in;
       2022-05 down to -87, where `Fridge He Level Raw` is negative too) and
@@ -320,6 +311,13 @@ named in each item. Numbers are stable: answered items move to *Settled*.
     varactors at 0-19 V. Keep a rule, change it, or drop it?
 
 ## Settled
+
+* NMR switch meaning in the ssRF interlock (question 59): fixed by Utsav's
+  `feature/ssrf-pynmr-only` (merged into dev-sim 2026-10-19): NMR mask 0 = on,
+  mask 3 = off; ssRF the same; the interlock reaches SSRF_READY and grants its
+  permits. In the sim all three replayed burns now complete with RF on (the
+  ssrf-burns scenario expects PASS; known issue
+  ssrf-interlock-permits-withheld retired).
 
 * Recording location (Ells, 2026-10-19): keep Utsav's design. Genesis
   recordings (master archiver, subsystem PV CSVs, ssRF events and sessions)

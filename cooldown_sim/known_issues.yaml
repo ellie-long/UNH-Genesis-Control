@@ -52,17 +52,6 @@ archiver-stamps-processing-time:
   where: [logic_devices/archiver.py]
   match: {informational: true}
 
-ssrf-interlock-permits-withheld:
-  summary: >-
-    logic_devices/ssrf_interlock.py evaluate_interlock never grants
-    NMR_CONNECT_PERMIT, SSRF_CONNECT_PERMIT or RF_ENABLE_PERMIT (best state
-    NMR_LIVE, "ssRF RF inhibited pending RF-isolation validation"; deliberate
-    since commit 0051c98, 2026-10-12, asserted by tests/test_ssrf_interlock.py).
-    Every BURN ONCE stops at require_ssrf_connect_permit after configuring the
-    SMC100A/WaveGen and loading the waveform; RF never turns on.
-  where: [logic_devices/ssrf_interlock.py, logic_devices/ssrf_sequence_plan.py]
-  match: {ssrf_outcome: [CLEANUP_FAILED, FAILED]}
-
 ssrf-safe-off-lockup:
   summary: >-
     The burn cleanup and the ABORT / DISARM / RF_OFF / MANUAL_DISARM safe-off
@@ -73,6 +62,9 @@ ssrf-safe-off-lockup:
     the sequencer reports MANUAL_OPERATION, refuses ARM/START/PREPARE/staging,
     and only an IOC restart clears it. A safe-off that cannot complete is the
     serious part: it should not depend on a connect permit.
+    Update 2026-10-19: since Utsav's PyNMR-only interlock (merged into
+    dev-sim) grants the permits, burn cleanups complete in replay; the MANUAL
+    safe-off path is not yet re-verified, so this entry stays.
   where: [logic_devices/ssrf_sequencer.py, logic_devices/ssrf_manual_rf.py, logic_devices/ssrf_sequence_plan.py]
   match: {ssrf_outcome: [CLEANUP_FAILED]}
 

@@ -7,6 +7,15 @@ findings are in `COOLDOWN_SIM_PROGRESS.md`; questions for the lab are in
 
 ## 2026-10-19
 
+* Merged Utsav's `feature/ssrf-pynmr-only` (one conflict between his own
+  branches, two imports, both kept). His interlock rewrite fixes question 59:
+  the sim's three replayed burns now complete with RF on, so ssrf-burns
+  expects PASS, a burn stopped at a permit is now a FAIL, and the known issue
+  `ssrf-interlock-permits-withheld` is retired (`ssrf-safe-off-lockup` kept
+  until the manual safe-off path is re-verified). Also merged his
+  `feature/cryo-gui-completeness` (six new cryo IOCs, emulated in the sim).
+
+
 * `be9a602` Validators: an emulated instrument absent from the era's record
   (connection refused by design, e.g. `flowmeter_left` in 2026-06) passes its
   heartbeat check on COMM 0 and its round trip on a NaN reading, instead of

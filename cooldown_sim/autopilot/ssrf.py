@@ -17,8 +17,8 @@ Observer: the SMC100A read-backs (RF on, level, carrier).  While RF is
 really ON, the burn is applied to the target model -- heat into the cup
 (140 mW at -5 dBm, scaling 10 dB per decade: logbook 2024-12-18) and a
 tensor-polarization hole that heals with Q_heal_tau (ASSUMED depth/rate).
-With the interlock as it stands no burn ever turns RF on (known issue
-ssrf-interlock-permits-withheld), so a replay shows exactly that.
+Since Utsav's PyNMR-only interlock (merged 2026-10-19) grants the permits,
+replayed burns complete and turn RF on, so this is exercised end to end.
 """
 
 from __future__ import annotations

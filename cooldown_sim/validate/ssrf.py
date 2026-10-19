@@ -31,12 +31,11 @@ def checks(run: Path, runtime: dict) -> list[Check]:
                          f"{len(other)} of {len(burns)} replayed burns failed before the interlock "
                          "permit check (staging, readiness or arm)", details))
     elif blocked:
-        out.append(Check("ssrf burn replay", "KNOWN",
+        # the interlock grants the permits since Utsav's PyNMR-only rewrite
+        # (merged 2026-10-19), so a burn stopped at a permit is a regression
+        out.append(Check("ssrf burn replay", "FAIL",
                          f"{len(blocked)} of {len(burns)} replayed burns were configured, loaded and "
-                         "started, then stopped at the ssRF connect permit, which the current "
-                         "interlock never grants (known issues ssrf-interlock-permits-withheld, "
-                         "ssrf-safe-off-lockup)", details,
-                         {"issue": "ssrf-interlock-permits-withheld"}))
+                         "started, then stopped at an ssRF interlock permit", details))
     else:
         out.append(Check("ssrf burn replay", "PASS",
                          f"all {len(burns)} replayed burns completed", details))
