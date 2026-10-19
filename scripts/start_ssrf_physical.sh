@@ -7,6 +7,42 @@ if ! python -m logic_devices.ssrf_lifecycle --held; then
     exec python -m logic_devices.ssrf_lifecycle "$ROOT/scripts/start_ssrf_physical.sh" "$@"
 fi
 
+# Analysis-mode choice; never arms hardware or starts a burn.
+GENESIS_SSRF_BURN_MODE=fit
+GENESIS_SSRF_OPERATOR_MATERIAL=Butanol
+GENESIS_SSRF_OPERATOR_POLARIZATION=0.30
+GENESIS_SSRF_OPERATOR_CENTER_MHZ=""
+while (( $# )); do
+    case "$1" in
+        --burn-mode) GENESIS_SSRF_BURN_MODE="${2:?missing mode}"; shift 2 ;;
+        --material) GENESIS_SSRF_OPERATOR_MATERIAL="${2:?missing material}"; shift 2 ;;
+        --polarization) GENESIS_SSRF_OPERATOR_POLARIZATION="${2:?missing polarization}"; shift 2 ;;
+        --center-mhz) GENESIS_SSRF_OPERATOR_CENTER_MHZ="${2:?missing center}"; shift 2 ;;
+        *) echo "[FAIL] Unknown ssRF startup option: $1" >&2; exit 2 ;;
+    esac
+done
+[[ "$GENESIS_SSRF_BURN_MODE" == fit || "$GENESIS_SSRF_BURN_MODE" == operator ]] || {
+    echo '[FAIL] --burn-mode must be fit or operator' >&2; exit 2;
+}
+# Validate the user-supplied strings before they enter IOC startup command lines.
+[[ "$GENESIS_SSRF_OPERATOR_MATERIAL" == Butanol || "$GENESIS_SSRF_OPERATOR_MATERIAL" == ND3 ]] || {
+    echo '[FAIL] --material must be Butanol or ND3' >&2; exit 2;
+}
+python - "$GENESIS_SSRF_OPERATOR_POLARIZATION" "$GENESIS_SSRF_OPERATOR_CENTER_MHZ" <<'PY_SSRF_ARGS'
+import math, sys
+p = float(sys.argv[1])
+assert math.isfinite(p) and -1.0 <= p <= 1.0
+if sys.argv[2]:
+    c = float(sys.argv[2])
+    assert math.isfinite(c) and 1.0 <= c <= 100.0
+PY_SSRF_ARGS
+if [[ "$GENESIS_SSRF_BURN_MODE" == operator ]]; then
+    export GENESIS_SSRF_BURN_MODE GENESIS_SSRF_OPERATOR_MATERIAL GENESIS_SSRF_OPERATOR_POLARIZATION
+    if [[ -n "$GENESIS_SSRF_OPERATOR_CENTER_MHZ" ]]; then export GENESIS_SSRF_OPERATOR_CENTER_MHZ; fi
+    echo "[NOTICE] OPERATOR REFERENCE waveform mode (not NMR fit validated)"
+else
+    export GENESIS_SSRF_BURN_MODE
+fi
 REMOTE="${GENESIS_KEYSIGHT_HOST:-genesis-keysight}"
 REMOTE_ROOT="${GENESIS_KEYSIGHT_ROOT:-/home/unhpoltarg/genesis_keysight/runtime}"
 REMOTE_VENV="${GENESIS_KEYSIGHT_VENV:-/home/unhpoltarg/genesis_keysight/.venv}"
@@ -31,7 +67,7 @@ start_local_ioc() {
         exit 1
     fi
     mkdir -p "$ROOT/logs"
-    screen -dmS "$session" bash -lc "cd '$ROOT' && env EPICS_CAS_SERVER_PORT='$ca_port' EPICS_PVA_SERVER_PORT='$pva_port' EPICS_CA_MAX_ARRAY_BYTES=262144 EPICS_CA_USER_NAME='$ca_user' PYTHONPATH='$ROOT' '$PYTHON_BIN' -u master_ioc.py -s '$settings' -i '$ioc' >> '$log' 2>&1"
+    screen -dmS "$session" bash -lc "cd '$ROOT' && env EPICS_CAS_SERVER_PORT='$ca_port' EPICS_PVA_SERVER_PORT='$pva_port' EPICS_CA_MAX_ARRAY_BYTES=262144 EPICS_CA_USER_NAME='$ca_user' GENESIS_SSRF_BURN_MODE='$GENESIS_SSRF_BURN_MODE' GENESIS_SSRF_OPERATOR_MATERIAL='$GENESIS_SSRF_OPERATOR_MATERIAL' GENESIS_SSRF_OPERATOR_POLARIZATION='$GENESIS_SSRF_OPERATOR_POLARIZATION' GENESIS_SSRF_OPERATOR_CENTER_MHZ='$GENESIS_SSRF_OPERATOR_CENTER_MHZ' PYTHONPATH='$ROOT' '$PYTHON_BIN' -u master_ioc.py -s '$settings' -i '$ioc' >> '$log' 2>&1"
     sleep 2
     if ! session_exists "$session"; then
         echo "[FAIL] $session exited; log follows" >&2
@@ -245,6 +281,7 @@ echo "============================================================"
 echo " FINAL SSRF STACK READY"
 echo " JSON/session logging and per-PV CSV archiving are active."
 echo " No burn is armed. No RF/FM/WaveGen output was enabled by startup."
-echo " Adaptive burn: NMR/calibrate -> GENERATE / LOAD -> ARM -> BURN ONCE"
+echo " Burn mode: $GENESIS_SSRF_BURN_MODE (no RF execution at startup)"
+echo " Adaptive burn: GENERATE / LOAD -> ARM -> BURN ONCE"
 echo " Manual RF: select carrier/level -> MANUAL ARM -> RF ON; RF OFF / ABORT for safe cleanup."
 echo "============================================================"
