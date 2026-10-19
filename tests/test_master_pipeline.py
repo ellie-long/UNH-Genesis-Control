@@ -1,4 +1,4 @@
-"""337-PV end-to-end master pipeline test using fake CA callbacks.
+"""343-PV (337 + target-cup T1/T3) end-to-end master pipeline test using fake CA callbacks.
 
 No physical IOC, network connection, EPICS write, or device polling.
 """
@@ -68,7 +68,7 @@ class FakeClock:
 def test_complete_337_pv_master_pipeline(tmp_path):
     async def scenario():
         registry, report = build_registry()
-        assert report["total"] == 337
+        assert report["total"] == 343
 
         pvs = sorted(registry)
         started = datetime.now(timezone.utc)
@@ -102,13 +102,13 @@ def test_complete_337_pv_master_pipeline(tmp_path):
         health = runtime.health()
 
         assert health["snapshots"] == 3
-        assert health["accepted_events"] == 1011
-        assert health["written_events"] == 1011
+        assert health["accepted_events"] == 1029        # 3 events x 343 PVs
+        assert health["written_events"] == 1029        # 3 events x 343 PVs
         assert health["dropped_events"] == 0
         assert health["finished"] is True
         assert health["overruns"] == 0
 
-        assert len(fake_ca.subscriptions) == 337
+        assert len(fake_ca.subscriptions) == 343
         assert all(
             subscription.closed
             for subscription in fake_ca.subscriptions.values()
@@ -132,7 +132,7 @@ def test_complete_337_pv_master_pipeline(tmp_path):
             fields = reader.fieldnames
             rows = list(reader)
 
-        assert len(fields) == 1687
+        assert len(fields) == 1717        # 5 columns x 343 PVs + 2 timestamps
         assert len(rows) == 3
 
         for tick, row in enumerate(rows, 1):
@@ -155,7 +155,7 @@ def test_complete_337_pv_master_pipeline(tmp_path):
         ).open(encoding="utf-8") as handle:
             events = [json.loads(line) for line in handle]
 
-        assert len(events) == 1011
+        assert len(events) == 1029        # 3 events x 343 PVs
         assert all(event["connected"] for event in events)
         assert all(event["source_utc"] for event in events)
 

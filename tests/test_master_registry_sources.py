@@ -76,11 +76,11 @@ def test_existing_physical_coverage_unchanged():
     registry, report = build_registry()
 
     assert report["counts"] == {
-        "Cryo": 136,
+        "Cryo": 142,          # +6: target-cup T1/T3 (TI, RI, Status), dev-sim
         "ssRF": 97,
         "Microwave": 104,
     }
 
-    assert report["total"] == 337
+    assert report["total"] == 343
     assert len(report["invalid_archive_references"]) == 9
-    assert len(registry) == 337
+    assert len(registry) == 343

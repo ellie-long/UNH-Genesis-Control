@@ -5,6 +5,14 @@ Each entry gives the commit, what changed, and why. The narrative and the
 findings are in `COOLDOWN_SIM_PROGRESS.md`; questions for the lab are in
 `COOLDOWN_SIM_OPEN_QUESTIONS.md`.
 
+## 2026-10-19
+
+* Merged Utsav's `main` (master archiver, dual-source NMR, restart recovery;
+  11 commits). Clean merge; his master-archiver tests pinned the Cryo PV count
+  (136, total 337), now 142 / 343 with the target-cup T1/T3 PVs (TI, RI,
+  Status) dev-sim archives. All his tests pass in WSL (they need Linux:
+  `fcntl`); sim suite 228 passed.
+
 ## 2026-10-17
 
 * Hindcast `--truth mcclellan`: scores the model against the McClellan
