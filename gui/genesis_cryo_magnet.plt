@@ -106,5 +106,37 @@
       <ring_size>5000</ring_size>
       <request>OPTIMIZED</request>
     </pv>
+    <pv>
+      <display_name>T1_TI</display_name>
+      <visible>true</visible>
+      <name>UNH:GEN:CRYO:MAG:T1_TI</name>
+      <axis>0</axis>
+      <color><red>30</red><green>100</green><blue>220</blue></color>
+      <trace_type>LINES_DIRECT</trace_type>
+      <linewidth>2</linewidth>
+      <line_style>SOLID</line_style>
+      <point_type>NONE</point_type>
+      <point_size>2</point_size>
+      <waveform_index>0</waveform_index>
+      <period>0.0</period>
+      <ring_size>5000</ring_size>
+      <request>OPTIMIZED</request>
+    </pv>
+    <pv>
+      <display_name>T3_TI</display_name>
+      <visible>true</visible>
+      <name>UNH:GEN:CRYO:MAG:T3_TI</name>
+      <axis>0</axis>
+      <color><red>160</red><green>80</green><blue>80</blue></color>
+      <trace_type>LINES_DIRECT</trace_type>
+      <linewidth>2</linewidth>
+      <line_style>SOLID</line_style>
+      <point_type>NONE</point_type>
+      <point_size>2</point_size>
+      <waveform_index>0</waveform_index>
+      <period>0.0</period>
+      <ring_size>5000</ring_size>
+      <request>OPTIMIZED</request>
+    </pv>
   </pvlist>
 </databrowser>

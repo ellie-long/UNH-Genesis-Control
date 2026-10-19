@@ -98,7 +98,7 @@
     <y>208</y>
     <width>150</width>
     <height>20</height>
-    <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F1_Conn</pv_name>
+    <pv_name>ca://UNH:GEN:CRYO:FRIDGE:COMM</pv_name>
     <precision>4</precision>
     <format>6</format>
   </widget>
@@ -169,7 +169,7 @@
     <y>292</y>
     <width>150</width>
     <height>20</height>
-    <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F2_Conn</pv_name>
+    <pv_name>ca://UNH:GEN:CRYO:FRIDGE:COMM</pv_name>
     <precision>4</precision>
     <format>6</format>
   </widget>
@@ -240,7 +240,7 @@
     <y>376</y>
     <width>150</width>
     <height>20</height>
-    <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F3_Conn</pv_name>
+    <pv_name>ca://UNH:GEN:CRYO:FRIDGE:COMM</pv_name>
     <precision>4</precision>
     <format>6</format>
   </widget>
@@ -311,7 +311,7 @@
     <y>460</y>
     <width>150</width>
     <height>20</height>
-    <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F4_Conn</pv_name>
+    <pv_name>ca://UNH:GEN:CRYO:FRIDGE:COMM</pv_name>
     <precision>4</precision>
     <format>6</format>
   </widget>
@@ -382,7 +382,7 @@
     <y>544</y>
     <width>150</width>
     <height>20</height>
-    <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F5_Conn</pv_name>
+    <pv_name>ca://UNH:GEN:CRYO:FRIDGE:COMM</pv_name>
     <precision>4</precision>
     <format>6</format>
   </widget>
@@ -453,7 +453,7 @@
     <y>628</y>
     <width>150</width>
     <height>20</height>
-    <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F6_Conn</pv_name>
+    <pv_name>ca://UNH:GEN:CRYO:FRIDGE:COMM</pv_name>
     <precision>4</precision>
     <format>6</format>
   </widget>
@@ -524,7 +524,7 @@
     <y>208</y>
     <width>150</width>
     <height>20</height>
-    <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F7_Conn</pv_name>
+    <pv_name>ca://UNH:GEN:CRYO:FRIDGE:COMM</pv_name>
     <precision>4</precision>
     <format>6</format>
   </widget>
@@ -595,7 +595,7 @@
     <y>292</y>
     <width>150</width>
     <height>20</height>
-    <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F8_Conn</pv_name>
+    <pv_name>ca://UNH:GEN:CRYO:FRIDGE:COMM</pv_name>
     <precision>4</precision>
     <format>6</format>
   </widget>
@@ -666,7 +666,7 @@
     <y>376</y>
     <width>150</width>
     <height>20</height>
-    <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F9_Conn</pv_name>
+    <pv_name>ca://UNH:GEN:CRYO:FRIDGE:COMM</pv_name>
     <precision>4</precision>
     <format>6</format>
   </widget>
@@ -737,7 +737,7 @@
     <y>460</y>
     <width>150</width>
     <height>20</height>
-    <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F10_Conn</pv_name>
+    <pv_name>ca://UNH:GEN:CRYO:FRIDGE:COMM</pv_name>
     <precision>4</precision>
     <format>6</format>
   </widget>
@@ -808,7 +808,7 @@
     <y>544</y>
     <width>150</width>
     <height>20</height>
-    <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F11_Conn</pv_name>
+    <pv_name>ca://UNH:GEN:CRYO:FRIDGE:COMM</pv_name>
     <precision>4</precision>
     <format>6</format>
   </widget>

@@ -29,7 +29,7 @@ def test_optional_archive_inventory():
 
     pvs = archive["archiver"]["explicit_pvs"]
 
-    assert len(pvs) == len(set(pvs)) == 164
+    assert len(pvs) == len(set(pvs)) == 155
     assert archive["archiver"]["autostart"] is False
     assert archive["archiver"]["module"] == "logic_devices.archiver"
 
@@ -54,7 +54,7 @@ def test_optional_archive_inventory():
 
     assert len(new_pvs) == 28
     assert pvs[-28:] == new_pvs
-    assert len(pvs[:-28]) == 136
+    assert len(pvs[:-28]) == 127
 
     assert not any(
         pv.startswith("UNH:GEN:CRYO:ARCH:")

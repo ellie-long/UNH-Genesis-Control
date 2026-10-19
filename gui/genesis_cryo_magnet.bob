@@ -98,7 +98,7 @@
     <y>204</y>
     <width>150</width>
     <height>20</height>
-    <pv_name>ca://UNH:GEN:CRYO:MAG:M1_Conn</pv_name>
+    <pv_name>ca://UNH:GEN:CRYO:MAG:COMM</pv_name>
     <precision>4</precision>
     <format>6</format>
   </widget>
@@ -169,7 +169,7 @@
     <y>288</y>
     <width>150</width>
     <height>20</height>
-    <pv_name>ca://UNH:GEN:CRYO:MAG:M2_Conn</pv_name>
+    <pv_name>ca://UNH:GEN:CRYO:MAG:COMM</pv_name>
     <precision>4</precision>
     <format>6</format>
   </widget>
@@ -240,7 +240,7 @@
     <y>372</y>
     <width>150</width>
     <height>20</height>
-    <pv_name>ca://UNH:GEN:CRYO:MAG:M3_Conn</pv_name>
+    <pv_name>ca://UNH:GEN:CRYO:MAG:COMM</pv_name>
     <precision>4</precision>
     <format>6</format>
   </widget>
@@ -311,7 +311,7 @@
     <y>456</y>
     <width>150</width>
     <height>20</height>
-    <pv_name>ca://UNH:GEN:CRYO:MAG:M4_Conn</pv_name>
+    <pv_name>ca://UNH:GEN:CRYO:MAG:COMM</pv_name>
     <precision>4</precision>
     <format>6</format>
   </widget>
@@ -382,7 +382,7 @@
     <y>540</y>
     <width>150</width>
     <height>20</height>
-    <pv_name>ca://UNH:GEN:CRYO:MAG:M5_Conn</pv_name>
+    <pv_name>ca://UNH:GEN:CRYO:MAG:COMM</pv_name>
     <precision>4</precision>
     <format>6</format>
   </widget>
