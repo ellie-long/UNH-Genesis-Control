@@ -19,6 +19,7 @@ EXPECTED = {
     "genesis_cryo_coldboard.bob",
     "genesis_cryo_safety.bob",
     "genesis_cryo_data.bob",
+    "genesis_cryo_flow.bob",
     "genesis_cryo_diagnostics.bob",
 }
 
@@ -259,7 +260,16 @@ def test_cryo_gui_rendering_contract():
     )
 
     assert "Torr" in vacuum_text
-    assert "mbar" in vacuum_text
+    assert "mbar" not in vacuum_text
+
+    import yaml
+    profile = yaml.safe_load(
+        (repo / "configs/target_physical/tpg262/settings.yaml").read_text()
+    )["tpg262"]
+    assert all(
+        profile["records"][pv]["EGU"] == "Torr"
+        for pv in ("Pump_PI", "OVC_PI")
+    )
 
 
 
@@ -295,6 +305,10 @@ def test_cryo_main_navigation_is_unique():
         "genesis_cryo_safety.bob",
         "genesis_cryo_data.bob",
         "genesis_cryo_diagnostics.bob",
+        "genesis_cryo_flow.bob",
+        "genesis_cryo_cell_expert.bob",
+        "genesis_cryo_ion_expert.bob",
+        "genesis_cryo_vacuum_expert.bob",
     ]
 
     assert sorted(destinations) == sorted(required)
@@ -314,7 +328,7 @@ def test_cryo_gui_headers_and_final_schematic():
         gui.glob("genesis_cryo*.bob")
     )
 
-    assert len(bobs) == 12
+    assert len(bobs) == 13
 
     for path in bobs:
         root = ET.parse(path).getroot()

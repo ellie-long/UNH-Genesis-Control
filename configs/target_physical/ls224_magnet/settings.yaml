@@ -16,19 +16,32 @@ ls224_magnet:
   port: 7777
   timeout: 3
   delay: 2
-  calibration: calibration/magnet_thermometry.csv
+  calibration: calibration/Thermo_Calibrations.ods
+  # Target stick 2 (actual spreadsheet rows 21/22), no PDF/certificate curves.
+  # 2-T1 -> C4, 2-T3 -> C2. The ODS is authoritative at IOC startup.
+  ccx_calibration: calibration/Thermo_Calibrations.ods
+  ccx_sensors:
+    T1: 2-T1
+    T3: 2-T3
+  ccx_required:
+  - T1
+  - T3
   channels:
   - M1
   - M2
   - M3
   - M4
   - M5
+  - T1
+  - T3
   slots:
   - D3
   - D1
   - D2
   - D4
   - D5
+  - C4
+  - C2
   records:
     M1_TI:
       DESC: Magnet M1 temperature (CCS2 sensor)

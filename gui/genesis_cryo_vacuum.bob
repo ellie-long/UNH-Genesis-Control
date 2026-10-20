@@ -1,14 +1,14 @@
 <?xml version='1.0' encoding='utf-8'?>
 <display version="2.0.0">
   <name>Genesis Cryo Vacuum</name>
-  <width>1180</width>
-  <height>850</height>
+  <width>1280</width>
+  <height>720</height>
   <widget type="rectangle" version="2.0.0">
     <name>Page</name>
     <x>0</x>
     <y>0</y>
-    <width>1180</width>
-    <height>850</height>
+    <width>1280</width>
+    <height>720</height>
     <line_width>0</line_width>
     <background_color>
       <color red="255" green="255" blue="255" alpha="255" />
@@ -18,7 +18,7 @@
     <name>Header</name>
     <x>0</x>
     <y>0</y>
-    <width>1180</width>
+    <width>1280</width>
     <height>70</height>
     <line_width>0</line_width>
     <background_color>
@@ -45,7 +45,7 @@
     <name>Pressure_Card</name>
     <x>20</x>
     <y>95</y>
-    <width>1140</width>
+    <width>1240</width>
     <height>260</height>
     <line_width>0</line_width>
     <corner_width>8</corner_width>
@@ -58,7 +58,7 @@
     <name>Pressure_Header</name>
     <x>20</x>
     <y>95</y>
-    <width>1140</width>
+    <width>1240</width>
     <height>38</height>
     <line_width>0</line_width>
     <corner_width>8</corner_width>
@@ -71,7 +71,7 @@
     <name>Pressure_Title</name>
     <x>34</x>
     <y>102</y>
-    <width>1112</width>
+    <width>1212</width>
     <height>24</height>
     <text>PRESSURE MONITORING</text>
     <transparent>true</transparent>
@@ -196,7 +196,7 @@
     <y>195</y>
     <width>55</width>
     <height>24</height>
-    <text>mbar</text>
+    <text>Torr</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
     <font>
@@ -270,7 +270,7 @@
     <y>240</y>
     <width>55</width>
     <height>24</height>
-    <text>mbar</text>
+    <text>Torr</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
     <font>
@@ -311,7 +311,7 @@
     <y>285</y>
     <width>150</width>
     <height>24</height>
-    <text>Ion gauge</text>
+    <text>Fridge-shell ion</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
     <font>
@@ -427,9 +427,9 @@
   <widget type="rectangle" version="2.0.0">
     <name>VacTrend_Card</name>
     <x>20</x>
-    <y>380</y>
-    <width>1140</width>
-    <height>380</height>
+    <y>367</y>
+    <width>1240</width>
+    <height>275</height>
     <line_width>0</line_width>
     <corner_width>8</corner_width>
     <corner_height>8</corner_height>
@@ -440,8 +440,8 @@
   <widget type="rectangle" version="2.0.0">
     <name>VacTrend_Header</name>
     <x>20</x>
-    <y>380</y>
-    <width>1140</width>
+    <y>367</y>
+    <width>1240</width>
     <height>38</height>
     <line_width>0</line_width>
     <corner_width>8</corner_width>
@@ -453,8 +453,8 @@
   <widget type="label" version="2.0.0">
     <name>VacTrend_Title</name>
     <x>34</x>
-    <y>387</y>
-    <width>1112</width>
+    <y>374</y>
+    <width>1212</width>
     <height>24</height>
     <text>PRESSURE TREND</text>
     <transparent>true</transparent>
@@ -469,16 +469,16 @@
   <widget type="databrowser" version="2.0.0">
     <name>VacuumTrend</name>
     <x>40</x>
-    <y>430</y>
-    <width>1100</width>
-    <height>300</height>
+    <y>417</y>
+    <width>1200</width>
+    <height>210</height>
     <file>genesis_cryo_vacuum.plt</file>
     <show_toolbar>true</show_toolbar>
   </widget>
   <widget type="action_button" version="3.0.0">
     <name>Back</name>
-    <x>930</x>
-    <y>790</y>
+    <x>1030</x>
+    <y>663</y>
     <width>210</width>
     <height>34</height>
     <actions>
@@ -489,5 +489,221 @@
       </action>
     </actions>
     <text>&lt; Cryo Overview</text>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Genesis_Mano_Title</name>
+    <x>900</x>
+    <y>135</y>
+    <width>239</width>
+    <height>20</height>
+    <text>LOW MANOMETER / He VAPOR T</text>
+    <transparent>true</transparent>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="12.0" />
+    </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Genesis_Mano_0_L</name>
+    <x>900</x>
+    <y>160</y>
+    <width>94</width>
+    <height>23</height>
+    <text>Pressure (Torr)</text>
+    <transparent>true</transparent>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="11.0" />
+    </font>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Genesis_Mano_0_V</name>
+    <x>997</x>
+    <y>159</y>
+    <width>142</width>
+    <height>24</height>
+    <pv_name>ca://UNH:GEN:CRYO:VAC:LOW:Mano_PI</pv_name>
+    <format>1</format>
+    <precision>6</precision>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="11.0" />
+    </font>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Genesis_Mano_1_L</name>
+    <x>900</x>
+    <y>189</y>
+    <width>94</width>
+    <height>23</height>
+    <text>Gauge status</text>
+    <transparent>true</transparent>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="11.0" />
+    </font>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Genesis_Mano_1_V</name>
+    <x>997</x>
+    <y>188</y>
+    <width>142</width>
+    <height>24</height>
+    <pv_name>ca://UNH:GEN:CRYO:VAC:LOW:Mano_Status</pv_name>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="11.0" />
+    </font>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Genesis_Mano_2_L</name>
+    <x>900</x>
+    <y>218</y>
+    <width>94</width>
+    <height>23</height>
+    <text>Vapor T (K)</text>
+    <transparent>true</transparent>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="11.0" />
+    </font>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Genesis_Mano_2_V</name>
+    <x>997</x>
+    <y>217</y>
+    <width>142</width>
+    <height>24</height>
+    <pv_name>ca://UNH:GEN:CRYO:VAC:LOW:Mano_VapT</pv_name>
+    <format>1</format>
+    <precision>2</precision>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="11.0" />
+    </font>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Genesis_Mano_3_L</name>
+    <x>900</x>
+    <y>247</y>
+    <width>94</width>
+    <height>23</height>
+    <text>He phase</text>
+    <transparent>true</transparent>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="11.0" />
+    </font>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Genesis_Mano_3_V</name>
+    <x>997</x>
+    <y>246</y>
+    <width>142</width>
+    <height>24</height>
+    <pv_name>ca://UNH:GEN:CRYO:VAC:LOW:Mano_VapPhase</pv_name>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="11.0" />
+    </font>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Genesis_Mano_4_L</name>
+    <x>900</x>
+    <y>276</y>
+    <width>94</width>
+    <height>23</height>
+    <text>Conv. status</text>
+    <transparent>true</transparent>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="11.0" />
+    </font>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Genesis_Mano_4_V</name>
+    <x>997</x>
+    <y>275</y>
+    <width>142</width>
+    <height>24</height>
+    <pv_name>ca://UNH:GEN:CRYO:VAC:LOW:Mano_VapStatus</pv_name>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="11.0" />
+    </font>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Genesis_Mano_5_L</name>
+    <x>900</x>
+    <y>305</y>
+    <width>94</width>
+    <height>23</height>
+    <text>IOC heartbeat</text>
+    <transparent>true</transparent>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="11.0" />
+    </font>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Genesis_Mano_5_V</name>
+    <x>997</x>
+    <y>304</y>
+    <width>142</width>
+    <height>24</height>
+    <pv_name>ca://UNH:GEN:CRYO:VAC:LOW:MAN:manometer_low_time</pv_name>
+    <format>1</format>
+    <precision>0</precision>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="11.0" />
+    </font>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>PumpCartL</name>
+    <x>45</x>
+    <y>326</y>
+    <width>150</width>
+    <height>24</height>
+    <text>Pump-cart ion</text>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>PumpCartV</name>
+    <x>205</x>
+    <y>324</y>
+    <width>180</width>
+    <height>28</height>
+    <pv_name>ca://UNH:GEN:CRYO:ION:PUMP:Ion_PI</pv_name>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>PumpCartU</name>
+    <x>395</x>
+    <y>326</y>
+    <width>55</width>
+    <height>24</height>
+    <text>Torr</text>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>PumpCartLED</name>
+    <x>475</x>
+    <y>328</y>
+    <width>22</width>
+    <height>22</height>
+    <pv_name>ca://UNH:GEN:CRYO:ION:PUMP:COMM</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>PumpCartCOMM</name>
+    <x>510</x>
+    <y>324</y>
+    <width>100</width>
+    <height>27</height>
+    <pv_name>ca://UNH:GEN:CRYO:ION:PUMP:COMM</pv_name>
   </widget>
 </display>

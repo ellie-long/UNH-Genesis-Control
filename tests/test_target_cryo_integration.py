@@ -84,6 +84,12 @@ PHYSICAL = {
         "ca": 5114,
         "pva": 5214,
     },
+    "ionivac_pump": {
+        "prefix": "UNH:GEN:CRYO:ION:PUMP",
+        "module": "target_ioc.instruments.ionivac",
+        "ca": 5129,
+        "pva": 5229,
+    },
     "ls455": {
         "prefix": "UNH:GEN:CRYO:FIELD",
         "module": "target_ioc.instruments.ls455",
@@ -200,8 +206,17 @@ def test_cryo_manager_contract():
         "archiver",
     }
 
+    optional_owners = {
+        "flowmeter_pi",
+        "flowmeter_left",
+        "flowmeter_sep",
+        "lhe_fridge",
+        "lhe_magnet",
+        "manometer_low",
+    }
+
     assert set(manager) - {"general"} == (
-        set(PHYSICAL) | logic_owners
+        set(PHYSICAL) | logic_owners | optional_owners
     )
 
     for name, expected in PHYSICAL.items():

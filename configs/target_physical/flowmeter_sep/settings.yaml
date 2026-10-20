@@ -1,0 +1,34 @@
+# Genesis Cryogenics physical device profile.
+# Adapted from Farooq's October 15, 2026 update.
+# Physical operation requires Ubuntu acceptance.
+# No hardware writes authorized.
+
+general:
+  prefix: UNH:GEN:CRYO:FLOW:SEP
+  log_dir: logs
+  epics_addr_list: None
+  delay: 0.5
+flowmeter_sep:
+  label: Separator
+  module: target_ioc.instruments.flowmeter_diewu
+  autostart: false
+  ip: 192.168.1.251
+  port: 5013
+  timeout: 3
+  delay: 2
+  request: F
+  correction: 1.4736842105
+  channels:
+  - SepFlow
+  records:
+    SepFlow_SLM:
+      DESC: Separate flowmeter, corrected
+      EGU: slm
+      PREC: 4
+    SepFlow_Raw:
+      DESC: Separate flowmeter, as reported
+      EGU: slm
+      PREC: 4
+    SepFlow_Status:
+      DESC: Separate flowmeter status
+  write_enabled: false

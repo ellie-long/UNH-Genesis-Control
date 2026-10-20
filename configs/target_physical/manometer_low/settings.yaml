@@ -1,0 +1,41 @@
+# Genesis low-pressure manometer physical profile.
+# Adapted from Farooq's October 15, 2026 update.
+# Read-only commissioning; helium conversion requires validation.
+
+general:
+  prefix: UNH:GEN:CRYO:VAC:LOW
+  log_dir: logs
+  epics_addr_list: None
+  delay: 0.5
+manometer_low:
+  label: Mano.Lo
+  module: target_ioc.instruments.manometer_low
+  autostart: false
+  ip: 192.168.1.24
+  port: 5030
+  timeout: 3
+  delay: 2
+  substring_start: 4
+  vapor_pressure: true
+  pressure_unit: Torr
+  vapor_bands: calibration/vapor_pressure_he4.csv
+  channels:
+  - Mano
+  records:
+    Mano_PI:
+      DESC: Manometer Low pressure
+      EGU: Torr
+      PREC: 6
+    Mano_Status:
+      DESC: Manometer Low line status
+    Mano_Raw:
+      DESC: Manometer Low raw line
+    Mano_VapT:
+      DESC: Vapor pressure temperature (ITS-90)
+      EGU: K
+      PREC: 4
+    Mano_VapPhase:
+      DESC: He-II / He-I, from the lambda point
+    Mano_VapStatus:
+      DESC: Vapor pressure conversion status
+  write_enabled: false
