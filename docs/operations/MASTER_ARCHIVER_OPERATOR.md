@@ -4,6 +4,8 @@
 
 **Applies to:** validated deployed release under the designated operator account, with the `genesis-p1` Conda environment active. Run the following commands from that deployed repository (not from a feature worktree). The laboratory's approved operating procedure determines when recording is enabled.
 
+For the archive directory layout, file schemas, CSV column definitions, and quality interpretation, see [Master Archiver File Format](MASTER_ARCHIVER_FILE_FORMAT.md).
+
 ## Everyday commands
 
 | Action | Command |
