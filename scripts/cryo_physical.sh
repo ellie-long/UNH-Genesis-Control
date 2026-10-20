@@ -23,8 +23,12 @@ NAMES=(
     ls455
     ls224_fridge
     ls224_magnet
+    flowmeter_pi
     flowmeter_left
     flowmeter_sep
+    lhe_fridge
+    lhe_magnet
+    manometer_low
     safety_interlock
     target_status
     save_restore
@@ -41,8 +45,12 @@ START_ORDER=(
     ls455
     ls224_fridge
     ls224_magnet
+    flowmeter_pi
     flowmeter_left
     flowmeter_sep
+    lhe_fridge
+    lhe_magnet
+    manometer_low
     safety_interlock
     target_status
     save_restore
@@ -56,8 +64,12 @@ STOP_ORDER=(
     save_restore
     target_status
     safety_interlock
+    manometer_low
+    lhe_magnet
+    lhe_fridge
     flowmeter_sep
     flowmeter_left
+    flowmeter_pi
     ls224_magnet
     ls224_fridge
     ls455
@@ -419,7 +431,7 @@ start_one()
 
     if session_exists "$session"; then
         echo "[FAIL] session already exists: $session" >&2
-        exit 1
+        return 1
     fi
 
     IFS=$'\t' read -r \
@@ -430,6 +442,11 @@ start_one()
         < <(
             profile_fields "$name"
         )
+
+    if ss -ltn | awk -v p=":$ca_port"         '$4 ~ (p "$") {found=1} END {exit !found}'; then
+        echo "[FAIL] CA port $ca_port already occupied for $name" >&2
+        return 1
+    fi
 
     logfile="$ROOT/logs/${session}.log"
     addresses="$(ca_list)"
@@ -461,7 +478,7 @@ PYTHONPATH='$ROOT' \
         echo >&2
         echo "[INFO] Already-started Cryo owners were retained." >&2
         echo "       Inspect with: genesis cryo-status" >&2
-        exit 1
+        return 1
     fi
 
     echo "[PASS] $session"
@@ -950,10 +967,8 @@ start_stack()
 
         PARTIAL)
             echo
-            echo "[FAIL] partial Cryo lifecycle stack exists." >&2
-            echo "       Refusing duplicate hardware ownership." >&2
-            echo "       Inspect with: genesis cryo-status" >&2
-            return 1
+            echo "[INFO] Partial Cryo stack detected."
+            echo "       Starting missing IOC owners only."
             ;;
 
         ZERO)
@@ -971,9 +986,42 @@ start_stack()
 
     local name
 
+    local failures=0
+    local missing=0
+    local session
+
     for name in "${START_ORDER[@]}"; do
-        start_one "$name"
+        session="$(session_name "$name")"
+
+        if session_exists "$session"; then
+            echo "[UP] $session"
+            continue
+        fi
+
+        if ! start_one "$name"; then
+            echo "[FAIL] Could not start $session" >&2
+            ((failures += 1))
+        fi
     done
+
+    echo
+    echo "===== VERIFY ALL CRYO IOC OWNERS ====="
+
+    for name in "${NAMES[@]}"; do
+        session="$(session_name "$name")"
+        if ! session_exists "$session"; then
+            echo "[MISSING] $session" >&2
+            ((missing += 1))
+        fi
+    done
+
+    if (( failures > 0 || missing > 0 )); then
+        echo "[FAIL] Cryo startup incomplete:" >&2
+        echo "       launch failures=$failures, missing=$missing" >&2
+        return 1
+    fi
+
+    echo "[PASS] All ${#NAMES[@]} Cryo IOCs running."
 
     echo
     echo "===== VERIFY READ-ONLY PHYSICAL BASELINE ====="

@@ -86,9 +86,15 @@ def test_commissioned_cryo_lifecycle_membership():
         "alarm_summary",
     }
 
-    commissioned = {
+    commissioned = set(OPTIONAL)
+
+    assert commissioned == {
+        "flowmeter_pi",
         "flowmeter_left",
         "flowmeter_sep",
+        "lhe_fridge",
+        "lhe_magnet",
+        "manometer_low",
     }
 
     expected = original | commissioned
@@ -103,14 +109,12 @@ def test_commissioned_cryo_lifecycle_membership():
 
         entries = match.group(1).split()
 
-        assert len(entries) == 15, array
+        assert len(entries) == 19, array
         assert len(entries) == len(set(entries)), array
         assert set(entries) == expected, array
 
-        # Uncommissioned optional devices remain excluded.
-        assert not set(entries).intersection(
-            set(OPTIONAL) - commissioned
-        ), array
+        # All registered Cryo devices are lifecycle members.
+        assert commissioned <= set(entries), array
 
     # Startup and shutdown retain their intended ordering.
     start = re.search(
