@@ -67,8 +67,31 @@ def test_discovery_includes_all_registered_iocs():
     assert lines[0][len(key):].split() == expected
 
 
-def test_optional_devices_excluded_from_default_lifecycle():
+def test_commissioned_cryo_lifecycle_membership():
     script = (ROOT / "scripts/cryo_physical.sh").read_text()
+
+    original = {
+        "siglent_coldboard",
+        "mks902b",
+        "tpg262",
+        "ionivac",
+        "ionivac_pump",
+        "ls455",
+        "ls224_fridge",
+        "ls224_magnet",
+        "safety_interlock",
+        "target_status",
+        "save_restore",
+        "archiver",
+        "alarm_summary",
+    }
+
+    commissioned = {
+        "flowmeter_left",
+        "flowmeter_sep",
+    }
+
+    expected = original | commissioned
 
     for array in ("NAMES", "START_ORDER", "STOP_ORDER"):
         match = re.search(
@@ -78,10 +101,35 @@ def test_optional_devices_excluded_from_default_lifecycle():
         )
         assert match is not None, array
 
-        names = set(match.group(1).split())
-        assert len(names) == 13, array
-        assert not names.intersection(OPTIONAL), array
+        entries = match.group(1).split()
 
-    # Static preflight must nevertheless cover optional devices.
+        assert len(entries) == 15, array
+        assert len(entries) == len(set(entries)), array
+        assert set(entries) == expected, array
+
+        # Uncommissioned optional devices remain excluded.
+        assert not set(entries).intersection(
+            set(OPTIONAL) - commissioned
+        ), array
+
+    # Startup and shutdown retain their intended ordering.
+    start = re.search(
+        r"^START_ORDER=\(\n(.*?)^\)",
+        script,
+        re.DOTALL | re.MULTILINE,
+    ).group(1).split()
+
+    stop = re.search(
+        r"^STOP_ORDER=\(\n(.*?)^\)",
+        script,
+        re.DOTALL | re.MULTILINE,
+    ).group(1).split()
+
+    assert start.index("flowmeter_left") < start.index("safety_interlock")
+    assert start.index("flowmeter_sep") < start.index("safety_interlock")
+    assert stop.index("flowmeter_left") < stop.index("ls224_magnet")
+    assert stop.index("flowmeter_sep") < stop.index("ls224_magnet")
+
+    # Static preflight still validates all registered devices.
     assert "physical = expected[:8] + optional" in script
     assert "expected = expected + optional" in script

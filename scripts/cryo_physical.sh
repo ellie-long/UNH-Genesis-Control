@@ -23,6 +23,8 @@ NAMES=(
     ls455
     ls224_fridge
     ls224_magnet
+    flowmeter_left
+    flowmeter_sep
     safety_interlock
     target_status
     save_restore
@@ -39,6 +41,8 @@ START_ORDER=(
     ls455
     ls224_fridge
     ls224_magnet
+    flowmeter_left
+    flowmeter_sep
     safety_interlock
     target_status
     save_restore
@@ -52,6 +56,8 @@ STOP_ORDER=(
     save_restore
     target_status
     safety_interlock
+    flowmeter_sep
+    flowmeter_left
     ls224_magnet
     ls224_fridge
     ls455
@@ -698,6 +704,10 @@ PVS = (
     "UNH:GEN:CRYO:FIELD:COMM",
     "UNH:GEN:CRYO:FRIDGE:COMM",
     "UNH:GEN:CRYO:MAG:COMM",
+    "UNH:GEN:CRYO:FLOW:LEFT:LPump_SLM",
+    "UNH:GEN:CRYO:FLOW:LEFT:LPump_Status",
+    "UNH:GEN:CRYO:FLOW:SEP:SepFlow_SLM",
+    "UNH:GEN:CRYO:FLOW:SEP:SepFlow_Status",
 
     "UNH:GEN:CRYO:SAFE:Safe_Permit",
     "UNH:GEN:CRYO:SAFE:Safe_Fault",
