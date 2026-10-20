@@ -698,6 +698,13 @@ show_status()
     done
 
     echo
+    echo "===== RASPBERRY PI CRYO BRIDGES ====="
+
+    if ! pi_bridge_control status; then
+        echo "[WARN] Raspberry Pi bridge status unavailable." >&2
+    fi
+
+    echo
     echo "===== EPICS STATUS ====="
 
     addresses="$(ca_list)"
@@ -725,6 +732,15 @@ PVS = (
     "UNH:GEN:CRYO:FLOW:LEFT:LPump_Status",
     "UNH:GEN:CRYO:FLOW:SEP:SepFlow_SLM",
     "UNH:GEN:CRYO:FLOW:SEP:SepFlow_Status",
+
+    "UNH:GEN:CRYO:FLOW:RIGHT:COMM",
+    "UNH:GEN:CRYO:FLOW:RIGHT:RPump_Raw",
+    "UNH:GEN:CRYO:FLOW:RIGHT:RPump_SLM",
+    "UNH:GEN:CRYO:FLOW:RIGHT:RPump_Status",
+
+    "UNH:GEN:CRYO:VAC:LOW:COMM",
+    "UNH:GEN:CRYO:VAC:LOW:Mano_PI",
+    "UNH:GEN:CRYO:VAC:LOW:Mano_Status",
 
     "UNH:GEN:CRYO:SAFE:Safe_Permit",
     "UNH:GEN:CRYO:SAFE:Safe_Fault",
@@ -942,6 +958,12 @@ PY_PHOEBUS
 }
 
 
+pi_bridge_control()
+{
+    local operation="$1"
+    "$ROOT/scripts/pi_cryo_bridges/ubuntu_control.sh" "$operation"
+}
+
 start_stack()
 {
     require_physical_host
@@ -953,6 +975,16 @@ start_stack()
 
     static_preflight
 
+    echo
+    echo "===== ENSURE GENESIS CRYO PI BRIDGES ====="
+
+    local bridge_failed=0
+
+    if ! pi_bridge_control start; then
+        echo "[WARN] Pi bridge startup failed; continuing all Cryo IOC startup attempts." >&2
+        bridge_failed=1
+    fi
+
     local state
 
     state="$(stack_state)"
@@ -962,7 +994,7 @@ start_stack()
             echo
             echo "[OK] complete Cryo stack already running."
             echo "     Existing owners were not touched."
-            return 0
+            return "$bridge_failed"
             ;;
 
         PARTIAL)
@@ -1045,6 +1077,11 @@ start_stack()
     echo
     echo " Historical viewer:"
     echo "   genesis cryo-viewer"
+    if (( bridge_failed != 0 )); then
+        echo "[WARN] IOC startup completed, but Pi bridge integration needs attention." >&2
+        return 1
+    fi
+
 }
 
 
@@ -1110,6 +1147,13 @@ stop_stack()
     fi
 
     echo
+    echo "===== STOP GENESIS CRYO PI BRIDGES ====="
+
+    if ! pi_bridge_control stop; then
+        echo "[WARN] Local IOCs stopped, but Pi bridge shutdown needs attention." >&2
+        return 1
+    fi
+
     echo "[PASS] Cryo software stack stopped."
     echo "       Shutdown issued no hardware ON/OFF command."
 }
