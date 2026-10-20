@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if [[ $# -ne 4 ]]; then
+if [[ $# -ne 4 && $# -ne 5 ]]; then
     echo "Usage:"
-    echo "  $0 <name> <settings.ini> <display.bob> <logfile>"
+    echo "  $0 <name> <settings.ini> <display.bob> <logfile> [server-port]"
     exit 2
 fi
 
@@ -11,6 +11,21 @@ NAME="$1"
 SETTINGS="$2"
 RESOURCE="$3"
 LOGFILE="$4"
+
+SERVER_ARGS=()
+
+if [[ $# -eq 5 ]]; then
+    SERVER_PORT="$5"
+
+    if ! [[ "$SERVER_PORT" =~ ^[0-9]+$ ]] ||
+       (( ${#SERVER_PORT} > 5 )) ||
+       (( 10#$SERVER_PORT < 1 || 10#$SERVER_PORT > 65535 )); then
+        echo "ERROR: Invalid Phoebus server port: $SERVER_PORT" >&2
+        exit 2
+    fi
+
+    SERVER_ARGS=(-server "$SERVER_PORT")
+fi
 
 resolve_executable()
 {
@@ -93,6 +108,7 @@ echo "        settings: $SETTINGS"
 echo "        display : $RESOURCE"
 
 nohup "$PHOEBUS" \
+    "${SERVER_ARGS[@]}" \
     -settings "$SETTINGS" \
     -resource "$RESOURCE" \
     >"$LOGFILE" 2>&1 </dev/null &
