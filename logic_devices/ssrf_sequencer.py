@@ -368,6 +368,7 @@ class Device:
             "WAVEFORM_STAGE_REQ",
             length=WAVEFORM_POINTS,
             datatype="float32",
+            always_update=True,
             on_update_name=self._waveform_stage_command,
         )
 
@@ -1384,7 +1385,7 @@ class Device:
         Staging is complete only after the WaveGen IOC explicitly
         acknowledges a NEW IOC-memory staging event.
 
-        This path writes WAVEFORM_CMD only.
+        This path writes WAVEFORM_CMD and WAVEFORM_STAGE_CMD only.
         It never issues LOAD_CMD or OUTPUT_CMD.
         """
 
@@ -1412,6 +1413,15 @@ class Device:
             await self._execution_io.write(
                 WAVEGEN_WAVEFORM_CMD_PV,
                 values.copy(),
+            )
+
+            # Commit IOC-memory staging explicitly after the array write.
+            # This does not invoke physical LOAD_CMD or enable RF output.
+            await self._execution_io.write(
+                WAVEGEN_WAVEFORM_CMD_PV.replace(
+                    ":WAVEFORM_CMD", ":WAVEFORM_STAGE_CMD"
+                ),
+                1,
             )
 
             acknowledged = False

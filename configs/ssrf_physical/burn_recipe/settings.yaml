@@ -1,7 +1,7 @@
 general:
   prefix: UNH:GEN:SSRF:RECIPE
   log_dir: logs
-  epics_addr_list: "127.0.0.1:5074"
+  epics_addr_list: "127.0.0.1:5073 127.0.0.1:5074 127.0.0.1:5090 127.0.0.1:5068 127.0.0.1:5071 127.0.0.1:5072 192.168.1.24:5064"
   delay: 0.2
 
 burn_recipe:

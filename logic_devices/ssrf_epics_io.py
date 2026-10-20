@@ -52,6 +52,7 @@ ALLOWED_COMMAND_PVS = frozenset(
         f"{WGEN}:VHIGH_CMD",
         f"{WGEN}:VLOW_CMD",
         f"{WGEN}:WAVEFORM_CMD",
+        f"{WGEN}:WAVEFORM_STAGE_CMD",
         f"{WGEN}:LOAD_CMD",
 
         # Mini-Circuits switches

@@ -161,7 +161,7 @@ class TestSsrfStageAuthorizationBoundary(
             source,
         )
 
-    def test_sequencer_stage_request_writes_only_waveform_cmd(self):
+    def test_sequencer_stage_request_uses_only_staging_pvs(self):
 
         source = SEQUENCER.read_text(
             encoding="utf-8"
@@ -229,29 +229,40 @@ class TestSsrfStageAuthorizationBoundary(
                 node
             )
 
+        # Array transfer, then explicit IOC-memory staging commit.
+        # No physical LOAD_CMD or OUTPUT_CMD is permitted here.
+        self.assertEqual(len(writes), 2)
+        writes.sort(key=lambda call: (call.lineno, call.col_offset))
+
+        transfer, commit = writes
+
+        self.assertGreaterEqual(len(transfer.args), 2)
+        self.assertIsInstance(transfer.args[0], ast.Name)
         self.assertEqual(
-            len(writes),
-            1,
-        )
-
-        write = writes[0]
-
-        self.assertGreaterEqual(
-            len(write.args),
-            2,
-        )
-
-        target = write.args[0]
-
-        self.assertIsInstance(
-            target,
-            ast.Name,
-        )
-
-        self.assertEqual(
-            target.id,
+            transfer.args[0].id,
             "WAVEGEN_WAVEFORM_CMD_PV",
         )
+        self.assertEqual(
+            ast.unparse(transfer.args[1]),
+            "values.copy()",
+        )
+
+        self.assertGreaterEqual(len(commit.args), 2)
+        target = commit.args[0]
+
+        self.assertIsInstance(target, ast.Call)
+        self.assertIsInstance(target.func, ast.Attribute)
+        self.assertEqual(target.func.attr, "replace")
+        self.assertIsInstance(target.func.value, ast.Name)
+        self.assertEqual(
+            target.func.value.id,
+            "WAVEGEN_WAVEFORM_CMD_PV",
+        )
+        self.assertEqual(
+            [ast.literal_eval(arg) for arg in target.args],
+            [":WAVEFORM_CMD", ":WAVEFORM_STAGE_CMD"],
+        )
+        self.assertEqual(ast.literal_eval(commit.args[1]), 1)
 
         # Staging may forward only the protected waveform-memory
         # command. LOAD/OUTPUT remain completely separate operations.

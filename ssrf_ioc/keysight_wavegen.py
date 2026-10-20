@@ -159,7 +159,16 @@ class Device(VisaDevice):
             "WAVEFORM_CMD",
             length=MAX_ARB_POINTS,
             datatype="float32",
-            on_update_name=self.stage_waveform,
+        )
+
+        # Explicit IOC-memory staging, including identical repeat waveforms.
+        # The waveform record itself has no update callback.
+        self.pvs["WAVEFORM_STAGE_CMD"] = builder.boolOut(
+            "WAVEFORM_STAGE_CMD",
+            ZNAM="IDLE",
+            ONAM="STAGE",
+            always_update=True,
+            on_update_name=self._stage_waveform_command,
         )
 
         self.pvs["WAVEFORM_POINTS"] = builder.longIn(
@@ -195,6 +204,16 @@ class Device(VisaDevice):
         self.pvs["WAVEFORM_ID"] = builder.longIn(
             "WAVEFORM_ID",
             LOPR=0,
+        )
+
+    def _stage_waveform_command(self, new_value, pv):
+        """Explicitly stage the current waveform record contents."""
+        self.pvs["WAVEFORM_STAGE_CMD"].set(0, process=False)
+        if not bool(new_value):
+            return
+        self.stage_waveform(
+            self.pvs["WAVEFORM_CMD"].get(),
+            pv,
         )
 
     def stage_waveform(self, new_value, pv):
