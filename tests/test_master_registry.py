@@ -13,13 +13,13 @@ def test_complete_configured_registry():
     registry, report = build_registry()
 
     assert report["counts"] == {
-        "Cryo": 159,
+        "Cryo": 168,
         "ssRF": 97,
         "Microwave": 104,
     }
 
-    assert len(registry) == 360
-    assert report["total"] == 360
+    assert len(registry) == 369
+    assert report["total"] == 369
 
     assert all(
         data["transport"] == "unverified"

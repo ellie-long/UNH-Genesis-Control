@@ -41,7 +41,7 @@ def test_cryo_connection_indicators_bind_to_produced_pvs():
 def test_magnet_ccx_channels_in_gui_plot_and_archive():
     archive = yaml.safe_load((ROOT / "configs/target_physical/archiver/settings.yaml").read_text())
     pvs = archive["archiver"]["explicit_pvs"]
-    assert len(pvs) == len(set(pvs)) == 159
+    assert len(pvs) == len(set(pvs)) == 168
     magnet = ET.parse(GUI / "genesis_cryo_magnet.bob").getroot()
     visible = {w.findtext("pv_name") for w in magnet.iter("widget")}
     plot = ET.parse(GUI / "genesis_cryo_magnet.plt").getroot()
