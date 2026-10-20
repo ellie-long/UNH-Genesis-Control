@@ -35,13 +35,13 @@ def test_vacuum_16_by_9_inventory_and_bounds():
         int(root.findtext("height"))
     ) == (1280, 720)
 
-    assert len(widgets) == len(by_name) == 47
+    assert len(widgets) == len(by_name) == 52
 
     assert Counter(w.get("type") for w in widgets) == {
         "rectangle": 6,
-        "label": 18,
-        "textupdate": 14,
-        "led": 4,
+        "label": 20,
+        "textupdate": 16,
+        "led": 5,
         "action_button": 4,
         "databrowser": 1,
     }

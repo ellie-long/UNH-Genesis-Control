@@ -23,7 +23,7 @@ def test_optional_ioc_registration():
         ROOT / "configs/target_physical/ioc_manager/settings.yaml"
     ).read_text())
 
-    assert len(manager) == 19
+    assert len(manager) == 20
     for name, (ca, pva, prefix) in OPTIONAL.items():
         entry = manager[name]
         assert entry["autostart"] is False
@@ -43,8 +43,8 @@ def test_optional_ioc_registration():
           if k != "general"]
     pva = [v["pva_server_port"] for k, v in manager.items()
            if k != "general"]
-    assert len(ca) == len(set(ca)) == 18
-    assert len(pva) == len(set(pva)) == 18
+    assert len(ca) == len(set(ca)) == 19
+    assert len(pva) == len(set(pva)) == 19
 
 
 def test_discovery_includes_all_registered_iocs():
@@ -53,7 +53,7 @@ def test_discovery_includes_all_registered_iocs():
     ).read_text())
 
     addresses = manager["general"]["epics_addr_list"].split()
-    expected = [f"127.0.0.1:{port}" for port in range(5111, 5129)]
+    expected = [f"127.0.0.1:{port}" for port in range(5111, 5129)] + ["127.0.0.1:5129"]
     assert addresses == expected
 
     text = (
@@ -79,9 +79,9 @@ def test_optional_devices_excluded_from_default_lifecycle():
         assert match is not None, array
 
         names = set(match.group(1).split())
-        assert len(names) == 12, array
+        assert len(names) == 13, array
         assert not names.intersection(OPTIONAL), array
 
     # Static preflight must nevertheless cover optional devices.
-    assert "physical = expected[:7] + optional" in script
+    assert "physical = expected[:8] + optional" in script
     assert "expected = expected + optional" in script

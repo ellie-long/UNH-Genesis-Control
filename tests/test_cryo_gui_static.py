@@ -260,7 +260,16 @@ def test_cryo_gui_rendering_contract():
     )
 
     assert "Torr" in vacuum_text
-    assert "mbar" in vacuum_text
+    assert "mbar" not in vacuum_text
+
+    import yaml
+    profile = yaml.safe_load(
+        (repo / "configs/target_physical/tpg262/settings.yaml").read_text()
+    )["tpg262"]
+    assert all(
+        profile["records"][pv]["EGU"] == "Torr"
+        for pv in ("Pump_PI", "OVC_PI")
+    )
 
 
 

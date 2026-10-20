@@ -196,7 +196,7 @@
     <y>195</y>
     <width>55</width>
     <height>24</height>
-    <text>mbar</text>
+    <text>Torr</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
     <font>
@@ -270,7 +270,7 @@
     <y>240</y>
     <width>55</width>
     <height>24</height>
-    <text>mbar</text>
+    <text>Torr</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
     <font>
@@ -311,7 +311,7 @@
     <y>285</y>
     <width>150</width>
     <height>24</height>
-    <text>Ion gauge</text>
+    <text>Fridge-shell ion</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
     <font>
@@ -490,8 +490,7 @@
     </actions>
     <text>&lt; Cryo Overview</text>
   </widget>
-
-<widget type="label" version="2.0.0">
+  <widget type="label" version="2.0.0">
     <name>Genesis_Mano_Title</name>
     <x>900</x>
     <y>135</y>
@@ -503,7 +502,7 @@
       <font family="Liberation Sans" style="BOLD" size="12.0" />
     </font>
   </widget>
-<widget type="label" version="2.0.0">
+  <widget type="label" version="2.0.0">
     <name>Genesis_Mano_0_L</name>
     <x>900</x>
     <y>160</y>
@@ -515,7 +514,7 @@
       <font family="Liberation Sans" style="REGULAR" size="11.0" />
     </font>
   </widget>
-<widget type="textupdate" version="2.0.0">
+  <widget type="textupdate" version="2.0.0">
     <name>Genesis_Mano_0_V</name>
     <x>997</x>
     <y>159</y>
@@ -531,7 +530,7 @@
       <color red="255" green="255" blue="255" alpha="255" />
     </background_color>
   </widget>
-<widget type="label" version="2.0.0">
+  <widget type="label" version="2.0.0">
     <name>Genesis_Mano_1_L</name>
     <x>900</x>
     <y>189</y>
@@ -543,7 +542,7 @@
       <font family="Liberation Sans" style="REGULAR" size="11.0" />
     </font>
   </widget>
-<widget type="textupdate" version="2.0.0">
+  <widget type="textupdate" version="2.0.0">
     <name>Genesis_Mano_1_V</name>
     <x>997</x>
     <y>188</y>
@@ -557,7 +556,7 @@
       <color red="255" green="255" blue="255" alpha="255" />
     </background_color>
   </widget>
-<widget type="label" version="2.0.0">
+  <widget type="label" version="2.0.0">
     <name>Genesis_Mano_2_L</name>
     <x>900</x>
     <y>218</y>
@@ -569,7 +568,7 @@
       <font family="Liberation Sans" style="REGULAR" size="11.0" />
     </font>
   </widget>
-<widget type="textupdate" version="2.0.0">
+  <widget type="textupdate" version="2.0.0">
     <name>Genesis_Mano_2_V</name>
     <x>997</x>
     <y>217</y>
@@ -585,7 +584,7 @@
       <color red="255" green="255" blue="255" alpha="255" />
     </background_color>
   </widget>
-<widget type="label" version="2.0.0">
+  <widget type="label" version="2.0.0">
     <name>Genesis_Mano_3_L</name>
     <x>900</x>
     <y>247</y>
@@ -597,7 +596,7 @@
       <font family="Liberation Sans" style="REGULAR" size="11.0" />
     </font>
   </widget>
-<widget type="textupdate" version="2.0.0">
+  <widget type="textupdate" version="2.0.0">
     <name>Genesis_Mano_3_V</name>
     <x>997</x>
     <y>246</y>
@@ -611,7 +610,7 @@
       <color red="255" green="255" blue="255" alpha="255" />
     </background_color>
   </widget>
-<widget type="label" version="2.0.0">
+  <widget type="label" version="2.0.0">
     <name>Genesis_Mano_4_L</name>
     <x>900</x>
     <y>276</y>
@@ -623,7 +622,7 @@
       <font family="Liberation Sans" style="REGULAR" size="11.0" />
     </font>
   </widget>
-<widget type="textupdate" version="2.0.0">
+  <widget type="textupdate" version="2.0.0">
     <name>Genesis_Mano_4_V</name>
     <x>997</x>
     <y>275</y>
@@ -637,7 +636,7 @@
       <color red="255" green="255" blue="255" alpha="255" />
     </background_color>
   </widget>
-<widget type="label" version="2.0.0">
+  <widget type="label" version="2.0.0">
     <name>Genesis_Mano_5_L</name>
     <x>900</x>
     <y>305</y>
@@ -649,7 +648,7 @@
       <font family="Liberation Sans" style="REGULAR" size="11.0" />
     </font>
   </widget>
-<widget type="textupdate" version="2.0.0">
+  <widget type="textupdate" version="2.0.0">
     <name>Genesis_Mano_5_V</name>
     <x>997</x>
     <y>304</y>
@@ -664,5 +663,47 @@
     <background_color>
       <color red="255" green="255" blue="255" alpha="255" />
     </background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>PumpCartL</name>
+    <x>45</x>
+    <y>326</y>
+    <width>150</width>
+    <height>24</height>
+    <text>Pump-cart ion</text>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>PumpCartV</name>
+    <x>205</x>
+    <y>324</y>
+    <width>180</width>
+    <height>28</height>
+    <pv_name>ca://UNH:GEN:CRYO:ION:PUMP:Ion_PI</pv_name>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>PumpCartU</name>
+    <x>395</x>
+    <y>326</y>
+    <width>55</width>
+    <height>24</height>
+    <text>Torr</text>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>PumpCartLED</name>
+    <x>475</x>
+    <y>328</y>
+    <width>22</width>
+    <height>22</height>
+    <pv_name>ca://UNH:GEN:CRYO:ION:PUMP:COMM</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>PumpCartCOMM</name>
+    <x>510</x>
+    <y>324</y>
+    <width>100</width>
+    <height>27</height>
+    <pv_name>ca://UNH:GEN:CRYO:ION:PUMP:COMM</pv_name>
   </widget>
 </display>

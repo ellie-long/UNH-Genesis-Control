@@ -19,6 +19,7 @@ NAMES=(
     mks902b
     tpg262
     ionivac
+    ionivac_pump
     ls455
     ls224_fridge
     ls224_magnet
@@ -34,6 +35,7 @@ START_ORDER=(
     mks902b
     tpg262
     ionivac
+    ionivac_pump
     ls455
     ls224_fridge
     ls224_magnet
@@ -53,6 +55,7 @@ STOP_ORDER=(
     ls224_magnet
     ls224_fridge
     ls455
+    ionivac_pump
     ionivac
     tpg262
     mks902b
@@ -195,6 +198,7 @@ expected = (
     "ls455",
     "ls224_fridge",
     "ls224_magnet",
+    "ionivac_pump",
     "alarm_summary",
     "safety_interlock",
     "target_status",
@@ -213,7 +217,7 @@ optional = (
 
 # Validate all registered Cryo IOCs, including those excluded
 # from normal physical startup pending commissioning.
-physical = expected[:7] + optional
+physical = expected[:8] + optional
 expected = expected + optional
 
 for name in expected:
@@ -479,6 +483,7 @@ WRITE_GATES = (
     "UNH:GEN:CRYO:CELL:WRITE_ENABLED",
     "UNH:GEN:CRYO:VAC:WRITE_ENABLED",
     "UNH:GEN:CRYO:ION:WRITE_ENABLED",
+    "UNH:GEN:CRYO:ION:PUMP:WRITE_ENABLED",
     "UNH:GEN:CRYO:FIELD:WRITE_ENABLED",
     "UNH:GEN:CRYO:FRIDGE:WRITE_ENABLED",
     "UNH:GEN:CRYO:MAG:WRITE_ENABLED",
@@ -689,6 +694,7 @@ PVS = (
     "UNH:GEN:CRYO:CELL:COMM",
     "UNH:GEN:CRYO:VAC:COMM",
     "UNH:GEN:CRYO:ION:COMM",
+    "UNH:GEN:CRYO:ION:PUMP:COMM",
     "UNH:GEN:CRYO:FIELD:COMM",
     "UNH:GEN:CRYO:FRIDGE:COMM",
     "UNH:GEN:CRYO:MAG:COMM",
