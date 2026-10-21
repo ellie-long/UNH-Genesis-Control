@@ -115,10 +115,11 @@ named in each item. Numbers are stable: answered items move to *Settled*.
       measured zero (same pattern as the sim's known issue
       never-connected-reads-zero for the IONIVAC).
       The Genesis -> LabVIEW converter passes these zeros through for now.
-- [ ] 74. **Converter, `Area/Polarization`:** the converter writes the Genesis
-      online fitter's `SSRF:FIT:P_AREA` (percent); `--online-p pynmr` writes
-      pyNMR's own `pol` x 100 instead. Which should the column hold, and what
-      unit did the old column use (2026-06 shows -0.00015 while tuning)?
+- [ ] 81. **Converter, when is pyNMR "calibrated"?** Without the Genesis
+      fitter recorded, the converter treats a finite non-zero pyNMR `cc` as
+      calibrated (writes P %), else the area. But pyNMR always carries a `cc`
+      from its channel config. Does pyNMR record whether a TE was taken, or is
+      the Genesis fitter's `CALIBRATED` (Preset = not calibrated) the rule?
 - [ ] 75. **Converter, `NMR Status`:** filled with pyNMR's free-text event
       `label` (default "None"). The old values were Baseline / Polarization /
       TE / Tuning / Scanning, and the McClellan reader sorts sweeps by them.
@@ -420,6 +421,15 @@ named in each item. Numbers are stable: answered items move to *Settled*.
     varactors at 0-19 V. Keep a rule, change it, or drop it?
 
 ## Settled
+
+* `Area/Polarization` in the converter (question 74): Ells (2026-10-21),
+  before any TE / calibration constant it is the area sum(V * df); after a
+  TE and/or a calibration constant it is the vector polarization P. The
+  converter follows the old DAQ's own format: a bare number is the area
+  (sum of pyNMR's processed `fitsub` sweep x the frequency step, MHz), a
+  value with `%` is P (`SSRF:FIT:P_AREA` once `SSRF:FIT:CALIBRATED` reads
+  Calibrated; "Preset" constants count as not calibrated). The Genesis
+  fitter does not publish the area itself. Follow-up: question 81.
 
 * Over-pressure on 2026-10-20 (question 72): Ells (2026-10-21), yes -- an
   over-pressure test, 15:12-15:21 local: both Roots gauges, the OVC gauge and

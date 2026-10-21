@@ -41,12 +41,12 @@ def _master(path: Path, rows):
             w.writerow(line)
 
 
-def _event(stop: dt.datetime, n=8, label="None", pol=0.01, base=1.0):
+def _event(stop: dt.datetime, n=8, label="None", pol=0.01, base=1.0, cc=None):
     freqs = [32.5 + 0.05 * k for k in range(n)]
     return {"stop_time": str(stop.astimezone(dt.timezone.utc)), "stop_stamp": stop.timestamp(),
             "phase": [base + 0.001 * k for k in range(n)], "freq_list": freqs, "label": label,
             "pol": pol, "chassis_temp": 41.5, "diode_vout": 0.25, "phase_vout": 3.0,
-            "diode": [0.0] * n}
+            "diode": [0.0] * n, "fitsub": [0.1] * n, "cc": cc}
 
 
 def _rows(out: Path, day: str):
@@ -70,7 +70,9 @@ def recording(tmp_path):
              P + "CRYO:VAC:Pump_PI": ("2.0", "valid"),
              P + "CRYO:VAC:Pump_Unit": ("mbar", "stale"),
              P + "CRYO:CELL:Cell_PI": ("20.0", "valid"),
-             P + "CRYO:ION:Ion_PI": ("", "disconnected")}
+             P + "CRYO:ION:Ion_PI": ("", "disconnected"),
+             P + "SSRF:FIT:CALIBRATED": ("1" if k >= 4 else "0", "valid"),
+             P + "SSRF:FIT:P_AREA": ("12.5" if k >= 4 else "", "valid")}
         if k >= 3:                                   # Manometer-Lo in range from row 3
             r[P + "CRYO:VAC:LOW:Mano_PI"] = ("0.5", "valid")
             r[P + "CRYO:VAC:LOW:Mano_VapT"] = ("", "valid")
@@ -146,6 +148,12 @@ def test_convert_layout_values_and_sweeps(recording):
     assert rep.counts["sweeps_without_genesis_row"] == 1
     assert data[0][_col("NMR Status")] == "NaN"                       # no sweep yet
     assert data[2][_col("VME Board Temp (C)")] == "41.5"              # held from the last sweep
+    # Area/Polarization: NaN before any sweep, then the area sum(V*df) of
+    # 0.1 V x 8 bins x 0.05 MHz, then P with a % sign once calibrated
+    ap = [r[_col("Area/Polarization")] for r in data]
+    assert ap[0] == "NaN"
+    assert all(math.isclose(float(v), 0.1 * 8 * 0.05) for v in ap[1:4])
+    assert ap[4:] == ["12.5000%", "12.5000%"]
     assert (out / g2l.REPORT_NAME).is_file()
 
 
@@ -157,6 +165,26 @@ def test_old_nmr_reader_reads_the_sweeps(recording):
     assert cd.sweeps.shape == (1, 8)
     axis = cd.freq_axis(0)
     assert math.isclose(axis[0], 32.5) and math.isclose(axis[-1], 32.5 + 0.05 * 7)
+
+
+def test_without_the_fitter_pynmr_cc_counts_as_calibrated(tmp_path):
+    t0 = dt.datetime(2026, 11, 5, 12, 0, 0, tzinfo=EDT)
+    rows = [(t0 + dt.timedelta(seconds=k), {P + "CRYO:FRIDGE:F1_TI": ("1.0", "valid")}) for k in range(3)]
+    _master(tmp_path / "g" / "S" / "2026-11-05" / "genesis_master.csv", rows)
+    (tmp_path / "n").mkdir()
+    (tmp_path / "n" / "2026-11-05_15-59-00__2026-11-05_16-01-00.txt").write_text(
+        json.dumps(_event(t0 + dt.timedelta(seconds=0.5), pol=0.2345, cc=0.9)) + "\n")
+    g2l.convert([tmp_path / "g"], tmp_path / "out", [tmp_path / "n"], log=lambda *_: None)
+    data = _rows(tmp_path / "out", "2026-11-05")[1:]
+    assert [r[_col("Area/Polarization")] for r in data] == ["NaN", "23.4500%", "23.4500%"]
+    cd = cooldown_io.read_cooldown(str(tmp_path / "out" / "data_record_2026-11-05.csv"), _crop=False)
+    assert math.isclose(cd.online_p[0], 23.45)
+
+
+def test_area_is_voltage_times_frequency_step():
+    assert math.isclose(g2l.area_v_df([1.0, 2.0, 3.0], [10.0, 10.1, 10.3]),
+                        1.0 * 0.1 + 2.0 * 0.15 + 3.0 * 0.2)
+    assert math.isnan(g2l.area_v_df([1.0], [1.0]))
 
 
 def test_strict_drops_stale(recording):

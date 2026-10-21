@@ -29,6 +29,12 @@ Layout written (one file per lab-local day, like the old DAQ)
   ``Lo: <phase>`` (Genesis's own ITS-90 temperature from Manometer-Lo) or
   ``Hi: <phase>`` (the converter applies the same ITS-90 function to
   Manometer-Hi, which Genesis does not convert yet).
+* ``Area/Polarization`` follows the old DAQ: before calibration it is the
+  bare area sum(V * df) of the processed sweep; once a TE has been taken or a
+  calibration constant set it is the vector polarization P, written as a
+  percentage with a ``%`` sign (``-0.38%``).  "Calibrated" is the Genesis
+  fitter's ``SSRF:FIT:CALIBRATED``; when the fitter was not recorded, a
+  finite non-zero pyNMR ``cc`` counts as calibrated.
 * NMR: each pyNMR sweep (its raw ``phase`` signal) goes on the first master
   row at or after the sweep's end, within ``max_sweep_lag_s``; ``NMR Number``
   is the sweep length, the frequency window comes from pyNMR's ``freq_list``.
@@ -165,6 +171,7 @@ _LO_T = _P + "CRYO:VAC:LOW:Mano_VapT"
 _LO_PHASE = _P + "CRYO:VAC:LOW:Mano_VapPhase"
 _HI_P = _P + "CRYO:CELL:Cell_PI"
 _P_AREA = _P + "SSRF:FIT:P_AREA"
+_CALIBRATED = _P + "SSRF:FIT:CALIBRATED"
 
 
 def source_text(src: tuple) -> str:
@@ -188,7 +195,8 @@ def source_text(src: tuple) -> str:
         "roots": "`CRYO:VAC:Pump_PI` in Torr, using `Pump_Unit`",
         "vp_temp": "`Mano_VapT` (Lo), else ITS-90 of `Cell_PI` (Hi, by the converter)",
         "vp_range": "`Lo: <Mano_VapPhase>` or `Hi: <phase>`",
-        "online_p": "`SSRF:FIT:P_AREA` (%), or pyNMR `pol` x 100 with --online-p pynmr",
+        "online_p": "area sum(V*df) of pyNMR `fitsub` until calibrated (`SSRF:FIT:CALIBRATED`), "
+                    "then P as `x.xxxx%` from `SSRF:FIT:P_AREA` (pyNMR `pol` if no fitter)",
         "nmr_number": "pyNMR sweep length (0 = no new sweep on this row)",
         "sweep": "pyNMR `phase` sweep",
         "na": NOT_IN_GENESIS,
@@ -202,7 +210,7 @@ def needed_pvs() -> list[str]:
             pvs += src[1:]
         elif src[0] == "scaled":
             pvs.append(src[1])
-    pvs += [_ROOTS_PV, _ROOTS_UNIT, _LO_P, _LO_T, _LO_PHASE, _HI_P, _P_AREA]
+    pvs += [_ROOTS_PV, _ROOTS_UNIT, _LO_P, _LO_T, _LO_PHASE, _HI_P, _P_AREA, _CALIBRATED]
     return list(dict.fromkeys(pvs))
 
 
@@ -260,6 +268,8 @@ class Sweep:
     diode_vout: float
     phase_vout: float
     pol: float
+    cc: float = math.nan
+    area: float = math.nan            # sum(V * df) of pyNMR's processed sweep (fitsub)
 
 
 _EVENTFILE = re.compile(r"^(?:current_)?(\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2})(?:__.*)?\.txt$")
@@ -304,11 +314,31 @@ def sweep_from_event(ev: dict) -> Sweep | None:
         if t is None or t.tzinfo is None:
             return None
         stop = t.timestamp()
-    cent, span = window_of(ev.get("freq_list") or [])
+    freqs = ev.get("freq_list") or []
+    cent, span = window_of(freqs)
     return Sweep(stop=float(stop), values=vals, centfreq=cent, span=span,
                  label=str(ev.get("label", "")), chassis_temp=_float(ev.get("chassis_temp")),
                  diode_vout=_float(ev.get("diode_vout")), phase_vout=_float(ev.get("phase_vout")),
-                 pol=_float(ev.get("pol")))
+                 pol=_float(ev.get("pol")), cc=_float(ev.get("cc")),
+                 area=area_v_df(ev.get("fitsub"), freqs))
+
+
+def area_v_df(signal, freqs) -> float:
+    """sum(V * df), df the frequency step (MHz) of each bin: the area the old
+    DAQ wrote before calibration."""
+    try:
+        v = [float(x) for x in signal or ()]
+        f = [float(x) for x in freqs or ()]
+    except (TypeError, ValueError):
+        return math.nan
+    n = len(v)
+    if n < 2 or len(f) != n:
+        return math.nan
+    total = 0.0
+    for k in range(n):                  # centred step, one-sided at the ends
+        lo, hi = max(k - 1, 0), min(k + 1, n - 1)
+        total += v[k] * (f[hi] - f[lo]) / (hi - lo)
+    return total if math.isfinite(total) else math.nan
 
 
 def iter_sweeps(files, counts: dict):
@@ -468,7 +498,7 @@ REPORT_NAME = "genesis_to_labview_report.md"
 
 
 def convert(inputs, out_dir, pynmr_dirs=(), *, strict=False, max_sweep_lag_s=5.0,
-            nmr_hold_s=300.0, online_p="genesis", log=print) -> Report:
+            nmr_hold_s=300.0, log=print) -> Report:
     """Write new LabVIEW-layout day files for the Genesis master recordings
     under ``inputs``.  Returns the :class:`Report` (also written beside them)."""
     from genesis_common import its90_helium as its90
@@ -480,7 +510,7 @@ def convert(inputs, out_dir, pynmr_dirs=(), *, strict=False, max_sweep_lag_s=5.0
     rep = Report(started=dt.datetime.now().astimezone().isoformat(timespec="seconds"),
                  inputs=[str(i) for i in inputs], pynmr_dirs=[str(d) for d in pynmr_dirs or ()],
                  options={"strict": strict, "max_sweep_lag_s": max_sweep_lag_s,
-                          "nmr_hold_s": nmr_hold_s, "online_p": online_p, "layout": LAYOUT})
+                          "nmr_hold_s": nmr_hold_s, "layout": LAYOUT})
 
     # master files in time order (sessions restart; UTC day folders)
     timed = []
@@ -549,7 +579,7 @@ def convert(inputs, out_dir, pynmr_dirs=(), *, strict=False, max_sweep_lag_s=5.0
                     settings = held if (held is not None and epoch - held.stop <= nmr_hold_s) else None
 
                     r = _Row(row, cols, accept)
-                    fields = _render(r, t, attach, settings, its90, online_p, rep)
+                    fields = _render(r, t, attach, settings, its90, rep)
                     day = t.date().isoformat()
                     fh_out = handles.get(day)
                     if fh_out is None:
@@ -574,7 +604,7 @@ def convert(inputs, out_dir, pynmr_dirs=(), *, strict=False, max_sweep_lag_s=5.0
     return rep
 
 
-def _render(r: _Row, t, attach, settings, its90, online_p, rep) -> list[str]:
+def _render(r: _Row, t, attach, settings, its90, rep) -> list[str]:
     out: list[str] = []
     for title, src in COLUMNS:
         kind = src[0]
@@ -618,10 +648,7 @@ def _render(r: _Row, t, attach, settings, its90, online_p, rep) -> list[str]:
             else:
                 out.append(fmt_num(getattr(settings, src[1])))
         elif kind == "online_p":
-            if online_p == "pynmr":
-                out.append(fmt_num(settings.pol * 100.0 if settings is not None else math.nan))
-            else:
-                out.append(fmt_num(r.num(_P_AREA)))
+            out.append(_area_or_p(r, settings, rep))
         elif kind == "nmr_number":
             out.append(str(len(attach.values)) if attach is not None else "0")
         elif kind == "sweep":
@@ -632,6 +659,25 @@ def _render(r: _Row, t, attach, settings, its90, online_p, rep) -> list[str]:
         else:
             out.append(NOT_IN_GENESIS)
     return out
+
+
+def fmt_pct(p: float) -> str:
+    return f"{p:.4f}%" if math.isfinite(p) else NO_READING
+
+
+def _area_or_p(r: _Row, sweep, rep) -> str:
+    """Area before calibration, P (%) after, like the old DAQ's column."""
+    cal = (r.text(_CALIBRATED) or "").strip().lower()
+    if cal in ("1", "1.0", "calibrated"):
+        rep.bump("rows_P_genesis_fitter")
+        return fmt_pct(r.num(_P_AREA))
+    if not cal and sweep is not None and math.isfinite(sweep.cc) and sweep.cc != 0:
+        rep.bump("rows_P_pynmr_cc")              # no fitter recorded: pyNMR's own constant
+        return fmt_pct(sweep.pol * 100.0)
+    if sweep is not None:
+        rep.bump("rows_area")
+        return fmt_num(sweep.area)
+    return NO_READING
 
 
 def _vapor(r: _Row, its90) -> tuple[float, str]:
@@ -689,6 +735,8 @@ def report_markdown(rep: Report) -> str:
           "- `Vapor Pressure Range` names the manometer: `Lo:` is Genesis's ITS-90 "
           "temperature from Manometer-Lo; `Hi:` is the same ITS-90 function applied by the "
           "converter to Manometer-Hi.",
+          "- `Area/Polarization`: a bare number is the area sum(V*df); a value ending in `%` "
+          "is the calibrated vector polarization P.",
           "- NMR sweeps are pyNMR's raw `phase` signal; each sweep appears once, on the first "
           "row at or after it ended."]
     L += [f"- {n}" for n in rep.notes]

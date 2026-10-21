@@ -36,8 +36,6 @@ def add_parsers(sub) -> None:
                    help="use only 'valid' readings (default also uses 'stale' = unchanged)")
     p.add_argument("--max-sweep-lag", type=float, default=5.0, metavar="S",
                    help="attach a pyNMR sweep only to a row within S seconds after it ended")
-    p.add_argument("--online-p", choices=("genesis", "pynmr"), default="genesis",
-                   help="Area/Polarization from the Genesis fitter (P_AREA) or pyNMR's pol")
     p.set_defaults(func=_genesis_to_labview)
 
     add_model_parsers(sub)
@@ -48,7 +46,7 @@ def _genesis_to_labview(args) -> int:
     from .data import genesis_to_labview as g2l
     try:
         rep = g2l.convert(args.inputs, args.out, args.pynmr, strict=args.strict,
-                          max_sweep_lag_s=args.max_sweep_lag, online_p=args.online_p)
+                          max_sweep_lag_s=args.max_sweep_lag)
     except g2l.Refused as exc:
         print(f"refused: {exc}")
         return EXIT_REFUSED

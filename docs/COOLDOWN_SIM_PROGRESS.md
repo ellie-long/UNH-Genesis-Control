@@ -77,9 +77,12 @@ lab answers are in `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`.
   subsets of files (e.g. 20 s averages like the old DAQ); rebuild
   `blast_log_*.csv` from `archive/events/ssrf`; filter start-up zeros once
   question 73 is settled.
-* Questions 74-80 (P column, NMR Status labels, pyNMR equivalents for VME
+* `Area/Polarization` (question 74 settled by Ells): area sum(V * df) of
+  pyNMR's processed sweep before calibration, P with a `%` sign after
+  (`SSRF:FIT:CALIBRATED`), as the old DAQ wrote it; `--online-p` removed.
+* Questions 75-81 (NMR Status labels, pyNMR equivalents for VME
   Mode etc., microwave sweep settings, a Genesis Hi VapT, stale default,
-  sweep signal and width).
+  sweep signal and width, when pyNMR counts as calibrated).
 
 ### 2026-10-21: Utsav's main ccce63e (ODS thermometry, cart IONIVAC)
 * Merged Utsav's `main` ccce63e ("Integrate validated ssRF with Cryogenics
@@ -794,8 +797,8 @@ unlogged burns).
 
 ## Test status (latest)
 
-* 2026-10-21 (Genesis -> LabVIEW converter): `tests/cooldown_sim` **276 passed,
-  8 skipped on Windows** (`genesis-p1`), including 6 new in
+* 2026-10-21 (Genesis -> LabVIEW converter): `tests/cooldown_sim` **278 passed,
+  8 skipped on Windows** (`genesis-p1`), including the new converter tests in
   `test_cooldown_sim_genesis_to_labview.py`.
 
 * 2026-10-21 (Utsav's ccce63e): `tests/cooldown_sim` **271 passed, 7
