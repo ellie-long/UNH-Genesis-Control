@@ -159,8 +159,11 @@ def test_new_iocs_are_in_the_cryo_stack_on_free_ports():
         assert name in cryo and "emulator" in cryo[name], name
     assert {cryo[n]["ca"] for n in NEW_IOCS} == set(range(6124, 6130))
     assert {cryo[n]["pva"] for n in NEW_IOCS} == set(range(6224, 6230))
-    replay = ports.replay_ports(stacks)
-    assert 6123 not in replay and 6223 not in replay       # dev-visualizer's trend-history IOC
+    # 6123/6223 are reserved for dev-visualizer's trend-history IOC: free on
+    # dev-sim, and used by nothing else where that IOC exists
+    owners = {e.port: e.owner for e in ports.replay_endpoints(stacks)}
+    for port in (6123, 6223):
+        assert owners.get(port) in (None, "history/trend_history"), owners.get(port)
     assert all(16000 <= cryo[n]["emulator"]["port"] < 17000 for n in NEW_IOCS)
     assert not ports.duplicate_replay_ports(stacks)
 
