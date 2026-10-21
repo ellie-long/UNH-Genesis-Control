@@ -30,7 +30,8 @@ CRYO_LOGIC = {
     "UNH:GEN:CRYO:ARCH": ("Archive_Status", "Archive_PV_Count", "Archive_Writes", "Archive_Enable"),
 }
 
-DEVICE_ROLES = {"ls224", "mks902b", "tpg262", "ionivac", "ls455", "scpi_supply"}
+DEVICE_ROLES = {"ls224", "mks902b", "tpg262", "ionivac", "ls455", "scpi_supply",
+                "flowmeter_pi", "flowmeter_diewu", "ami1700", "ami135", "manometer_low"}
 
 FITTER_PREFIX = "UNH:GEN:SSRF:FIT"
 #: online_fitter.epics_run read-backs and operator commands (names from epics_run.py)
@@ -109,7 +110,8 @@ def device_channel_pvs(spec, settings: dict) -> dict[str, tuple[str, str]]:
     kind = (spec.emulator or {}).get("kind")
     chans = [c for c in settings.get("channels", []) if "None" not in str(c)]
     suffix = {"ls224": "_TI", "mks902b": "_PI", "tpg262": "_PI", "ionivac": "_PI",
-              "ls455": "_Field"}.get(kind)
+              "ls455": "_Field", "flowmeter_pi": "_SLM", "flowmeter_diewu": "_SLM",
+              "ami1700": "_LI", "ami135": "_LI", "manometer_low": "_PI"}.get(kind)
     if suffix is None:
         return {}
     return {f"{spec.prefix}:{ch}{suffix}": (spec.name, ch) for ch in chans}

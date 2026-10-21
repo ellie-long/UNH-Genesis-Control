@@ -23,7 +23,7 @@ MAP_FILE = Path(__file__).with_name("channel_map.yaml")
 CONFIDENCE = ("high", "medium", "guess")
 EQUIPMENT_KEYS = ("genesis", "equipment", "role", "link", "control", "sim", "confidence")
 ABSENT_POLICIES = ("invalid", "refuse", "output_off")
-WIRE = ("none", "torr_to_mbar", "ionivac_count", "ls224_ohms")
+WIRE = ("none", "torr_to_mbar", "ionivac_count", "ls224_ohms", "flow_raw", "level_raw")
 
 
 @dataclass

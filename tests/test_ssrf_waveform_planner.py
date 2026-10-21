@@ -21,6 +21,19 @@ from ssrf_analysis.waveform_planner import (
 )
 
 
+def chhetra_stepped_samples(plan):
+    """Independent Oct-2026 Chhetra ARB reconstruction from plan bins/weights."""
+    frequencies = np.concatenate((plan.f_peak_mhz, plan.f_shoulder_mhz))
+    weights = np.concatenate((plan.peak_weights, plan.shoulder_weights))
+    edges = np.cumsum(plan.period_s * weights / weights.sum())
+    edges[-1] = plan.period_s
+    t = np.linspace(0.0, plan.period_s, MAX_ARB_POINTS)
+    indices = np.clip(np.searchsorted(edges, t, side="right"), 0, len(frequencies) - 1)
+    volts = (frequencies - plan.omegD_mhz)[indices].copy()
+    volts[0], volts[-1] = plan.vlow_v, plan.vhigh_v
+    return np.clip(volts / plan.vhigh_v, -1.0, 1.0).astype(np.float32)
+
+
 FIXTURE_DIR = (
     Path(__file__).resolve().parent
     / "fixtures"
@@ -127,7 +140,7 @@ class TestWaveformPlanner(
     unittest.TestCase
 ):
 
-    def test_all_material_case_combinations_match_frozen_reference(
+    def test_all_material_case_combinations_follow_chhetra_steps(
         self
     ):
         self.assertEqual(
@@ -238,12 +251,8 @@ class TestWaveformPlanner(
                     self.assertTrue(
                         np.allclose(
                             plan.normalized_samples,
-                            GOLDEN[
-                                prefix
-                                + "__waveform"
-                            ],
-                            rtol=0.0,
-                            atol=waveform_atol,
+                            chhetra_stepped_samples(plan),
+                            rtol=0.0, atol=2e-7,
                         )
                     )
 
@@ -290,7 +299,7 @@ class TestWaveformPlanner(
                         plan.scaling_verified_for_hardware
                     )
 
-    def test_live_measured_height_path_matches_frozen_reference(
+    def test_live_measured_height_path_follows_chhetra_steps(
         self
     ):
         constants = (
@@ -344,17 +353,8 @@ class TestWaveformPlanner(
         self.assertTrue(
             np.allclose(
                 plan.normalized_samples,
-                GOLDEN[
-                    "measured_nd3_enhancement__waveform"
-                ],
-                rtol=0.0,
-                atol=float(
-                    MANIFEST[
-                        "comparison_tolerances"
-                    ][
-                        "waveform_atol"
-                    ]
-                ),
+                chhetra_stepped_samples(plan),
+                rtol=0.0, atol=2e-7,
             )
         )
 

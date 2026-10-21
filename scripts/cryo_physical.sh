@@ -19,9 +19,16 @@ NAMES=(
     mks902b
     tpg262
     ionivac
+    ionivac_pump
     ls455
     ls224_fridge
     ls224_magnet
+    flowmeter_pi
+    flowmeter_left
+    flowmeter_sep
+    lhe_fridge
+    lhe_magnet
+    manometer_low
     safety_interlock
     target_status
     save_restore
@@ -34,9 +41,16 @@ START_ORDER=(
     mks902b
     tpg262
     ionivac
+    ionivac_pump
     ls455
     ls224_fridge
     ls224_magnet
+    flowmeter_pi
+    flowmeter_left
+    flowmeter_sep
+    lhe_fridge
+    lhe_magnet
+    manometer_low
     safety_interlock
     target_status
     save_restore
@@ -50,9 +64,16 @@ STOP_ORDER=(
     save_restore
     target_status
     safety_interlock
+    manometer_low
+    lhe_magnet
+    lhe_fridge
+    flowmeter_sep
+    flowmeter_left
+    flowmeter_pi
     ls224_magnet
     ls224_fridge
     ls455
+    ionivac_pump
     ionivac
     tpg262
     mks902b
@@ -195,6 +216,7 @@ expected = (
     "ls455",
     "ls224_fridge",
     "ls224_magnet",
+    "ionivac_pump",
     "alarm_summary",
     "safety_interlock",
     "target_status",
@@ -202,7 +224,19 @@ expected = (
     "archiver",
 )
 
-physical = expected[:7]
+optional = (
+    "flowmeter_pi",
+    "flowmeter_left",
+    "flowmeter_sep",
+    "lhe_fridge",
+    "lhe_magnet",
+    "manometer_low",
+)
+
+# Validate all registered Cryo IOCs, including those excluded
+# from normal physical startup pending commissioning.
+physical = expected[:8] + optional
+expected = expected + optional
 
 for name in expected:
     if name not in manager:
@@ -397,7 +431,7 @@ start_one()
 
     if session_exists "$session"; then
         echo "[FAIL] session already exists: $session" >&2
-        exit 1
+        return 1
     fi
 
     IFS=$'\t' read -r \
@@ -408,6 +442,11 @@ start_one()
         < <(
             profile_fields "$name"
         )
+
+    if ss -ltn | awk -v p=":$ca_port"         '$4 ~ (p "$") {found=1} END {exit !found}'; then
+        echo "[FAIL] CA port $ca_port already occupied for $name" >&2
+        return 1
+    fi
 
     logfile="$ROOT/logs/${session}.log"
     addresses="$(ca_list)"
@@ -439,7 +478,7 @@ PYTHONPATH='$ROOT' \
         echo >&2
         echo "[INFO] Already-started Cryo owners were retained." >&2
         echo "       Inspect with: genesis cryo-status" >&2
-        exit 1
+        return 1
     fi
 
     echo "[PASS] $session"
@@ -467,6 +506,7 @@ WRITE_GATES = (
     "UNH:GEN:CRYO:CELL:WRITE_ENABLED",
     "UNH:GEN:CRYO:VAC:WRITE_ENABLED",
     "UNH:GEN:CRYO:ION:WRITE_ENABLED",
+    "UNH:GEN:CRYO:ION:PUMP:WRITE_ENABLED",
     "UNH:GEN:CRYO:FIELD:WRITE_ENABLED",
     "UNH:GEN:CRYO:FRIDGE:WRITE_ENABLED",
     "UNH:GEN:CRYO:MAG:WRITE_ENABLED",
@@ -658,6 +698,13 @@ show_status()
     done
 
     echo
+    echo "===== RASPBERRY PI CRYO BRIDGES ====="
+
+    if ! pi_bridge_control status; then
+        echo "[WARN] Raspberry Pi bridge status unavailable." >&2
+    fi
+
+    echo
     echo "===== EPICS STATUS ====="
 
     addresses="$(ca_list)"
@@ -677,9 +724,23 @@ PVS = (
     "UNH:GEN:CRYO:CELL:COMM",
     "UNH:GEN:CRYO:VAC:COMM",
     "UNH:GEN:CRYO:ION:COMM",
+    "UNH:GEN:CRYO:ION:PUMP:COMM",
     "UNH:GEN:CRYO:FIELD:COMM",
     "UNH:GEN:CRYO:FRIDGE:COMM",
     "UNH:GEN:CRYO:MAG:COMM",
+    "UNH:GEN:CRYO:FLOW:LEFT:LPump_SLM",
+    "UNH:GEN:CRYO:FLOW:LEFT:LPump_Status",
+    "UNH:GEN:CRYO:FLOW:SEP:SepFlow_SLM",
+    "UNH:GEN:CRYO:FLOW:SEP:SepFlow_Status",
+
+    "UNH:GEN:CRYO:FLOW:RIGHT:COMM",
+    "UNH:GEN:CRYO:FLOW:RIGHT:RPump_Raw",
+    "UNH:GEN:CRYO:FLOW:RIGHT:RPump_SLM",
+    "UNH:GEN:CRYO:FLOW:RIGHT:RPump_Status",
+
+    "UNH:GEN:CRYO:VAC:LOW:COMM",
+    "UNH:GEN:CRYO:VAC:LOW:Mano_PI",
+    "UNH:GEN:CRYO:VAC:LOW:Mano_Status",
 
     "UNH:GEN:CRYO:SAFE:Safe_Permit",
     "UNH:GEN:CRYO:SAFE:Safe_Fault",
@@ -897,6 +958,12 @@ PY_PHOEBUS
 }
 
 
+pi_bridge_control()
+{
+    local operation="$1"
+    "$ROOT/scripts/pi_cryo_bridges/ubuntu_control.sh" "$operation"
+}
+
 start_stack()
 {
     require_physical_host
@@ -908,6 +975,16 @@ start_stack()
 
     static_preflight
 
+    echo
+    echo "===== ENSURE GENESIS CRYO PI BRIDGES ====="
+
+    local bridge_failed=0
+
+    if ! pi_bridge_control start; then
+        echo "[WARN] Pi bridge startup failed; continuing all Cryo IOC startup attempts." >&2
+        bridge_failed=1
+    fi
+
     local state
 
     state="$(stack_state)"
@@ -917,15 +994,13 @@ start_stack()
             echo
             echo "[OK] complete Cryo stack already running."
             echo "     Existing owners were not touched."
-            return 0
+            return "$bridge_failed"
             ;;
 
         PARTIAL)
             echo
-            echo "[FAIL] partial Cryo lifecycle stack exists." >&2
-            echo "       Refusing duplicate hardware ownership." >&2
-            echo "       Inspect with: genesis cryo-status" >&2
-            return 1
+            echo "[INFO] Partial Cryo stack detected."
+            echo "       Starting missing IOC owners only."
             ;;
 
         ZERO)
@@ -943,9 +1018,42 @@ start_stack()
 
     local name
 
+    local failures=0
+    local missing=0
+    local session
+
     for name in "${START_ORDER[@]}"; do
-        start_one "$name"
+        session="$(session_name "$name")"
+
+        if session_exists "$session"; then
+            echo "[UP] $session"
+            continue
+        fi
+
+        if ! start_one "$name"; then
+            echo "[FAIL] Could not start $session" >&2
+            ((failures += 1))
+        fi
     done
+
+    echo
+    echo "===== VERIFY ALL CRYO IOC OWNERS ====="
+
+    for name in "${NAMES[@]}"; do
+        session="$(session_name "$name")"
+        if ! session_exists "$session"; then
+            echo "[MISSING] $session" >&2
+            ((missing += 1))
+        fi
+    done
+
+    if (( failures > 0 || missing > 0 )); then
+        echo "[FAIL] Cryo startup incomplete:" >&2
+        echo "       launch failures=$failures, missing=$missing" >&2
+        return 1
+    fi
+
+    echo "[PASS] All ${#NAMES[@]} Cryo IOCs running."
 
     echo
     echo "===== VERIFY READ-ONLY PHYSICAL BASELINE ====="
@@ -969,6 +1077,11 @@ start_stack()
     echo
     echo " Historical viewer:"
     echo "   genesis cryo-viewer"
+    if (( bridge_failed != 0 )); then
+        echo "[WARN] IOC startup completed, but Pi bridge integration needs attention." >&2
+        return 1
+    fi
+
 }
 
 
@@ -1034,6 +1147,13 @@ stop_stack()
     fi
 
     echo
+    echo "===== STOP GENESIS CRYO PI BRIDGES ====="
+
+    if ! pi_bridge_control stop; then
+        echo "[WARN] Local IOCs stopped, but Pi bridge shutdown needs attention." >&2
+        return 1
+    fi
+
     echo "[PASS] Cryo software stack stopped."
     echo "       Shutdown issued no hardware ON/OFF command."
 }

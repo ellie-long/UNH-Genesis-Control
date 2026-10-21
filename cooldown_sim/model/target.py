@@ -21,6 +21,7 @@ State (all integrated with exact exponential sub-steps of <= MAX_STEP_S):
             (microwave, ssRF): ~10 K/W from the fitted T3 response
 * dT_bath   helium-bath deviation from all heat (incl. coldboard): ~2 K/W
 * dflow     extra Roots-flow boil-off, heat / 59.5 mW per slm, tau ~15 s
+            (served on the Roots flowmeters, split by their recorded L/R share)
 * dT_mag    per-magnet-thermometer microwave deviation (FITTED gains, M2-M4)
 * q         quench level in [0, 1] (ASSUMED trajectory)
 
@@ -113,6 +114,10 @@ VP_DROPOUT_K = 0.650
 #: Manometer-Hi (MKS 902B) to Manometer-Lo (XCG, 10 Torr F.S.) crossover for
 #: the vapor-pressure temperature (Ells; the record's LabVIEW ranges agree)
 VP_CROSSOVER_TORR = 5.0
+
+#: Manometer-Lo head (KJLC XCG-HT-FB-1) full scale (Ells); above it the
+#: emulated gauge has no reading, as the record (which logs 0 there) implies
+MANO_LO_FULL_SCALE_TORR = 10.0
 
 @dataclass
 class Inputs:
@@ -430,6 +435,31 @@ class TargetModel:
             ratio = ph.he4_p90_torr(T_mod) / ph.he4_p90_torr(T_hist)
             p = hist_torr * (ratio if math.isfinite(ratio) else ph.he4_vapor_pressure_ratio(T_hist, T_mod))
         return p + s.q * max(self.assumed["quench"]["cell_target_Torr"] - p, 0.0)
+
+    def lo_cell_pressure(self, hist_torr: float, t: float) -> float:
+        """Manometer-Lo: the same modelled cell response as Manometer-Hi
+        (``cell_pressure``) applied to the Lo gauge's own record; NaN above the
+        head's 10 Torr full scale (e.g. while a quench is injected)."""
+        p = self.cell_pressure(hist_torr, t)
+        if math.isfinite(p) and p > MANO_LO_FULL_SCALE_TORR:
+            return float("nan")
+        return p
+
+    def roots_flow(self, side: str, hist_slm: float, t: float) -> float:
+        """Roots flowmeter ``side`` ('L' or 'R'): the record plus this side's
+        share of the modelled boil-off change ``dflow``.  ASSUMED split: in
+        proportion to the two recorded flows at ``t`` (the lines pump the same
+        fridge in parallel); all of it when the other side has no record, half
+        when both read ~0."""
+        s = self.advance(t)
+        if not math.isfinite(hist_slm):
+            return hist_slm
+        other = self.tl.value_at("roots_flow_r" if side == "L" else "roots_flow_l", t)
+        share = 1.0
+        if math.isfinite(other):
+            a, b = max(hist_slm, 0.0), max(other, 0.0)
+            share = a / (a + b) if a + b > 0.5 else 0.5
+        return hist_slm + share * s.dflow
 
     def shells_pressure(self, hist_torr: float, t: float) -> float:
         """The shells' (insulating) vacuum, IONIVAC: the record, raised toward

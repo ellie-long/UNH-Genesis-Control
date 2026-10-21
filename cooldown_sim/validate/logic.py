@@ -23,12 +23,26 @@ def processes(deaths: list[str]) -> Check:
     return Check("processes", "PASS", "every launched process stayed up for the whole run")
 
 
-def heartbeats(stack: GeneratedStack, run: Path, skipped: dict[str, str]) -> list[Check]:
+def heartbeats(stack: GeneratedStack, run: Path, skipped: dict[str, str],
+               absent: dict[str, str] | None = None) -> list[Check]:
+    """``absent``: instruments not present in this era's record (their
+    emulator refuses connections): the IOC must say so (COMM 0), not read."""
     probe = loaders.probe(run)
+    absent = absent or {}
     out = []
     for spec in stack.iocs:
         if spec.name in skipped:
             out.append(Check(f"heartbeat {spec.name}", "SKIPPED", skipped[spec.name]))
+            continue
+        if spec.name in absent:
+            comm = probe[(probe["pv"] == f"{spec.prefix}:COMM") & (probe["connected"] == 1)]["num"]
+            if len(comm) and not (comm == 1).any():
+                out.append(Check(f"heartbeat {spec.name}", "PASS",
+                                 f"{absent[spec.name]}; the IOC reports COMM 0 as it should"))
+            else:
+                out.append(Check(f"heartbeat {spec.name}", "FAIL",
+                                 f"{absent[spec.name]}, but COMM "
+                                 f"{'was never seen' if not len(comm) else 'read 1'}"))
             continue
         pv = f"{spec.prefix}:MAN:{spec.ioc}_time"
         values = probe[(probe["pv"] == pv) & (probe["connected"] == 1)]["num"].dropna().unique()

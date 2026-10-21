@@ -80,7 +80,7 @@
     <y>183</y>
     <width>150</width>
     <height>20</height>
-    <pv_name>ca://UNH:GEN:CRYO:VAC:Pump_Conn</pv_name>
+    <pv_name>ca://UNH:GEN:CRYO:VAC:COMM</pv_name>
     <precision>4</precision>
     <format>6</format>
   </widget>
@@ -133,7 +133,7 @@
     <y>246</y>
     <width>150</width>
     <height>20</height>
-    <pv_name>ca://UNH:GEN:CRYO:VAC:OVC_Conn</pv_name>
+    <pv_name>ca://UNH:GEN:CRYO:VAC:COMM</pv_name>
     <precision>4</precision>
     <format>6</format>
   </widget>

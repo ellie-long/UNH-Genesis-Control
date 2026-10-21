@@ -19,6 +19,10 @@ legs:
       mks902b:           {ca: 6112, pva: 6212, emulator: {kind: mks902b, port: 16004}}
       tpg262:            {ca: 6113, pva: 6213, emulator: {kind: tpg262, port: 16011}}
       ionivac:           {ca: 6114, pva: 6214, emulator: {kind: ionivac, port: 16005}}
+      # the portable pumping-station cart's IONIVAC (TXI040 :5005, Utsav's
+      # ccce63e).  Live CA 5129; 6110/6210 because 6111-6129 are taken and
+      # 6123 stays free for dev-visualizer's trend-history IOC.
+      ionivac_pump:      {ca: 6110, pva: 6210, emulator: {kind: ionivac, port: 16006}}
       ls455:             {ca: 6115, pva: 6215, emulator: {kind: ls455, port: 16007}}
       ls224_fridge:      {ca: 6116, pva: 6216, emulator: {kind: ls224, port: 16012}}
       ls224_magnet:      {ca: 6117, pva: 6217, emulator: {kind: ls224, port: 16013}}
@@ -27,6 +31,14 @@ legs:
       target_status:     {ca: 6120, pva: 6220}
       save_restore:      {ca: 6121, pva: 6221}
       archiver:          {ca: 6122, pva: 6222}
+      # Utsav's optional cryo IOCs (feature/cryo-gui-completeness).  6123/6223
+      # is left free: the dev-visualizer branch's trend-history IOC uses it.
+      flowmeter_pi:      {ca: 6124, pva: 6224, emulator: {kind: flowmeter_pi, port: 16010}}
+      flowmeter_left:    {ca: 6125, pva: 6225, emulator: {kind: flowmeter_diewu, port: 16032}}
+      flowmeter_sep:     {ca: 6126, pva: 6226, emulator: {kind: flowmeter_diewu, port: 16033}}
+      lhe_fridge:        {ca: 6127, pva: 6227, emulator: {kind: ami1700, port: 16180}}
+      lhe_magnet:        {ca: 6128, pva: 6228, emulator: {kind: ami135, port: 16023}}
+      manometer_low:     {ca: 6129, pva: 6229, emulator: {kind: manometer_low, port: 16031}}
 
   ssrf:
     manager: configs/commissioning/ssrf_sim_active/ioc_manager/settings.yaml

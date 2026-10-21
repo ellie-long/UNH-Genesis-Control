@@ -12,7 +12,7 @@ general:
   delay: 0.5
 siglent_coldboard:
   module: target_ioc.instruments.spd1000x
-  ip: 192.168.1.18          # Ells 2026-10-16 (was 192.168.1.5 before the static-IP rework)
+  ip: 192.168.1.18
   port: 5025
   transport: socket
   timeout: 5

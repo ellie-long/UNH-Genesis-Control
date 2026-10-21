@@ -16,7 +16,7 @@ ls224_fridge:
   port: 7777
   timeout: 3
   delay: 2
-  calibration: calibration/fridge_thermometry.csv
+  calibration: calibration/Thermo_Calibrations.ods
   channels:
   - F1
   - F2

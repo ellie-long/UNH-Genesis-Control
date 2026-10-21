@@ -16,7 +16,8 @@ import threading
 import time
 
 
-ROUTES = {"labview": 0, "pynmr": 3}
+SOURCES = frozenset(("labview", "pynmr"))
+NMR_CONNECTED_MASK = 0
 
 
 class NMRSourceState:
@@ -50,7 +51,7 @@ class NMRSourceState:
         self._pending = False
 
     def select(self, source):
-        if source not in ROUTES:
+        if source not in SOURCES:
             raise ValueError("invalid NMR source")
 
         with self._lock:
@@ -73,14 +74,15 @@ class NMRSourceState:
                 type(comm) is int
                 and comm == 1
                 and type(mask) is int
-                and mask == ROUTES.get(self._selected)
+                and mask == NMR_CONNECTED_MASK
+                and self._selected in SOURCES
                 and self._confirmed_at is None
             ):
                 self._confirmed_at = now
 
     def update_stream(self, source, connected):
         if (
-            source not in ROUTES
+            source not in SOURCES
             or type(connected) is not bool
         ):
             raise ValueError("invalid trusted stream status")
@@ -123,7 +125,7 @@ class NMRSourceState:
                 or type(self._comm) is not int
                 or self._comm != 1
                 or type(self._mask) is not int
-                or self._mask != ROUTES[source]
+                or self._mask != NMR_CONNECTED_MASK
                 or not 0 <= now - self._route_at <= 5.0
                 or not (
                     self._confirmed_at

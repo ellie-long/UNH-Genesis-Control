@@ -35,7 +35,7 @@ class FakePV:
         if self.name.endswith(":COMM"):
             return 1
         if self.name.endswith(":MASK_RBV"):
-            return 3
+            return 0
         raise AssertionError(self.name)
 
     def put(self, *args, **kwargs):

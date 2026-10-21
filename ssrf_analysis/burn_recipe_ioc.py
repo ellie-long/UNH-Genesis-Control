@@ -13,6 +13,7 @@ from __future__ import annotations
 import asyncio
 import json
 import math
+import os
 import socket
 import threading
 import time
@@ -25,6 +26,9 @@ from ssrf_analysis.waveform_planner import (
     build_waveform_plan,
 )
 from ssrf_analysis.waveform_stager import WaveformStager
+from archive.data_paths import ssrf_event_dir, ssrf_session_dir, resolve_recording_path
+from ssrf_analysis.operator_waveform import build_operator_waveform_plan
+from ssrf_analysis.continuous_burn import run as run_continuous_burn, OperatorStop
 from ssrf_analysis.event_logger import JsonlEventLogger, new_session_id
 from ssrf_analysis.session_data import SessionDataWriter
 from ssrf_analysis import legacy_deuts as deuts
@@ -52,6 +56,13 @@ class Device:
         if self.publish_host not in ("127.0.0.1", "localhost", "::1"):
             raise ValueError("burn recipe fitter publisher must remain loopback-only")
 
+        self.burn_mode = str(os.environ.get("GENESIS_SSRF_BURN_MODE", settings.get("burn_mode", "fit"))).strip().lower()
+        if self.burn_mode not in ("fit", "operator"):
+            raise ValueError("burn_mode must be fit or operator")
+        self.operator_material = str(os.environ.get("GENESIS_SSRF_OPERATOR_MATERIAL", settings.get("operator_material", "Butanol")))
+        self.operator_polarization = float(os.environ.get("GENESIS_SSRF_OPERATOR_POLARIZATION", settings.get("operator_polarization", 0.30)))
+        center = os.environ.get("GENESIS_SSRF_OPERATOR_CENTER_MHZ")
+        self.operator_center_mhz = None if not center else float(center)
         self.max_fit_age_s = float(settings.get("max_fit_age_s", 60.0))
         if self.max_fit_age_s <= 0:
             raise ValueError("max_fit_age_s must be positive")
@@ -64,12 +75,20 @@ class Device:
 
         self._generate_requested = False
         self._generate_task = None
+        self._continuous_requested = False
+        self._continuous_stop_requested = False
+        self._continuous_stop = None
+        self._continuous_task = None
 
         self._event_logger = JsonlEventLogger(
-            directory=self.settings.get("event_log_dir", "archive/events/ssrf")
+            directory=resolve_recording_path(
+                self.settings.get("event_log_dir"), ssrf_event_dir()
+            )
         )
         self._session_writer = SessionDataWriter(
-            root=self.settings.get("session_data_root", "archive/sessions/ssrf")
+            root=resolve_recording_path(
+                self.settings.get("session_data_root"), ssrf_session_dir()
+            )
         )
         self._active_session_id = ""
         self._last_execution_state = None
@@ -85,6 +104,7 @@ class Device:
         p["LATEST_FIT_VALID"] = builder.boolIn(
             "LATEST_FIT_VALID", ZNAM="Invalid", ONAM="Valid"
         )
+        p["BURN_MODE_RBV"] = builder.stringIn("BURN_MODE_RBV")
         p["MATERIAL"] = builder.stringIn("MATERIAL")
         p["FIT_TYPE"] = builder.stringIn("FIT_TYPE")
         p["FIT_TS"] = builder.stringIn("FIT_TS")
@@ -150,6 +170,26 @@ class Device:
         p["STATE"] = builder.stringIn("STATE")
         p["REASON"] = builder.longStringIn("REASON", length=256)
 
+        # Continuous operation reuses the same one-shot sequencer and recipe IOC.
+        p["CONT_CYCLES"] = builder.longOut(
+            "CONT_CYCLES", initial_value=2, LOPR=0, HOPR=100000
+        )
+        p["CONT_DELAY_S"] = builder.aOut(
+            "CONT_DELAY_S", initial_value=10.0, LOPR=0.0, HOPR=3600.0, PREC=1
+        )
+        p["CONT_STATE"] = builder.stringIn("CONT_STATE")
+        p["CONT_REASON"] = builder.longStringIn("CONT_REASON", length=256)
+        p["CONT_CYCLE"] = builder.longIn("CONT_CYCLE")
+        p["CONT_ACTIVE"] = builder.boolIn("CONT_ACTIVE")
+        p["CONT_START_CMD"] = builder.boolOut(
+            "CONT_START_CMD", always_update=True,
+            on_update_name=self._continuous_start_command,
+        )
+        p["CONT_STOP_CMD"] = builder.boolOut(
+            "CONT_STOP_CMD", always_update=True,
+            on_update_name=self._continuous_stop_command,
+        )
+
         p["GENERATE_LOAD_CMD"] = builder.boolOut(
             "GENERATE_LOAD_CMD",
             ZNAM="IDLE",
@@ -166,6 +206,7 @@ class Device:
 
         p["FITTER_CONNECTED"].set(0)
         p["LATEST_FIT_VALID"].set(0)
+        p["BURN_MODE_RBV"].set(self.burn_mode.upper())
         p["PLAN_VALID"].set(0)
         p["SESSION_ID"].set("")
         p["ARCHIVE_STATUS"].set("IDLE")
@@ -178,7 +219,16 @@ class Device:
         p["VLOW_V"].set(0.0)
         p["VHIGH_V"].set(0.0)
         p["GENERATE_LOAD_CMD"].set(0, process=False)
-        self._set_status("WAITING_FOR_FIT", "Waiting for calibrated fitter result")
+        p["CONT_START_CMD"].set(0, process=False)
+        p["CONT_STOP_CMD"].set(0, process=False)
+        p["CONT_STATE"].set("IDLE")
+        p["CONT_REASON"].set("Single burn available; continuous inactive")
+        p["CONT_CYCLE"].set(0)
+        p["CONT_ACTIVE"].set(0)
+        if self.burn_mode == "fit":
+            self._set_status("WAITING_FOR_FIT", "Waiting for calibrated fitter result")
+        else:
+            self._set_status("OPERATOR_MODE", "Reference waveform; fitter calibration not required")
 
     def connect(self):
         self._subscriber_thread = threading.Thread(
@@ -214,6 +264,7 @@ class Device:
 
     def _recipe_event_data(self):
         return {
+            "burn_mode": self.burn_mode,
             "objective": str(self.pvs["OBJECTIVE_RBV"].get()),
             "material": str(self.pvs["MATERIAL"].get()),
             "current_p_pct": float(self.pvs["CURRENT_POLARIZATION"].get()),
@@ -255,6 +306,75 @@ class Device:
         self._generate_requested = True
         self.pvs["PLAN_VALID"].set(0)
         self._set_status("REQUESTED", "Generate/load requested")
+
+    def _continuous_start_command(self, value, _pv):
+        self.pvs["CONT_START_CMD"].set(0, process=False)
+        if not bool(value):
+            return
+        if self._continuous_requested or (
+            self._continuous_task is not None and not self._continuous_task.done()
+        ) or self._generate_requested or (
+            self._generate_task is not None and not self._generate_task.done()
+        ):
+            self.pvs["CONT_REASON"].set("Another burn/setup is already active")
+            return
+        try:
+            cycles = int(self.pvs["CONT_CYCLES"].get())
+            delay = float(self.pvs["CONT_DELAY_S"].get())
+            if cycles < 0 or cycles > 100000 or not math.isfinite(delay) or not 0 <= delay <= 3600:
+                raise ValueError("cycles must be 0..100000; delay 0..3600 seconds")
+        except (TypeError, ValueError) as exc:
+            self.pvs["CONT_STATE"].set("INVALID")
+            self.pvs["CONT_REASON"].set(str(exc)[:255])
+            return
+        self._continuous_requested = True
+        self._continuous_stop_requested = False
+        self.pvs["CONT_CYCLE"].set(0)
+        self.pvs["CONT_STATE"].set("REQUESTED")
+        self.pvs["CONT_REASON"].set("Starting guarded continuous sequence")
+
+    def _continuous_stop_command(self, value, _pv):
+        self.pvs["CONT_STOP_CMD"].set(0, process=False)
+        if not bool(value):
+            return
+        if self._continuous_requested or self._continuous_task is not None:
+            self._continuous_stop_requested = True
+            self.pvs["CONT_STATE"].set("STOPPING")
+            self.pvs["CONT_REASON"].set("STOP requested; sequencer ABORT and RF-off verification pending")
+
+    def _continuous_progress(self, cycle, phase):
+        self.pvs["CONT_CYCLE"].set(int(cycle))
+        if not self._continuous_stop_requested:
+            self.pvs["CONT_STATE"].set(str(phase))
+
+    async def _continuous_worker(self):
+        self._continuous_requested = False
+        self._continuous_stop = asyncio.Event()
+        if self._continuous_stop_requested:
+            self._continuous_stop.set()
+        self.pvs["CONT_ACTIVE"].set(1)
+        try:
+            await run_continuous_burn(
+                cycles=int(self.pvs["CONT_CYCLES"].get()),
+                delay=float(self.pvs["CONT_DELAY_S"].get()),
+                expected_mode=self.burn_mode,
+                stop=self._continuous_stop,
+                progress=self._continuous_progress,
+            )
+            stopped = self._continuous_stop.is_set()
+            self.pvs["CONT_STATE"].set("STOPPED" if stopped else "COMPLETE")
+            self.pvs["CONT_REASON"].set("ABORT and safe-off verified")
+        except OperatorStop:
+            self.pvs["CONT_STATE"].set("STOPPED")
+            self.pvs["CONT_REASON"].set("ABORT and safe-off verified")
+        except Exception as exc:
+            self.pvs["CONT_STATE"].set("FAILED")
+            self.pvs["CONT_REASON"].set(str(exc)[:255])
+        finally:
+            self.pvs["CONT_ACTIVE"].set(0)
+            self._continuous_stop = None
+            self._continuous_stop_requested = False
+            self._continuous_task = None
 
     def _subscriber_loop(self):
         while not self._stop.is_set():
@@ -320,28 +440,40 @@ class Device:
         self._generate_requested = False
         try:
             msg, age = self._latest_snapshot()
-            if msg is None:
-                raise RuntimeError("no fitter result available")
-            if age > self.max_fit_age_s:
-                raise RuntimeError(f"latest fitter result is stale ({age:.1f} s)")
-            if msg.get("constants_good") is not True:
-                raise RuntimeError("fitter constants are not calibrated")
-
-            p_fit_pct = msg.get("P_fit")
-            if p_fit_pct is None or not math.isfinite(float(p_fit_pct)):
-                raise RuntimeError("latest fit has no valid P_fit polarization")
-
-            snapshot = FitSnapshot.from_message(msg)
-            reference_p = float(deuts.ratio_method(float(snapshot.constants["r"])))
-            current_p = float(p_fit_pct) / 100.0
             objective = str(self.pvs["OBJECTIVE_RBV"].get())
-
+            if self.burn_mode == "fit":
+                if msg is None:
+                    raise RuntimeError("no fitter result available")
+                if age > self.max_fit_age_s:
+                    raise RuntimeError(f"latest fitter result is stale ({age:.1f} s)")
+                if msg.get("constants_good") is not True:
+                    raise RuntimeError("fitter constants are not calibrated")
+                p_fit_pct = msg.get("P_fit")
+                if p_fit_pct is None or not math.isfinite(float(p_fit_pct)):
+                    raise RuntimeError("latest fit has no valid P_fit polarization")
+                snapshot = FitSnapshot.from_message(msg)
+                reference_p = float(deuts.ratio_method(float(snapshot.constants["r"])))
+                current_p = float(p_fit_pct) / 100.0
+                plan = build_waveform_plan(
+                    snapshot, case=objective, polarization=current_p,
+                    high_polarization=reference_p, v_edge_v=PHYSICAL_VHIGH_V,
+                )
+            else:
+                plan = build_operator_waveform_plan(
+                    material=self.operator_material, case=objective,
+                    polarization=self.operator_polarization,
+                    center_mhz=self.operator_center_mhz,
+                )
+                reference_p = current_p = self.operator_polarization
+                p_fit_pct = 100.0 * current_p
+                msg = {"material": plan.material, "fit_type": "OPERATOR_REFERENCE"}
             self._active_session_id = new_session_id(subsystem="ssrf")
             self.pvs["SESSION_ID"].set(self._active_session_id[:39])
             self.pvs["ARCHIVE_STATUS"].set("STARTED")
             self._emit(
                 "recipe_requested",
                 {
+                    "burn_mode": self.burn_mode,
                     "objective": objective,
                     "fit_ts": str(msg.get("ts") or ""),
                     "fit_type": str(msg.get("fit_type") or ""),
@@ -350,15 +482,7 @@ class Device:
                     "reference_p_pct": 100.0 * reference_p,
                 },
             )
-
-            self._set_status("PLANNING", "Building adaptive 8192-point waveform")
-            plan = build_waveform_plan(
-                snapshot,
-                case=objective,
-                polarization=current_p,
-                high_polarization=reference_p,
-            )
-
+            self._set_status("PLANNING", "Building 8192-point waveform")
             carrier = float(self.pvs["CARRIER_MHZ"].get())
             start_level = float(self.pvs["START_LEVEL_DBM"].get())
             target_level = float(self.pvs["TARGET_LEVEL_DBM"].get())
@@ -480,7 +604,7 @@ class Device:
         self.pvs["FIT_AGE_S"].set(0.0 if not math.isfinite(age) else age)
 
         valid = False
-        if msg is not None:
+        if msg is not None and self.burn_mode == "fit":
             self.pvs["MATERIAL"].set(str(msg.get("material") or "")[:39])
             self.pvs["FIT_TYPE"].set(str(msg.get("fit_type") or "")[:39])
             self.pvs["FIT_TS"].set(str(msg.get("ts") or "")[:39])
@@ -522,5 +646,10 @@ class Device:
 
         if self._generate_requested and self._generate_task is None:
             self._generate_task = asyncio.create_task(self._generate_and_prepare())
+
+        if self._continuous_requested and self._continuous_task is None:
+            self._continuous_task = asyncio.create_task(self._continuous_worker())
+        if self._continuous_stop_requested and self._continuous_stop is not None:
+            self._continuous_stop.set()
 
         return True

@@ -195,13 +195,15 @@ def build() -> str:
     # faults card
     x, y = 20, 345
     w.append(card("Instrument faults (emulated hardware)", x, y, 680, 330))
+    rows = (len(FAULT_INSTRUMENTS) + 1) // 2           # two columns
     for i, inst in enumerate(FAULT_INSTRUMENTS):
-        yy = y + 38 + i * 33
+        xx = x + 15 + (i // rows) * 335
+        yy = y + 38 + (i % rows) * 35
         key = inst.upper()
-        w.append(label(inst, x + 15, yy, 190, 28, 11, True))
-        w.append(combo(f"{P}:FAULT_{key}_CMD", x + 210, yy, 170, 28))
-        w.append(update(f"{P}:FAULT_{key}_RBV", x + 395, yy, 120, 28, 11, True))
-    w.append(label("none / refuse (unplugged) / absent / silent / garbage / nak", x + 15, y + 304,
+        w.append(label(inst, xx, yy, 140, 28, 10, True))
+        w.append(combo(f"{P}:FAULT_{key}_CMD", xx + 140, yy, 115, 28))
+        w.append(update(f"{P}:FAULT_{key}_RBV", xx + 260, yy, 60, 28, 10, True))
+    w.append(label("none / refuse (unplugged) / absent / silent / garbage / nak", x + 15, y + 300,
                    650, 22, 9, False, MUTED))
 
     # target model card

@@ -126,6 +126,17 @@ class FitterEpicsInterface:
         p["NMR_SOURCE_RBV"] = builder.stringIn(
             "NMR_SOURCE_RBV"
         )
+        p["NMR_SOURCE_EPOCH_RBV"] = builder.longIn(
+            "NMR_SOURCE_EPOCH_RBV"
+        )
+        p["NMR_SOURCE_CMD"] = builder.stringOut(
+            "NMR_SOURCE_CMD",
+            on_update_name=self._on_nmr_source,
+        )
+        p["NMR_SOURCE_CHANGE_STATUS"] = builder.longStringIn(
+            "NMR_SOURCE_CHANGE_STATUS",
+            length=256,
+        )
         p["NMR_PHYSICAL_RBV"] = builder.stringIn(
             "NMR_PHYSICAL_RBV"
         )
@@ -245,6 +256,7 @@ class FitterEpicsInterface:
 
         p["NMR_PROTECTED"].set(0)
         p["NMR_SOURCE_RBV"].set("Disabled")
+        p["NMR_SOURCE_EPOCH_RBV"].set(-1)
         p["NMR_PHYSICAL_RBV"].set("UNVERIFIED")
         p["NMR_MASK_RBV"].set(-1)
         p["NMR_ROUTE_OK"].set(0)
@@ -305,6 +317,7 @@ class FitterEpicsInterface:
         if runtime is None:
             p["NMR_PROTECTED"].set(0)
             p["NMR_SOURCE_RBV"].set("Disabled")
+            p["NMR_SOURCE_EPOCH_RBV"].set(-1)
             p["NMR_PHYSICAL_RBV"].set("UNVERIFIED")
             p["NMR_MASK_RBV"].set(-1)
             p["NMR_ROUTE_OK"].set(0)
@@ -327,9 +340,9 @@ class FitterEpicsInterface:
         age = snapshot.get("route_age_s")
 
         if type(mask) is int and mask == 0:
-            physical = "labview"
+            physical = "CONNECTED"
         elif type(mask) is int and mask == 3:
-            physical = "pynmr"
+            physical = "TERMINATED"
         else:
             physical = None
 
@@ -341,8 +354,7 @@ class FitterEpicsInterface:
         route_ok = (
             type(comm) is int
             and comm == 1
-            and physical is not None
-            and physical == selected
+            and physical == "CONNECTED"
             and route_fresh
         )
 
@@ -356,6 +368,10 @@ class FitterEpicsInterface:
         p["NMR_PROTECTED"].set(1)
         p["NMR_SOURCE_RBV"].set(
             str(selected or "None")[:39]
+        )
+        epoch = snapshot.get("route_epoch")
+        p["NMR_SOURCE_EPOCH_RBV"].set(
+            epoch if type(epoch) is int and epoch >= 0 else -1
         )
         p["NMR_PHYSICAL_RBV"].set(
             str(physical or "UNVERIFIED")[:39]
@@ -373,7 +389,7 @@ class FitterEpicsInterface:
         p["NMR_FIT_ELIGIBLE"].set(0)
 
         if not route_ok:
-            message = "NMR source route unverified or mismatched"
+            message = "NMR path disconnected, terminated or unverified"
         elif not stream_ok:
             message = "Waiting for trusted NMR acquisition stream"
         else:
@@ -399,6 +415,54 @@ class FitterEpicsInterface:
             self.pvs["WARNING"].set("Fitter engine not ready")
             return False
         return True
+
+    def _on_nmr_source(self, new_value, _pv):
+        """Fail-closed software source command.
+
+        Source changes remain disabled until a coordinated sequencer
+        authorization mechanism prevents concurrent RF/burn starts.
+        This callback never operates physical switches.
+        """
+        requested = self._as_text(new_value).lower()
+
+        state = self.holder.state
+        runtime = getattr(
+            state,
+            "genesis_nmr_protected_runtime",
+            None,
+        ) if state is not None else None
+
+        selected = None
+        if runtime is not None:
+            try:
+                observation = runtime.snapshot()
+                if isinstance(observation, dict):
+                    selected = observation.get("selected_source")
+            except Exception:
+                pass
+
+        if requested not in ("labview", "pynmr"):
+            status = f"Rejected invalid NMR source: {requested}"
+        elif selected not in ("labview", "pynmr"):
+            status = "Rejected: protected NMR source unavailable"
+        elif requested == selected:
+            status = f"NMR source unchanged: {selected}"
+        else:
+            status = (
+                "Rejected: coordinated sequencer source-change "
+                "authorization not commissioned"
+            )
+
+        # A command request must never masquerade as the selected
+        # source. Restore the operator command to the actual readback.
+        self.pvs["NMR_SOURCE_CMD"].set(
+            selected if selected is not None else "",
+            process=False,
+        )
+        self.pvs["NMR_SOURCE_CHANGE_STATUS"].set(status)
+
+        if requested != selected:
+            self.pvs["WARNING"].set(status)
 
     def _on_mode(self, new_value, _pv):
         if not self._ready():
@@ -951,6 +1015,8 @@ def _build_run_args(args):
             "--pynmr-port",
             str(args.pynmr_port),
         ])
+        if getattr(args, "pynmr_only", False):
+            run_args.append("--pynmr-only")
         if getattr(args, "pynmr_ipc_path", None) is not None:
             run_args.extend([
                 "--pynmr-ipc-path",
@@ -966,6 +1032,17 @@ def _build_run_args(args):
                     "--pynmr-ipc-shared-gid",
                     str(args.pynmr_ipc_shared_gid),
                 ])
+
+    # Forward the pinned sequencer identity only when explicitly configured.
+    control_path = getattr(args, "nmr_source_control_path", None)
+    if control_path is not None:
+        run_args.extend([
+            "--nmr-source-control-path", control_path,
+            "--nmr-source-control-allowed-uid",
+            str(args.nmr_source_control_allowed_uid),
+            "--nmr-source-control-allowed-pid",
+            str(args.nmr_source_control_allowed_pid),
+        ])
 
     return run_args
 
@@ -1002,6 +1079,10 @@ def main(argv=None):
         choices=("labview", "pynmr"),
         default=None,
         help="Software source selection only; no hardware switching",
+    )
+    parser.add_argument(
+        "--pynmr-only", action="store_true",
+        help="bind only the protected PyNMR receiver",
     )
     parser.add_argument(
         "--pynmr-port",
@@ -1051,13 +1132,37 @@ def main(argv=None):
         action="store_true",
     )
 
+    parser.add_argument("--nmr-source-control-path", default=None,
+                    help="Opt-in Linux source-control Unix socket path")
+    parser.add_argument("--nmr-source-control-allowed-uid", type=int, default=None,
+                    help="Trusted sequencer Linux UID for source-control IPC")
+    parser.add_argument("--nmr-source-control-allowed-pid", type=int, default=None,
+                    help="Trusted sequencer Linux PID for source-control IPC")
+
     args = parser.parse_args(argv)
+    # All-or-none, opt-in, and separate from physical ssRF execution.
+    control_path = args.nmr_source_control_path
+    control_uid = args.nmr_source_control_allowed_uid
+    control_pid = args.nmr_source_control_allowed_pid
+    if any(value is not None for value in (control_path, control_uid, control_pid)):
+        from pathlib import Path as _NMRControlPath
+        if not args.nmr_protected:
+            parser.error("NMR source-control IPC requires protected NMR mode")
+        if (type(control_path) is not str or not control_path
+                or not _NMRControlPath(control_path).is_absolute()):
+            parser.error("NMR source-control IPC requires absolute socket path")
+        if type(control_uid) is not int or control_uid < 0:
+            parser.error("NMR source-control IPC requires trusted UID")
+        if type(control_pid) is not int or control_pid <= 0:
+            parser.error("NMR source-control IPC requires trusted PID")
+        if control_path == args.pynmr_ipc_path:
+            parser.error("NMR source-control and PyNMR event sockets must differ")
 
     # Protected PyNMR IPC is explicit and fail-closed.
     if args.pynmr_ipc_path is not None:
         from pathlib import Path as _IPCPath
-        if not args.nmr_protected or args.nmr_source != "pynmr":
-            parser.error("PyNMR IPC requires protected PyNMR mode")
+        if not args.nmr_protected:
+            parser.error("PyNMR IPC requires protected NMR mode")
         if not _IPCPath(args.pynmr_ipc_path).is_absolute():
             parser.error("PyNMR IPC socket path must be absolute")
         if not args.pynmr_ipc_allowed_uid:
@@ -1075,6 +1180,10 @@ def main(argv=None):
     ):
         parser.error("IPC credentials require --pynmr-ipc-path")
 
+    if args.pynmr_only and (
+        not args.nmr_protected or args.nmr_source != "pynmr"
+    ):
+        parser.error("--pynmr-only requires protected PyNMR source")
     if args.nmr_protected:
         if args.nmr_source is None:
             parser.error(

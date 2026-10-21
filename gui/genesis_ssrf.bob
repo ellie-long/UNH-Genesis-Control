@@ -1816,16 +1816,16 @@
   <widget type="label" version="2.0.0"><name>WF_VHighL</name><x>1810</x><y>552</y><width>45</width><height>24</height><text>Vhigh</text></widget>
   <widget type="textupdate" version="2.0.0"><name>WF_VHigh</name><x>1848</x><y>548</y><width>42</width><height>28</height><pv_name>ca://UNH:GEN:SSRF:RECIPE:VHIGH_V</pv_name></widget>
 
-  <widget type="bool_button" version="2.0.0"><name>WF_GenerateLoad</name><x>1230</x><y>602</y><width>190</width><height>52</height><pv_name>ca://UNH:GEN:SSRF:RECIPE:GENERATE_LOAD_CMD</pv_name><labels_from_pv>false</labels_from_pv><on_label>GENERATE / LOAD</on_label><off_label>GENERATE / LOAD</off_label></widget>
+  <widget type="action_button" version="3.0.0"><name>WF_GenerateLoad</name><x>1230</x><y>602</y><width>190</width><height>52</height><text>GENERATE / LOAD</text><actions><action type="write_pv"><pv_name>ca://UNH:GEN:SSRF:RECIPE:GENERATE_LOAD_CMD</pv_name><value>1</value><description>GENERATE / LOAD</description></action></actions></widget>
   <widget type="label" version="2.0.0"><name>WF_PreparedL</name><x>1440</x><y>616</y><width>78</width><height>24</height><text>Prepared</text></widget>
   <widget type="led" version="2.0.0"><name>WF_Prepared</name><x>1518</x><y>614</y><width>24</width><height>24</height><pv_name>ca://UNH:GEN:SSRF:SEQ:PREPARED</pv_name><bit>0</bit><off_color><color red="145" green="145" blue="145" /></off_color><on_color><color red="30" green="160" blue="70" /></on_color></widget>
   <widget type="textupdate" version="2.0.0"><name>WF_PrepareState</name><x>1560</x><y>608</y><width>130</width><height>32</height><pv_name>ca://UNH:GEN:SSRF:SEQ:PREPARE_STATE</pv_name></widget>
   <widget type="textupdate" version="2.0.0"><name>WF_RecipeState</name><x>1700</x><y>608</y><width>180</width><height>32</height><pv_name>ca://UNH:GEN:SSRF:RECIPE:STATE</pv_name></widget>
 
   <widget type="label" version="2.0.0"><name>WF_ExecHeader</name><x>1225</x><y>675</y><width>250</width><height>26</height><text>EXECUTION — ONE-SHOT ARM REQUIRED</text><font><font family="Liberation Sans" style="BOLD" size="12.0" /></font></widget>
-  <widget type="bool_button" version="2.0.0"><name>WF_ARM</name><x>1230</x><y>712</y><width>145</width><height>54</height><pv_name>ca://UNH:GEN:SSRF:SEQ:ARM_CMD</pv_name><labels_from_pv>false</labels_from_pv><on_label>ARM</on_label><off_label>ARM</off_label></widget>
-  <widget type="bool_button" version="2.0.0"><name>WF_BURN</name><x>1390</x><y>700</y><width>200</width><height>76</height><pv_name>ca://UNH:GEN:SSRF:SEQ:START_CMD</pv_name><labels_from_pv>false</labels_from_pv><on_label>BURN ONCE</on_label><off_label>BURN ONCE</off_label></widget>
-  <widget type="bool_button" version="2.0.0"><name>WF_ABORT</name><x>1605</x><y>712</y><width>145</width><height>54</height><pv_name>ca://UNH:GEN:SSRF:SEQ:ABORT_CMD</pv_name><labels_from_pv>false</labels_from_pv><on_label>ABORT</on_label><off_label>ABORT</off_label></widget>
+  <widget type="action_button" version="3.0.0"><name>WF_ARM</name><x>1230</x><y>712</y><width>145</width><height>54</height><text>ARM</text><actions><action type="write_pv"><pv_name>ca://UNH:GEN:SSRF:SEQ:ARM_CMD</pv_name><value>1</value><description>ARM</description></action></actions></widget>
+  <widget type="action_button" version="3.0.0"><name>WF_BURN</name><x>1390</x><y>700</y><width>200</width><height>76</height><text>BURN ONCE</text><actions><action type="write_pv"><pv_name>ca://UNH:GEN:SSRF:SEQ:START_CMD</pv_name><value>1</value><description>BURN ONCE</description></action></actions></widget>
+  <widget type="action_button" version="3.0.0"><name>WF_ABORT</name><x>1605</x><y>712</y><width>145</width><height>54</height><text>ABORT</text><actions><action type="write_pv"><pv_name>ca://UNH:GEN:SSRF:SEQ:ABORT_CMD</pv_name><value>1</value><description>ABORT</description></action></actions></widget>
   <widget type="label" version="2.0.0"><name>WF_ArmedL</name><x>1770</x><y>726</y><width>55</width><height>24</height><text>Armed</text></widget>
   <widget type="led" version="2.0.0"><name>WF_Armed</name><x>1825</x><y>724</y><width>24</width><height>24</height><pv_name>ca://UNH:GEN:SSRF:SEQ:EXECUTION_ARMED</pv_name><bit>0</bit><off_color><color red="145" green="145" blue="145" /></off_color><on_color><color red="220" green="140" blue="20" /></on_color></widget>
 
@@ -1842,6 +1842,23 @@
   <widget type="label" version="2.0.0"><name>WF_SafetyNote</name><x>1630</x><y>895</y><width>250</width><height>52</height><text>GENERATE / LOAD configures the sources with all outputs OFF. Each BURN ONCE requires a fresh one-shot ARM.</text><wrap_words>true</wrap_words><font><font family="Liberation Sans" style="REGULAR" size="10.0" /></font></widget>
 
 
+
+  <!-- Existing recipe IOC: two workflow choices; one hardware sequencer. -->
+  <widget type="label" version="2.0.0"><name>WF_Mode_Label</name><x>1225</x><y>954</y><width>95</width><height>27</height><text>Burn mode</text></widget>
+  <widget type="textupdate" version="2.0.0"><name>WF_Mode_RBV</name><x>1320</x><y>954</y><width>125</width><height>29</height><pv_name>ca://UNH:GEN:SSRF:RECIPE:BURN_MODE_RBV</pv_name></widget>
+  <widget type="label" version="2.0.0"><name>WF_Continuous_Header</name><x>1460</x><y>954</y><width>410</width><height>27</height><text>CONTINUOUS BURN — auto prepares and arms each cycle</text></widget>
+
+  <widget type="label" version="2.0.0"><name>WF_ContCycles_Label</name><x>1225</x><y>994</y><width>96</width><height>27</height><text>Cycles (0=∞)</text></widget>
+  <widget type="textentry" version="3.0.0"><name>WF_ContCycles</name><x>1320</x><y>989</y><width>74</width><height>32</height><pv_name>ca://UNH:GEN:SSRF:RECIPE:CONT_CYCLES</pv_name></widget>
+  <widget type="label" version="2.0.0"><name>WF_ContDelay_Label</name><x>1404</x><y>994</y><width>68</width><height>27</height><text>Delay (s)</text></widget>
+  <widget type="textentry" version="3.0.0"><name>WF_ContDelay</name><x>1475</x><y>989</y><width>60</width><height>32</height><pv_name>ca://UNH:GEN:SSRF:RECIPE:CONT_DELAY_S</pv_name></widget>
+  <widget type="action_button" version="3.0.0"><name>WF_ContStart</name><x>1550</x><y>984</y><width>166</width><height>42</height><text>START CONTINUOUS</text><actions><action type="write_pv"><pv_name>ca://UNH:GEN:SSRF:RECIPE:CONT_START_CMD</pv_name><value>1</value><description>Start repeating guarded burns</description></action></actions></widget>
+  <widget type="action_button" version="3.0.0"><name>WF_ContStop</name><x>1727</x><y>984</y><width>164</width><height>42</height><text>STOP CONTINUOUS</text><actions><action type="write_pv"><pv_name>ca://UNH:GEN:SSRF:RECIPE:CONT_STOP_CMD</pv_name><value>1</value><description>Stop continuous burn and verify safe OFF</description></action></actions></widget>
+
+  <widget type="label" version="2.0.0"><name>WF_ContState_Label</name><x>1225</x><y>1040</y><width>65</width><height>26</height><text>Cycle</text></widget>
+  <widget type="textupdate" version="2.0.0"><name>WF_ContCycle</name><x>1282</x><y>1036</y><width>54</width><height>30</height><pv_name>ca://UNH:GEN:SSRF:RECIPE:CONT_CYCLE</pv_name></widget>
+  <widget type="textupdate" version="2.0.0"><name>WF_ContState</name><x>1346</x><y>1036</y><width>155</width><height>30</height><pv_name>ca://UNH:GEN:SSRF:RECIPE:CONT_STATE</pv_name></widget>
+  <widget type="textupdate" version="2.0.0"><name>WF_ContReason</name><x>1510</x><y>1036</y><width>381</width><height>30</height><pv_name>ca://UNH:GEN:SSRF:RECIPE:CONT_REASON</pv_name></widget>
 <widget type="label" version="2.0.0"><name>ManualHeader</name><x>30</x><y>1080</y><width>1750</width><height>30</height><text>MANUAL RF — explicit ARM then RF ON; fitter/calibration applies only to adaptive planning. FM requires a selected staged/prepared waveform.</text></widget>
 <widget type="action_button" version="3.0.0"><name>Manual_MANUAL_ARM_CMD</name><x>30</x><y>1120</y><width>225</width><height>45</height><text>MANUAL ARM</text><actions><action type="write_pv"><pv_name>ca://UNH:GEN:SSRF:SEQ:MANUAL_ARM_CMD</pv_name><value>1</value><description>MANUAL ARM</description></action></actions></widget>
 <widget type="action_button" version="3.0.0"><name>Manual_MANUAL_DISARM_CMD</name><x>275</x><y>1120</y><width>225</width><height>45</height><text>DISARM / SAFE OFF</text><actions><action type="write_pv"><pv_name>ca://UNH:GEN:SSRF:SEQ:MANUAL_DISARM_CMD</pv_name><value>1</value><description>DISARM / SAFE OFF</description></action></actions></widget>
@@ -1880,211 +1897,5 @@
 <widget type="textentry" version="3.0.0"><name>ManualFMParam3</name><x>1630</x><y>1320</y><width>130</width><height>25</height><pv_name>ca://UNH:GEN:SSRF:SEQ:VLOW_V</pv_name></widget>
   <widget type="action_button" version="3.0.0"><name>Open_ssRF_Visualization</name><x>1130</x><y>12</y><width>190</width><height>32</height><actions><action type="open_display"><file>genesis_ssrf_workflow_view.bob</file><target>tab</target><description>Open ssRF Live Visualization</description></action></actions><text>ssRF Live Visualization</text></widget>
 
-  <!-- GENESIS_NMR_SOURCE_STATUS_V1: READ ONLY -->
-  <widget type="label" version="2.0.0">
-    <name>NMR_Source_Title</name>
-    <x>723</x>
-    <y>776</y>
-    <width>440</width>
-    <height>19</height>
-    <text>NMR Source Status - Read Only</text>
-    <font>
-      <font family="Liberation Sans" style="BOLD" size="12.0" />
-    </font>
-    <foreground_color>
-      <color red="255" green="255" blue="255" />
-    </foreground_color>
-    <transparent>true</transparent>
-  </widget>
-
-  <widget type="led" version="2.0.0">
-    <name>NMR_Source_Protected</name>
-    <x>1189</x>
-    <y>777</y>
-    <width>18</width>
-    <height>18</height>
-    <pv_name>ca://UNH:GEN:SSRF:FIT:NMR_PROTECTED</pv_name>
-    <bit>0</bit>
-    <off_color>
-      <color red="200" green="50" blue="50" />
-    </off_color>
-    <on_color>
-      <color red="30" green="160" blue="70" />
-    </on_color>
-  </widget>
-
-  <widget type="label" version="2.0.0">
-    <name>NMR_Source_Selected_L</name>
-    <x>723</x>
-    <y>798</y>
-    <width>68</width>
-    <height>20</height>
-    <text>Selected</text>
-    <font>
-      <font family="Liberation Sans" style="BOLD" size="10.0" />
-    </font>
-    <foreground_color>
-      <color red="255" green="255" blue="255" />
-    </foreground_color>
-    <transparent>true</transparent>
-  </widget>
-
-  <widget type="textupdate" version="2.0.0">
-    <name>NMR_Source_Selected_V</name>
-    <x>792</x>
-    <y>798</y>
-    <width>115</width>
-    <height>20</height>
-    <pv_name>ca://UNH:GEN:SSRF:FIT:NMR_SOURCE_RBV</pv_name>
-    <format>6</format>
-  </widget>
-
-  <widget type="label" version="2.0.0">
-    <name>NMR_Source_Physical_L</name>
-    <x>920</x>
-    <y>798</y>
-    <width>95</width>
-    <height>20</height>
-    <text>Physical route</text>
-    <font>
-      <font family="Liberation Sans" style="BOLD" size="10.0" />
-    </font>
-    <foreground_color>
-      <color red="255" green="255" blue="255" />
-    </foreground_color>
-    <transparent>true</transparent>
-  </widget>
-
-  <widget type="textupdate" version="2.0.0">
-    <name>NMR_Source_Physical_V</name>
-    <x>1015</x>
-    <y>798</y>
-    <width>191</width>
-    <height>20</height>
-    <pv_name>ca://UNH:GEN:SSRF:FIT:NMR_PHYSICAL_RBV</pv_name>
-    <format>6</format>
-  </widget>
-
-  <widget type="led" version="2.0.0">
-    <name>NMR_Source_Route_LED</name>
-    <x>723</x>
-    <y>821</y>
-    <width>18</width>
-    <height>18</height>
-    <pv_name>ca://UNH:GEN:SSRF:FIT:NMR_ROUTE_OK</pv_name>
-    <bit>0</bit>
-    <off_color>
-      <color red="200" green="50" blue="50" />
-    </off_color>
-    <on_color>
-      <color red="30" green="160" blue="70" />
-    </on_color>
-  </widget>
-
-  <widget type="label" version="2.0.0">
-    <name>NMR_Source_Route_L</name>
-    <x>745</x>
-    <y>821</y>
-    <width>130</width>
-    <height>18</height>
-    <text>Route verified</text>
-    <font>
-      <font family="Liberation Sans" style="BOLD" size="10.0" />
-    </font>
-    <foreground_color>
-      <color red="255" green="255" blue="255" />
-    </foreground_color>
-    <transparent>true</transparent>
-  </widget>
-
-  <widget type="led" version="2.0.0">
-    <name>NMR_Source_Stream_LED</name>
-    <x>893</x>
-    <y>821</y>
-    <width>18</width>
-    <height>18</height>
-    <pv_name>ca://UNH:GEN:SSRF:FIT:NMR_STREAM_OK</pv_name>
-    <bit>0</bit>
-    <off_color>
-      <color red="200" green="50" blue="50" />
-    </off_color>
-    <on_color>
-      <color red="30" green="160" blue="70" />
-    </on_color>
-  </widget>
-
-  <widget type="label" version="2.0.0">
-    <name>NMR_Source_Stream_L</name>
-    <x>915</x>
-    <y>821</y>
-    <width>130</width>
-    <height>18</height>
-    <text>Stream available</text>
-    <font>
-      <font family="Liberation Sans" style="BOLD" size="10.0" />
-    </font>
-    <foreground_color>
-      <color red="255" green="255" blue="255" />
-    </foreground_color>
-    <transparent>true</transparent>
-  </widget>
-
-  <widget type="led" version="2.0.0">
-    <name>NMR_Source_Eligible_LED</name>
-    <x>1066</x>
-    <y>821</y>
-    <width>18</width>
-    <height>18</height>
-    <pv_name>ca://UNH:GEN:SSRF:FIT:NMR_FIT_ELIGIBLE</pv_name>
-    <bit>0</bit>
-    <off_color>
-      <color red="200" green="50" blue="50" />
-    </off_color>
-    <on_color>
-      <color red="30" green="160" blue="70" />
-    </on_color>
-  </widget>
-
-  <widget type="label" version="2.0.0">
-    <name>NMR_Source_Eligible_L</name>
-    <x>1088</x>
-    <y>821</y>
-    <width>125</width>
-    <height>18</height>
-    <text>Fit eligible</text>
-    <font>
-      <font family="Liberation Sans" style="BOLD" size="10.0" />
-    </font>
-    <foreground_color>
-      <color red="255" green="255" blue="255" />
-    </foreground_color>
-    <transparent>true</transparent>
-  </widget>
-
-  <widget type="label" version="2.0.0">
-    <name>NMR_Source_Status_L</name>
-    <x>723</x>
-    <y>843</y>
-    <width>56</width>
-    <height>20</height>
-    <text>Status</text>
-    <font>
-      <font family="Liberation Sans" style="BOLD" size="10.0" />
-    </font>
-    <foreground_color>
-      <color red="255" green="255" blue="255" />
-    </foreground_color>
-    <transparent>true</transparent>
-  </widget>
-
-  <widget type="textupdate" version="2.0.0">
-    <name>NMR_Source_Status_V</name>
-    <x>779</x>
-    <y>843</y>
-    <width>430</width>
-    <height>20</height>
-    <pv_name>ca://UNH:GEN:SSRF:FIT:NMR_STATUS</pv_name>
-    <format>6</format>
-  </widget>
 
 </display>

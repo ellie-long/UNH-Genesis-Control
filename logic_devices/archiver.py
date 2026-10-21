@@ -6,6 +6,7 @@ from datetime import datetime
 import csv
 import os
 from pathlib import Path
+from archive.data_paths import legacy_archive_path
 from softioc import builder
 from genesis_common.upstream_base_device import BaseDevice
 import yaml
@@ -15,7 +16,7 @@ class Device(BaseDevice):
     """EPICS Archiver - Archives PV values to CSV files with deadband logic"""
 
     def __init__(self, device_name, settings):
-        self.archive_path = Path(settings.get('archive_path', 'archive'))
+        self.archive_path = legacy_archive_path(settings.get('archive_path', 'archive/data'))
         self.deadband = settings.get('deadband', 0.01)  # Default 1% change
         self.time_increment = settings.get('time_increment', 60)  # Default 60 seconds
         self.pv_patterns = settings.get('pv_patterns', [])

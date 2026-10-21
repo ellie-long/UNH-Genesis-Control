@@ -1,0 +1,23 @@
+schema_version: 1
+
+# These describe configured PV candidates, not verified connections.
+# Adding a subsystem requires a configuration entry and validation.
+sources:
+  - subsystem: Cryo
+    kind: explicit_archiver
+    settings: configs/target_physical/archiver/settings.yaml
+
+  - subsystem: ssRF
+    kind: explicit_archiver
+    settings: configs/ssrf_physical/archiver/settings.yaml
+
+  - subsystem: Microwave
+    kind: ioc_manager
+    settings: configs/commissioning/microwave_physical/ioc_manager/settings.yaml
+
+# Future example (do not enable until the PV is verified):
+#
+#  - subsystem: Magnet
+#    kind: pv_list
+#    pvs:
+#      - UNH:GEN:MAG:FIELD_RBV

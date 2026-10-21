@@ -22,7 +22,7 @@ tpg262:
   records:
     Pump_PI:
       DESC: TPG 262 gauge 1 pressure
-      EGU: mbar
+      EGU: Torr
       PREC: 4
       HIHI: 0.1
       HIGH: 0.01
@@ -30,7 +30,7 @@ tpg262:
       LOLO: 0.0
     OVC_PI:
       DESC: TPG 262 gauge 2 pressure
-      EGU: mbar
+      EGU: Torr
       PREC: 4
       HIHI: 0.001
       HIGH: 0.0001

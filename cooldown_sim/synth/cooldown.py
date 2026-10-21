@@ -65,6 +65,17 @@ WANDER = {
     "magnet_lhe_level": (26.0, 0.002, 20, 31),
 }
 
+#: Added with the optional cryo IOCs (left-Roots and separator flowmeters).
+#: Drawn from a SEPARATE generator so every channel above keeps its values.
+#: The history's microwave boil-off stays on roots_flow_r; the left line is
+#: an independent ~3 slm background (2026-06 itself has no left-flow record),
+#: and the separator ~51.5 slm as on 2026-06-17.
+WANDER_EXTRA = {
+    "roots_flow_l": (3.0, 0.02, 2.0, 4.0), "separator_flow": (51.5, 0.02, 45.0, 55.0),
+}
+#: offset of the extra channels' seed from the record's seed
+EXTRA_SEED_OFFSET = 7919
+
 
 @dataclass
 class SyntheticCooldown:
@@ -111,6 +122,9 @@ def make(seed: int = 0, t0: float = T0, faults: tuple[str, ...] = (), params: di
     num["manometer_hi"] = 0.62 * np.exp(10.6 * (1 / 1.2 - 1 / num["vp_temp"]))
     num["manometer_lo"] = num["manometer_hi"] * (1 + rng.normal(0, 1e-3, n))
     num["roots_flow_r"] = 9.0 + q_mw / p["heat"]["W_per_slm"] + rng.normal(0, 0.1, n)
+    rng_extra = np.random.default_rng(seed + EXTRA_SEED_OFFSET)
+    for ch, (typ, step, lo, hi) in WANDER_EXTRA.items():
+        num[ch] = _walk(rng_extra, n, typ, step, lo, hi)
 
     # recorded online P: the model's analytic trajectory (TE -> spin-up -> relax)
     P_te = ph.te_polarization(B_T, 1.2)[0]

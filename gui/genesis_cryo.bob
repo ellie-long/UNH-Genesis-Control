@@ -1,14 +1,14 @@
 <?xml version='1.0' encoding='utf-8'?>
 <display version="2.0.0">
   <name>Genesis Cryogenic Target</name>
-  <width>1560</width>
-  <height>1080</height>
+  <width>1600</width>
+  <height>900</height>
   <widget type="rectangle" version="2.0.0">
     <name>Page</name>
     <x>0</x>
     <y>0</y>
-    <width>1560</width>
-    <height>1080</height>
+    <width>1600</width>
+    <height>900</height>
     <line_width>0</line_width>
     <background_color>
       <color red="255" green="255" blue="255" alpha="255" />
@@ -18,7 +18,7 @@
     <name>Header</name>
     <x>0</x>
     <y>0</y>
-    <width>1560</width>
+    <width>1600</width>
     <height>70</height>
     <line_width>0</line_width>
     <background_color>
@@ -61,7 +61,7 @@
     <name>Status_Card</name>
     <x>20</x>
     <y>85</y>
-    <width>1520</width>
+    <width>1560</width>
     <height>95</height>
     <line_width>0</line_width>
     <corner_width>8</corner_width>
@@ -74,7 +74,7 @@
     <name>Status_Header</name>
     <x>20</x>
     <y>85</y>
-    <width>1520</width>
+    <width>1560</width>
     <height>38</height>
     <line_width>0</line_width>
     <corner_width>8</corner_width>
@@ -87,7 +87,7 @@
     <name>Status_Title</name>
     <x>34</x>
     <y>92</y>
-    <width>1492</width>
+    <width>1532</width>
     <height>24</height>
     <text>SYSTEM STATUS</text>
     <transparent>true</transparent>
@@ -103,7 +103,7 @@
     <name>Status0L</name>
     <x>40</x>
     <y>134</y>
-    <width>95</width>
+    <width>120</width>
     <height>22</height>
     <text>Target:</text>
     <transparent>true</transparent>
@@ -117,7 +117,7 @@
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Status0V</name>
-    <x>135</x>
+    <x>165</x>
     <y>132</y>
     <width>105</width>
     <height>26</height>
@@ -134,9 +134,9 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>Status1L</name>
-    <x>260</x>
+    <x>295</x>
     <y>134</y>
-    <width>95</width>
+    <width>120</width>
     <height>22</height>
     <text>Material:</text>
     <transparent>true</transparent>
@@ -150,7 +150,7 @@
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Status1V</name>
-    <x>355</x>
+    <x>420</x>
     <y>132</y>
     <width>105</width>
     <height>26</height>
@@ -167,9 +167,9 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>Status2L</name>
-    <x>470</x>
+    <x>550</x>
     <y>134</y>
-    <width>95</width>
+    <width>120</width>
     <height>22</height>
     <text>Safety:</text>
     <transparent>true</transparent>
@@ -183,7 +183,7 @@
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Status2V</name>
-    <x>565</x>
+    <x>675</x>
     <y>132</y>
     <width>105</width>
     <height>26</height>
@@ -200,9 +200,9 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>Status3L</name>
-    <x>650</x>
+    <x>805</x>
     <y>134</y>
-    <width>95</width>
+    <width>120</width>
     <height>22</height>
     <text>Alarms:</text>
     <transparent>true</transparent>
@@ -216,7 +216,7 @@
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Status3V</name>
-    <x>745</x>
+    <x>930</x>
     <y>132</y>
     <width>105</width>
     <height>26</height>
@@ -233,9 +233,9 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>Status4L</name>
-    <x>820</x>
+    <x>1060</x>
     <y>134</y>
-    <width>95</width>
+    <width>120</width>
     <height>22</height>
     <text>Archive:</text>
     <transparent>true</transparent>
@@ -249,7 +249,7 @@
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Status4V</name>
-    <x>915</x>
+    <x>1185</x>
     <y>132</y>
     <width>105</width>
     <height>26</height>
@@ -266,9 +266,9 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>Status5L</name>
-    <x>1010</x>
+    <x>1315</x>
     <y>134</y>
-    <width>95</width>
+    <width>120</width>
     <height>22</height>
     <text>Missing PVs:</text>
     <transparent>true</transparent>
@@ -282,7 +282,7 @@
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Status5V</name>
-    <x>1105</x>
+    <x>1440</x>
     <y>132</y>
     <width>105</width>
     <height>26</height>
@@ -300,9 +300,9 @@
   <widget type="rectangle" version="2.0.0">
     <name>Magnet_Card</name>
     <x>20</x>
-    <y>200</y>
+    <y>185</y>
     <width>355</width>
-    <height>620</height>
+    <height>600</height>
     <line_width>0</line_width>
     <corner_width>8</corner_width>
     <corner_height>8</corner_height>
@@ -313,7 +313,7 @@
   <widget type="rectangle" version="2.0.0">
     <name>Magnet_Header</name>
     <x>20</x>
-    <y>200</y>
+    <y>185</y>
     <width>355</width>
     <height>38</height>
     <line_width>0</line_width>
@@ -326,7 +326,7 @@
   <widget type="label" version="2.0.0">
     <name>Magnet_Title</name>
     <x>34</x>
-    <y>207</y>
+    <y>192</y>
     <width>327</width>
     <height>24</height>
     <text>MAGNET SPACE</text>
@@ -342,7 +342,7 @@
   <widget type="label" version="2.0.0">
     <name>M1L</name>
     <x>42</x>
-    <y>255</y>
+    <y>240</y>
     <width>115</width>
     <height>26</height>
     <text>M1</text>
@@ -358,7 +358,7 @@
   <widget type="textupdate" version="2.0.0">
     <name>M1V</name>
     <x>165</x>
-    <y>253</y>
+    <y>238</y>
     <width>145</width>
     <height>29</height>
     <pv_name>ca://UNH:GEN:CRYO:MAG:M1_TI</pv_name>
@@ -371,11 +371,12 @@
     <foreground_color>
       <color red="28" green="38" blue="48" alpha="255" />
     </foreground_color>
+    <precision>2</precision>
   </widget>
   <widget type="label" version="2.0.0">
     <name>M1U</name>
     <x>315</x>
-    <y>255</y>
+    <y>240</y>
     <width>30</width>
     <height>24</height>
     <text>K</text>
@@ -391,7 +392,7 @@
   <widget type="label" version="2.0.0">
     <name>M2L</name>
     <x>42</x>
-    <y>307</y>
+    <y>292</y>
     <width>115</width>
     <height>26</height>
     <text>M2</text>
@@ -407,7 +408,7 @@
   <widget type="textupdate" version="2.0.0">
     <name>M2V</name>
     <x>165</x>
-    <y>305</y>
+    <y>290</y>
     <width>145</width>
     <height>29</height>
     <pv_name>ca://UNH:GEN:CRYO:MAG:M2_TI</pv_name>
@@ -420,11 +421,12 @@
     <foreground_color>
       <color red="28" green="38" blue="48" alpha="255" />
     </foreground_color>
+    <precision>2</precision>
   </widget>
   <widget type="label" version="2.0.0">
     <name>M2U</name>
     <x>315</x>
-    <y>307</y>
+    <y>292</y>
     <width>30</width>
     <height>24</height>
     <text>K</text>
@@ -440,7 +442,7 @@
   <widget type="label" version="2.0.0">
     <name>M3L</name>
     <x>42</x>
-    <y>359</y>
+    <y>344</y>
     <width>115</width>
     <height>26</height>
     <text>M3</text>
@@ -456,7 +458,7 @@
   <widget type="textupdate" version="2.0.0">
     <name>M3V</name>
     <x>165</x>
-    <y>357</y>
+    <y>342</y>
     <width>145</width>
     <height>29</height>
     <pv_name>ca://UNH:GEN:CRYO:MAG:M3_TI</pv_name>
@@ -469,11 +471,12 @@
     <foreground_color>
       <color red="28" green="38" blue="48" alpha="255" />
     </foreground_color>
+    <precision>2</precision>
   </widget>
   <widget type="label" version="2.0.0">
     <name>M3U</name>
     <x>315</x>
-    <y>359</y>
+    <y>344</y>
     <width>30</width>
     <height>24</height>
     <text>K</text>
@@ -489,7 +492,7 @@
   <widget type="label" version="2.0.0">
     <name>M4L</name>
     <x>42</x>
-    <y>411</y>
+    <y>396</y>
     <width>115</width>
     <height>26</height>
     <text>M4  (coil top)</text>
@@ -505,7 +508,7 @@
   <widget type="textupdate" version="2.0.0">
     <name>M4V</name>
     <x>165</x>
-    <y>409</y>
+    <y>394</y>
     <width>145</width>
     <height>29</height>
     <pv_name>ca://UNH:GEN:CRYO:MAG:M4_TI</pv_name>
@@ -518,11 +521,12 @@
     <foreground_color>
       <color red="28" green="38" blue="48" alpha="255" />
     </foreground_color>
+    <precision>2</precision>
   </widget>
   <widget type="label" version="2.0.0">
     <name>M4U</name>
     <x>315</x>
-    <y>411</y>
+    <y>396</y>
     <width>30</width>
     <height>24</height>
     <text>K</text>
@@ -538,7 +542,7 @@
   <widget type="label" version="2.0.0">
     <name>M5L</name>
     <x>42</x>
-    <y>463</y>
+    <y>448</y>
     <width>115</width>
     <height>26</height>
     <text>M5</text>
@@ -554,7 +558,7 @@
   <widget type="textupdate" version="2.0.0">
     <name>M5V</name>
     <x>165</x>
-    <y>461</y>
+    <y>446</y>
     <width>145</width>
     <height>29</height>
     <pv_name>ca://UNH:GEN:CRYO:MAG:M5_TI</pv_name>
@@ -567,11 +571,12 @@
     <foreground_color>
       <color red="28" green="38" blue="48" alpha="255" />
     </foreground_color>
+    <precision>2</precision>
   </widget>
   <widget type="label" version="2.0.0">
     <name>M5U</name>
     <x>315</x>
-    <y>463</y>
+    <y>448</y>
     <width>30</width>
     <height>24</height>
     <text>K</text>
@@ -587,7 +592,7 @@
   <widget type="label" version="2.0.0">
     <name>FieldL</name>
     <x>42</x>
-    <y>545</y>
+    <y>530</y>
     <width>115</width>
     <height>26</height>
     <text>Fringe field</text>
@@ -603,7 +608,7 @@
   <widget type="textupdate" version="2.0.0">
     <name>FieldV</name>
     <x>165</x>
-    <y>543</y>
+    <y>528</y>
     <width>145</width>
     <height>29</height>
     <pv_name>ca://UNH:GEN:CRYO:FIELD:Fringe_FieldT</pv_name>
@@ -620,7 +625,7 @@
   <widget type="label" version="2.0.0">
     <name>FieldU</name>
     <x>315</x>
-    <y>545</y>
+    <y>530</y>
     <width>30</width>
     <height>24</height>
     <text>T</text>
@@ -636,7 +641,7 @@
   <widget type="label" version="2.0.0">
     <name>MagCommL</name>
     <x>42</x>
-    <y>600</y>
+    <y>585</y>
     <width>115</width>
     <height>24</height>
     <text>Magnet IOC:</text>
@@ -652,7 +657,7 @@
   <widget type="led" version="2.0.0">
     <name>MagCommLED</name>
     <x>165</x>
-    <y>600</y>
+    <y>585</y>
     <width>22</width>
     <height>22</height>
     <pv_name>ca://UNH:GEN:CRYO:MAG:COMM</pv_name>
@@ -660,7 +665,7 @@
   <widget type="label" version="2.0.0">
     <name>FieldCommL</name>
     <x>42</x>
-    <y>640</y>
+    <y>625</y>
     <width>115</width>
     <height>24</height>
     <text>Field IOC:</text>
@@ -676,7 +681,7 @@
   <widget type="led" version="2.0.0">
     <name>FieldCommLED</name>
     <x>165</x>
-    <y>640</y>
+    <y>625</y>
     <width>22</width>
     <height>22</height>
     <pv_name>ca://UNH:GEN:CRYO:FIELD:COMM</pv_name>
@@ -684,9 +689,9 @@
   <widget type="rectangle" version="2.0.0">
     <name>Cryostat_Card</name>
     <x>395</x>
-    <y>200</y>
+    <y>185</y>
     <width>690</width>
-    <height>620</height>
+    <height>600</height>
     <line_width>0</line_width>
     <corner_width>8</corner_width>
     <corner_height>8</corner_height>
@@ -697,7 +702,7 @@
   <widget type="rectangle" version="2.0.0">
     <name>Cryostat_Header</name>
     <x>395</x>
-    <y>200</y>
+    <y>185</y>
     <width>690</width>
     <height>38</height>
     <line_width>0</line_width>
@@ -710,7 +715,7 @@
   <widget type="label" version="2.0.0">
     <name>Cryostat_Title</name>
     <x>409</x>
-    <y>207</y>
+    <y>192</y>
     <width>662</width>
     <height>24</height>
     <text>CRYOSTAT OVERVIEW</text>
@@ -726,7 +731,7 @@
   <widget type="label" version="2.0.0">
     <name>F1L</name>
     <x>425</x>
-    <y>265</y>
+    <y>250</y>
     <width>48</width>
     <height>24</height>
     <text>F1</text>
@@ -742,7 +747,7 @@
   <widget type="textupdate" version="2.0.0">
     <name>F1V</name>
     <x>475</x>
-    <y>263</y>
+    <y>248</y>
     <width>125</width>
     <height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F1_TI</pv_name>
@@ -755,11 +760,12 @@
     <foreground_color>
       <color red="28" green="38" blue="48" alpha="255" />
     </foreground_color>
+    <precision>2</precision>
   </widget>
   <widget type="label" version="2.0.0">
     <name>F1U</name>
     <x>605</x>
-    <y>265</y>
+    <y>250</y>
     <width>25</width>
     <height>24</height>
     <text>K</text>
@@ -775,7 +781,7 @@
   <widget type="label" version="2.0.0">
     <name>F2L</name>
     <x>425</x>
-    <y>320</y>
+    <y>305</y>
     <width>48</width>
     <height>24</height>
     <text>F2</text>
@@ -791,7 +797,7 @@
   <widget type="textupdate" version="2.0.0">
     <name>F2V</name>
     <x>475</x>
-    <y>318</y>
+    <y>303</y>
     <width>125</width>
     <height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F2_TI</pv_name>
@@ -804,11 +810,12 @@
     <foreground_color>
       <color red="28" green="38" blue="48" alpha="255" />
     </foreground_color>
+    <precision>2</precision>
   </widget>
   <widget type="label" version="2.0.0">
     <name>F2U</name>
     <x>605</x>
-    <y>320</y>
+    <y>305</y>
     <width>25</width>
     <height>24</height>
     <text>K</text>
@@ -824,7 +831,7 @@
   <widget type="label" version="2.0.0">
     <name>F3L</name>
     <x>425</x>
-    <y>375</y>
+    <y>360</y>
     <width>48</width>
     <height>24</height>
     <text>F3</text>
@@ -840,7 +847,7 @@
   <widget type="textupdate" version="2.0.0">
     <name>F3V</name>
     <x>475</x>
-    <y>373</y>
+    <y>358</y>
     <width>125</width>
     <height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F3_TI</pv_name>
@@ -853,11 +860,12 @@
     <foreground_color>
       <color red="28" green="38" blue="48" alpha="255" />
     </foreground_color>
+    <precision>2</precision>
   </widget>
   <widget type="label" version="2.0.0">
     <name>F3U</name>
     <x>605</x>
-    <y>375</y>
+    <y>360</y>
     <width>25</width>
     <height>24</height>
     <text>K</text>
@@ -873,7 +881,7 @@
   <widget type="label" version="2.0.0">
     <name>F4L</name>
     <x>425</x>
-    <y>430</y>
+    <y>415</y>
     <width>48</width>
     <height>24</height>
     <text>F4</text>
@@ -889,7 +897,7 @@
   <widget type="textupdate" version="2.0.0">
     <name>F4V</name>
     <x>475</x>
-    <y>428</y>
+    <y>413</y>
     <width>125</width>
     <height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F4_TI</pv_name>
@@ -902,11 +910,12 @@
     <foreground_color>
       <color red="28" green="38" blue="48" alpha="255" />
     </foreground_color>
+    <precision>2</precision>
   </widget>
   <widget type="label" version="2.0.0">
     <name>F4U</name>
     <x>605</x>
-    <y>430</y>
+    <y>415</y>
     <width>25</width>
     <height>24</height>
     <text>K</text>
@@ -922,7 +931,7 @@
   <widget type="label" version="2.0.0">
     <name>F5L</name>
     <x>425</x>
-    <y>485</y>
+    <y>470</y>
     <width>48</width>
     <height>24</height>
     <text>F5</text>
@@ -938,7 +947,7 @@
   <widget type="textupdate" version="2.0.0">
     <name>F5V</name>
     <x>475</x>
-    <y>483</y>
+    <y>468</y>
     <width>125</width>
     <height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F5_TI</pv_name>
@@ -951,11 +960,12 @@
     <foreground_color>
       <color red="28" green="38" blue="48" alpha="255" />
     </foreground_color>
+    <precision>2</precision>
   </widget>
   <widget type="label" version="2.0.0">
     <name>F5U</name>
     <x>605</x>
-    <y>485</y>
+    <y>470</y>
     <width>25</width>
     <height>24</height>
     <text>K</text>
@@ -971,7 +981,7 @@
   <widget type="label" version="2.0.0">
     <name>F6L</name>
     <x>425</x>
-    <y>540</y>
+    <y>525</y>
     <width>48</width>
     <height>24</height>
     <text>F6</text>
@@ -987,7 +997,7 @@
   <widget type="textupdate" version="2.0.0">
     <name>F6V</name>
     <x>475</x>
-    <y>538</y>
+    <y>523</y>
     <width>125</width>
     <height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F6_TI</pv_name>
@@ -1000,11 +1010,12 @@
     <foreground_color>
       <color red="28" green="38" blue="48" alpha="255" />
     </foreground_color>
+    <precision>2</precision>
   </widget>
   <widget type="label" version="2.0.0">
     <name>F6U</name>
     <x>605</x>
-    <y>540</y>
+    <y>525</y>
     <width>25</width>
     <height>24</height>
     <text>K</text>
@@ -1020,7 +1031,7 @@
   <widget type="label" version="2.0.0">
     <name>F7L</name>
     <x>855</x>
-    <y>265</y>
+    <y>250</y>
     <width>48</width>
     <height>24</height>
     <text>F7</text>
@@ -1036,7 +1047,7 @@
   <widget type="textupdate" version="2.0.0">
     <name>F7V</name>
     <x>905</x>
-    <y>263</y>
+    <y>248</y>
     <width>125</width>
     <height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F7_TI</pv_name>
@@ -1049,11 +1060,12 @@
     <foreground_color>
       <color red="28" green="38" blue="48" alpha="255" />
     </foreground_color>
+    <precision>2</precision>
   </widget>
   <widget type="label" version="2.0.0">
     <name>F7U</name>
     <x>1035</x>
-    <y>265</y>
+    <y>250</y>
     <width>25</width>
     <height>24</height>
     <text>K</text>
@@ -1069,7 +1081,7 @@
   <widget type="label" version="2.0.0">
     <name>F8L</name>
     <x>855</x>
-    <y>320</y>
+    <y>305</y>
     <width>48</width>
     <height>24</height>
     <text>F8</text>
@@ -1085,7 +1097,7 @@
   <widget type="textupdate" version="2.0.0">
     <name>F8V</name>
     <x>905</x>
-    <y>318</y>
+    <y>303</y>
     <width>125</width>
     <height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F8_TI</pv_name>
@@ -1098,11 +1110,12 @@
     <foreground_color>
       <color red="28" green="38" blue="48" alpha="255" />
     </foreground_color>
+    <precision>2</precision>
   </widget>
   <widget type="label" version="2.0.0">
     <name>F8U</name>
     <x>1035</x>
-    <y>320</y>
+    <y>305</y>
     <width>25</width>
     <height>24</height>
     <text>K</text>
@@ -1118,7 +1131,7 @@
   <widget type="label" version="2.0.0">
     <name>F9L</name>
     <x>855</x>
-    <y>375</y>
+    <y>360</y>
     <width>48</width>
     <height>24</height>
     <text>F9</text>
@@ -1134,7 +1147,7 @@
   <widget type="textupdate" version="2.0.0">
     <name>F9V</name>
     <x>905</x>
-    <y>373</y>
+    <y>358</y>
     <width>125</width>
     <height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F9_TI</pv_name>
@@ -1147,11 +1160,12 @@
     <foreground_color>
       <color red="28" green="38" blue="48" alpha="255" />
     </foreground_color>
+    <precision>2</precision>
   </widget>
   <widget type="label" version="2.0.0">
     <name>F9U</name>
     <x>1035</x>
-    <y>375</y>
+    <y>360</y>
     <width>25</width>
     <height>24</height>
     <text>K</text>
@@ -1167,7 +1181,7 @@
   <widget type="label" version="2.0.0">
     <name>F10L</name>
     <x>855</x>
-    <y>430</y>
+    <y>415</y>
     <width>48</width>
     <height>24</height>
     <text>F10</text>
@@ -1183,7 +1197,7 @@
   <widget type="textupdate" version="2.0.0">
     <name>F10V</name>
     <x>905</x>
-    <y>428</y>
+    <y>413</y>
     <width>125</width>
     <height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F10_TI</pv_name>
@@ -1196,11 +1210,12 @@
     <foreground_color>
       <color red="28" green="38" blue="48" alpha="255" />
     </foreground_color>
+    <precision>2</precision>
   </widget>
   <widget type="label" version="2.0.0">
     <name>F10U</name>
     <x>1035</x>
-    <y>430</y>
+    <y>415</y>
     <width>25</width>
     <height>24</height>
     <text>K</text>
@@ -1216,7 +1231,7 @@
   <widget type="label" version="2.0.0">
     <name>F11L</name>
     <x>855</x>
-    <y>485</y>
+    <y>470</y>
     <width>48</width>
     <height>24</height>
     <text>F11</text>
@@ -1232,7 +1247,7 @@
   <widget type="textupdate" version="2.0.0">
     <name>F11V</name>
     <x>905</x>
-    <y>483</y>
+    <y>468</y>
     <width>125</width>
     <height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:FRIDGE:F11_TI</pv_name>
@@ -1245,11 +1260,12 @@
     <foreground_color>
       <color red="28" green="38" blue="48" alpha="255" />
     </foreground_color>
+    <precision>2</precision>
   </widget>
   <widget type="label" version="2.0.0">
     <name>F11U</name>
     <x>1035</x>
-    <y>485</y>
+    <y>470</y>
     <width>25</width>
     <height>24</height>
     <text>K</text>
@@ -1265,7 +1281,7 @@
   <widget type="label" version="2.0.0">
     <name>Pressure0L</name>
     <x>425</x>
-    <y>715</y>
+    <y>700</y>
     <width>80</width>
     <height>22</height>
     <text>Cell</text>
@@ -1281,7 +1297,7 @@
   <widget type="textupdate" version="2.0.0">
     <name>Pressure0V</name>
     <x>425</x>
-    <y>740</y>
+    <y>725</y>
     <width>135</width>
     <height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:CELL:Cell_PI</pv_name>
@@ -1298,7 +1314,7 @@
   <widget type="label" version="2.0.0">
     <name>Pressure1L</name>
     <x>585</x>
-    <y>715</y>
+    <y>700</y>
     <width>80</width>
     <height>22</height>
     <text>Pump</text>
@@ -1314,7 +1330,7 @@
   <widget type="textupdate" version="2.0.0">
     <name>Pressure1V</name>
     <x>585</x>
-    <y>740</y>
+    <y>725</y>
     <width>135</width>
     <height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:VAC:Pump_PI</pv_name>
@@ -1331,7 +1347,7 @@
   <widget type="label" version="2.0.0">
     <name>Pressure2L</name>
     <x>745</x>
-    <y>715</y>
+    <y>700</y>
     <width>80</width>
     <height>22</height>
     <text>OVC</text>
@@ -1347,7 +1363,7 @@
   <widget type="textupdate" version="2.0.0">
     <name>Pressure2V</name>
     <x>745</x>
-    <y>740</y>
+    <y>725</y>
     <width>135</width>
     <height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:VAC:OVC_PI</pv_name>
@@ -1364,10 +1380,10 @@
   <widget type="label" version="2.0.0">
     <name>Pressure3L</name>
     <x>905</x>
-    <y>715</y>
+    <y>700</y>
     <width>80</width>
     <height>22</height>
-    <text>Ion</text>
+    <text>Shell ion</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
     <font>
@@ -1380,7 +1396,7 @@
   <widget type="textupdate" version="2.0.0">
     <name>Pressure3V</name>
     <x>905</x>
-    <y>740</y>
+    <y>725</y>
     <width>135</width>
     <height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:ION:Ion_PI</pv_name>
@@ -1397,7 +1413,7 @@
   <widget type="label" version="2.0.0">
     <name>PressureUnits</name>
     <x>425</x>
-    <y>776</y>
+    <y>761</y>
     <width>450</width>
     <height>20</height>
     <text>Pressure readbacks</text>
@@ -1413,9 +1429,9 @@
   <widget type="rectangle" version="2.0.0">
     <name>Operations_Card</name>
     <x>1105</x>
-    <y>200</y>
-    <width>435</width>
-    <height>620</height>
+    <y>185</y>
+    <width>475</width>
+    <height>600</height>
     <line_width>0</line_width>
     <corner_width>8</corner_width>
     <corner_height>8</corner_height>
@@ -1426,8 +1442,8 @@
   <widget type="rectangle" version="2.0.0">
     <name>Operations_Header</name>
     <x>1105</x>
-    <y>200</y>
-    <width>435</width>
+    <y>185</y>
+    <width>475</width>
     <height>38</height>
     <line_width>0</line_width>
     <corner_width>8</corner_width>
@@ -1439,8 +1455,8 @@
   <widget type="label" version="2.0.0">
     <name>Operations_Title</name>
     <x>1119</x>
-    <y>207</y>
-    <width>407</width>
+    <y>192</y>
+    <width>447</width>
     <height>24</height>
     <text>SAFETY / ALARMS / COLD BOARD</text>
     <transparent>true</transparent>
@@ -1455,7 +1471,7 @@
   <widget type="label" version="2.0.0">
     <name>Permit0L</name>
     <x>1128</x>
-    <y>255</y>
+    <y>240</y>
     <width>125</width>
     <height>24</height>
     <text>CB permit:</text>
@@ -1471,7 +1487,7 @@
   <widget type="led" version="2.0.0">
     <name>Permit0LED</name>
     <x>1260</x>
-    <y>255</y>
+    <y>240</y>
     <width>22</width>
     <height>22</height>
     <pv_name>ca://UNH:GEN:CRYO:SAFE:CB_Permit</pv_name>
@@ -1485,7 +1501,7 @@
   <widget type="textupdate" version="2.0.0">
     <name>Permit0V</name>
     <x>1292</x>
-    <y>254</y>
+    <y>239</y>
     <width>105</width>
     <height>26</height>
     <pv_name>ca://UNH:GEN:CRYO:SAFE:CB_Permit</pv_name>
@@ -1502,7 +1518,7 @@
   <widget type="label" version="2.0.0">
     <name>Permit1L</name>
     <x>1128</x>
-    <y>297</y>
+    <y>282</y>
     <width>125</width>
     <height>24</height>
     <text>Vacuum permit:</text>
@@ -1518,7 +1534,7 @@
   <widget type="led" version="2.0.0">
     <name>Permit1LED</name>
     <x>1260</x>
-    <y>297</y>
+    <y>282</y>
     <width>22</width>
     <height>22</height>
     <pv_name>ca://UNH:GEN:CRYO:SAFE:Vac_Permit</pv_name>
@@ -1532,7 +1548,7 @@
   <widget type="textupdate" version="2.0.0">
     <name>Permit1V</name>
     <x>1292</x>
-    <y>296</y>
+    <y>281</y>
     <width>105</width>
     <height>26</height>
     <pv_name>ca://UNH:GEN:CRYO:SAFE:Vac_Permit</pv_name>
@@ -1549,7 +1565,7 @@
   <widget type="label" version="2.0.0">
     <name>Permit2L</name>
     <x>1128</x>
-    <y>339</y>
+    <y>324</y>
     <width>125</width>
     <height>24</height>
     <text>Data permit:</text>
@@ -1565,7 +1581,7 @@
   <widget type="led" version="2.0.0">
     <name>Permit2LED</name>
     <x>1260</x>
-    <y>339</y>
+    <y>324</y>
     <width>22</width>
     <height>22</height>
     <pv_name>ca://UNH:GEN:CRYO:SAFE:Data_Permit</pv_name>
@@ -1579,7 +1595,7 @@
   <widget type="textupdate" version="2.0.0">
     <name>Permit2V</name>
     <x>1292</x>
-    <y>338</y>
+    <y>323</y>
     <width>105</width>
     <height>26</height>
     <pv_name>ca://UNH:GEN:CRYO:SAFE:Data_Permit</pv_name>
@@ -1596,7 +1612,7 @@
   <widget type="label" version="2.0.0">
     <name>Permit3L</name>
     <x>1128</x>
-    <y>381</y>
+    <y>366</y>
     <width>125</width>
     <height>24</height>
     <text>Overall safe:</text>
@@ -1612,7 +1628,7 @@
   <widget type="led" version="2.0.0">
     <name>Permit3LED</name>
     <x>1260</x>
-    <y>381</y>
+    <y>366</y>
     <width>22</width>
     <height>22</height>
     <pv_name>ca://UNH:GEN:CRYO:SAFE:Safe_Permit</pv_name>
@@ -1626,7 +1642,7 @@
   <widget type="textupdate" version="2.0.0">
     <name>Permit3V</name>
     <x>1292</x>
-    <y>380</y>
+    <y>365</y>
     <width>105</width>
     <height>26</height>
     <pv_name>ca://UNH:GEN:CRYO:SAFE:Safe_Permit</pv_name>
@@ -1643,7 +1659,7 @@
   <widget type="label" version="2.0.0">
     <name>ReasonL</name>
     <x>1128</x>
-    <y>425</y>
+    <y>410</y>
     <width>115</width>
     <height>24</height>
     <text>Safety reason:</text>
@@ -1659,7 +1675,7 @@
   <widget type="textupdate" version="2.0.0">
     <name>ReasonV</name>
     <x>1128</x>
-    <y>450</y>
+    <y>435</y>
     <width>385</width>
     <height>30</height>
     <pv_name>ca://UNH:GEN:CRYO:SAFE:Safe_Reason</pv_name>
@@ -1676,7 +1692,7 @@
   <widget type="label" version="2.0.0">
     <name>AlarmCountL</name>
     <x>1128</x>
-    <y>500</y>
+    <y>485</y>
     <width>110</width>
     <height>24</height>
     <text>Alarms:</text>
@@ -1692,7 +1708,7 @@
   <widget type="textupdate" version="2.0.0">
     <name>AlarmCountV</name>
     <x>1240</x>
-    <y>498</y>
+    <y>483</y>
     <width>80</width>
     <height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:ALARM:Alarm_Count</pv_name>
@@ -1709,7 +1725,7 @@
   <widget type="label" version="2.0.0">
     <name>AlarmWorstL</name>
     <x>1330</x>
-    <y>500</y>
+    <y>485</y>
     <width>75</width>
     <height>24</height>
     <text>Worst:</text>
@@ -1725,7 +1741,7 @@
   <widget type="textupdate" version="2.0.0">
     <name>AlarmWorstV</name>
     <x>1400</x>
-    <y>498</y>
+    <y>483</y>
     <width>110</width>
     <height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:ALARM:Alarm_Worst</pv_name>
@@ -1742,7 +1758,7 @@
   <widget type="label" version="2.0.0">
     <name>AlarmFirstL</name>
     <x>1128</x>
-    <y>538</y>
+    <y>523</y>
     <width>110</width>
     <height>24</height>
     <text>First alarm:</text>
@@ -1758,7 +1774,7 @@
   <widget type="textupdate" version="2.0.0">
     <name>AlarmFirstV</name>
     <x>1240</x>
-    <y>536</y>
+    <y>521</y>
     <width>270</width>
     <height>27</height>
     <pv_name>ca://UNH:GEN:CRYO:ALARM:Alarm_First</pv_name>
@@ -1775,7 +1791,7 @@
   <widget type="label" version="2.0.0">
     <name>ColdBoardHeader</name>
     <x>1128</x>
-    <y>588</y>
+    <y>573</y>
     <width>180</width>
     <height>24</height>
     <text>Cold board</text>
@@ -1791,7 +1807,7 @@
   <widget type="label" version="2.0.0">
     <name>CB0L</name>
     <x>1128</x>
-    <y>620</y>
+    <y>605</y>
     <width>80</width>
     <height>22</height>
     <text>Voltage:</text>
@@ -1807,7 +1823,7 @@
   <widget type="textupdate" version="2.0.0">
     <name>CB0V</name>
     <x>1210</x>
-    <y>618</y>
+    <y>603</y>
     <width>135</width>
     <height>25</height>
     <pv_name>ca://UNH:GEN:CRYO:COLDBOARD:Coldboard_VI</pv_name>
@@ -1824,7 +1840,7 @@
   <widget type="label" version="2.0.0">
     <name>CB0U</name>
     <x>1350</x>
-    <y>620</y>
+    <y>605</y>
     <width>35</width>
     <height>22</height>
     <text>V</text>
@@ -1840,7 +1856,7 @@
   <widget type="label" version="2.0.0">
     <name>CB1L</name>
     <x>1128</x>
-    <y>655</y>
+    <y>640</y>
     <width>80</width>
     <height>22</height>
     <text>Current:</text>
@@ -1856,7 +1872,7 @@
   <widget type="textupdate" version="2.0.0">
     <name>CB1V</name>
     <x>1210</x>
-    <y>653</y>
+    <y>638</y>
     <width>135</width>
     <height>25</height>
     <pv_name>ca://UNH:GEN:CRYO:COLDBOARD:Coldboard_CI</pv_name>
@@ -1873,7 +1889,7 @@
   <widget type="label" version="2.0.0">
     <name>CB1U</name>
     <x>1350</x>
-    <y>655</y>
+    <y>640</y>
     <width>35</width>
     <height>22</height>
     <text>A</text>
@@ -1889,7 +1905,7 @@
   <widget type="label" version="2.0.0">
     <name>CB2L</name>
     <x>1128</x>
-    <y>690</y>
+    <y>675</y>
     <width>80</width>
     <height>22</height>
     <text>Power:</text>
@@ -1905,7 +1921,7 @@
   <widget type="textupdate" version="2.0.0">
     <name>CB2V</name>
     <x>1210</x>
-    <y>688</y>
+    <y>673</y>
     <width>135</width>
     <height>25</height>
     <pv_name>ca://UNH:GEN:CRYO:COLDBOARD:Coldboard_PI</pv_name>
@@ -1922,7 +1938,7 @@
   <widget type="label" version="2.0.0">
     <name>CB2U</name>
     <x>1350</x>
-    <y>690</y>
+    <y>675</y>
     <width>35</width>
     <height>22</height>
     <text>W</text>
@@ -1938,7 +1954,7 @@
   <widget type="label" version="2.0.0">
     <name>CB3L</name>
     <x>1128</x>
-    <y>725</y>
+    <y>710</y>
     <width>80</width>
     <height>22</height>
     <text>Output:</text>
@@ -1954,7 +1970,7 @@
   <widget type="textupdate" version="2.0.0">
     <name>CB3V</name>
     <x>1210</x>
-    <y>723</y>
+    <y>708</y>
     <width>135</width>
     <height>25</height>
     <pv_name>ca://UNH:GEN:CRYO:COLDBOARD:Coldboard_Mode</pv_name>
@@ -1971,7 +1987,7 @@
   <widget type="label" version="2.0.0">
     <name>CB3U</name>
     <x>1350</x>
-    <y>725</y>
+    <y>710</y>
     <width>35</width>
     <height>22</height>
     <text />
@@ -1987,9 +2003,9 @@
   <widget type="rectangle" version="2.0.0">
     <name>Navigation_Card</name>
     <x>20</x>
-    <y>845</y>
-    <width>1520</width>
-    <height>190</height>
+    <y>790</y>
+    <width>1560</width>
+    <height>110</height>
     <line_width>0</line_width>
     <corner_width>8</corner_width>
     <corner_height>8</corner_height>
@@ -2000,9 +2016,9 @@
   <widget type="rectangle" version="2.0.0">
     <name>Navigation_Header</name>
     <x>20</x>
-    <y>845</y>
-    <width>1520</width>
-    <height>38</height>
+    <y>790</y>
+    <width>1560</width>
+    <height>28</height>
     <line_width>0</line_width>
     <corner_width>8</corner_width>
     <corner_height>8</corner_height>
@@ -2013,9 +2029,9 @@
   <widget type="label" version="2.0.0">
     <name>Navigation_Title</name>
     <x>34</x>
-    <y>852</y>
-    <width>1492</width>
-    <height>24</height>
+    <y>794</y>
+    <width>1532</width>
+    <height>23</height>
     <text>OPERATOR NAVIGATION</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
@@ -2029,8 +2045,8 @@
   <widget type="action_button" version="3.0.0">
     <name>Nav0</name>
     <x>42</x>
-    <y>905</y>
-    <width>165</width>
+    <y>820</y>
+    <width>120</width>
     <height>34</height>
     <actions>
       <action type="open_display">
@@ -2043,9 +2059,9 @@
   </widget>
   <widget type="action_button" version="3.0.0">
     <name>Nav1</name>
-    <x>219</x>
-    <y>905</y>
-    <width>165</width>
+    <x>168</x>
+    <y>820</y>
+    <width>120</width>
     <height>34</height>
     <actions>
       <action type="open_display">
@@ -2058,9 +2074,9 @@
   </widget>
   <widget type="action_button" version="3.0.0">
     <name>Nav2</name>
-    <x>396</x>
-    <y>905</y>
-    <width>165</width>
+    <x>294</x>
+    <y>820</y>
+    <width>120</width>
     <height>34</height>
     <actions>
       <action type="open_display">
@@ -2073,9 +2089,9 @@
   </widget>
   <widget type="action_button" version="3.0.0">
     <name>Nav3</name>
-    <x>573</x>
-    <y>905</y>
-    <width>165</width>
+    <x>420</x>
+    <y>820</y>
+    <width>120</width>
     <height>34</height>
     <actions>
       <action type="open_display">
@@ -2088,9 +2104,9 @@
   </widget>
   <widget type="action_button" version="3.0.0">
     <name>Nav4</name>
-    <x>750</x>
-    <y>905</y>
-    <width>165</width>
+    <x>546</x>
+    <y>820</y>
+    <width>120</width>
     <height>34</height>
     <actions>
       <action type="open_display">
@@ -2103,9 +2119,9 @@
   </widget>
   <widget type="action_button" version="3.0.0">
     <name>Nav5</name>
-    <x>927</x>
-    <y>905</y>
-    <width>165</width>
+    <x>672</x>
+    <y>820</y>
+    <width>120</width>
     <height>34</height>
     <actions>
       <action type="open_display">
@@ -2114,13 +2130,13 @@
         <description>Open Safety / State</description>
       </action>
     </actions>
-    <text>Safety / State</text>
+    <text>Safety</text>
   </widget>
   <widget type="action_button" version="3.0.0">
     <name>Nav6</name>
-    <x>1104</x>
-    <y>905</y>
-    <width>165</width>
+    <x>798</x>
+    <y>820</y>
+    <width>120</width>
     <height>34</height>
     <actions>
       <action type="open_display">
@@ -2129,13 +2145,13 @@
         <description>Open Data / Trends</description>
       </action>
     </actions>
-    <text>Data / Trends</text>
+    <text>Trends</text>
   </widget>
   <widget type="action_button" version="3.0.0">
     <name>Nav7</name>
-    <x>1281</x>
-    <y>905</y>
-    <width>165</width>
+    <x>924</x>
+    <y>820</y>
+    <width>120</width>
     <height>34</height>
     <actions>
       <action type="open_display">
@@ -2146,11 +2162,71 @@
     </actions>
     <text>Diagnostics</text>
   </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Nav8</name>
+    <x>1050</x>
+    <y>820</y>
+    <width>120</width>
+    <height>34</height>
+    <actions>
+      <action type="open_display">
+        <file>genesis_cryo_flow.bob</file>
+        <target>tab</target>
+        <description>Open Diagnostics</description>
+      </action>
+    </actions>
+    <text>Flow</text>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Nav9</name>
+    <x>1176</x>
+    <y>820</y>
+    <width>120</width>
+    <height>34</height>
+    <actions>
+      <action type="open_display">
+        <file>genesis_cryo_cell_expert.bob</file>
+        <target>tab</target>
+        <description>Open Diagnostics</description>
+      </action>
+    </actions>
+    <text>Cell Expert</text>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Nav10</name>
+    <x>1302</x>
+    <y>820</y>
+    <width>120</width>
+    <height>34</height>
+    <actions>
+      <action type="open_display">
+        <file>genesis_cryo_ion_expert.bob</file>
+        <target>tab</target>
+        <description>Open Diagnostics</description>
+      </action>
+    </actions>
+    <text>Ion Expert</text>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Nav11</name>
+    <x>1428</x>
+    <y>820</y>
+    <width>120</width>
+    <height>34</height>
+    <actions>
+      <action type="open_display">
+        <file>genesis_cryo_vacuum_expert.bob</file>
+        <target>tab</target>
+        <description>Open Diagnostics</description>
+      </action>
+    </actions>
+    <text>Vac Expert</text>
+  </widget>
   <widget type="label" version="2.0.0">
     <name>OperatorNote</name>
     <x>42</x>
-    <y>965</y>
-    <width>1450</width>
+    <y>856</y>
+    <width>1510</width>
     <height>42</height>
     <text>Overview is intentionally read-only. Open each detail page once, then use its existing Phoebus tab to switch views and preserve the live trend buffer. Hardware controls remain subject to Genesis write gates and target safety interlocks.</text>
     <transparent>true</transparent>
@@ -2165,7 +2241,7 @@
   <widget type="rectangle" version="2.0.0">
     <name>MagnetCryostat</name>
     <x>650</x>
-    <y>280</y>
+    <y>265</y>
     <width>185</width>
     <height>410</height>
     <line_width>0</line_width>
@@ -2178,7 +2254,7 @@
   <widget type="rectangle" version="2.0.0">
     <name>MagnetCoilLeft</name>
     <x>662</x>
-    <y>405</y>
+    <y>390</y>
     <width>24</width>
     <height>165</height>
     <line_width>0</line_width>
@@ -2191,7 +2267,7 @@
   <widget type="rectangle" version="2.0.0">
     <name>MagnetCoilRight</name>
     <x>799</x>
-    <y>405</y>
+    <y>390</y>
     <width>24</width>
     <height>165</height>
     <line_width>0</line_width>
@@ -2204,7 +2280,7 @@
   <widget type="rectangle" version="2.0.0">
     <name>FridgeInsert</name>
     <x>704</x>
-    <y>325</y>
+    <y>310</y>
     <width>77</width>
     <height>278</height>
     <line_width>0</line_width>
@@ -2215,7 +2291,7 @@
   <widget type="rectangle" version="2.0.0">
     <name>TargetStick</name>
     <x>737</x>
-    <y>300</y>
+    <y>285</y>
     <width>12</width>
     <height>325</height>
     <line_width>0</line_width>
@@ -2226,7 +2302,7 @@
   <widget type="rectangle" version="2.0.0">
     <name>TargetCell</name>
     <x>701</x>
-    <y>595</y>
+    <y>580</y>
     <width>84</width>
     <height>62</height>
     <line_width>0</line_width>
@@ -2239,7 +2315,7 @@
   <widget type="label" version="2.0.0">
     <name>SchematicCryostatLabel</name>
     <x>660</x>
-    <y>288</y>
+    <y>273</y>
     <width>165</width>
     <height>22</height>
     <text>MAGNET CRYOSTAT</text>
@@ -2255,7 +2331,7 @@
   <widget type="label" version="2.0.0">
     <name>SchematicStickLabel</name>
     <x>688</x>
-    <y>340</y>
+    <y>325</y>
     <width>145</width>
     <height>22</height>
     <text>TARGET STICK</text>
@@ -2271,7 +2347,7 @@
   <widget type="label" version="2.0.0">
     <name>SchematicFridgeLabel</name>
     <x>699</x>
-    <y>455</y>
+    <y>440</y>
     <width>90</width>
     <height>22</height>
     <text>1 K FRIDGE</text>
@@ -2287,7 +2363,7 @@
   <widget type="label" version="2.0.0">
     <name>SchematicMagnetLabel</name>
     <x>690</x>
-    <y>535</y>
+    <y>520</y>
     <width>105</width>
     <height>22</height>
     <text>5 T MAGNET</text>
@@ -2303,7 +2379,7 @@
   <widget type="label" version="2.0.0">
     <name>SchematicCellLabel</name>
     <x>696</x>
-    <y>614</y>
+    <y>599</y>
     <width>95</width>
     <height>22</height>
     <text>TARGET CELL</text>
@@ -2311,6 +2387,140 @@
     <horizontal_alignment>1</horizontal_alignment>
     <font>
       <font family="Liberation Sans" style="BOLD" size="12.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>TargetTempHeader</name>
+    <x>855</x>
+    <y>516</y>
+    <width>215</width>
+    <height>23</height>
+    <text>TARGET STICK / CERNOX</text>
+    <transparent>true</transparent>
+    <horizontal_alignment>0</horizontal_alignment>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>TargetT1Label</name>
+    <x>855</x>
+    <y>549</y>
+    <width>84</width>
+    <height>24</height>
+    <text>T1 C4 (K)</text>
+    <transparent>true</transparent>
+    <horizontal_alignment>0</horizontal_alignment>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>TargetT1Value</name>
+    <x>941</x>
+    <y>549</y>
+    <width>119</width>
+    <height>26</height>
+    <pv_name>ca://UNH:GEN:CRYO:MAG:T1_TI</pv_name>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+    <precision>2</precision>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>TargetT1Status</name>
+    <x>855</x>
+    <y>577</y>
+    <width>208</width>
+    <height>23</height>
+    <pv_name>ca://UNH:GEN:CRYO:MAG:T1_Status</pv_name>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="12.0" />
+    </font>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>TargetT3Label</name>
+    <x>855</x>
+    <y>606</y>
+    <width>84</width>
+    <height>24</height>
+    <text>T3 C2 (K)</text>
+    <transparent>true</transparent>
+    <horizontal_alignment>0</horizontal_alignment>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>TargetT3Value</name>
+    <x>941</x>
+    <y>606</y>
+    <width>119</width>
+    <height>26</height>
+    <pv_name>ca://UNH:GEN:CRYO:MAG:T3_TI</pv_name>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
+    </font>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+    <precision>2</precision>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>TargetT3Status</name>
+    <x>855</x>
+    <y>634</y>
+    <width>208</width>
+    <height>23</height>
+    <pv_name>ca://UNH:GEN:CRYO:MAG:T3_Status</pv_name>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="12.0" />
+    </font>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>TargetTempNote</name>
+    <x>855</x>
+    <y>665</y>
+    <width>214</width>
+    <height>20</height>
+    <text>T1/T3: 2-T1 / 2-T3</text>
+    <transparent>true</transparent>
+    <horizontal_alignment>0</horizontal_alignment>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="13.0" />
     </font>
     <foreground_color>
       <color red="28" green="38" blue="48" alpha="255" />

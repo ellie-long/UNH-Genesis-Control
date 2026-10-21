@@ -20,6 +20,7 @@ from ..channel_map import ChannelMap
 from ..profile import GeneratedStack, LaunchSpec
 from .base import Emulator, LoopbackServer
 from .cryo import IONIVAC, LS224, LS455, MKS902B, TPG262
+from .cryo_optional import AMI135, AMI1700, HastingsFlowmeter, KJLSparcStream
 from .scpi_supply import ScpiSupply
 
 log = logging.getLogger(__name__)
@@ -44,14 +45,36 @@ def _channels(settings: dict) -> list[str]:
 
 
 def _ls224_inverse(settings: dict) -> dict:
-    cal_path = settings.get("calibration")
-    if not cal_path:
-        return {}
+    """{slot: inverse curve} -- the same curves the driver applies, loaded the
+    same way: classic rows from the calibration file (ODS or legacy CSV), and
+    the multi-band CCX Cernox curves (T1/T3) from ``ccx_calibration``."""
     from target_ioc.instruments import ls224 as drv   # same curves the driver applies
-    path = Path(cal_path)
-    table = drv.load_calibration(path if path.is_absolute() else REPO_ROOT / path)
-    return {slot: conversions.InverseCalibration(functools.partial(drv.resistance_to_kelvin, entry))
-            for slot, entry in table.items()}
+
+    def _path(p):
+        p = Path(p)
+        return p if p.is_absolute() else REPO_ROOT / p
+
+    chans = _channels(settings)
+    slots = dict(zip(chans, [str(s) for s in settings.get("slots", [])]))
+    ccx_sensors = settings.get("ccx_sensors", {}) or {}
+    out = {}
+    cal_path = settings.get("calibration")
+    if cal_path:
+        if str(cal_path).lower().endswith(".ods"):
+            from genesis_common.thermometry_ods import load_classic_ods
+            expected = {name: slots[name] for name in chans if name in slots and name not in ccx_sensors}
+            table = load_classic_ods(_path(cal_path), expected)
+        else:
+            table = drv.load_calibration(_path(cal_path))
+        out.update({slot: conversions.InverseCalibration(functools.partial(drv.resistance_to_kelvin, entry))
+                    for slot, entry in table.items()})
+    if settings.get("ccx_calibration") and ccx_sensors:
+        from genesis_common.cernox_ccx import ccx_kelvin, load_ccx_bands
+        bands = load_ccx_bands(_path(settings["ccx_calibration"]))
+        for name, source in ccx_sensors.items():
+            if name in slots and source in bands:
+                out[slots[name]] = conversions.InverseCalibration(functools.partial(ccx_kelvin, bands[source]))
+    return out
 
 
 def build(spec: LaunchSpec, settings: dict, source, initial: dict | None = None) -> Emulator:
@@ -69,6 +92,16 @@ def build(spec: LaunchSpec, settings: dict, source, initial: dict | None = None)
         return IONIVAC(chans[0], source)
     if kind == "ls455":
         return LS455(chans[0], source)
+    if kind in ("flowmeter_pi", "flowmeter_diewu"):
+        return HastingsFlowmeter(chans[0], source, correction=float(settings.get("correction", 1.0)),
+                                 via_pi=kind == "flowmeter_pi")
+    if kind == "ami1700":
+        return AMI1700(chans[0], source, scale=float(settings.get("scale", 1.0)),
+                       offset=float(settings.get("offset", 0.0)))
+    if kind == "ami135":
+        return AMI135(chans[0], source, scale=float(settings.get("scale", 0.393)))
+    if kind == "manometer_low":
+        return KJLSparcStream(chans[0], source)
     if kind == "scpi_supply":
         init = dict(initial or {})
         return ScpiSupply(spec.emulator.get("model", "SPD1305X"),
@@ -76,6 +109,25 @@ def build(spec: LaunchSpec, settings: dict, source, initial: dict | None = None)
                           max_current=float(settings.get("current_limit", settings.get("max_current", 5.0))),
                           **init)
     raise ValueError(f"no emulator for kind {kind!r}")
+
+
+ABSENT_NOTE = "absent in this era's record: connection refused"
+
+
+def absent_instruments(stack: GeneratedStack, cmap: ChannelMap, timeline) -> dict[str, str]:
+    """Emulated instruments the replayed record has no value for at all, whose
+    channel map says ``absent: refuse``: they are simply not there (the IOC
+    sees a refused connection).  Shared by the host and the validators."""
+    out: dict[str, str] = {}
+    if timeline is None:
+        return out
+    for spec in stack.iocs:
+        if not spec.emulator:
+            continue
+        chans = cmap.instruments.get(spec.name, {})
+        if chans and all(c.absent == "refuse" and not c.available(timeline) for c in chans.values()):
+            out[spec.name] = ABSENT_NOTE
+    return out
 
 
 class EmulatorHost:
@@ -89,6 +141,7 @@ class EmulatorHost:
         self.hosted: dict[str, HostedEmulator] = {}
 
     def start(self) -> None:
+        absent = absent_instruments(self.stack, self.cmap, self.timeline)
         for spec in self.stack.iocs:
             if not spec.emulator:
                 continue
@@ -101,15 +154,17 @@ class EmulatorHost:
             hosted = HostedEmulator(spec, emu, server, bool(settings.get("write_enabled", False)))
             # an instrument absent from this era's record and marked 'refuse'
             # in the channel map is simply not there
-            chans = self.cmap.instruments.get(spec.name, {})
-            if self.timeline is not None and chans and all(
-                    c.absent == "refuse" and not c.available(self.timeline) for c in chans.values()):
+            if spec.name in absent:
                 emu.fault.set("absent")
-                hosted.notes.append("absent in this era's record: connection refused")
+                hosted.notes.append(absent[spec.name])
             server.start()
             self.hosted[spec.name] = hosted
             log.info("emulator %s on 127.0.0.1:%s%s", spec.name, server.port,
                      " (absent)" if emu.fault.get() == "absent" else "")
+
+    def absent(self) -> dict[str, str]:
+        """Instruments started absent (for the run's runtime facts)."""
+        return {n: ABSENT_NOTE for n, h in self.hosted.items() if ABSENT_NOTE in h.notes}
 
     def stop(self) -> None:
         for h in self.hosted.values():

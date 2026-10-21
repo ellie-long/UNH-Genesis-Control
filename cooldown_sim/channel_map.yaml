@@ -13,7 +13,9 @@
 #   units:      units of the recorded value
 #   wire:       conversion applied before the emulator answers (see
 #               cooldown_sim/conversions.py): none | torr_to_mbar |
-#               ionivac_count | ls224_ohms
+#               ionivac_count | ls224_ohms | flow_raw (record / the
+#               profile's correction) | level_raw ((record - offset) / scale
+#               from the profile: AMI 135 cm, AMI 1700 inches)
 #   valid:      [lo, hi] in recorded units; values outside are treated as
 #               garbage -> absent (never clipped into range)
 #   absent:     what the emulator does when the record has no value:
@@ -29,7 +31,7 @@ instruments:
     wire: ls224_ohms     # profile has calibration: -> driver reads SRDG? ohms
     absent: invalid
     channels:
-      F1:  {source: F1,  units: K, valid: [0.01, 400], confidence: high, note: "Same F1-F11 names in LabVIEW and Genesis; F-sensor slots from calibration/fridge_thermometry.csv"}
+      F1:  {source: F1,  units: K, valid: [0.01, 400], confidence: high, note: "Same F1-F11 names in LabVIEW and Genesis; slots from the profile, curves from calibration/Thermo_Calibrations.ods (Utsav ccce63e; the old fridge_thermometry.csv is historical only)"}
       F2:  {source: F2,  units: K, valid: [0.01, 400], confidence: high}
       F3:  {source: F3,  units: K, valid: [0.01, 400], confidence: high}
       F4:  {source: F4,  units: K, valid: [0.01, 400], confidence: high}
@@ -45,13 +47,13 @@ instruments:
     wire: ls224_ohms
     absent: invalid
     channels:
-      M1: {source: M1, units: K, valid: [0.01, 400], confidence: high, note: "Same M1-M5 names; slots from calibration/magnet_thermometry.csv"}
+      M1: {source: M1, units: K, valid: [0.01, 400], confidence: high, note: "Same M1-M5 names; slots from the profile, curves from calibration/Thermo_Calibrations.ods (Utsav ccce63e)"}
       M2: {source: M2, units: K, valid: [0.01, 400], confidence: high}
       M3: {source: M3, units: K, valid: [0.01, 400], confidence: high}
       M4: {source: M4, units: K, valid: [0.01, 400], confidence: high}
       M5: {source: M5, units: K, valid: [0.01, 400], confidence: high}
-      T1: {source: T1, units: K, valid: [0.05, 400], confidence: high, note: "Target-cup Cernox on slot C2, stick 2 (Ells, 2026-10-15); CCX curve in calibration/magnet_thermometry.csv.  The record's T1 came from whichever stick was in at the time."}
-      T3: {source: T3, units: K, valid: [0.05, 400], confidence: high, note: "Target-cup Cernox on slot C4, stick 2 (Ells, 2026-10-15)"}
+      T1: {source: T1, units: K, valid: [0.05, 400], confidence: high, note: "Target-cup Cernox, stick 2, on slot C4: ODS row 2-T1 (Utsav ccce63e, operator-confirmed; his C4 curve gives 297 K at the live ~40 ohm room-temperature reading).  Reverses dev-sim's earlier T1 = C2 (Ells 2026-10-15).  Multi-band CCX Chebyshev from calibration/Thermo_Calibrations.ods (genesis_common/cernox_ccx.py).  The record's T1 came from whichever stick was in at the time."}
+      T3: {source: T3, units: K, valid: [0.05, 400], confidence: high, note: "Target-cup Cernox, stick 2, on slot C2: ODS row 2-T3 (Utsav ccce63e; was C4 in dev-sim before)"}
 
   mks902b:               # UNH:GEN:CRYO:CELL  Cell_PI (Torr)
     wire: none
@@ -69,7 +71,8 @@ instruments:
           and the 2020 single-range "Manometer (Torr)".  It reports down to
           0.1 Torr (driver docstring) but is rated only to ~1 Torr (Ells), while
           4He near 1 K is ~0.12 Torr; hence a lower-range manometer
-          ("Manometer-Lo", on a KJL-SPARC controller, no Genesis IOC) from 2021.
+          ("Manometer-Lo", on a KJL-SPARC controller; Genesis IOC
+          manometer_low since Utsav's cryo GUI work) from 2021.
           Replayed values below ~1 Torr carry the real gauge's poor accuracy.
 
   tpg262:                # UNH:GEN:CRYO:VAC  Pump_PI / OVC_PI (mbar)
@@ -97,13 +100,35 @@ instruments:
           old LabVIEW DAQ never logged it, so the replay serves no value for
           it (the gauge reads invalid in the sim); it stays in the live
           datastream for new data (Ells, 2026-10-16).  The shells' insulating
-          vacuum is the IONIVAC.
+          vacuum is the IONIVAC.  Utsav's ccce63e labels both gauges' records
+          Torr, but his driver sets EGU from the controller's UNI? at start-up
+          (the emulator answers mbar, as Ells said the TPG is always set), so
+          the PVs read mbar in the sim (open question).
 
   ionivac:               # UNH:GEN:CRYO:ION  Ion_PI (Torr)
     wire: ionivac_count
     absent: refuse       # a silent IONIVAC is how the driver detects "not present"
     channels:
       Ion: {source: ionivac, fallback: cold_cathode, units: Torr, valid: [1.0e-12, 1100.0], confidence: high, note: "Same instrument name in LabVIEW and Genesis.  Measures the vacuum of the shells separating the fridge space from the magnet space (Ells, 2026-10-15).  Fallback: the cold-cathode gauge, an older back-up on the same vacuum (2021+, NaN from 2025-11; now disconnected).  The model's quench vacuum rise acts here (question 20, 2026-10-16)."}
+
+  ionivac_pump:          # UNH:GEN:CRYO:ION:PUMP  Ion_PI (Torr), TXI040 :5005
+    wire: ionivac_count
+    absent: refuse       # no record column in any era: the cart's gauge is not there
+    channels:
+      Ion:
+        source: null
+        units: Torr
+        valid: [1.0e-12, 1100.0]
+        confidence: high
+        note: >-
+          The second IONIVAC, on the portable pumping station (roughing +
+          turbo cart, moved around the lab), TXI040 port 2, TCP 5005 (Ells
+          2026-10-16); Genesis IOC ionivac_pump since Utsav's ccce63e.  The
+          old LabVIEW DAQ never logged it ("Ionivac (Torr)" is the shells'
+          gauge), so in a replay the emulated cart gauge is absent
+          (connection refused; the driver reports COMM 0).  Not coupled to
+          the target model.  A scenario or Sim Control can still override it
+          (the same telegram emulator as the shells' IONIVAC).
 
   ls455:                 # UNH:GEN:CRYO:FIELD  Fringe_Field (G) / Fringe_FieldT
     wire: none           # emulator reports UNIT?=1 (gauss)
@@ -131,6 +156,119 @@ instruments:
           The sim does not yet move the Q-curve with this voltage.  Expect
           the stale-data watchdog to flag the constant reading (known issue).
 
+  # ------------------------------------------------ optional cryo IOCs
+  # Utsav's feature/cryo-gui-completeness IOCs.  absent: refuse = in a
+  # cool-down whose record has no value at all for the column, the emulated
+  # instrument is not there (connection refused), as for the LS455 in 2020.
+  # Within a cool-down a missing value is answered as "no number" (see
+  # cooldown_sim/emulators/cryo_optional.py) and the IOC flags it invalid.
+
+  flowmeter_pi:          # UNH:GEN:CRYO:FLOW:RIGHT  RPump_SLM / RPump_Raw (keysight Pi server, TCP 5010)
+    wire: flow_raw       # emulator sends record / correction (28/19); the driver multiplies back
+    absent: refuse
+    channels:
+      RPump:
+        source: roots_flow_r
+        units: slm
+        valid: [-500.0, 500.0]
+        confidence: medium
+        note: >-
+          "Roots Flow R (SLM)", 2021-09 on (2020 had a single "Roots Flow"; see
+          flowmeter_left).  Utsav's config labels this meter "Backing R", the
+          right pump line.  The model adds its heat boil-off to it (share of
+          the recorded L+R flow).  ASSUMED the record is corrected SLM (28/19
+          applied), so Genesis RPump_SLM = record and RPump_Raw = record x 19/28;
+          the logbook's ~1 slm per 60 mW (16.7 slm/W, close to Keith's 16.8)
+          supports corrected He SLM.  The record has unphysical excursions
+          (-84 to +166 slm in 2026-06) that are replayed as recorded.
+
+  flowmeter_left:        # UNH:GEN:CRYO:FLOW:LEFT  LPump_SLM (TXI040 port 6, TCP 5012)
+    wire: flow_raw
+    absent: refuse
+    channels:
+      LPump:
+        source: roots_flow_l
+        units: slm
+        valid: [-500.0, 500.0]
+        confidence: medium
+        note: >-
+          "Roots Flow L (SLM)" (2021-09 on), and the 2020 single "Roots Flow
+          (SLM)" (alias).  TXI040 port 6 is labelled left_Roots_Pump in the lab
+          technote; Utsav's config makes it the left backing-pump flowmeter.
+          EMPTY for the whole of 2026-06, so this instrument is refused (absent)
+          when replaying 2026-06.  Repeated 105.49 maxima across eras look like
+          a saturation value.  Model boil-off share added as for RPump.
+
+  flowmeter_sep:         # UNH:GEN:CRYO:FLOW:SEP  SepFlow_SLM (TXI040 port 7, TCP 5013)
+    wire: flow_raw
+    absent: refuse
+    channels:
+      SepFlow:
+        source: separator_flow
+        units: slm
+        valid: [-500.0, 500.0]
+        confidence: medium
+        note: >-
+          "Seperator Flow (SLM)" (sic), every era.  TXI040 port 7 is labelled
+          Separator_Pump in the lab technote.  Replayed (the model has no
+          separator).  ~50 slm while running in 2026-06, ~0.05 slm in 2020-22:
+          check that the column means the same thing in every era.
+
+  lhe_fridge:            # UNH:GEN:CRYO:FRIDGE:LHE  Fridge_LI (AMI 1700, 192.168.1.30:7180)
+    wire: level_raw      # (level - offset) / scale from the profile: inches as-is (1.0 / 0.0)
+    absent: refuse
+    channels:
+      Fridge:
+        source: fridge_he_level
+        units: in
+        valid: [-100.0, 100.0]
+        confidence: guess
+        note: >-
+          'Fridge He Level (")' (2024-08 on) and 2022-05 "Fridge He Level"; no
+          column in 2020-21, so absent there.  The record is NEGATIVE most of the
+          time the fridge runs (2026-06: -9 to -26 in; 2022-05 down to -87, where
+          a "Fridge He Level Raw" column is negative too), positive (~5-14 in)
+          when it is not pumped.  An AMI 1700 reports a non-negative level, and
+          Genesis's profile has scale 1, offset 0, so the record cannot be what
+          the 1700 will show: replayed as recorded (negative values on the wire)
+          until the LabVIEW zero/offset is known.
+
+  lhe_magnet:            # UNH:GEN:CRYO:MAG:LHE  Magnet_LI (AMI 135, TXI017 port 2, TCP 23)
+    wire: level_raw      # cm = inch / 0.393 on the wire, to 0.1 cm
+    absent: refuse
+    channels:
+      Magnet:
+        source: magnet_lhe_level
+        units: in
+        valid: [0.0, 60.0]
+        confidence: high
+        note: >-
+          'Magnet LHe Level (")' (2021-09 on) and the 2020 'Helium Level (")'.
+          The 2020 values step by 0.0393 in = 0.1 cm x 0.393, i.e. this AMI 135
+          read in cm with the same 0.393 the Genesis profile uses; the emulator
+          answers in cm to 0.1 cm.  The magnet LHe meter is on TXI017 port 2,
+          TCP 23 (Ells).  Replayed (the model has no magnet dewar).
+
+  manometer_low:         # UNH:GEN:CRYO:VAC:LOW  Mano_PI / Mano_VapT (KJL-SPARC via the keysight Pi, 5030)
+    wire: none           # Torr in the stream
+    absent: refuse
+    channels:
+      Mano:
+        source: manometer_lo
+        units: Torr
+        valid: [1.0e-4, 11.0]
+        confidence: high
+        note: >-
+          "Manometer-Lo (Torr)", 2021-09 on (absent in 2020).  KJLC
+          XCG-HT-FB-1, 10 Torr full scale, on a KJL-SPARC, USB to the keysight
+          Pi (Ells).  The record reads exactly 0 whenever the cell is above
+          ~9-10 Torr (Manometer-Hi) and at the vp_temp 0.650 K dropouts, so 0 is
+          treated as no reading (the emulator streams a line with no number),
+          as are values above 11 Torr (2022-05 has a 256 Torr glitch).  The
+          model scales it like Manometer-Hi (cell_pressure); a modelled value
+          above 10 Torr full scale is served as no reading.  Between 1 and 9
+          Torr the record's Manometer-Lo reads 1.1-1.6x Manometer-Hi.
+
   mw_spd1305x:           # UNH:GEN:MW:PS  (UCA supply for the microwave source)
     wire: none
     absent: output_off
@@ -148,7 +286,7 @@ history:
   field:      {source: central_field, units: T, valid: [0.0, 6.0], confidence: high}
   magnet_i:   {source: magnet_current, units: A, valid: [0.0, 120.0], confidence: high}
   online_p:   {source: online_p, units: "%", valid: [-110.0, 110.0], confidence: high, note: "LabVIEW live area-method P; values beyond +/-110 % are display glitches"}
-  t_cup:      {source: T1, units: K, valid: [0.05, 400], confidence: medium, note: "Target-cup thermometer T1 (magnet LS224 slot C2); the model's lattice temperature"}
+  t_cup:      {source: T1, units: K, valid: [0.05, 400], confidence: medium, note: "Target-cup thermometer T1 (magnet LS224 slot C4, ODS 2-T1); the model's lattice temperature"}
   he_level_fridge: {source: fridge_he_level, units: in, valid: [0.0, 60.0], confidence: high}
   he_level_magnet: {source: magnet_lhe_level, units: in, valid: [0.0, 60.0], confidence: high}
 
@@ -214,7 +352,17 @@ equipment:
     map: ionivac.Ion
     sim: IONIVAC emulator
     confidence: high
-    note: "Ells 2026-10-16: the lab has TWO IONIVACs. The one on the shells (the important one) is on TXI040 :5006; the other is on the portable pumping station (a cart with roughing and turbo pumps, moved around the lab) on :5005. Genesis connected to :5005, i.e. read the cart, until the dev-sim fix (question 48). Alarm limits: above 1e-4 Torr with the magnet bottom > 300 K, above 1e-5 Torr below 80 K (Genesis has HIGH/HIHI 800/900 Torr; open questions 25, 39)"
+    note: "Ells 2026-10-16: the lab has TWO IONIVACs. The one on the shells (the important one) is on TXI040 :5006; the other is on the portable pumping station (a cart with roughing and turbo pumps, moved around the lab) on :5005. Genesis connected to :5005, i.e. read the cart, until the dev-sim fix (question 48); Utsav's ccce63e keeps :5006 and gives the cart its own IOC, ionivac_pump. Alarm limits: above 1e-4 Torr with the magnet bottom > 300 K, above 1e-5 Torr below 80 K (Genesis has HIGH/HIHI 800/900 Torr; open questions 25, 39)"
+  - genesis: ionivac_pump
+    equipment: Leybold IONIVAC combination gauge (the second one)
+    role: "IONIVAC on the portable pumping station (roughing + turbo cart), TXI040 :5005 (Ells 2026-10-16)"
+    link: RS-232 via serial gateway 192.168.1.251:5005 (TXI040 port 2)
+    prefix: UNH:GEN:CRYO:ION:PUMP
+    control: read-only (write_enabled false)
+    map: ionivac_pump.Ion (no past-record column)
+    sim: IONIVAC emulator (same telegram stream); absent (connection refused) in every replay, overridable
+    confidence: high
+    note: "Utsav's ccce63e: a second IONIVAC IOC (live CA 5129), on the cart's gauge; the shells' ionivac moved to :5006. The old DAQ never recorded the cart"
   - genesis: ls455
     equipment: Lake Shore 455 DSP gaussmeter
     role: Magnet fringe field
@@ -234,26 +382,86 @@ equipment:
     sim: SCPI supply emulator (as SPD1305X), output OFF
     confidence: high
     note: "Ells 2026-10-16: now at 192.168.1.18 (the sticker and the old config said 192.168.1.5, before the post-outage static-IP rework). An SPD1305X. Before Genesis the cold board ran from an external DC supply, never recorded."
+  - genesis: flowmeter_pi
+    equipment: Teledyne Hastings flowmeter (USB CDC on the keysight Pi, served by scripts/pi_cryo_bridges/flowmeter_pi_headless.py)
+    role: "Right Roots/backing-pump line helium flow ('Backing R'): the fridge boil-off"
+    link: TCP 192.168.1.24:5010 (the Pi's flowmeter server; 'F' + CR -> '<raw>>')
+    prefix: UNH:GEN:CRYO:FLOW:RIGHT
+    control: read-only (write_enabled false)
+    map: flowmeter_pi.RPump (Roots Flow R)
+    sim: Hastings flowmeter emulator behind a Pi-style server (ERROR replies when it has no reading)
+    confidence: medium
+    note: "Utsav's cryo GUI completeness IOC. RPump_SLM = raw x 28/19 (profile correction). CHECK: is the record's Roots Flow R corrected SLM (assumed), and is the right Roots line the one on the Pi"
+  - genesis: flowmeter_left
+    equipment: Teledyne Hastings flowmeter
+    role: "Left Roots/backing-pump line helium flow ('Backing L')"
+    link: RS-232 via serial gateway 192.168.1.251:5012 (TXI040 port 6, 19200 8N1)
+    prefix: UNH:GEN:CRYO:FLOW:LEFT
+    control: read-only (write_enabled false)
+    map: flowmeter_left.LPump (Roots Flow L; 2020 Roots Flow)
+    sim: Hastings flowmeter emulator (gateway pass-through)
+    confidence: medium
+    note: "TXI040 port 6 is labelled left_Roots_Pump in the lab technote (Ells); Utsav's config makes it the left-Roots flowmeter. The record's Roots Flow L is empty for all of 2026-06"
+  - genesis: flowmeter_sep
+    equipment: Teledyne Hastings flowmeter
+    role: Separator pumping-line helium flow
+    link: RS-232 via serial gateway 192.168.1.251:5013 (TXI040 port 7, 19200 8N1)
+    prefix: UNH:GEN:CRYO:FLOW:SEP
+    control: read-only (write_enabled false)
+    map: flowmeter_sep.SepFlow (Seperator Flow)
+    sim: Hastings flowmeter emulator (gateway pass-through)
+    confidence: medium
+    note: "TXI040 port 7 is labelled Separator_Pump in the lab technote (Ells); Utsav's config makes it the separator flowmeter"
+  - genesis: lhe_fridge
+    equipment: American Magnetics Model 1700 helium level instrument
+    role: Fridge-space liquid-helium level
+    link: Ethernet SCPI 192.168.1.30:7180 (AMI's command port; 192.168.1.27 before Utsav's ccce63e)
+    prefix: UNH:GEN:CRYO:FRIDGE:LHE
+    control: read-only (write_enabled false)
+    map: lhe_fridge.Fridge (Fridge He Level)
+    sim: AMI 1700 SCPI emulator (MEASure:HE:LEVel?, *IDN?)
+    confidence: medium
+    note: "Utsav's driver: scale 1.0, offset 0.0 (inches). CHECK: the record's fridge level is negative while the fridge runs, which an AMI 1700 cannot report: what zero/offset did LabVIEW apply?"
+  - genesis: lhe_magnet
+    equipment: American Magnetics Model 135 helium level monitor (command echo on)
+    role: Magnet-dewar liquid-helium level
+    link: RS-232 via serial gateway 2 192.168.1.250:23 (TXI017 port 2, 9600 8N1)
+    prefix: UNH:GEN:CRYO:MAG:LHE
+    control: read-only (write_enabled false)
+    map: lhe_magnet.Magnet (Magnet LHe Level; 2020 Helium Level)
+    sim: AMI 135 emulator (echoes LEVEL, answers cm to 0.1 cm)
+    confidence: high
+    note: "Ells: the magnet LHe meter is on TXI017 port 2 (TCP 23). Reports cm; the profile's 0.393 converts to inches, and the 2020 record steps by exactly 0.1 cm x 0.393"
+  - genesis: manometer_low
+    equipment: "Manometer-Lo: KJLC XCG-HT-FB-1 capacitance manometer (10 Torr full scale) on a Kurt J. Lesker KJL-SPARC controller"
+    role: Low-range target-cell (helium vapour) pressure, and its ITS-90 vapour-pressure temperature
+    link: "USB from the KJL-SPARC to the keysight Pi (192.168.1.24); scripts/pi_cryo_bridges/pi_gateway.py (byte pass-through) forwards the stream on TCP 5030"
+    prefix: UNH:GEN:CRYO:VAC:LOW
+    control: read-only (write_enabled false)
+    map: manometer_low.Mano (Manometer-Lo)
+    sim: "line-stream emulator ('Pr: <Torr>' lines, 4 Hz); the model's cell pressure, as for Manometer-Hi"
+    confidence: medium
+    note: "Ells: XCG-HT-FB-1, 10 Torr F.S., on a KJL-SPARC, USB to the keysight Pi; the old DAQ crossed from Manometer-Hi to Manometer-Lo at 5 Torr. Utsav's driver reads an unprompted line stream (drop 4 characters, first number), while Ells has said the KJL-SPARC speaks a TPG-style protocol: CHECK which. Head specs (Ells 2026-10-16): 0.5 % of reading, resolution 0.05 % F.S. = 0.005 Torr on its 0-10 V output, usable for LHe to at least 0.9 K (~0.04 Torr). Mano_VapT is NaN below 0.8606 Torr (1.25 K), i.e. whenever the fridge is cold, until a sub-1.25 K band is added to calibration/vapor_pressure_he4.csv"
   - genesis: (serial gateway)
     equipment: DIE WU TXI040 8-port RS-232/422/485 serial device server
-    role: Carries Genesis's four RS-232 instruments (MKS 902B, IONIVAC, LS455, TPG 262)
-    link: 192.168.1.251, TCP ports 5004 / 5006 / 5007 / 5011
+    role: "Carries Genesis's seven RS-232 instruments on it: MKS 902B, both IONIVACs (shells and pumping cart), LS455, TPG 262 and the left-Roots and separator flowmeters"
+    link: 192.168.1.251, TCP ports 5004 / 5005 / 5006 / 5007 / 5011 / 5012 / 5013
     prefix: "-"
     control: transport only
     map: "-"
     sim: the emulators listen on loopback instead
     confidence: high
-    note: "Ells 2026-10-16: a DIE WU TXI040 (8 serial ports to Ethernet) with 7 devices plugged in; Genesis uses 4 of them. Port map (lab technote 2026-TN-02, all TCP server mode, 1 connection): 1 Manometer_HI :5004 (9600 8N1); 2 Pumping Station :5005 (9600 8N1; the portable cart's IONIVAC); 3 Ionivac :5006 (9600 8N1; the shells'); 4 Fringe Field :5007 (19200 7O1); 5 ROOTS :5011 (19200 8N1, the TPG 262); 6 left_Roots_Pump :5012 (19200 8N1); 7 Separator_Pump :5013 (19200 8N1); 8 vacant, but set to :5011, the same TCP port as port 5. Genesis's IONIVAC used :5005 (the cart) until fixed to :5006 (question 48)"
+    note: "Ells 2026-10-16: a DIE WU TXI040 (8 serial ports to Ethernet) with 7 devices plugged in; Genesis uses all 7 (ports 6 and 7, the left-Roots and separator flowmeters, since Utsav's cryo GUI work; port 2, the pumping cart's IONIVAC, since his ccce63e). Port map (lab technote 2026-TN-02, all TCP server mode, 1 connection): 1 Manometer_HI :5004 (9600 8N1); 2 Pumping Station :5005 (9600 8N1; the portable cart's IONIVAC); 3 Ionivac :5006 (9600 8N1; the shells'); 4 Fringe Field :5007 (19200 7O1); 5 ROOTS :5011 (19200 8N1, the TPG 262); 6 left_Roots_Pump :5012 (19200 8N1); 7 Separator_Pump :5013 (19200 8N1); 8 vacant, but set to :5011, the same TCP port as port 5. Genesis's IONIVAC used :5005 (the cart) until fixed to :5006 (question 48)"
   - genesis: (serial gateway 2)
     equipment: DIE WU TXI017 4-port RS-232/485/422 serial device server
-    role: "Serial-to-Ethernet for the magnet's two instruments, neither in Genesis yet: port 1 Magnet_IPS (TCP 5001, 9600 8N2, RS-232; the magnet power supply, presumably the Oxford IPS120-10), port 2 Magnet_LHE_Prob (TCP 23, 9600 8N1, RS-232; the magnet LHe level probe). Both TCP server mode, 1 connection (Ells 2026-10-16, port setup pages)"
+    role: "Serial-to-Ethernet for the magnet's two instruments: port 1 Magnet_IPS (TCP 5001, 9600 8N2, RS-232; the magnet power supply, presumably the Oxford IPS120-10; not in Genesis yet), port 2 Magnet_LHE_Prob (TCP 23, 9600 8N1, RS-232; the magnet LHe level probe, Genesis lhe_magnet). Both TCP server mode, 1 connection (Ells 2026-10-16, port setup pages)"
     link: 192.168.1.250, TCP 5001 / 23
     prefix: "-"
     control: transport only
     map: "-"
-    sim: not emulated (nothing in Genesis behind it)
+    sim: the AMI 135 emulator listens on loopback instead of port 2; port 1 not emulated
     confidence: high
-    note: "Ells 2026-10-16: 2 devices plugged in (above). Magnet supply = highest Genesis priority, AMI level meters next (question 26). CHECK: the IPS model and the level meter model (open question 49)"
+    note: "Ells 2026-10-16: 2 devices plugged in (above). Magnet supply = highest Genesis priority (question 26). Utsav's lhe_magnet driver says the level meter is an AMI Model 135 (open question 49, level-meter half). CHECK: the IPS model"
   # ----------------------------------------------------------- microwave
   - genesis: mw_spd1305x
     equipment: "Siglent SPD1305X single-channel DC supply (confirmed by Ells, 2026-10-15)"
@@ -334,14 +542,14 @@ equipment:
     confidence: high
   - genesis: (keysight Pi)
     equipment: Raspberry Pi, hostname keysight (labelled 192.168.1.24)
-    role: Hosts the Genesis Keysight WaveGen IOC (USB to the DSOX3024T); the KJL-SPARC (Manometer-Lo) is also on its USB (Ells 2026-10-15)
-    link: LAN 192.168.1.24, EPICS CA port 5064; USB to the Keysight and the KJL-SPARC
+    role: "Hosts the Genesis Keysight WaveGen IOC (USB to the DSOX3024T); also the KJL-SPARC (Manometer-Lo, USB, forwarded by tools/pi_gateway.py on TCP 5030) and the right-pump Hastings flowmeter (USB CDC, served by flowmeter_pi_headless.py on TCP 5010)"
+    link: LAN 192.168.1.24, EPICS CA port 5064; USB to the Keysight, the KJL-SPARC and a flowmeter; TCP 5010 / 5030
     prefix: "-"
     control: transport only
     map: "-"
-    sim: the Keysight simulator runs on loopback; Manometer-Lo is not emulated
+    sim: the Keysight simulator, the Manometer-Lo stream and the Pi flowmeter server all run on loopback
     confidence: high
-    note: "docs/SSRF_PHYSICAL_COMMISSIONING.md. CHECK: what on this Pi reads the KJL-SPARC, and how its reading reaches LabVIEW"
+    note: "docs/SSRF_PHYSICAL_COMMISSIONING.md; Utsav's manometer_low and flowmeter_pi drivers. CHECK: how the KJL-SPARC reading reached LabVIEW before Genesis"
   - genesis: ssrf_nmr_switch
     equipment: Mini-Circuits RC-2SPDT-A18 dual SPDT switch
     role: Routes the NMR signal path
@@ -392,10 +600,6 @@ software_iocs:
 #   columns:    canonical column names (cooldown_sim/data/aliases.py)
 #   used_by:    what cooldown_sim does with the column, if anything
 record_only:
-  - instrument: "Low-range cell manometer: KJLC XCG carbon capacitance manometer on a Kurt J. Lesker KJL-SPARC controller"
-    columns: [manometer_lo]
-    used_by: "nothing (the MKS 902B is Manometer-Hi)"
-    note: "Ells 2026-10-15: added from 2021 because the 902B struggled with helium near 1 K. The KJL-SPARC answers a Pfeiffer-TPG-style serial protocol, which is how the Pi should read it (Ells). The gauge head is a KJLC XCG carbon capacitance manometer, cabled to the KJL-SPARC with a black RJ45-style cable that carries the gauge's power and signals (not Ethernet). The KJL-SPARC's micro-USB output goes to a USB-A port on the Raspberry Pi 'keysight' (192.168.1.24), which also hosts the Genesis Keysight WaveGen IOC. Ells (2026-10-16): the head is an XCG-HT-FB-1, i.e. 10 Torr full scale, Torr units, DN16 ISO-KF, 0.5 % of reading accuracy class; analog 0-10 V linear (p = U/10 V x 10 Torr), resolution 0.05 % F.S. = 0.005 Torr, zero drift 0.02 % F.S./degC. Lower usable limit not specified by the maker; works for LHe to at least 0.9 K (~0.04 Torr), likely somewhat lower. CHECK: what on the Pi reads it and how the reading reaches LabVIEW"
   - instrument: Vapor-pressure readout (LabVIEW)
     columns: [vp_range, vp_temp]
     used_by: "vp_temp is a model-fit channel (fit-params) and the model's bath temperature (0.650 K dropouts skipped)"
@@ -403,15 +607,7 @@ record_only:
   - instrument: Target-cup thermometer T2 (target stick 1 only)
     columns: [T2]
     used_by: "model-fit channel"
-    note: "Ells 2026-10-15: stick 2 is in, with T1 (C2) and T3 (C4) only; stick 1 had T2. T1 and T3 are now ls224_magnet channels (dev-sim)"
-  - instrument: Roots flow meters (left / right)
-    columns: [roots_flow_l, roots_flow_r]
-    used_by: "the model's boil-off (59.5 mW/slm) is reported, not replayed"
-    note: "Helium pumped out of the fridge. Ells 2026-10-15: needed on the Genesis DAQ soon (no IOC yet)"
-  - instrument: Separator flow meter
-    columns: [separator_flow]
-    used_by: nothing
-    note: "Ells 2026-10-15: needed on the Genesis DAQ soon (no IOC yet)"
+    note: "Ells 2026-10-15: stick 2 is in, with T1 and T3 only; stick 1 had T2. T1 (C4, ODS 2-T1) and T3 (C2, ODS 2-T3) are ls224_magnet channels (slots per Utsav ccce63e)"
   - instrument: Microwave power monitor (SIG output of the microwave chain)
     columns: [sig_v]
     used_by: nothing
@@ -424,10 +620,6 @@ record_only:
     columns: [pirani_v]
     used_by: nothing
     note: "Logged as a voltage"
-  - instrument: Helium level meters (fridge, magnet)
-    columns: [fridge_he_level, magnet_lhe_level]
-    used_by: "history inputs only"
-    note: "Two AMI level meters (fridge, magnet). Ells 2026-10-15: needed on the Genesis DAQ soon (no IOC yet); priority 2 after the magnet supply"
   - instrument: Magnet power supply
     columns: [ps_current, magnet_current, central_field]
     used_by: "central field = the model's B (DNP optimum, NMR line)"

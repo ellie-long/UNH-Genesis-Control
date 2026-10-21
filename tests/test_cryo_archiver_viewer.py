@@ -53,7 +53,7 @@ class CryoArchiverViewerContract(unittest.TestCase):
 
         self.assertEqual(
             arch["archive_path"],
-            "archive/data",
+            "archive/subsystems/pv_csv",
         )
 
         self.assertGreaterEqual(

@@ -25,7 +25,18 @@ def add_parsers(sub) -> None:
     p.add_argument("--data", default=os.environ.get(DATA_ENV))
     p.set_defaults(func=_report)
 
+    p = sub.add_parser("genesis-to-labview",
+                       help="write LabVIEW-style data_record copies of Genesis recordings")
+    from .data import genesis_to_labview as g2l
+    g2l.add_arguments(p)
+    p.set_defaults(func=_genesis_to_labview)
+
     add_model_parsers(sub)
+
+
+def _genesis_to_labview(args) -> int:
+    from .data import genesis_to_labview as g2l
+    return g2l.run(args)          # 0 written, 2 refused (= EXIT_REFUSED)
 
 
 def _cooldowns(args) -> int:

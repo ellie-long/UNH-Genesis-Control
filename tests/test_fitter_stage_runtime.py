@@ -144,9 +144,11 @@ class TestFitterStageRuntime(
             args.no_event_log
         )
 
+        from archive.data_paths import ssrf_event_dir
+
         self.assertEqual(
             args.event_dir,
-            "archive/events/ssrf",
+            str(ssrf_event_dir()),
         )
 
         self.assertFalse(
@@ -155,7 +157,7 @@ class TestFitterStageRuntime(
 
         self.assertEqual(
             args.session_data_root,
-            str(DEFAULT_SESSION_DATA_ROOT),
+            str(ssrf_event_dir().parents[1] / "sessions" / "ssrf"),
         )
 
     def test_dry_run_writer_never_calls_epics(

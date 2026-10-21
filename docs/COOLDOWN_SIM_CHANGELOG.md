@@ -5,6 +5,58 @@ Each entry gives the commit, what changed, and why. The narrative and the
 findings are in `COOLDOWN_SIM_PROGRESS.md`; questions for the lab are in
 `COOLDOWN_SIM_OPEN_QUESTIONS.md`.
 
+## 2026-10-21
+
+* Docs: progress entry, questions 65-67 (64 updated; 49c and the T1 / T3
+  slots settled), channel-map report regenerated. Quench scenario: the
+  quench moves from 18 to 24 min (all windows +6 min, 84 min long) so the
+  pre-quench fitter check survives a slow Update Constants (33-42 s wall).
+* `877f5a5` Validators: an absent IONIVAC whose PV holds the driver's
+  start-up 0.0 in alarm is KNOWN (`never-connected-reads-zero`), not FAIL;
+  any real number on an absent instrument still fails.
+* `42c0a65` Adapted to Utsav's main ccce63e (merged as 7394583): LS224
+  emulator inverse from `Thermo_Calibrations.ods` (classic rows and the CCX
+  Cernox bands, T1 = C4, T3 = C2), RDGST? range bits in the emulator, new
+  `ionivac_pump` (pumping-cart IONIVAC) on replay CA/PVA 6110/6210 with an
+  IONIVAC emulator on 16006, channel-map rows, conversions tests rebuilt on
+  his loaders.
+
+## 2026-10-19
+
+* Merged Utsav's `feature/ssrf-pynmr-only` (one conflict between his own
+  branches, two imports, both kept). His interlock rewrite fixes question 59:
+  the sim's three replayed burns now complete with RF on, so ssrf-burns
+  expects PASS, a burn stopped at a permit is now a FAIL, and the known issue
+  `ssrf-interlock-permits-withheld` is retired (`ssrf-safe-off-lockup` kept
+  until the manual safe-off path is re-verified). Also merged his
+  `feature/cryo-gui-completeness` (six new cryo IOCs, emulated in the sim).
+
+
+* `be9a602` Validators: an emulated instrument absent from the era's record
+  (connection refused by design, e.g. `flowmeter_left` in 2026-06) passes its
+  heartbeat check on COMM 0 and its round trip on a NaN reading, instead of
+  failing as a dead device loop. Questions 60-64 added.
+
+* `aaa92a1` The six optional cryo IOCs from Utsav's `feature/cryo-gui-completeness`
+  (`flowmeter_pi`, `flowmeter_left`, `flowmeter_sep`, `lhe_fridge`,
+  `lhe_magnet`, `manometer_low`) now launch in the cryo leg against new
+  emulators (`cooldown_sim/emulators/cryo_optional.py`: Hastings flowmeter via
+  the Pi server or the TXI040, AMI 1700 SCPI, AMI 135 with echo, KJL-SPARC
+  line stream) on CA 6124-6129 / PVA 6224-6229 (6123/6223 left for the
+  dev-visualizer trend-history IOC). Channel map: six instrument blocks and
+  equipment rows, out of `record_only`; level-meter aliases now also match the
+  CSV-quoted `"Fridge He Level ("")"` titles of some 2024-08..2025-12 days
+  (those eras had read as having no level columns). Model: Manometer-Lo follows
+  the modelled cell pressure, the Roots L/R flowmeters get the boil-off change.
+  Fixes the drift tests ("port 5123 has no replay IOC") and the equipment
+  inventory test.
+
+* Merged Utsav's `main` (master archiver, dual-source NMR, restart recovery;
+  11 commits). Clean merge; his master-archiver tests pinned the Cryo PV count
+  (136, total 337), now 142 / 343 with the target-cup T1/T3 PVs (TI, RI,
+  Status) dev-sim archives. All his tests pass in WSL (they need Linux:
+  `fcntl`); sim suite 228 passed.
+
 ## 2026-10-17
 
 * Hindcast `--truth mcclellan`: scores the model against the McClellan

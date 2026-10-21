@@ -115,7 +115,7 @@
     <y>225</y>
     <width>150</width>
     <height>20</height>
-    <pv_name>ca://UNH:GEN:CRYO:FIELD:Fringe_Conn</pv_name>
+    <pv_name>ca://UNH:GEN:CRYO:FIELD:COMM</pv_name>
     <precision>4</precision>
     <format>6</format>
   </widget>

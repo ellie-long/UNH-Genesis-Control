@@ -9,21 +9,165 @@ named in each item. Numbers are stable: answered items move to *Settled*.
 ## Checklist (all open items)
 
 **Equipment and wiring**
-- [ ] 59. **NMR switch meaning (ssRF interlock, live safety logic):** Ells
-      (2026-10-16): 192.168.1.8/SETP=0 = NMR ON, SETP=3 = NMR OFF. The
-      interlock's docstring agrees (PORT1 = Q-meter connected, PORT2 =
-      disconnected/protected), but its logic (`logic_devices/ssrf_interlock.py`
-      ~196-209) treats BOTH ports as live NMR ("Port 1 = legacy LabVIEW;
-      Port 2 = JLab PyNMR"), so with SETP=3 it reports NMR_LIVE and never
-      sees the NMR path off (no ssRF burn permit ever). Is SETP=3 a full NMR
-      disconnect, or the route to the JLab PyNMR system? Not changed until
-      answered.
+- [ ] 60. **Fridge He Level zero:** the record's `Fridge He Level (")` is
+      NEGATIVE most of the time the fridge runs (2026-06-17: -9 to -26 in;
+      2022-05 down to -87, where `Fridge He Level Raw` is negative too) and
+      ~5-14 in when it is not pumped. An AMI 1700 reports a non-negative
+      level, and Genesis's `lhe_fridge` has scale 1.0, offset 0.0, so Genesis
+      will not show the numbers LabVIEW logged. What zero/offset (or other
+      instrument) produced the record? The sim replays it as recorded.
+      Live 2026-10-20 (warm, empty fridge): the AMI 1700 itself reads
+      `Fridge_LI` -18.7 in, so the negative values come from the meter's own
+      zero/probe setup, not a LabVIEW offset. Still: what should 'empty' read?
+- [ ] 61. **Flowmeter record units and labels:** (a) are the record's
+      `Roots Flow L/R` and `Seperator Flow (SLM)` corrected SLM (the 28/19
+      in Utsav's profiles already applied)? The sim assumes yes, so Genesis
+      `_SLM` = record (the logbook's ~1 slm per 60 mW supports He SLM).
+      (b) The 2020 single `Roots Flow (SLM)`: the left meter (as aliased), or
+      a total? (c) `Roots Flow L` is empty from 2025-11 on: meter broken?
+      (d) Separator flow is ~50 slm while running in 2026-06 but ~0.05 slm in
+      2020-22: same quantity? (e) Excursions such as -84 / +166 slm (R,
+      2026-06) and -308 slm (separator, 2021-09): real or DAQ artifacts? And
+      the repeated 105.49 maximum on L: a saturation?
+      Live 2026-10-20 (warm, no flow): left +1.36 slm, right -0.42 slm,
+      separator -0.17 slm -- the meters carry zero offsets, which explains
+      small negative readings.
+- [ ] 62. **Manometer-Lo protocol and record:** (a) Utsav's `manometer_low`
+      driver reads an unprompted line stream from `tools/pi_gateway.py`
+      (drop 4 characters, take the first number, Torr), but you said the
+      KJL-SPARC speaks a TPG-style serial protocol. Which is it, and what
+      does one line look like? (The emulator streams `Pr: 1.2345E-01`, a
+      guess.) (b) The record's Manometer-Lo reads exactly 0 whenever
+      Manometer-Hi is above ~9-10 Torr: over-range reported as 0, or a valve?
+      (c) Between 1 and 9 Torr, Manometer-Lo reads 1.1-1.6x Manometer-Hi in
+      every era; which gauge is right there?
+      Live 2026-10-20: the KJL-SPARC line is `VAC=<value>` (the 4-character
+      prefix the driver strips); at atmosphere it sends `VAC=RANGE` (over the
+      10 Torr range), which the driver reports as PARSE_ERR. See 69 for a
+      fragment bug.
+- [ ] 63. **ITS-90 in Utsav's `genesis_common/its90_helium.py` vs the lab's
+      conversion** (not changed; for you and Utsav): (a) it uses 133.322
+      Pa/Torr (exact) where the lab code uses 133.3, so it reads +0.025 mK
+      at 0.9 Torr up to +0.17 mK at 700 Torr warmer (same ITS-90
+      coefficients); (b) below 0.8606 Torr (1.25 K) it returns NaN, so
+      `Mano_VapT` is NaN whenever the fridge is cold (0.05 Torr: lab 0.9187 K;
+      0.12 Torr: 1.0028 K). The band CSV holds only T = poly(ln P), so the
+      lab's Donnelly-Barenghi branch needs either a fitted polynomial row or
+      code; (c) its docstring says the LabVIEW VI carries only the 2.18-5 K
+      equation, but the record's Med/Hi/VHi ranges match both ITS-90 bands to
+      < 1 mK and its Lo range is a sub-1.25 K equation.
+- [ ] 64. Port clash for question 54: the trend-history IOC's suggested live
+      CA/PVA 5123/5223 is now `flowmeter_pi`'s (Utsav's
+      `ioc_manager/settings.yaml`: flowmeters 5123-5125, level meters
+      5126-5127, Manometer-Lo 5128). 5129/5229 is now taken too (Utsav's
+      ccce63e: `ionivac_pump`, the pumping cart's IONIVAC). Use e.g.
+      5130/5230 (free in every live profile and script today)?
+- [ ] 65. **TPG 262 units:** Utsav's ccce63e labels `Pump_PI` / `OVC_PI` as
+      Torr in `configs/target_physical/tpg262/settings.yaml` (was mbar), but
+      his driver overwrites the EGU at start-up with what the controller's
+      `UNI?` says, and you said (2026-10-16) the TPG is always set to mbar.
+      Has the live TPG been switched to Torr? If so its alarm limits (0.1 /
+      0.01 on Pump, 1e-3 / 1e-4 on OVC) and the vacuum interlock's 1e-3 trip
+      are now Torr, and the sim's emulator (UNI = 0, mbar) should answer
+      Torr. The sim keeps mbar until you say.
+      Checked 2026-10-21: the driver (`target_ioc/instruments/tpg262.py`)
+      sends only `PRX` (both pressures), `UNI` (QUERY the display unit) and
+      `TID`; it never sends `UNI,<n>`, so values arrive in whatever unit the
+      controller's front panel is set to, and the settings' `EGU: Torr` is
+      only the label until the IOC reads `UNI` at start-up. The alarm/trip
+      numbers and the Panopticon's x0.750062 mbar->Torr conversion all
+      silently assume mbar.
+      Live 2026-10-20: the controller reports `Pump_Unit` = **Torr** (Pump_PI
+      765 at atmosphere), so the live TPG 262 IS on Torr now. Was that
+      intended? If yes: the Panopticon's x0.750062 mbar->Torr conversion is
+      now wrong (atmosphere would show 574), the interlock's 1e-3 trip is in
+      Torr, and the sim's TPG emulator should answer Torr.
+- [ ] 68. **Enforce the TPG 262 unit?** (a) have the IOC check the `UNI`
+      reply and flag (alarm) anything but mbar, read-only; or (b) send
+      `UNI,0` at start-up to force mbar (a write to the instrument: needs
+      your and Utsav's OK); or (c) leave it to the front panel.
+- [ ] 69. **Manometer-Lo reads line fragments (for Utsav, live):** in the
+      2026-10-20 sample 12 of 35 raw lines were fragments (`NGE`, `=RANGE`,
+      `GE`, `E` ...): after `discard_input()` the next `read_until()` returns the
+      tail of a half-received line. Harmless for `VAC=RANGE`, but a fragment of
+      a number (e.g. the tail of `VAC=1.234E-01`) would parse to a wrong
+      pressure after the 4-character strip. Suggest dropping the first line
+      after discarding, and reporting `RANGE` as over-range, not PARSE_ERR.
+- [ ] 70. **LS455 gaussmeter (live):** in the sample `Fringe_IDN` and the unit
+      are empty, the field reads 0 and COMM flips between 0 and 1. Is the
+      gaussmeter powered/connected?
+- [ ] 71. **Recording disk space (24/7, for Utsav):** the 2026-10-20 sample
+      scales to ~2 GB/day (cryo only; ~3.5-4 GB/day estimated with microwaves,
+      ssRF and the fitter live), i.e. ~0.7-1.35 TB/year recording around the
+      clock. The master recorder stops when < 2 GB is free
+      (`archive/master_service.py`, ~0.5-1 day of margin) and nothing compresses
+      or offloads old days (the zip compresses ~10x). Ells (2026-10-21): NO data
+      may ever be pruned or deleted -- all data is important. So the options are
+      only: (a) LOSSLESS compression of each completed UTC day (verified before
+      the uncompressed copy is replaced), (b) a free-disk PV with an early alarm
+      (e.g. 50 GB), (c) adding storage / COPYING completed days to lab storage
+      (backup, never a move-and-delete). Which? And how much free space does
+      the DAQ (DESKTOP-M34HHNQ) have?
+- [ ] 73. **Start-up zeros recorded as valid data (for Utsav, live):** the
+      master archive's first F1-F11 samples are 0 K with quality `valid`; the
+      per-PV CSVs log Pump_PI 0 at 09:12 and Cell_PI 0 in the early sessions.
+      A gauge that has not produced a reading should be NaN / `missing`, not a
+      measured zero (same pattern as the sim's known issue
+      never-connected-reads-zero for the IONIVAC).
+      The Genesis -> LabVIEW converter passes these zeros through for now.
+- [ ] 81. **Converter, when is pyNMR "calibrated"?** Without the Genesis
+      fitter recorded, the converter treats a finite non-zero pyNMR `cc` as
+      calibrated (writes P %), else the area. But pyNMR always carries a `cc`
+      from its channel config. Does pyNMR record whether a TE was taken, or is
+      the Genesis fitter's `CALIBRATED` (Preset = not calibrated) the rule?
+- [ ] 75. **Converter, `NMR Status`:** filled with pyNMR's free-text event
+      `label` (default "None"). The old values were Baseline / Polarization /
+      TE / Tuning / Scanning, and the McClellan reader sorts sweeps by them.
+      Should pyNMR labels be mapped onto those words, and how?
+- [ ] 76. **Converter, `VME Mode`, `NMR Domain`, `IF Attenuation`:** written as
+      NOT_IN_GENESIS. Does pyNMR have equivalents (in its channel / settings
+      record) that should fill them?
+- [ ] 77. **Converter, microwave settings:** `mmWave Freq Setting 1` is taken
+      from `MW:SUP:OutputFrequency` (the output-frequency command), which is
+      an assumption. `Setting 2`, `mmWaves Span` and `Sweep/Hop Time` are
+      NOT_IN_GENESIS. Should they come from the supervisor's software sweep
+      (`SweepStart` / `SweepStop` / `SweepDwell`)?
+- [ ] 78. **Manometer-Hi vapour-pressure temperature (for Utsav):** Genesis
+      computes `Mano_VapT` from Manometer-Lo only. The converter applies the
+      same ITS-90 function to `Cell_PI` and labels it `Hi:`. Should Genesis
+      publish a `Cell_VapT` itself, as LabVIEW did?
+- [ ] 79. **Converter, stale readings:** used by default, because a steady
+      value stops updating and turns `stale` after 60 s (`Pump_Unit`, a 0 G
+      fringe field). `--strict` uses `valid` only. Is the default right?
+- [ ] 80. **Converter, NMR sweep:** each row carries pyNMR's raw `phase` sweep
+      (512 points, against the old 451), once per sweep. Is `phase` the right
+      signal? The McClellan reader refuses mixed sweep widths across files, so
+      old and Genesis-era days cannot be stitched into one session as is.
+- [ ] 66. **LS224 RDGST? range bits:** Utsav's driver accepts RDGST? bits 16 /
+      32 (outside the 224's own internal curve) as "OK; 224 TEMP RANGE",
+      because it converts SRDG? ohms itself, and his test data say the live
+      T1 / T3 answer 32 at room temperature. Which curve is assigned inside
+      each 224 to C2 / C4 (and to the F / M inputs), so that the emulator can
+      raise 16 / 32 where the real units do? The emulator can serve them
+      (tested), but answers 000 by default.
+      Live 2026-10-20: T1 (C4, 39.92 ohm) and T3 (C2, 47.77 ohm) both read
+      ~298 K with status `OK; 224 TEMP RANGE` at room temperature, i.e. bits
+      16/32 set -- confirms Utsav's C4/C2 mapping and his curves.
+- [ ] 67. **Pumping cart in the sim:** the old DAQ never logged the cart's
+      IONIVAC, so `ionivac_pump` is absent (connection refused) in every
+      replay. Would you rather it serve a plausible constant (e.g. turbo base
+      pressure ~1e-6 Torr while it pumps on something, or ~760 Torr parked),
+      and is the cart typically connected during a cool-down? Also its alarm
+      limits copy the shells' gauge (HIGH / HIHI 800 / 900 Torr).
 - [ ] 49. Models, and Genesis priority: (a) `Magnet_IPS` on the TXI017
       (TCP 5001, 9600 8N2) -- the Oxford IPS120-10? (b) `Magnet_LHE_Prob`
-      (TCP 23) -- which level meter (AMI model)? (c) Should the portable
-      pumping station's IONIVAC (:5005) get its own Genesis IOC (e.g. a
-      second ionivac device, "cart vacuum")? (d) `left_Roots_Pump` (5012) and
-      `Separator_Pump` (5013): what are they, and do they belong in Genesis?
+      (TCP 23) -- which level meter (AMI model)? Utsav's `lhe_magnet` driver
+      says an AMI Model 135 (cm, echo on); the 2020 record's 0.1 cm steps
+      agree: confirm. (c) settled: Utsav's ccce63e gives the cart's IONIVAC
+      its own IOC, `ionivac_pump` (see Settled). (d) `left_Roots_Pump` (5012) and
+      `Separator_Pump` (5013): Utsav's configs make them the left-Roots and
+      separator Hastings flowmeters (now Genesis IOCs `flowmeter_left`,
+      `flowmeter_sep`): confirm.
 - [ ] 50. (Housekeeping) TXI040 port 8 is vacant but set to TCP 5011, the
       same as port 5 (the TPG 262 that Genesis uses); give it a free port
       (e.g. 5014) before anything is plugged in. TXI017 port 2 uses TCP 23
@@ -138,7 +282,9 @@ named in each item. Numbers are stable: answered items move to *Settled*.
       data.
 - [ ] 30. Did LabVIEW read T1 with the transposed range-2 limits (stick 2)?
       If so, recorded T1 between about 3 and 19 K is wrong; at 1 K it is
-      unaffected (range 1).
+      unaffected (range 1). (Genesis is unaffected since Utsav's ccce63e: the
+      ODS rows 2-T1 / 2-T3 have ZL < ZU in every band, and his loader rejects
+      a transposed pair rather than swapping it.)
 - [ ] 22. Try an interactive rehearsal (guide section 2) in Phoebus.
 - [ ] 23. Merge into `elong` (and push `dev-sim` itself)? Your call.
 
@@ -275,6 +421,46 @@ named in each item. Numbers are stable: answered items move to *Settled*.
     varactors at 0-19 V. Keep a rule, change it, or drop it?
 
 ## Settled
+
+* `Area/Polarization` in the converter (question 74): Ells (2026-10-21),
+  before any TE / calibration constant it is the area sum(V * df); after a
+  TE and/or a calibration constant it is the vector polarization P. The
+  converter follows the old DAQ's own format: a bare number is the area
+  (sum of pyNMR's processed `fitsub` sweep x the frequency step, MHz), a
+  value with `%` is P (`SSRF:FIT:P_AREA` once `SSRF:FIT:CALIBRATED` reads
+  Calibrated; "Preset" constants count as not calibrated). The Genesis
+  fitter does not publish the area itself. Follow-up: question 81.
+
+* Over-pressure on 2026-10-20 (question 72): Ells (2026-10-21), yes -- an
+  over-pressure test, 15:12-15:21 local: both Roots gauges, the OVC gauge and
+  the cell MKS 902B read ~890-959 Torr (~1.25 atm) together, back to ~760 Torr
+  by 15:34. A real event, and a useful cross-check that the three gauge IOCs
+  agree (per-PV cryo CSVs in sample_data/).
+
+* T1 / T3 slots (Ells 2026-10-21): keep Utsav's ccce63e, operator-confirmed:
+  T1 = C4 (ODS row 2-T1), T3 = C2 (row 2-T3), all LS224 curves from
+  `calibration/Thermo_Calibrations.ods` (the CSVs are historical only). His
+  C4 curve gives 297 K at the live ~40 ohm room-temperature reading; the
+  earlier dev-sim mapping (T1 = C2) gave 328 K. The sim follows the profile.
+
+* Pumping cart IONIVAC (question 49c): Utsav's ccce63e adds the IOC
+  `ionivac_pump` (TXI040 :5005, `UNH:GEN:CRYO:ION:PUMP`, live CA 5129); the
+  shells' `ionivac` stays on :5006. Emulated in the sim (replay CA 6110,
+  emulator 16006), absent in replays (question 67).
+
+* NMR switch meaning in the ssRF interlock (question 59): fixed by Utsav's
+  `feature/ssrf-pynmr-only` (merged into dev-sim 2026-10-19): NMR mask 0 = on,
+  mask 3 = off; ssRF the same; the interlock reaches SSRF_READY and grants its
+  permits. In the sim all three replayed burns now complete with RF on (the
+  ssrf-burns scenario expects PASS; known issue
+  ssrf-interlock-permits-withheld retired).
+
+* Recording location (Ells, 2026-10-19): keep Utsav's design. Genesis
+  recordings (master archiver, subsystem PV CSVs, ssRF events and sessions)
+  live outside git under `$GENESIS_DATA_ROOT` or `UNH-Genesis-Control/local_data/`
+  (a flat clone uses the sibling `<checkout>-local_data/`), created
+  automatically on first start (`archive/data_paths.py`,
+  `docs/operations/MASTER_ARCHIVER_OPERATOR.md`). No in-repo data folder.
 
 * Push (question 23, part): Ells (2026-10-16), push `dev-visualizer` (it
   carries all of dev-sim) so others can run the Panopticon; quick start in
@@ -543,7 +729,8 @@ named in each item. Numbers are stable: answered items move to *Settled*.
   * The 902B struggled with helium near 1 K, so a lower-range manometer was
     added from 2021: `Manometer-Lo`, on a Kurt J. Lesker KJL-SPARC
     controller.
-  * Genesis has no IOC for the KJL-SPARC.
+  * Genesis had no IOC for the KJL-SPARC until Utsav's `manometer_low`
+    (merged into dev-sim 2026-10-19; see question 62).
 * No fridge thermal time constants exist. The closed-loop thermal model fits
   them from past microwave on/off steps (`python -m cooldown_sim fit-params`).
 * Microwave heat: 62 mW at full drive, measured as a Roots-flow differential

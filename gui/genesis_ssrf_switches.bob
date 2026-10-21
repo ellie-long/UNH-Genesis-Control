@@ -313,16 +313,6 @@
     </font>
     <transparent>true</transparent>
   </widget>
-  <widget type="bool_button" version="2.0.0">
-    <name>NMR_Switch_PORT_CMD</name>
-    <x>155</x>
-    <y>398</y>
-    <width>145</width>
-    <height>30</height>
-    <pv_name>ca://UNH:GEN:SSRF:NMR_SW:PORT_CMD</pv_name>
-    <enabled>false</enabled>
-    <tooltip>Use guarded controls on the main ssRF display.</tooltip>
-  </widget>
   <widget type="label" version="2.0.0">
     <name>NMR_Switch_CMD_Note</name>
     <x>45</x>

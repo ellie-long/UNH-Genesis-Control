@@ -32,6 +32,14 @@ class LS224(Emulator):
     ``slots`` maps input (A, C1, ...) -> channel name (F1, ...).  ``inverse``
     maps input -> InverseCalibration when the IOC profile has a calibration
     file (the driver then reads SRDG? ohms); otherwise KRDG? is served.
+
+    ``range_bits`` maps input -> extra RDGST? bits served with a valid
+    reading: 16 (T.UNDER) / 32 (T.OVER) are what a real 224 reports when the
+    reading is outside the span of the curve assigned *inside* the
+    instrument -- the live target-stick Cernoxes answer 32 at room
+    temperature -- which Genesis's driver accepts ("OK; 224 TEMP RANGE")
+    because it converts SRDG? ohms with its own curve; any other bit
+    (64 S.UNDER, 128 S.OVER) marks the reading invalid.  Empty by default.
     """
 
     name = "ls224"
@@ -43,6 +51,7 @@ class LS224(Emulator):
         self.source = source
         self.inverse = dict(inverse or {})
         self.clamped: dict[str, int] = {}
+        self.range_bits: dict[str, int] = {}
 
     def _kelvin(self, slot: str) -> float:
         ch = self.slots.get(slot)
@@ -71,7 +80,10 @@ class LS224(Emulator):
                     self.clamped[ch] = self.clamped.get(ch, 0) + 1
             text = f"{ohms:+.6E}"
         elif word == "RDGST?":
-            text = "000" if math.isfinite(self._kelvin(arg)) else "001"   # bit 1 = invalid reading
+            if math.isfinite(self._kelvin(arg)):
+                text = f"{int(self.range_bits.get(arg, 0)) & 0xFF:03d}"
+            else:
+                text = "001"                 # bit 1 = invalid reading
         elif word == "INNAME?":
             text = f'"{self.slots.get(arg, "")}"'
         else:

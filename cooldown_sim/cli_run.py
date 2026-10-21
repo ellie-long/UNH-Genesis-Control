@@ -561,6 +561,7 @@ async def _session(args, run, stack, stacks, timeline, cmap, t0, t1, meta, ctl_f
         runtime = {"deaths": deaths, "skipped": skipped, "never_connected": never,
                    "read_only_violations": engine.host.read_only_violations(),
                    "clamps": engine.host.clamp_counts(), "interrupted": interrupted,
+                   "absent": engine.host.absent(),
                    "mw_rf_on_accepted": mw_leg.accepted if mw_leg else None,
                    **({"ssrf_burns": ssrf_leg.results if ssrf_leg else [],
                        "ssrf_skipped": ssrf_skipped} if "ssrf" in legs else {}),

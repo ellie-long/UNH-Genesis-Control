@@ -30,7 +30,7 @@ def setup():
     )
     state.select("pynmr")
     state.update_stream("pynmr", True)
-    state.update_route(1, 3)
+    state.update_route(1, 0)
 
     binding = PacketBoundAdmission(state)
 
@@ -77,7 +77,7 @@ def finished_event(clock, start=101.0, stop=101.5):
 def test_requires_verified_route():
     _, state, _, adapter = setup()
 
-    state.update_route(1, 0)
+    state.update_route(1, 3)
 
     assert not adapter.arm()
 
@@ -143,8 +143,8 @@ def test_prior_route_epoch_cannot_attest():
     assert adapter.arm()
 
     clock.mono = 101.0
-    state.update_route(1, 0)
     state.update_route(1, 3)
+    state.update_route(1, 0)
 
     clock.mono = 102.0
     event, message = finished_event(clock)

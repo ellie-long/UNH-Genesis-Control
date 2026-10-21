@@ -148,11 +148,17 @@ SSRF SIMULATOR
                        Requires the dedicated ssrf-sim-manager session.
                        Leaves simulator backend processes untouched.
 
+MASTER ARCHIVER (READ-ONLY RECORDING)
+  master-archive-start  Start detached master PV recorder; does not start IOCs.
+  master-archive-status Show recorder state, snapshots, event counts and disk space.
+  master-archive-stop   Request clean recorder stop; verify DOWN afterward.
+  archive-viewer        Open read-only Streamlit viewer (master and subsystem data).
+                        Viewer shutdown does not stop the recorder.
+  Operator guide: docs/operations/MASTER_ARCHIVER_OPERATOR.md
+
 TESTS
   test-ssrf            Run all test_ssrf*.py unit/regression tests.
   test-mw              Run Microwave Phase-I unit/integration regression tests.
-  archive-viewer       Launch common read-only Genesis EPICS archive viewer.
-                       Includes Microwave/ssRF/Cryo subsystem filtering.
   test-fitter          Run fitter/planner/stager/runtime integration tests.
   test-auth            Run Genesis/ssRF authorization-security tests.
   test-all             Run all Python unittest tests under tests/.
@@ -198,8 +204,11 @@ Examples:
   genesis sim-status
   genesis sim-stop
 
-  genesis test-ssrf
+  genesis master-archive-status
+  genesis master-archive-start
   genesis archive-viewer
+  genesis master-archive-stop
+  genesis test-ssrf
   genesis test-fitter
   genesis git
 
@@ -437,6 +446,7 @@ show_status() {
     note "Use: genesis cryo-status"
     note "Use: genesis ssrf-physical-status"
     note "Use: genesis sim-status"
+    note "Use: genesis master-archive-status"
 }
 
 
@@ -767,7 +777,7 @@ test_ssrf() {
     PYTHONPATH="${ROOT}" \
         python -m unittest discover \
         -s tests \
-        -p 'test_ssrf*.py'
+        -p 'test_ssrf*.py' || return $?
     echo
     git diff --check
 }
@@ -947,7 +957,7 @@ ssrf_final_start() {
     require_env
     echo
     echo "===== START FINAL PHYSICAL SSRF OPERATION ====="
-    "${SSRF_FINAL_START_SCRIPT}"
+    "${SSRF_FINAL_START_SCRIPT}" "$@"
 }
 
 ssrf_final_stop() {
@@ -1074,10 +1084,15 @@ case "${cmd}" in
         ssrf_deploy_keysight
         ;;
     ssrf-start)
-        ssrf_final_start
+        ssrf_final_start "$@"
         ;;
     ssrf-stop)
         ssrf_final_stop
+        ;;
+    ssrf-continuous)
+        require_env
+        env EPICS_CA_AUTO_ADDR_LIST=NO EPICS_CA_ADDR_LIST="127.0.0.1:5073 127.0.0.1:5074 127.0.0.1:5090 127.0.0.1:5068 127.0.0.1:5071 127.0.0.1:5072 192.168.1.24:5064" \
+            python -m ssrf_analysis.continuous_burn "$@"
         ;;
 
     sim-check)
@@ -1095,6 +1110,18 @@ case "${cmd}" in
         ;;
     sim-stop)
         sim_stop
+        ;;
+    master-archive-start)
+        cd "$ROOT"
+        PYTHONPATH="$ROOT" python -m archive.master_service start
+        ;;
+    master-archive-status)
+        cd "$ROOT"
+        PYTHONPATH="$ROOT" python -m archive.master_service status
+        ;;
+    master-archive-stop)
+        cd "$ROOT"
+        PYTHONPATH="$ROOT" python -m archive.master_service stop
         ;;
     archive-viewer)
         PORT="${GENESIS_ARCHIVE_VIEWER_PORT:-8501}"

@@ -28,22 +28,23 @@ def test_pynmr_packet():
         selected_source="pynmr",
         transport_source="pynmr",
         payload_source="pynmr",
-        nmr_mask=3,
+        nmr_mask=0,
     )
     assert result.accepted
 
 
-@pytest.mark.parametrize("mask", [1, 2, 7, None, True])
+@pytest.mark.parametrize("mask", [1, 2, 3, 7, None, True])
 def test_invalid_route(mask):
     assert not judge(nmr_mask=mask).accepted
 
 
-@pytest.mark.parametrize("mask", [0, 3])
-def test_source_must_match_physical_route(mask):
-    selected = "pynmr" if mask == 0 else "labview"
-    assert not judge(
-        selected_source=selected,
-        nmr_mask=mask,
+@pytest.mark.parametrize("source", ["labview", "pynmr"])
+def test_both_sources_use_connected_nmr_path(source):
+    assert judge(
+        selected_source=source,
+        transport_source=source,
+        payload_source=source,
+        nmr_mask=0,
     ).accepted
 
 
@@ -77,7 +78,7 @@ def test_pynmr_requires_tag():
     assert not judge(
         selected_source="pynmr",
         transport_source="pynmr",
-        nmr_mask=3,
+        nmr_mask=0,
     ).accepted
 
 
@@ -95,7 +96,7 @@ def test_invalid_selection(selected):
 
 
 def test_both_sources_require_fresh_data():
-    for selected, mask in (("labview", 0), ("pynmr", 3)):
+    for selected, mask in (("labview", 0), ("pynmr", 0)):
         assert not judge(
             selected_source=selected,
             transport_source=selected,

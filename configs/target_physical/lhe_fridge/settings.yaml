@@ -1,0 +1,37 @@
+# Genesis Cryogenics physical device profile.
+# Adapted from Farooq's October 15, 2026 update.
+# Physical operation requires Ubuntu acceptance.
+# No hardware writes authorized.
+
+general:
+  prefix: UNH:GEN:CRYO:FRIDGE:LHE
+  log_dir: logs
+  epics_addr_list: None
+  delay: 0.5
+lhe_fridge:
+  label: Fridge Space LHE Level (")
+  module: target_ioc.instruments.ami1700
+  autostart: false
+  ip: 192.168.1.30
+  port: 7180
+  timeout: 3
+  delay: 5
+  query: MEASure:HE:LEVel?
+  scale: 1.0
+  offset: 0.0
+  channels:
+  - Fridge
+  records:
+    Fridge_LI:
+      DESC: Fridge space LHe level
+      EGU: inch
+      PREC: 3
+    Fridge_Raw:
+      DESC: Fridge level, as reported
+      EGU: inch
+      PREC: 3
+    Fridge_Status:
+      DESC: Fridge level probe status
+    Fridge_IDN:
+      DESC: AMI 1700 identity
+  write_enabled: false

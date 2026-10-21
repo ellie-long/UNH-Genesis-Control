@@ -1,0 +1,33 @@
+# Genesis target/Cryo physical profile.
+# Imported from Farooq's UNH DAQ IOC settings and adapted to the
+# standalone Genesis architecture.
+#
+# Physical endpoint/channel/alarm values remain subject to lab
+# verification. Hardware writes are disabled by default.
+
+general:
+  prefix: UNH:GEN:CRYO:ION:PUMP
+  log_dir: logs
+  epics_addr_list: None
+  delay: 0.5
+ionivac_pump:
+  module: target_ioc.instruments.ionivac
+  ip: 192.168.1.251
+  port: 5005
+  timeout: 2
+  delay: 1
+  channels:
+  - Ion
+  records:
+    Ion_PI:
+      DESC: Pump-cart Ionivac pressure
+      EGU: Torr
+      PREC: 4
+      HIHI: 900
+      HIGH: 800
+      LOW: 1.0e-10
+      LOLO: 0.0
+    Ion_Raw:
+      DESC: IONIVAC raw telegram count
+      EGU: counts
+  write_enabled: false

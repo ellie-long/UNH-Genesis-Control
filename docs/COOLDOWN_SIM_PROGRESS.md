@@ -30,6 +30,9 @@ lab answers are in `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`.
 | D1 | Synthetic (data-free) cool-downs (seeded generator in memory, faults) | done |
 | D2 | Protected PyNMR mode: admission/protection rehearsal (Linux) | done |
 | D3 | Scenario library, fault scenarios, after-action report | done |
+| E1 | Utsav's optional cryo IOCs (flowmeters, LHe levels, Manometer-Lo) emulated and fed | done |
+| E2 | Utsav's main ccce63e: ODS thermometry (T1 = C4, T3 = C2), pumping-cart IONIVAC `ionivac_pump` | done |
+| F1 | Genesis -> LabVIEW converter (`genesis-to-labview`): master archive + pyNMR sweeps to 2026-06 data_record copies | done (1 s rows; 20 s averaging is a stretch goal) |
 
 **The planned build is complete.** What is left is Ells's call:
 
@@ -44,6 +47,142 @@ lab answers are in `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`.
    separate change to the live system, deliberately not made here.
 
 ## Log
+
+### 2026-10-21: Genesis -> LabVIEW data_record converter
+* New `python -m cooldown_sim genesis-to-labview INPUT... --out NEW_DIR
+  [--pynmr DIR]` (`cooldown_sim/data/genesis_to_labview.py`): reads the
+  Genesis master archive (any data root / session / `genesis_master.csv`)
+  and pyNMR eventfiles, and writes NEW `data_record_YYYY-MM-DD.csv` files in
+  the 2026-06 layout (93 titles, TAB, CRLF, latin-1, lab-local days) plus
+  `genesis_to_labview_report.md` (sources, sessions, counts, column table).
+* **Never deletes or overwrites:** inputs read-only; every output created
+  exclusively; any existing output file, or an output folder inside an
+  input, refuses the run before anything is written (Ells 2026-10-21).
+* Ells's decisions: 2026-06 layout; old rows were 20 s averages, but **1 s
+  rows for now** (stretch goal below); columns Genesis does not record yet
+  hold `NOT_IN_GENESIS`, so what is left to build shows in every file;
+  `Vapor Pressure Range` names the manometer (`Lo: <phase>` = Genesis's
+  ITS-90 `Mano_VapT`, `Hi: <phase>` = the same ITS-90 function applied to
+  `Cell_PI` by the converter).
+* Readings used when `valid` or `stale` (`--strict`: valid only); TPG
+  pressure converted to Torr from `Pump_Unit`; fringe field from
+  `Fringe_FieldT` x 1e4 G. pyNMR sweeps (raw `phase`) go once each on the
+  first row within 5 s after they end, with `NMR Number` = width and the
+  window from `freq_list`, so the vendored McClellan reader reads them.
+* On the 2026-10-20 sample: 743 rows, every mapped cell equal to the master
+  value (22 290 checked); the sim's `records` reader reads it as a cool-down
+  day. No pyNMR data overlaps the sample (pyNMR's saved eventfiles are
+  2026-10-05 test runs), so the NMR path is covered by synthetic tests.
+* **Stretch goals (later):** reduce the row rate, for whole files and for
+  subsets of files (e.g. 20 s averages like the old DAQ); rebuild
+  `blast_log_*.csv` from `archive/events/ssrf`; filter start-up zeros once
+  question 73 is settled.
+* Run instructions for others: `cooldown_sim/data/GENESIS_TO_LABVIEW.md`. The
+  converter also runs on its own (`python genesis_to_labview.py ...`, Python
+  3.9+, no packages) with Genesis's `its90_helium.py` beside it; dev-sim
+  pushed to origin so it can be shared (Ells 2026-10-21).
+* `Area/Polarization` (question 74 settled by Ells): area sum(V * df) of
+  pyNMR's processed sweep before calibration, P with a `%` sign after
+  (`SSRF:FIT:CALIBRATED`), as the old DAQ wrote it; `--online-p` removed.
+* Questions 75-81 (NMR Status labels, pyNMR equivalents for VME
+  Mode etc., microwave sweep settings, a Genesis Hi VapT, stale default,
+  sweep signal and width, when pyNMR counts as calibrated).
+
+### 2026-10-21: Utsav's main ccce63e (ODS thermometry, cart IONIVAC)
+* Merged Utsav's `main` ccce63e ("Integrate validated ssRF with Cryogenics
+  and master archiver") into dev-sim (7394583); the sim adapts to it, no
+  Genesis file changed. What mattered for the sim:
+  * **LS224 curves from `calibration/Thermo_Calibrations.ods`** for every
+    sensor (`genesis_common/thermometry_ods.py` for F1-F11 / M1-M5,
+    `genesis_common/cernox_ccx.py` four-band Chebyshev for the target
+    stick). `ls224_magnet` now maps **T1 -> C4 (ODS 2-T1), T3 -> C2 (2-T3)**,
+    reversing dev-sim's earlier T1 = C2; Utsav's is operator-confirmed (his
+    C4 curve gives 297 K at the live ~40 ohm room reading, the old one 328
+    K) and kept. The CSVs are historical only. The emulator's inverse
+    (`emulators/host.py:_ls224_inverse`) loads the same curves the same way,
+    keyed by the profile's slots; the driver round-trips every slot.
+  * Utsav's driver checks RDGST?: bits 16 / 32 (outside the 224's own
+    internal curve) give "OK; 224 TEMP RANGE" with the ODS temperature; any
+    other bit is invalid, and a configured curve never falls back to KRDG?.
+    The LS224 emulator can now serve those bits per input (`range_bits`,
+    default 000); tested on T1, T3, M2 and F5 (question 66).
+  * **New IOC `ionivac_pump`**, the portable pumping cart's IONIVAC on
+    TXI040 :5005 (`UNH:GEN:CRYO:ION:PUMP`, live CA/PVA 5129/5229); the
+    shells' `ionivac` stays on :5006. In the sim: replay CA/PVA 6110/6210
+    (6111-6129 are taken and 6123 stays free for dev-visualizer), IONIVAC
+    telegram emulator on 16006, Sim Control fault row. No record column in
+    any era, so it is absent (connection refused) in every replay
+    (question 67). Its driver then holds Ion_PI at the start-up 0.0 in MAJOR
+    alarm rather than NaN: new known issue `never-connected-reads-zero`.
+  * Other changes checked, nothing to emulate: archiver/alarm-summary
+    address lists (+5129; the archiver now lists COMM instead of most
+    `_Conn` PVs), `lhe_fridge` at 192.168.1.30, TPG 262 records labelled
+    Torr (the driver still takes EGU from UNI?, so mbar in the sim; question
+    65), the Raspberry Pi bridge scripts (`scripts/pi_cryo_bridges/`: the
+    flowmeter server's `<raw>>` / `ERROR <why>>` replies match the
+    emulator; the manometer gateway is a byte pass-through), Cryo Phoebus on
+    server port 4920 (the sim's Phoebus uses no `-server`, so it is
+    independent), the master-archive PV catalog, ssRF burn recipe /
+    continuous burn and `--pynmr-only` (software only; the sim's ssRF leg
+    uses the unchanged `ssrf_sim_active` profile).
+* Tests: the conversions tests now check Utsav's loaders (ODS classic rows
+  and CCX bands, host inverse = driver curve for all 18 slots, 40 ohm ->
+  ~297 K, band continuity and monotonicity, transposed or gapped bands
+  rejected); new LS224 tests for the C4 / C2 mapping and the RDGST bits; a
+  validator test for the absent cart gauge.
+* Scenarios (WSL, guard OK): first library pass 7 PASS / 4 FAIL, all four
+  sim-side: comm-loss and data-gap failed only the absent cart gauge's 0.0
+  (validator fix above; reruns PASS); operator-microwaves ran across a ~2 h
+  host sleep, so the sim clock jumped 60 h past the window (rerun PASS);
+  quench's pre-quench fitter check failed because Update Constants took
+  33-42 s wall in those runs (20-26 s usual; the 2026-10-16 runs failed the
+  same way), landing after the 16-18 min window. The quench now starts at
+  24 min (check 22-24 min; margin up to ~44 s); two reruns PASS. Net: 11/11
+  PASS.
+* New questions 65-67 (TPG units, LS224 internal-curve bits, the cart in
+  the sim); 64 updated (5129 is now taken); 49c and the T1 / T3 slots
+  settled.
+
+### 2026-10-19: Utsav's six optional cryo IOCs in the sim
+* After merging `feature/cryo-gui-completeness` (d769e24), the cryo leg now
+  launches `flowmeter_pi`, `flowmeter_left`, `flowmeter_sep`, `lhe_fridge`,
+  `lhe_magnet` and `manometer_low` (replay CA 6124-6129 / PVA 6224-6229;
+  6123/6223 stays free for dev-visualizer's trend-history IOC; emulators
+  16010 / 16032 / 16033 / 16180 / 16023 / 16031).
+* New emulators (`cooldown_sim/emulators/cryo_optional.py`), each in the
+  unchanged driver's wire format: the Hastings flowmeter (`F` CR ->
+  `<raw>>`; the Pi server adds CR LF and answers `ERROR <why>>` when it has
+  no reading), the AMI 1700 (SCPI on 7180, CR in, CR LF out, `*IDN?`), the
+  AMI 135 (echoes `LEVEL`, then cm to 0.1 cm) and the KJL-SPARC stream
+  (unprompted `Pr: 1.2345E-01` lines at 4 Hz; the real line layout is a
+  guess, question 62). The emulators undo each profile's constant (28/19,
+  0.393 cm->in) so Genesis's `_SLM` / `_LI` equal the record.
+* Channel map: six instrument blocks, equipment rows, out of `record_only`.
+  Record columns: Roots Flow R 2021-09 on; Roots Flow L 2020 (as the single
+  "Roots Flow") to 2025-07, empty from 2025-11; separator every era; magnet
+  LHe every era (2020 "Helium Level"); fridge level 2022-05 and 2024-08 on;
+  Manometer-Lo 2021-09 on. A cool-down with no value at all for an
+  instrument has it absent (connection refused), e.g. `flowmeter_left` in
+  2026-06; the heartbeat and round-trip validators now expect COMM 0 and a
+  NaN reading for it.
+* Alias fix: some day files (2024-08 to 2025-12) quote the level titles
+  CSV-style, `"Fridge He Level ("")"`, so 2024-08, 2024-11, 2025-02, 2025-07
+  and 2025-12 had read as having no level columns at all (2024-09/12, 2025-11
+  partly). Now matched; 2020-09 magnet level coverage 0.62 -> 0.97.
+* Model: Manometer-Lo takes the same modelled cell response as Manometer-Hi
+  (served as no reading above its 10 Torr full scale, e.g. in a quench); the
+  boil-off change `dflow` is added to the Roots L/R flowmeters in proportion to
+  their recorded flows (assumed). Separator flow and the levels are replayed.
+* Utsav's `genesis_common/its90_helium.py` against the lab conversion (not
+  changed): identical ITS-90 coefficients; it uses 133.322 Pa/Torr (lab
+  133.3), so +0.025 mK at 0.9 Torr, +0.037 mK at 5 Torr, +0.17 mK at 700
+  Torr; below 0.8606 Torr it gives NaN (lab: 0.9187 K at 0.05 Torr, 1.0028 K
+  at 0.12 Torr), so `Mano_VapT` is NaN whenever the fridge is cold
+  (question 63).
+* Scenarios (WSL): nominal PASS; real-2026-06 PASS (229 checks), with all
+  round trips for the new reading PVs exact within their wire precision.
+* New questions 60-64 (fridge-level zero, flow units/labels, Manometer-Lo
+  protocol, ITS-90 module, live port 5123 now taken).
 
 ### 2026-10-17: scoring against the McClellan fits
 * The record's online P is the wrong yardstick where it was miscalibrated.
@@ -650,6 +789,17 @@ Also observed:
   rule latches permanently, and nothing in Genesis (interlock or F1's alarm
   limits) catches an over-flood. See the 2026-10-15 log entry.
 * OVC (ColdCathode) and UCA voltage have no recorded data since 2025-11.
+* `manometer_low`'s `Mano_VapT` is NaN below 0.8606 Torr (1.25 K), i.e. for
+  the whole of a cold run, because `calibration/vapor_pressure_he4.csv` has no
+  sub-1.25 K band (question 63). Its `Mano_VapStatus` says "P below scale".
+* Both IONIVAC IOCs hold Ion_PI at the start-up 0.0 Torr (MAJOR, LOLO 0.0)
+  when the gauge never connects, instead of NaN like the newer read-only
+  cryo IOCs (known issue `never-connected-reads-zero`; the pumping cart's
+  gauge is absent in every replay).
+* `lhe_fridge` (scale 1, offset 0) cannot show the record's negative fridge
+  levels; the LabVIEW zero is unknown (question 60).
+* Utsav's flowmeter IOC `flowmeter_pi` now owns live CA/PVA 5123/5223, the
+  ports question 54 suggested for the trend-history IOC (question 64).
 * With enforcement on, the safety interlock's only actuator is
   `COLDBOARD:Coldboard_Mode`. The coldboard IOC is `write_enabled: false`, so
   an enforced trip is logged as "driven off" but changes nothing at the
@@ -683,6 +833,24 @@ points. It does not reproduce deliberate fast depolarisations (AFP, anneals,
 unlogged burns).
 
 ## Test status (latest)
+
+* 2026-10-21 (Genesis -> LabVIEW converter): `tests/cooldown_sim` **279 passed,
+  8 skipped on Windows** (`genesis-p1`), including the new converter tests in
+  `test_cooldown_sim_genesis_to_labview.py`.
+
+* 2026-10-21 (Utsav's ccce63e): `tests/cooldown_sim` **271 passed, 7
+  skipped on Windows** (was 13 failed, 6 errors after the merge). WSL:
+  `tests/cooldown_sim tests/test_cryo_*.py tests/test_master_*.py
+  tests/test_ssrf_*.py tests/test_target_cryo_integration.py` (includes all
+  nine new test files of the merge) **816 passed, 7 skipped** (87 subtests);
+  Utsav's modified NMR / dual-source / protected-runtime tests **44 passed**.
+  No failures in Utsav's own tests. Scenario library 11/11 PASS on WSL.
+
+* 2026-10-19 (optional cryo IOCs): `tests/cooldown_sim` **243 passed, 7
+  skipped on Windows** (14 new in `test_cooldown_sim_cryo_optional.py`). WSL:
+  `tests/test_cryo_*.py tests/test_master_*.py tests/test_target_cryo_integration.py
+  tests/cooldown_sim`: **390 passed, 7 skipped**. Scenarios nominal and
+  real-2026-06 PASS on WSL (real-2026-06: 229 PASS, 0 FAIL, 1 KNOWN).
 
 * `cooldown_sim` fast tests: **167 pass on Windows** (8 skipped: full-stack and
   POSIX-only), and the same on WSL inside the full suite.
