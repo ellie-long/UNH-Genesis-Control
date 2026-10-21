@@ -37,12 +37,19 @@ class ProtectedNMRRuntime:
         nmr_source_control_path=None,
         nmr_source_control_allowed_uid=None,
         nmr_source_control_allowed_pid=None,
+        pynmr_only=False,
     ):
         if (
             type(poll_interval_s) not in (int, float)
             or not 0.05 <= poll_interval_s <= 10.0
         ):
             raise ValueError("invalid polling interval")
+
+        if type(pynmr_only) is not bool:
+            raise TypeError("pynmr_only must be bool")
+        if pynmr_only and selected_source != "pynmr":
+            raise ValueError("PyNMR-only runtime requires PyNMR source")
+        self.pynmr_only = pynmr_only
 
         self.source_state = NMRSourceState()
         self.source_state.select(selected_source)
@@ -77,6 +84,7 @@ class ProtectedNMRRuntime:
             connection_observer=(
                 self._stream_connection_changed
             ),
+            pynmr_only=pynmr_only,
         )
 
         # IPC is disabled unless an explicit path and UID
@@ -250,7 +258,9 @@ class ProtectedNMRRuntime:
         """Select software input; invalidate prior acquisition authorization."""
         with self.source_state.fit_guard():
             current = self.source_state.snapshot()["selected_source"]
-            if source not in ("labview", "pynmr"):
+            if source not in ("labview", "pynmr") or (
+                self.pynmr_only and source != "pynmr"
+            ):
                 raise ValueError(f"Unsupported NMR source: {source!r}")
             if source == current:
                 return

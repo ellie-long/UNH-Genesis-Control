@@ -145,32 +145,41 @@ ssh     -M     -S "$SOCK"     -o ControlPersist=180     -o ConnectTimeout=5     
 echo "[PASS] SSH established"
 
 echo
-echo "===== MAC / PI CLOCK ====="
+echo "===== UBUNTU / PI CLOCK ====="
 
-MAC_EPOCH="$(date +%s)"
-PI_EPOCH="$(
-    ssh -S "$SOCK" "$PI_SSH" 'date +%s'
-)"
+# Use a two-sided SSH measurement so command latency does not
+# bias the estimated clock offset.
+UBUNTU_BEFORE_MS="$(date +%s%3N)"
+PI_EPOCH_MS="$(ssh -S "$SOCK" "$PI_SSH" 'date +%s%3N')"
+UBUNTU_AFTER_MS="$(date +%s%3N)"
 
-DIFF="$(( MAC_EPOCH - PI_EPOCH ))"
-if [ "$DIFF" -lt 0 ]; then
-    ABS_DIFF="$(( -DIFF ))"
-else
-    ABS_DIFF="$DIFF"
-fi
+ROUND_TRIP_MS=$(( UBUNTU_AFTER_MS - UBUNTU_BEFORE_MS ))
 
-echo "Mac epoch = $MAC_EPOCH"
-echo "Pi epoch  = $PI_EPOCH"
-echo "difference= ${DIFF} s"
-
-if [ "$ABS_DIFF" -gt 10 ]; then
-    echo "[FAIL] Pi clock differs by more than 10 seconds"
-    echo "Run on Pi:"
-    echo "  ~/genesis_keysight/scripts/sync_clock_https.sh"
+if (( ROUND_TRIP_MS < 0 || ROUND_TRIP_MS > 2000 )); then
+    echo "[FAIL] Clock measurement latency too high; retry preflight"
     false
 fi
 
-echo "[PASS] clocks agree within 10 seconds"
+UBUNTU_MID_MS=$(( UBUNTU_BEFORE_MS + ROUND_TRIP_MS / 2 ))
+DIFF_MS=$(( UBUNTU_MID_MS - PI_EPOCH_MS ))
+
+if (( DIFF_MS < 0 )); then
+    ABS_DIFF_MS=$(( -DIFF_MS ))
+else
+    ABS_DIFF_MS=$DIFF_MS
+fi
+
+echo "Ubuntu midpoint ms = $UBUNTU_MID_MS"
+echo "Pi epoch ms         = $PI_EPOCH_MS"
+echo "SSH round trip      = ${ROUND_TRIP_MS} ms"
+echo "clock difference    = ${DIFF_MS} ms"
+
+if (( ABS_DIFF_MS > 10000 )); then
+    echo "[FAIL] Actual clock offset exceeds 10 seconds"
+    false
+fi
+
+echo "[PASS] Clocks agree within 10 seconds"
 
 echo
 echo "===== PI GENESIS STATE ====="

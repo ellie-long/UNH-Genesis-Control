@@ -79,6 +79,7 @@ class Producer:
 
 class Runtime:
     def __init__(self):
+        self.pynmr_only = False
         self.source_state = SourceState()
         self.event_adapter = Adapter()
         self.producer_session = Producer()

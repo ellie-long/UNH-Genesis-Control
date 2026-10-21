@@ -30,13 +30,14 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Mapping
 
+import math
 import numpy as np
 from scipy.optimize import fsolve
 
 from . import legacy_deuts as deuts
 
 
-V_EDGE_V = 0.7
+V_EDGE_V = 0.5
 
 PEAK_POINTS = 41
 SHOULDER_POINTS = 41
@@ -809,8 +810,12 @@ def build_waveform_plan(
     case: str,
     polarization: float,
     high_polarization: float,
+    v_edge_v: float | None = None,
 ) -> WaveformPlan:
 
+    edge_v = V_EDGE_V if v_edge_v is None else float(v_edge_v)
+    if not math.isfinite(edge_v) or edge_v <= 0 or (v_edge_v is not None and edge_v > 0.5):
+        raise WaveformPlanError('physical WaveGen edge voltage must be finite and within (0, 0.5]')
     material = _material_name(
         snapshot.material
     )
@@ -955,86 +960,25 @@ def build_waveform_plan(
         )
     )
 
-    t_split = (
-        peak_fraction
-        * TOTAL_BURN_TIME_S
-    )
+    # Chhetra's updated ssRF_sweep_height.py algorithm: time is distributed
+    # across all 41+41 bins in proportion to their measured NMR heights.
+    # The frequency is held at each bin until its cumulative dwell edge.
+    burn_frequency = np.concatenate((f_peak, f_shoulder))
+    frequency_offset = burn_frequency - omegD  # legacy 1 MHz/V mapping
+    weights = np.concatenate((w_peak, w_shoulder))
+    dwell = TOTAL_BURN_TIME_S * weights / weights.sum()
+    edges = np.cumsum(dwell)
+    edges[-1] = TOTAL_BURN_TIME_S
+    t_uniform = np.linspace(0.0, TOTAL_BURN_TIME_S, MAX_ARB_POINTS)
+    positions = np.searchsorted(edges, t_uniform, side="right")
+    positions = np.clip(positions, 0, len(frequency_offset) - 1)
+    voltage_uniform = frequency_offset[positions].copy()
+    voltage_uniform[0] = -edge_v
+    voltage_uniform[-1] = edge_v
+    normalized = np.clip(voltage_uniform / edge_v, -1.0, 1.0)
 
-    (
-        t_peak,
-        _peak_dwell,
-    ) = weighted_bin_centers(
-        0.0,
-        t_split,
-        w_peak,
-    )
-
-    (
-        t_shoulder,
-        _shoulder_dwell,
-    ) = weighted_bin_centers(
-        t_split,
-        TOTAL_BURN_TIME_S,
-        w_shoulder,
-    )
-
-    time_axis = np.concatenate(
-        (
-            [0.0],
-            t_peak,
-            t_shoulder,
-            [
-                TOTAL_BURN_TIME_S
-            ],
-        )
-    )
-
-    burn_frequency = (
-        np.concatenate(
-            (
-                f_peak,
-                f_shoulder,
-            )
-        )
-    )
-
-    frequency_offset = (
-        burn_frequency
-        - omegD
-    )
-
-    # Authoritative legacy convention:
-    # numeric MHz offset is used as the physical WaveGen voltage.
-    # Preserve it here, but mark the scaling unverified for hardware.
-    voltage_control = (
-        np.concatenate(
-            (
-                [-V_EDGE_V],
-                frequency_offset,
-                [V_EDGE_V],
-            )
-        )
-    )
-
-    t_uniform = np.linspace(
-        time_axis.min(),
-        time_axis.max(),
-        MAX_ARB_POINTS,
-    )
-
-    voltage_uniform = np.interp(
-        t_uniform,
-        time_axis,
-        voltage_control,
-    )
-
-    normalized = np.clip(
-        voltage_uniform
-        / V_EDGE_V,
-        -1.0,
-        1.0,
-    )
-
+    # Plot metadata: frequency bin boundary times, plus explicit end points.
+    time_axis = np.concatenate(([0.0], edges, [TOTAL_BURN_TIME_S]))
     plan = WaveformPlan(
         material=material,
         case=case,
@@ -1051,9 +995,9 @@ def build_waveform_plan(
         control_offset_mhz=(
             np.concatenate(
                 (
-                    [-V_EDGE_V],
+                    [-edge_v],
                     frequency_offset,
-                    [V_EDGE_V],
+                    [edge_v],
                 )
             )
         ),
@@ -1065,7 +1009,7 @@ def build_waveform_plan(
         physical_voltage_v=(
             (
                 normalized
-                * V_EDGE_V
+                * edge_v
             ).astype(
                 np.float32
             )
@@ -1073,8 +1017,8 @@ def build_waveform_plan(
         period_s=(
             TOTAL_BURN_TIME_S
         ),
-        vhigh_v=V_EDGE_V,
-        vlow_v=-V_EDGE_V,
+        vhigh_v=edge_v,
+        vlow_v=-edge_v,
         r_high=r_high,
         used_measured_heights=(
             using_measured

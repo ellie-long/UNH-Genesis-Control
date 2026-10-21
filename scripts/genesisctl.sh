@@ -777,7 +777,7 @@ test_ssrf() {
     PYTHONPATH="${ROOT}" \
         python -m unittest discover \
         -s tests \
-        -p 'test_ssrf*.py'
+        -p 'test_ssrf*.py' || return $?
     echo
     git diff --check
 }
@@ -957,7 +957,7 @@ ssrf_final_start() {
     require_env
     echo
     echo "===== START FINAL PHYSICAL SSRF OPERATION ====="
-    "${SSRF_FINAL_START_SCRIPT}"
+    "${SSRF_FINAL_START_SCRIPT}" "$@"
 }
 
 ssrf_final_stop() {
@@ -1084,10 +1084,15 @@ case "${cmd}" in
         ssrf_deploy_keysight
         ;;
     ssrf-start)
-        ssrf_final_start
+        ssrf_final_start "$@"
         ;;
     ssrf-stop)
         ssrf_final_stop
+        ;;
+    ssrf-continuous)
+        require_env
+        env EPICS_CA_AUTO_ADDR_LIST=NO EPICS_CA_ADDR_LIST="127.0.0.1:5073 127.0.0.1:5074 127.0.0.1:5090 127.0.0.1:5068 127.0.0.1:5071 127.0.0.1:5072 192.168.1.24:5064" \
+            python -m ssrf_analysis.continuous_burn "$@"
         ;;
 
     sim-check)
