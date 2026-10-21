@@ -9,7 +9,7 @@
     <y>74</y>
     <width>1380</width>
     <height>31</height>
-    <text>ionivac</text>
+    <text>IONIVAC - fridge shells and pumping cart</text>
     <transparent>true</transparent>
     <class>TITLE</class>
   </widget>
@@ -81,7 +81,7 @@
     <y>183</y>
     <width>150</width>
     <height>20</height>
-    <pv_name>ca://UNH:GEN:CRYO:ION:Ion_Conn</pv_name>
+    <pv_name>ca://UNH:GEN:CRYO:ION:COMM</pv_name>
     <precision>4</precision>
     <format>6</format>
   </widget>
@@ -238,5 +238,82 @@
     <foreground_color>
       <color red="255" green="255" blue="255" alpha="255" />
     </foreground_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>PumpCartHeader</name>
+    <x>10</x>
+    <y>225</y>
+    <width>420</width>
+    <height>24</height>
+    <text>PUMPING-STATION CART - 192.168.1.251:5005</text>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>PumpCartPressureL</name>
+    <x>10</x>
+    <y>255</y>
+    <width>140</width>
+    <height>20</height>
+    <text>Pressure (Torr)</text>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>PumpCartPressureV</name>
+    <x>160</x>
+    <y>255</y>
+    <width>150</width>
+    <height>20</height>
+    <pv_name>ca://UNH:GEN:CRYO:ION:PUMP:Ion_PI</pv_name>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>PumpCartRawL</name>
+    <x>10</x>
+    <y>279</y>
+    <width>140</width>
+    <height>20</height>
+    <text>Raw telegram</text>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>PumpCartRawV</name>
+    <x>160</x>
+    <y>279</y>
+    <width>150</width>
+    <height>20</height>
+    <pv_name>ca://UNH:GEN:CRYO:ION:PUMP:Ion_Raw</pv_name>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>PumpCartCOMM_L</name>
+    <x>10</x>
+    <y>303</y>
+    <width>140</width>
+    <height>20</height>
+    <text>COMM</text>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>PumpCartCOMM_V</name>
+    <x>160</x>
+    <y>303</y>
+    <width>150</width>
+    <height>20</height>
+    <pv_name>ca://UNH:GEN:CRYO:ION:PUMP:COMM</pv_name>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>PumpCartHB_L</name>
+    <x>10</x>
+    <y>327</y>
+    <width>140</width>
+    <height>20</height>
+    <text>Heartbeat</text>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>PumpCartHB_V</name>
+    <x>160</x>
+    <y>327</y>
+    <width>220</width>
+    <height>20</height>
+    <pv_name>ca://UNH:GEN:CRYO:ION:PUMP:MAN:ionivac_pump_time</pv_name>
   </widget>
 </display>

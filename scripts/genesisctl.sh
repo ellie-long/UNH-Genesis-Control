@@ -777,7 +777,7 @@ test_ssrf() {
     PYTHONPATH="${ROOT}" \
         python -m unittest discover \
         -s tests \
-        -p 'test_ssrf*.py'
+        -p 'test_ssrf*.py' || return $?
     echo
     git diff --check
 }

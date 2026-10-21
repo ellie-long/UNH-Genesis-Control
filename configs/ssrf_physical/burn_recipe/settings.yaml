@@ -1,7 +1,7 @@
 general:
   prefix: UNH:GEN:SSRF:RECIPE
   log_dir: logs
-  epics_addr_list: "127.0.0.1:5074"
+  epics_addr_list: "127.0.0.1:5073 127.0.0.1:5074 127.0.0.1:5090 127.0.0.1:5068 127.0.0.1:5071 127.0.0.1:5072 192.168.1.24:5064"
   delay: 0.2
 
 burn_recipe:
@@ -27,7 +27,7 @@ burn_recipe:
   records:
     FITTER_CONNECTED: {DESC: Fitter publisher connection}
     LATEST_FIT_VALID: {DESC: Latest calibrated fit usable}
-    BURN_MODE_RBV: {DESC: FIT or OPERATOR reference mode at startup}
+    BURN_MODE_RBV: {DESC: Active burn mode FIT or OPERATOR}
     MATERIAL: {DESC: Material from latest fitter result}
     FIT_TYPE: {DESC: Latest fitter analysis mode}
     FIT_TS: {DESC: Latest fitter timestamp}

@@ -1383,7 +1383,7 @@
     <y>700</y>
     <width>80</width>
     <height>22</height>
-    <text>Ion</text>
+    <text>Shell ion</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
     <font>
@@ -2162,7 +2162,7 @@
     </actions>
     <text>Diagnostics</text>
   </widget>
-<widget type="action_button" version="3.0.0">
+  <widget type="action_button" version="3.0.0">
     <name>Nav8</name>
     <x>1050</x>
     <y>820</y>
@@ -2177,7 +2177,7 @@
     </actions>
     <text>Flow</text>
   </widget>
-<widget type="action_button" version="3.0.0">
+  <widget type="action_button" version="3.0.0">
     <name>Nav9</name>
     <x>1176</x>
     <y>820</y>
@@ -2192,7 +2192,7 @@
     </actions>
     <text>Cell Expert</text>
   </widget>
-<widget type="action_button" version="3.0.0">
+  <widget type="action_button" version="3.0.0">
     <name>Nav10</name>
     <x>1302</x>
     <y>820</y>
@@ -2207,7 +2207,7 @@
     </actions>
     <text>Ion Expert</text>
   </widget>
-<widget type="action_button" version="3.0.0">
+  <widget type="action_button" version="3.0.0">
     <name>Nav11</name>
     <x>1428</x>
     <y>820</y>
@@ -2392,7 +2392,7 @@
       <color red="28" green="38" blue="48" alpha="255" />
     </foreground_color>
   </widget>
-<widget type="label" version="2.0.0">
+  <widget type="label" version="2.0.0">
     <name>TargetTempHeader</name>
     <x>855</x>
     <y>516</y>
@@ -2408,14 +2408,13 @@
       <color red="28" green="38" blue="48" alpha="255" />
     </foreground_color>
   </widget>
-
-<widget type="label" version="2.0.0">
+  <widget type="label" version="2.0.0">
     <name>TargetT1Label</name>
     <x>855</x>
     <y>549</y>
     <width>84</width>
     <height>24</height>
-    <text>T1 C2 (K)</text>
+    <text>T1 C4 (K)</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
     <font>
@@ -2425,8 +2424,7 @@
       <color red="28" green="38" blue="48" alpha="255" />
     </foreground_color>
   </widget>
-
-<widget type="textupdate" version="2.0.0">
+  <widget type="textupdate" version="2.0.0">
     <name>TargetT1Value</name>
     <x>941</x>
     <y>549</y>
@@ -2444,8 +2442,7 @@
     </foreground_color>
     <precision>2</precision>
   </widget>
-
-<widget type="textupdate" version="2.0.0">
+  <widget type="textupdate" version="2.0.0">
     <name>TargetT1Status</name>
     <x>855</x>
     <y>577</y>
@@ -2462,14 +2459,13 @@
       <color red="28" green="38" blue="48" alpha="255" />
     </foreground_color>
   </widget>
-
-<widget type="label" version="2.0.0">
+  <widget type="label" version="2.0.0">
     <name>TargetT3Label</name>
     <x>855</x>
     <y>606</y>
     <width>84</width>
     <height>24</height>
-    <text>T3 C4 (K)</text>
+    <text>T3 C2 (K)</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
     <font>
@@ -2479,8 +2475,7 @@
       <color red="28" green="38" blue="48" alpha="255" />
     </foreground_color>
   </widget>
-
-<widget type="textupdate" version="2.0.0">
+  <widget type="textupdate" version="2.0.0">
     <name>TargetT3Value</name>
     <x>941</x>
     <y>606</y>
@@ -2498,8 +2493,7 @@
     </foreground_color>
     <precision>2</precision>
   </widget>
-
-<widget type="textupdate" version="2.0.0">
+  <widget type="textupdate" version="2.0.0">
     <name>TargetT3Status</name>
     <x>855</x>
     <y>634</y>
@@ -2516,14 +2510,13 @@
       <color red="28" green="38" blue="48" alpha="255" />
     </foreground_color>
   </widget>
-
-<widget type="label" version="2.0.0">
+  <widget type="label" version="2.0.0">
     <name>TargetTempNote</name>
     <x>855</x>
     <y>665</y>
     <width>214</width>
     <height>20</height>
-    <text>T3 disconnected; C4 label differs</text>
+    <text>T1/T3: 2-T1 / 2-T3</text>
     <transparent>true</transparent>
     <horizontal_alignment>0</horizontal_alignment>
     <font>
@@ -2533,5 +2526,4 @@
       <color red="28" green="38" blue="48" alpha="255" />
     </foreground_color>
   </widget>
-
 </display>

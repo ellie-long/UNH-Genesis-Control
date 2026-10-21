@@ -12,7 +12,7 @@ lhe_fridge:
   label: Fridge Space LHE Level (")
   module: target_ioc.instruments.ami1700
   autostart: false
-  ip: 192.168.1.27
+  ip: 192.168.1.30
   port: 7180
   timeout: 3
   delay: 5

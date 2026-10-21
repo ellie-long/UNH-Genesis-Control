@@ -81,10 +81,12 @@ def test_fridge_temperature_columns_and_history():
                 assert rect(w)[3] == 20
 
                 if prefix == "T":
-                    assert w.findtext("pv_name") == (
-                        f"ca://UNH:GEN:CRYO:FRIDGE:"
-                        f"F{channel}_{suffix}"
+                    expected_pv = (
+                        "ca://UNH:GEN:CRYO:FRIDGE:COMM"
+                        if suffix == "Conn" else
+                        f"ca://UNH:GEN:CRYO:FRIDGE:F{channel}_{suffix}"
                     )
+                    assert w.findtext("pv_name") == expected_pv
 
     plot = widgets["Trend"]
 

@@ -87,7 +87,7 @@ def test_invalid_comm_and_mixed_mask():
 
 
 def test_failed_read_invalidates_previous_event():
-    clock, state, poller, pvs = setup()
+    clock, state, poller, pvs = setup(mask=(0, 0))
     clock[0] = 101.0
     assert poller.poll_once()
 
@@ -105,7 +105,7 @@ def test_failed_read_invalidates_previous_event():
 
     pvs["COMM"].connected = True
     pvs["COMM"].values = [1, 1]
-    pvs["MASK_RBV"].values = [3, 3]
+    pvs["MASK_RBV"].values = [0, 0]
 
     clock[0] = 104.0
     assert poller.poll_once()

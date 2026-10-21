@@ -115,7 +115,7 @@ if pgrep -f "$FITTER_PATTERN" >/dev/null 2>&1; then
     exit 1
 fi
 
-for port in 8777 8778
+for port in 8778 8779
 do
     if lsof -nP -iTCP:${port} -sTCP:LISTEN >/dev/null 2>&1; then
         echo "[FAIL] fitter TCP port ${port} is already occupied" >&2
@@ -123,6 +123,41 @@ do
         exit 1
     fi
 done
+
+# GUARD_STALE_PYNMR_IPC_V1
+echo "===== CHECK PYNMR IPC ====="
+"$PYTHON_BIN" - <<'PY_IPC'
+import errno, os, socket, stat
+from pathlib import Path
+
+p = Path("/run/genesis-nmr-ipc/events.sock")
+
+if not os.path.lexists(p):
+    print("[PASS] PyNMR IPC path clear")
+else:
+    d, st = p.parent.lstat(), p.lstat()
+    if (not stat.S_ISDIR(d.st_mode)
+            or p.parent.is_symlink()
+            or d.st_uid != os.getuid()
+            or not stat.S_ISSOCK(st.st_mode)
+            or st.st_uid != os.getuid()):
+        raise SystemExit("[FAIL] Unsafe IPC identity")
+
+    with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as sk:
+        sk.settimeout(1.0)
+        rc = sk.connect_ex(str(p))
+
+    if rc != errno.ECONNREFUSED:
+        raise SystemExit("[FAIL] IPC live or uncertain")
+
+    now = p.lstat()
+    if (now.st_dev, now.st_ino, now.st_uid, now.st_mode) != (
+            st.st_dev, st.st_ino, st.st_uid, st.st_mode):
+        raise SystemExit("[FAIL] IPC changed during check")
+
+    p.unlink()
+    print("[PASS] Removed verified stale PyNMR IPC socket")
+PY_IPC
 
 echo "===== AUTHORITATIVE SAFE PHYSICAL PREFLIGHT ====="
 "$ROOT/scripts/check_ssrf_physical_readonly.sh"
@@ -205,7 +240,7 @@ read -r PYNMR_PID PYNMR_TICKS <<< "$PYNMR_ID"
 }
 echo "[PASS] Authorized PyNMR producer PID=$PYNMR_PID"
 
-screen -dmS genesis-ssrf-fitter bash -lc "cd '$ROOT' && exec env EPICS_CAS_SERVER_PORT=5100 EPICS_PVA_SERVER_PORT=5101 EPICS_CA_MAX_ARRAY_BYTES=262144 EPICS_CA_AUTO_ADDR_LIST=NO EPICS_CA_ADDR_LIST=127.0.0.1:5071 PYTHONPATH='$ROOT' GENESIS_PYNMR_PRODUCER_PID='$PYNMR_PID' GENESIS_PYNMR_PRODUCER_START_TICKS='$PYNMR_TICKS' '$PYTHON_BIN' -u -m online_fitter.epics_run --nmr-protected --nmr-source pynmr --pynmr-port 8779 --pynmr-ipc-path /run/genesis-nmr-ipc/events.sock --pynmr-ipc-allowed-uid '$(id -u)' --pynmr-ipc-shared-gid '$(stat -c %g /run/genesis-nmr-ipc)' --material d-butanol --mode equilibrium >> '$ROOT/logs/genesis-ssrf-fitter.log' 2>&1"
+screen -dmS genesis-ssrf-fitter bash -lc "cd '$ROOT' && exec env EPICS_CAS_SERVER_PORT=5100 EPICS_PVA_SERVER_PORT=5101 EPICS_CA_MAX_ARRAY_BYTES=262144 EPICS_CA_AUTO_ADDR_LIST=NO EPICS_CA_ADDR_LIST=127.0.0.1:5071 PYTHONPATH='$ROOT' GENESIS_PYNMR_PRODUCER_PID='$PYNMR_PID' GENESIS_PYNMR_PRODUCER_START_TICKS='$PYNMR_TICKS' '$PYTHON_BIN' -u -m online_fitter.epics_run --nmr-protected --nmr-source pynmr --pynmr-only --pynmr-port 8779 --pynmr-ipc-path /run/genesis-nmr-ipc/events.sock --pynmr-ipc-allowed-uid '$(id -u)' --pynmr-ipc-shared-gid '$(stat -c %g /run/genesis-nmr-ipc)' --material d-butanol --mode equilibrium >> '$ROOT/logs/genesis-ssrf-fitter.log' 2>&1"
 sleep 3
 session_exists genesis-ssrf-fitter || { tail -100 "$ROOT/logs/genesis-ssrf-fitter.log"; exit 1; }
 start_local_ioc genesis-ssrf-recipe configs/ssrf_physical/burn_recipe burn_recipe 5090 5091

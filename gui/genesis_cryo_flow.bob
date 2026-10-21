@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <display version="2.0.0">
-  <name>Genesis Cryo Vacuum</name>
+  <name>Genesis Cryo Flow</name>
   <width>1280</width>
   <height>720</height>
   <widget type="rectangle" version="2.0.0">

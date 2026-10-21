@@ -20,17 +20,38 @@ class TestSsrfMainWorkflowGui(unittest.TestCase):
         self.assertIn("BURN SETUP", self.gui)
 
     def test_final_operator_sequence_controls(self):
-        for pv in (
-            "UNH:GEN:SSRF:RECIPE:GENERATE_LOAD_CMD",
-            "UNH:GEN:SSRF:SEQ:ARM_CMD",
-            "UNH:GEN:SSRF:SEQ:START_CMD",
-            "UNH:GEN:SSRF:SEQ:ABORT_CMD",
-        ):
-            self.assertIn(pv, self.gui)
+        expected = (
+            ("WF_GenerateLoad", "GENERATE / LOAD",
+             "UNH:GEN:SSRF:RECIPE:GENERATE_LOAD_CMD"),
+            ("WF_ARM", "ARM",
+             "UNH:GEN:SSRF:SEQ:ARM_CMD"),
+            ("WF_BURN", "BURN ONCE",
+             "UNH:GEN:SSRF:SEQ:START_CMD"),
+            ("WF_ABORT", "ABORT",
+             "UNH:GEN:SSRF:SEQ:ABORT_CMD"),
+        )
 
-        for label in ("GENERATE / LOAD", "ARM", "BURN ONCE", "ABORT"):
-            self.assertIn(f"<off_label>{label}</off_label>", self.gui)
-            self.assertIn(f"<on_label>{label}</on_label>", self.gui)
+        widgets = {
+            widget.findtext("name"): widget
+            for widget in self.root.iter("widget")
+        }
+
+        for name, label, pv in expected:
+            with self.subTest(control=name):
+                self.assertIn(name, widgets)
+                widget = widgets[name]
+                self.assertEqual(widget.get("type"), "action_button")
+                self.assertEqual(widget.findtext("text"), label)
+
+                actions = widget.findall("./actions/action")
+                self.assertEqual(len(actions), 1)
+                action = actions[0]
+
+                self.assertEqual(action.get("type"), "write_pv")
+                self.assertEqual(
+                    action.findtext("pv_name"), "ca://" + pv
+                )
+                self.assertEqual(action.findtext("value"), "1")
 
     def test_recipe_fields_are_visible(self):
         required = (

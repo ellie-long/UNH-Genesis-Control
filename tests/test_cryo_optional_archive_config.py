@@ -29,7 +29,7 @@ def test_optional_archive_inventory():
 
     pvs = archive["archiver"]["explicit_pvs"]
 
-    assert len(pvs) == len(set(pvs)) == 170   # 164 + target-cup T1/T3 (TI, RI, Status), dev-sim
+    assert len(pvs) == len(set(pvs)) == 168
     assert archive["archiver"]["autostart"] is False
     assert archive["archiver"]["module"] == "logic_devices.archiver"
 
@@ -54,7 +54,7 @@ def test_optional_archive_inventory():
 
     assert len(new_pvs) == 28
     assert pvs[-28:] == new_pvs
-    assert len(pvs[:-28]) == 142   # the original 136 + target-cup T1/T3 (dev-sim)
+    assert len(pvs[:-28]) == 140
 
     assert not any(
         pv.startswith("UNH:GEN:CRYO:ARCH:")
@@ -80,6 +80,7 @@ def test_optional_archive_discovery():
         for name in DEVICES
     ]
 
+    expected += ["127.0.0.1:5129"]
     assert addresses == expected
-    assert len(addresses) == len(set(addresses)) == 17
+    assert len(addresses) == len(set(addresses)) == 18
     assert "127.0.0.1:5122" not in addresses

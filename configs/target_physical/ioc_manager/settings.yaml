@@ -3,7 +3,7 @@ general:
   log_dir: logs
   epics_addr_list: 127.0.0.1:5111 127.0.0.1:5112 127.0.0.1:5113 127.0.0.1:5114 127.0.0.1:5115
     127.0.0.1:5116 127.0.0.1:5117 127.0.0.1:5118 127.0.0.1:5119 127.0.0.1:5120 127.0.0.1:5121
-    127.0.0.1:5122 127.0.0.1:5123 127.0.0.1:5124 127.0.0.1:5125 127.0.0.1:5126 127.0.0.1:5127 127.0.0.1:5128
+    127.0.0.1:5122 127.0.0.1:5123 127.0.0.1:5124 127.0.0.1:5125 127.0.0.1:5126 127.0.0.1:5127 127.0.0.1:5128 127.0.0.1:5129
   manager_ca_server_port: 5110
   manager_pva_server_port: 5210
   delay: 0.5
@@ -35,6 +35,13 @@ ionivac:
   heartbeat_pv: UNH:GEN:CRYO:ION:MAN:ionivac_time
   ca_server_port: 5114
   pva_server_port: 5214
+ionivac_pump:
+  autostart: false
+  settings_folder: configs/target_physical/ionivac_pump
+  ioc: ionivac_pump
+  heartbeat_pv: UNH:GEN:CRYO:ION:PUMP:MAN:ionivac_pump_time
+  ca_server_port: 5129
+  pva_server_port: 5229
 ls455:
   autostart: false
   settings_folder: configs/target_physical/ls455

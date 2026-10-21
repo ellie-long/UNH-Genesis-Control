@@ -84,6 +84,12 @@ PHYSICAL = {
         "ca": 5114,
         "pva": 5214,
     },
+    "ionivac_pump": {
+        "prefix": "UNH:GEN:CRYO:ION:PUMP",
+        "module": "target_ioc.instruments.ionivac",
+        "ca": 5129,
+        "pva": 5229,
+    },
     "ls455": {
         "prefix": "UNH:GEN:CRYO:FIELD",
         "module": "target_ioc.instruments.ls455",

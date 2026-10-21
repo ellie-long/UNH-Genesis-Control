@@ -33,6 +33,7 @@ class DualSourceTransport:
         pynmr_port=8779,
         verbose=False,
         connection_observer=None,
+        pynmr_only=False,
     ):
         if not callable(processor):
             raise TypeError(
@@ -51,6 +52,9 @@ class DualSourceTransport:
                 "LabVIEW and PyNMR ports must differ"
             )
 
+        if type(pynmr_only) is not bool:
+            raise TypeError("pynmr_only must be bool")
+        self._sources = ("pynmr",) if pynmr_only else ("labview", "pynmr")
         self.state = state
         self.processor = processor
         self.verbose = verbose
@@ -87,7 +91,7 @@ class DualSourceTransport:
         tracking = {}
 
         try:
-            for source in ("labview", "pynmr"):
+            for source in self._sources:
                 opened[source] = server.make_server(
                     self.state,
                     host="127.0.0.1",
@@ -114,9 +118,9 @@ class DualSourceTransport:
                 for listener in opened.values()
             ]
 
-            if len(set(ports)) != 2:
+            if len(set(ports)) != len(self._sources):
                 raise RuntimeError(
-                    "dual NMR listener ports collided"
+                    "NMR listener ports collided"
                 )
 
             for source, listener in opened.items():

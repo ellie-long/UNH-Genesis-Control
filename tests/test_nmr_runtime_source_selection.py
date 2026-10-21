@@ -14,6 +14,7 @@ class EventAdapterSpy:
 
 def make_runtime():
     runtime = object.__new__(ProtectedNMRRuntime)
+    runtime.pynmr_only = False
     runtime.source_state = NMRSourceState()
     runtime.source_state.select("pynmr")
     runtime.event_adapter = EventAdapterSpy()

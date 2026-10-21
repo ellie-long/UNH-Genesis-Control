@@ -58,19 +58,27 @@ async def _safe_baseline():
             raise RuntimeError(f'unsafe/incomplete cleanup: {pv} = {got}, expected {expected}')
 
 
-async def run(cycles, delay, expected_mode, stop=None):
+async def run(cycles, delay, expected_mode, stop=None, progress=None):
     if stop is None:
         stop = asyncio.Event()
+    if progress is None:
+        progress = lambda cycle, phase: None
     if int(await _read(SEQ+':EXECUTION_ENABLED')) != 1:
         raise RuntimeError('ssRF sequencer execution disabled')
     actual_mode = str(await _read(RECIPE+':BURN_MODE_RBV')).strip().upper()
     if actual_mode != expected_mode.upper():
         raise RuntimeError(f'burn mode mismatch: expected {expected_mode}, actual {actual_mode}')
     await _safe_baseline()
+    # Never take over a manually prepared/armed one-shot operation.
+    if int(await _read(SEQ+':PREPARED')) != 0:
+        raise RuntimeError('manual burn already prepared; complete or ABORT first')
+    if str(await _read(SEQ+':EXECUTION_STATE')) == 'RUNNING':
+        raise RuntimeError('ssRF execution already running')
     n = 0
     try:
         while (cycles == 0 or n < cycles) and not stop.is_set():
             n += 1
+            progress(n, 'PREPARING')
             print(f'[CYCLE {n}] prepare {actual_mode} waveform', flush=True)
             prior_session = str(await _read(RECIPE+':SESSION_ID'))
             await _put(RECIPE+':GENERATE_LOAD_CMD', 1)
@@ -95,12 +103,14 @@ async def run(cycles, delay, expected_mode, stop=None):
                 raise RuntimeError('sequencer not READY; operator intervention required')
             if stop.is_set():
                 raise OperatorStop('STOP requested')
+            progress(n, 'ARMING')
             await _put(SEQ+':ARM_CMD', 1)
             await _until(SEQ+':EXECUTION_ARMED', lambda s: int(s) == 1,
                          timeout=4, stop=stop)
             if stop.is_set():
                 raise OperatorStop('STOP requested')
             await _put(SEQ+':START_CMD', 1)
+            progress(n, 'BURNING')
             # START_CMD is asynchronous: a previous cycle's COMPLETE can still
             # be visible before the IOC accepts the new start. A real completion
             # consumes PREPARED; do not accept a stale COMPLETE readback.
@@ -121,6 +131,7 @@ async def run(cycles, delay, expected_mode, stop=None):
                 raise RuntimeError('preparation was not consumed')
             print(f'[CYCLE {n}] completed with outputs OFF', flush=True)
             if cycles == 0 or n < cycles:
+                progress(n, 'WAITING')
                 try:
                     await asyncio.wait_for(stop.wait(), timeout=delay)
                 except asyncio.TimeoutError:
@@ -136,6 +147,7 @@ async def run(cycles, delay, expected_mode, stop=None):
         if previous is not None:
             await _until(SEQ+':SAFE_OFF_ID', lambda s: int(s) > previous, timeout=15)
         await _safe_baseline()
+        progress(n, 'SAFE_OFF')
         print('[DONE] Sequencer ABORT and safe readbacks verified', flush=True)
 
 

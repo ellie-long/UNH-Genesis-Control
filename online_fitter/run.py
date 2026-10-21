@@ -118,6 +118,10 @@ def main(argv=None):
         help="software source selection; does not move hardware",
     )
     ap.add_argument(
+        "--pynmr-only", action="store_true",
+        help="bind only the protected PyNMR receiver (no LabVIEW listener)",
+    )
+    ap.add_argument(
         "--pynmr-port",
         type=int,
         default=8779,
@@ -191,6 +195,8 @@ def main(argv=None):
             ap.error("NMR source-control IPC requires trusted PID")
         if control_path == a.pynmr_ipc_path:
             ap.error("NMR source-control and PyNMR event sockets must differ")
+    if a.pynmr_only and (not a.nmr_protected or a.nmr_source != "pynmr"):
+        ap.error("--pynmr-only requires protected PyNMR source")
     if a.nmr_protected:
         if a.nmr_source is None:
             ap.error("--nmr-protected requires --nmr-source")
@@ -254,6 +260,7 @@ def main(argv=None):
         srv = ProtectedNMRRuntime(
             state,
             selected_source=a.nmr_source,
+            pynmr_only=a.pynmr_only,
             nmr_source_control_path=a.nmr_source_control_path,
             nmr_source_control_allowed_uid=a.nmr_source_control_allowed_uid,
             nmr_source_control_allowed_pid=a.nmr_source_control_allowed_pid,
@@ -271,12 +278,18 @@ def main(argv=None):
         )
         srv.start()
         state.genesis_nmr_protected_runtime = srv
-        print(
-            "[online_fitter] protected dual NMR receivers on "
-            f"127.0.0.1:{a.port} (LabVIEW) and "
-            f"127.0.0.1:{a.pynmr_port} (PyNMR)",
-            flush=True,
-        )
+        if a.pynmr_only:
+            print(
+                f"[online_fitter] protected PyNMR-only receiver on "
+                f"127.0.0.1:{a.pynmr_port}", flush=True,
+            )
+        else:
+            print(
+                "[online_fitter] protected dual NMR receivers on "
+                f"127.0.0.1:{a.port} (LabVIEW) and "
+                f"127.0.0.1:{a.pynmr_port} (PyNMR)",
+                flush=True,
+            )
         print(
             "[online_fitter] fitting remains blocked until "
             "trusted acquisition-event binding is implemented",

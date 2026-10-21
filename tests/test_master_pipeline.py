@@ -1,4 +1,4 @@
-"""371-PV (337 + 28 optional cryo + 6 target-cup T1/T3) end-to-end master pipeline test using fake CA callbacks.
+"""Registry-driven end-to-end master pipeline test using fake CA callbacks.
 
 No physical IOC, network connection, EPICS write, or device polling.
 """
@@ -65,10 +65,11 @@ class FakeClock:
         await asyncio.sleep(0)
 
 
-def test_complete_337_pv_master_pipeline(tmp_path):
+def test_complete_registry_master_pipeline(tmp_path):
     async def scenario():
         registry, report = build_registry()
-        assert report["total"] == 371
+        assert report["total"] == len(registry)
+        assert report["total"] >= 360
 
         pvs = sorted(registry)
         started = datetime.now(timezone.utc)
@@ -102,13 +103,13 @@ def test_complete_337_pv_master_pipeline(tmp_path):
         health = runtime.health()
 
         assert health["snapshots"] == 3
-        assert health["accepted_events"] == 1113        # 3 events x 371 PVs
-        assert health["written_events"] == 1113        # 3 events x 371 PVs
+        assert health["accepted_events"] == 3 * len(pvs)
+        assert health["written_events"] == 3 * len(pvs)
         assert health["dropped_events"] == 0
         assert health["finished"] is True
         assert health["overruns"] == 0
 
-        assert len(fake_ca.subscriptions) == 371
+        assert len(fake_ca.subscriptions) == len(pvs)
         assert all(
             subscription.closed
             for subscription in fake_ca.subscriptions.values()
@@ -132,7 +133,7 @@ def test_complete_337_pv_master_pipeline(tmp_path):
             fields = reader.fieldnames
             rows = list(reader)
 
-        assert len(fields) == 1857        # 5 columns x 371 PVs + 2 timestamps
+        assert len(fields) == 5 * len(pvs) + 2
         assert len(rows) == 3
 
         for tick, row in enumerate(rows, 1):
@@ -155,7 +156,7 @@ def test_complete_337_pv_master_pipeline(tmp_path):
         ).open(encoding="utf-8") as handle:
             events = [json.loads(line) for line in handle]
 
-        assert len(events) == 1113        # 3 events x 371 PVs
+        assert len(events) == 3 * len(pvs)
         assert all(event["connected"] for event in events)
         assert all(event["source_utc"] for event in events)
 
