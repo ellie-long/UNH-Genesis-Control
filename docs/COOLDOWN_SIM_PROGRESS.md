@@ -48,6 +48,31 @@ lab answers are in `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`.
 
 ## Log
 
+### 2026-10-21: Panopticon wired to the levels, flowmeters and Manometer-Lo (dev-visualizer)
+* Merged dev-sim into dev-visualizer (1b069d2; merge, the branch is public):
+  Utsav's optional cryo IOCs and ccce63e, their sim emulators, the
+  Genesis -> LabVIEW converter. The Sim Control fault list takes dev-sim's
+  two-column layout; 6123/6223 stay the trend-history IOC's.
+* Panopticon (47bbc2d): fridge and magnet LHe read-backs and trends, the
+  magnet level bar (a tank) and a moving LHe line in the insert drawing,
+  separator and Roots L / R / total flows and their trend, Manometer-Lo and
+  the vapour-pressure temperature, Manometer-Lo on the pressure trend. Still
+  grey: Pirani, lab thermocouples, magnet supply, EPR, SIG, slow sweep.
+* Pressures in Torr by the TPG's own unit (Ells: 'whatever is the correct
+  value in Torr'; 1 atm = 760 Torr): the trend-history IOC follows Pump_Unit
+  live and, in the back-fill, from its archive, and serves
+  PRESS:Pump_Torr_NOW / OVC_Torr_NOW. The fixed x0.750062 would have shown
+  the live (Torr) TPG's atmosphere as ~574 Torr. The sim's TPG emulator
+  still answers mbar, so the conversion path is exercised.
+* Trend history resolves the archiver's folder as the archiver does (under
+  the Genesis data root since Utsav's ccce63e); before, it would have
+  back-filled nothing on the live system.
+* Fixed on the way (613156c): the unit back-fill opened one file per day
+  since 1970 and the IOC missed the sim's start-up check.
+* Sim session check: Pump_PI 1.2565 mbar -> 0.9425 Torr; Magnet_LI 27.9 in;
+  flows and Manometer-Lo live; Roots L NaN (the 2026-06 record has none),
+  VapT NaN below ITS-90 (question 63), OVC NaN (gauge 2 not fed from data).
+
 ### 2026-10-21: Genesis -> LabVIEW data_record converter
 * New `python -m cooldown_sim genesis-to-labview INPUT... --out NEW_DIR
   [--pynmr DIR]` (`cooldown_sim/data/genesis_to_labview.py`): reads the
