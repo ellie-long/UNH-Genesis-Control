@@ -31,6 +31,7 @@ lab answers are in `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`.
 | D2 | Protected PyNMR mode: admission/protection rehearsal (Linux) | done |
 | D3 | Scenario library, fault scenarios, after-action report | done |
 | E1 | Utsav's optional cryo IOCs (flowmeters, LHe levels, Manometer-Lo) emulated and fed | done |
+| E2 | Utsav's main ccce63e: ODS thermometry (T1 = C4, T3 = C2), pumping-cart IONIVAC `ionivac_pump` | done |
 
 **The planned build is complete.** What is left is Ells's call:
 
@@ -45,6 +46,61 @@ lab answers are in `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`.
    separate change to the live system, deliberately not made here.
 
 ## Log
+
+### 2026-10-21: Utsav's main ccce63e (ODS thermometry, cart IONIVAC)
+* Merged Utsav's `main` ccce63e ("Integrate validated ssRF with Cryogenics
+  and master archiver") into dev-sim (7394583); the sim adapts to it, no
+  Genesis file changed. What mattered for the sim:
+  * **LS224 curves from `calibration/Thermo_Calibrations.ods`** for every
+    sensor (`genesis_common/thermometry_ods.py` for F1-F11 / M1-M5,
+    `genesis_common/cernox_ccx.py` four-band Chebyshev for the target
+    stick). `ls224_magnet` now maps **T1 -> C4 (ODS 2-T1), T3 -> C2 (2-T3)**,
+    reversing dev-sim's earlier T1 = C2; Utsav's is operator-confirmed (his
+    C4 curve gives 297 K at the live ~40 ohm room reading, the old one 328
+    K) and kept. The CSVs are historical only. The emulator's inverse
+    (`emulators/host.py:_ls224_inverse`) loads the same curves the same way,
+    keyed by the profile's slots; the driver round-trips every slot.
+  * Utsav's driver checks RDGST?: bits 16 / 32 (outside the 224's own
+    internal curve) give "OK; 224 TEMP RANGE" with the ODS temperature; any
+    other bit is invalid, and a configured curve never falls back to KRDG?.
+    The LS224 emulator can now serve those bits per input (`range_bits`,
+    default 000); tested on T1, T3, M2 and F5 (question 66).
+  * **New IOC `ionivac_pump`**, the portable pumping cart's IONIVAC on
+    TXI040 :5005 (`UNH:GEN:CRYO:ION:PUMP`, live CA/PVA 5129/5229); the
+    shells' `ionivac` stays on :5006. In the sim: replay CA/PVA 6110/6210
+    (6111-6129 are taken and 6123 stays free for dev-visualizer), IONIVAC
+    telegram emulator on 16006, Sim Control fault row. No record column in
+    any era, so it is absent (connection refused) in every replay
+    (question 67). Its driver then holds Ion_PI at the start-up 0.0 in MAJOR
+    alarm rather than NaN: new known issue `never-connected-reads-zero`.
+  * Other changes checked, nothing to emulate: archiver/alarm-summary
+    address lists (+5129; the archiver now lists COMM instead of most
+    `_Conn` PVs), `lhe_fridge` at 192.168.1.30, TPG 262 records labelled
+    Torr (the driver still takes EGU from UNI?, so mbar in the sim; question
+    65), the Raspberry Pi bridge scripts (`scripts/pi_cryo_bridges/`: the
+    flowmeter server's `<raw>>` / `ERROR <why>>` replies match the
+    emulator; the manometer gateway is a byte pass-through), Cryo Phoebus on
+    server port 4920 (the sim's Phoebus uses no `-server`, so it is
+    independent), the master-archive PV catalog, ssRF burn recipe /
+    continuous burn and `--pynmr-only` (software only; the sim's ssRF leg
+    uses the unchanged `ssrf_sim_active` profile).
+* Tests: the conversions tests now check Utsav's loaders (ODS classic rows
+  and CCX bands, host inverse = driver curve for all 18 slots, 40 ohm ->
+  ~297 K, band continuity and monotonicity, transposed or gapped bands
+  rejected); new LS224 tests for the C4 / C2 mapping and the RDGST bits; a
+  validator test for the absent cart gauge.
+* Scenarios (WSL, guard OK): first library pass 7 PASS / 4 FAIL, all four
+  sim-side: comm-loss and data-gap failed only the absent cart gauge's 0.0
+  (validator fix above; reruns PASS); operator-microwaves ran across a ~2 h
+  host sleep, so the sim clock jumped 60 h past the window (rerun PASS);
+  quench's pre-quench fitter check failed because Update Constants took
+  33-42 s wall in those runs (20-26 s usual; the 2026-10-16 runs failed the
+  same way), landing after the 16-18 min window. The quench now starts at
+  24 min (check 22-24 min; margin up to ~44 s); two reruns PASS. Net: 11/11
+  PASS.
+* New questions 65-67 (TPG units, LS224 internal-curve bits, the cart in
+  the sim); 64 updated (5129 is now taken); 49c and the T1 / T3 slots
+  settled.
 
 ### 2026-10-19: Utsav's six optional cryo IOCs in the sim
 * After merging `feature/cryo-gui-completeness` (d769e24), the cryo leg now
@@ -662,6 +718,10 @@ Also observed:
 * `manometer_low`'s `Mano_VapT` is NaN below 0.8606 Torr (1.25 K), i.e. for
   the whole of a cold run, because `calibration/vapor_pressure_he4.csv` has no
   sub-1.25 K band (question 63). Its `Mano_VapStatus` says "P below scale".
+* Both IONIVAC IOCs hold Ion_PI at the start-up 0.0 Torr (MAJOR, LOLO 0.0)
+  when the gauge never connects, instead of NaN like the newer read-only
+  cryo IOCs (known issue `never-connected-reads-zero`; the pumping cart's
+  gauge is absent in every replay).
 * `lhe_fridge` (scale 1, offset 0) cannot show the record's negative fridge
   levels; the LabVIEW zero is unknown (question 60).
 * Utsav's flowmeter IOC `flowmeter_pi` now owns live CA/PVA 5123/5223, the
@@ -699,6 +759,14 @@ points. It does not reproduce deliberate fast depolarisations (AFP, anneals,
 unlogged burns).
 
 ## Test status (latest)
+
+* 2026-10-21 (Utsav's ccce63e): `tests/cooldown_sim` **271 passed, 7
+  skipped on Windows** (was 13 failed, 6 errors after the merge). WSL:
+  `tests/cooldown_sim tests/test_cryo_*.py tests/test_master_*.py
+  tests/test_ssrf_*.py tests/test_target_cryo_integration.py` (includes all
+  nine new test files of the merge) **816 passed, 7 skipped** (87 subtests);
+  Utsav's modified NMR / dual-source / protected-runtime tests **44 passed**.
+  No failures in Utsav's own tests. Scenario library 11/11 PASS on WSL.
 
 * 2026-10-19 (optional cryo IOCs): `tests/cooldown_sim` **243 passed, 7
   skipped on Windows** (14 new in `test_cooldown_sim_cryo_optional.py`). WSL:

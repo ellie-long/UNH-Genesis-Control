@@ -5,6 +5,22 @@ Each entry gives the commit, what changed, and why. The narrative and the
 findings are in `COOLDOWN_SIM_PROGRESS.md`; questions for the lab are in
 `COOLDOWN_SIM_OPEN_QUESTIONS.md`.
 
+## 2026-10-21
+
+* Docs: progress entry, questions 65-67 (64 updated; 49c and the T1 / T3
+  slots settled), channel-map report regenerated. Quench scenario: the
+  quench moves from 18 to 24 min (all windows +6 min, 84 min long) so the
+  pre-quench fitter check survives a slow Update Constants (33-42 s wall).
+* `877f5a5` Validators: an absent IONIVAC whose PV holds the driver's
+  start-up 0.0 in alarm is KNOWN (`never-connected-reads-zero`), not FAIL;
+  any real number on an absent instrument still fails.
+* `42c0a65` Adapted to Utsav's main ccce63e (merged as 7394583): LS224
+  emulator inverse from `Thermo_Calibrations.ods` (classic rows and the CCX
+  Cernox bands, T1 = C4, T3 = C2), RDGST? range bits in the emulator, new
+  `ionivac_pump` (pumping-cart IONIVAC) on replay CA/PVA 6110/6210 with an
+  IONIVAC emulator on 16006, channel-map rows, conversions tests rebuilt on
+  his loaders.
+
 ## 2026-10-19
 
 * Merged Utsav's `feature/ssrf-pynmr-only` (one conflict between his own

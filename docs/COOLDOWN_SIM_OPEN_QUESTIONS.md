@@ -49,14 +49,36 @@ named in each item. Numbers are stable: answered items move to *Settled*.
 - [ ] 64. Port clash for question 54: the trend-history IOC's suggested live
       CA/PVA 5123/5223 is now `flowmeter_pi`'s (Utsav's
       `ioc_manager/settings.yaml`: flowmeters 5123-5125, level meters
-      5126-5127, Manometer-Lo 5128). Use e.g. 5129/5229 for it instead?
+      5126-5127, Manometer-Lo 5128). 5129/5229 is now taken too (Utsav's
+      ccce63e: `ionivac_pump`, the pumping cart's IONIVAC). Use e.g.
+      5130/5230 (free in every live profile and script today)?
+- [ ] 65. **TPG 262 units:** Utsav's ccce63e labels `Pump_PI` / `OVC_PI` as
+      Torr in `configs/target_physical/tpg262/settings.yaml` (was mbar), but
+      his driver overwrites the EGU at start-up with what the controller's
+      `UNI?` says, and you said (2026-10-16) the TPG is always set to mbar.
+      Has the live TPG been switched to Torr? If so its alarm limits (0.1 /
+      0.01 on Pump, 1e-3 / 1e-4 on OVC) and the vacuum interlock's 1e-3 trip
+      are now Torr, and the sim's emulator (UNI = 0, mbar) should answer
+      Torr. The sim keeps mbar until you say.
+- [ ] 66. **LS224 RDGST? range bits:** Utsav's driver accepts RDGST? bits 16 /
+      32 (outside the 224's own internal curve) as "OK; 224 TEMP RANGE",
+      because it converts SRDG? ohms itself, and his test data say the live
+      T1 / T3 answer 32 at room temperature. Which curve is assigned inside
+      each 224 to C2 / C4 (and to the F / M inputs), so that the emulator can
+      raise 16 / 32 where the real units do? The emulator can serve them
+      (tested), but answers 000 by default.
+- [ ] 67. **Pumping cart in the sim:** the old DAQ never logged the cart's
+      IONIVAC, so `ionivac_pump` is absent (connection refused) in every
+      replay. Would you rather it serve a plausible constant (e.g. turbo base
+      pressure ~1e-6 Torr while it pumps on something, or ~760 Torr parked),
+      and is the cart typically connected during a cool-down? Also its alarm
+      limits copy the shells' gauge (HIGH / HIHI 800 / 900 Torr).
 - [ ] 49. Models, and Genesis priority: (a) `Magnet_IPS` on the TXI017
       (TCP 5001, 9600 8N2) -- the Oxford IPS120-10? (b) `Magnet_LHE_Prob`
       (TCP 23) -- which level meter (AMI model)? Utsav's `lhe_magnet` driver
       says an AMI Model 135 (cm, echo on); the 2020 record's 0.1 cm steps
-      agree: confirm. (c) Should the portable
-      pumping station's IONIVAC (:5005) get its own Genesis IOC (e.g. a
-      second ionivac device, "cart vacuum")? (d) `left_Roots_Pump` (5012) and
+      agree: confirm. (c) settled: Utsav's ccce63e gives the cart's IONIVAC
+      its own IOC, `ionivac_pump` (see Settled). (d) `left_Roots_Pump` (5012) and
       `Separator_Pump` (5013): Utsav's configs make them the left-Roots and
       separator Hastings flowmeters (now Genesis IOCs `flowmeter_left`,
       `flowmeter_sep`): confirm.
@@ -174,7 +196,9 @@ named in each item. Numbers are stable: answered items move to *Settled*.
       data.
 - [ ] 30. Did LabVIEW read T1 with the transposed range-2 limits (stick 2)?
       If so, recorded T1 between about 3 and 19 K is wrong; at 1 K it is
-      unaffected (range 1).
+      unaffected (range 1). (Genesis is unaffected since Utsav's ccce63e: the
+      ODS rows 2-T1 / 2-T3 have ZL < ZU in every band, and his loader rejects
+      a transposed pair rather than swapping it.)
 - [ ] 22. Try an interactive rehearsal (guide section 2) in Phoebus.
 - [ ] 23. Merge into `elong` (and push `dev-sim` itself)? Your call.
 
@@ -311,6 +335,17 @@ named in each item. Numbers are stable: answered items move to *Settled*.
     varactors at 0-19 V. Keep a rule, change it, or drop it?
 
 ## Settled
+
+* T1 / T3 slots (Ells 2026-10-21): keep Utsav's ccce63e, operator-confirmed:
+  T1 = C4 (ODS row 2-T1), T3 = C2 (row 2-T3), all LS224 curves from
+  `calibration/Thermo_Calibrations.ods` (the CSVs are historical only). His
+  C4 curve gives 297 K at the live ~40 ohm room-temperature reading; the
+  earlier dev-sim mapping (T1 = C2) gave 328 K. The sim follows the profile.
+
+* Pumping cart IONIVAC (question 49c): Utsav's ccce63e adds the IOC
+  `ionivac_pump` (TXI040 :5005, `UNH:GEN:CRYO:ION:PUMP`, live CA 5129); the
+  shells' `ionivac` stays on :5006. Emulated in the sim (replay CA 6110,
+  emulator 16006), absent in replays (question 67).
 
 * NMR switch meaning in the ssRF interlock (question 59): fixed by Utsav's
   `feature/ssrf-pynmr-only` (merged into dev-sim 2026-10-19): NMR mask 0 = on,

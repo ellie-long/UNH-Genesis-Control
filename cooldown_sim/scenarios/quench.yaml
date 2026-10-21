@@ -1,7 +1,7 @@
 description: Quench-like warm-up with microwaves on; temperatures, cell pressure, shells vacuum, P collapse, recovery
 source: synthetic
 start: "2000-01-01 02:00"
-duration_min: 78
+duration_min: 84
 speed: 20
 legs: [cryo, mw, nmr]
 deviates_from_record: true
@@ -9,21 +9,23 @@ overrides:
   safety_interlock: {limits: limits_replay.yaml}
   target_status: {state_table_validated: true}
 # the fitter autopilot presses Update Constants after 40 sweeps (~7 min at 20x); the update
-# takes 20-26 s wall (7-9 min sim at 20x), so CALIBRATED lands at ~13-15 min.  Quench at
-# 18 min, so it calibrates on a steady line and the check below has a margin.
+# takes 20-26 s wall on a quiet host but 33-42 s in some runs (7-14 min sim at 20x), so
+# CALIBRATED lands at ~14-21 min.  Quench at 24 min (was 18 until 2026-10-21, when slow
+# updates made the pre-quench check fail), so it calibrates on a steady line and the
+# check below has a margin.
 actions:
-  - {at: 18, do: model, key: quench, value: 1}
-  - {at: 28, do: model, key: quench, value: 0}
+  - {at: 24, do: model, key: quench, value: 1}
+  - {at: 34, do: model, key: quench, value: 0}
 expect:
-  - {label: "fridge warms", pv: "UNH:GEN:CRYO:FRIDGE:F5_TI", from: 19, to: 28, op: gt, value: 20}
-  - {label: "cell pressure rises", pv: "UNH:GEN:CRYO:CELL:Cell_PI", from: 19, to: 28, op: gt, value: 600}
+  - {label: "fridge warms", pv: "UNH:GEN:CRYO:FRIDGE:F5_TI", from: 25, to: 34, op: gt, value: 20}
+  - {label: "cell pressure rises", pv: "UNH:GEN:CRYO:CELL:Cell_PI", from: 25, to: 34, op: gt, value: 600}
   # ASSUMED shells-vacuum rise during the quench (question 57); alarm only (question 3)
-  - {label: "shells vacuum rises", pv: "UNH:GEN:CRYO:ION:Ion_PI", from: 19, to: 28, op: gt, value: 1.0e-5}
-  - {label: "polarization collapses", truth: true_P, from: 21, to: 28, op: lt, value: 5}
-  - {label: "fridge recovers", pv: "UNH:GEN:CRYO:FRIDGE:F5_TI", from: 58, to: 78, op: lt, value: 12}
+  - {label: "shells vacuum rises", pv: "UNH:GEN:CRYO:ION:Ion_PI", from: 25, to: 34, op: gt, value: 1.0e-5}
+  - {label: "polarization collapses", truth: true_P, from: 27, to: 34, op: lt, value: 5}
+  - {label: "fridge recovers", pv: "UNH:GEN:CRYO:FRIDGE:F5_TI", from: 64, to: 84, op: lt, value: 12}
   # still spinning up before the quench: the same (smaller) Q lag costs ~1.1 pp
-  - {label: "calibrated fitter tracks truth before the quench", truth: abs_fit_err_P, from: 16, to: 18, op: le, value: 1.5, mode: always}
-  - {label: "fitter keeps fitting through the recovery", truth: P_fit, from: 63, to: 78, op: gt, value: 15}
+  - {label: "calibrated fitter tracks truth before the quench", truth: abs_fit_err_P, from: 22, to: 24, op: le, value: 1.5, mode: always}
+  - {label: "fitter keeps fitting through the recovery", truth: P_fit, from: 69, to: 84, op: gt, value: 15}
 # The equal-spin-temperature fitter reads P from the line's Q.  In the model Q
 # re-heals towards Q_B(P) with an ASSUMED 240 s time, so during the re-spin-up
 # from zero Q lags and P_fit reads ~13 % low (open question: does Q lag in data?)
