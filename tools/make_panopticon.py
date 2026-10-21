@@ -31,6 +31,11 @@ out (toolbar) to see more than the DAQ window.  The x axis is time relative
 to now in minutes (hours for the shells vacuum), 0 = the newest sample; it is
 wall time, so under the simulator at speed N a window spans N times as much
 simulated time.
+
+Pressures are all in Torr.  The TPG 262 reads in whatever unit its front
+panel is set to (Pump_Unit: mbar, Torr or Pa); the trend-history IOC follows
+that unit and converts, so the Roots gauges' read-backs here are its
+PRESS:Pump_Torr_NOW / OVC_Torr_NOW, not the raw Pump_PI / OVC_PI.
 """
 
 from __future__ import annotations
@@ -124,19 +129,23 @@ def _name(prefix):
     return f"{prefix}{_n[0]}"
 
 
-#: TPG 262 gauges report mbar; the screen shows every pressure in Torr
-MBAR_TO_TORR = 0.750062
-
-
 def pvref(pv):
     """PV name as written on the screen: Channel Access, or a formula PV ("=...")."""
     return pv if pv.startswith("=") else f"ca://{pv}"
 
 
-def torr_from_mbar(pv):
-    """Formula PV showing an mbar reading in Torr.  The constant comes first:
-    a formula takes its units from its first operand, so this drops "mbar"."""
-    return f"={MBAR_TO_TORR}*`ca://{pv}`"
+def total(*pvs):
+    """Formula PV: the sum of several read-backs (e.g. Roots L + R flow)."""
+    return "=" + "+".join(f"`ca://{pv}`" for pv in pvs)
+
+
+FLOW_SEP = "UNH:GEN:CRYO:FLOW:SEP:SepFlow_SLM"
+FLOW_L = "UNH:GEN:CRYO:FLOW:LEFT:LPump_SLM"
+FLOW_R = "UNH:GEN:CRYO:FLOW:RIGHT:RPump_SLM"
+MAGNET_LEVEL = "UNH:GEN:CRYO:MAG:LHE:Magnet_LI"
+FRIDGE_LEVEL = "UNH:GEN:CRYO:FRIDGE:LHE:Fridge_LI"
+LHE_BLUE = (0, 110, 210)
+FLOW_COLOURS = {"Separator": (0, 110, 210), "Roots L": (230, 110, 0), "Roots R": (120, 40, 200)}
 
 
 def rect(x, y, w, h, bg, line=None, line_width=1, corner=0, name=None, transparent=False, tooltip=None):
@@ -190,6 +199,15 @@ def update(pv, x, y, w, h, size=11, bold=False, fmt=None, prec=None, units=True,
             f"{font(size, bold)}<background_color>{col(bg)}</background_color>"
             f"<foreground_color>{col(fg)}</foreground_color>"
             f"<horizontal_alignment>{align}</horizontal_alignment>{extra}</widget>")
+
+
+def tank(pv, x, y, w, h, lo, hi, name=None):
+    """A level bar (Phoebus tank) of ``pv`` on a fixed lo..hi scale."""
+    return (f'<widget type="tank" version="2.0.0"><name>{name or _name("Tank")}</name>'
+            f"<pv_name>ca://{pv}</pv_name><x>{x}</x><y>{y}</y><width>{w}</width><height>{h}</height>"
+            f"<scale_visible>false</scale_visible><limits_from_pv>false</limits_from_pv>"
+            f"<minimum>{float(lo)}</minimum><maximum>{float(hi)}</maximum>"
+            f"<fill_color>{col(LHE_BLUE)}</fill_color><empty_color>{col(GREY_FILL)}</empty_color></widget>")
 
 
 def led(pv, x, y, size=16):
@@ -255,7 +273,8 @@ def hist(group, key):
 
 
 #: time unit of each trend-history group (configs/target_physical/trend_history)
-HIST_UNITS = {"MAG": "min", "FRIDGE": "min", "PRESS": "min", "POL": "min", "SHELLS": "h"}
+HIST_UNITS = {"MAG": "min", "FRIDGE": "min", "PRESS": "min", "POL": "min", "SHELLS": "h",
+              "LEVEL": "min", "FLOW": "min"}
 
 
 def history_plot(key, title, x, y, w, h, group, traces, axes, span):
@@ -339,62 +358,70 @@ def header():
 def magnet_space():
     x, y = 4, 48
     w = [card("Magnet Space", x, y, 610, 232, "Magnet", ("Magnet", "genesis_cryo_magnet.bob"))]
-    w.append(placeholder_plot("MagnetLevelTrend", "Magnet LHe level (AMI meter), 40 min",
-                              12, 80, 160, 192, "Magnet LHe level meter (AMI)"))
+    w.append(history_plot("MagnetLevel", "Magnet LHe level (in)", 12, 80, 160, 192, "LEVEL",
+                          [("Magnet LHe", "Magnet_LI", LHE_BLUE, 0)], [("in", False, 0, 31)], 40))
     w.append(history_plot("MagnetThermometry", "Magnet thermometry (K)", 178, 80, 330, 176, "MAG",
                           [(s, f"{s}_TI", c, 0) for s, c in MAGNET_T.items()],
                           [("K", False, 0, 10)], 15))
     w.append(key(196, 258, list(MAGNET_T.items()), 60))
     # magnet LHe level bar: 0-31 inch, alarm at 20", magnet top at 16.5"
     top, h = 100, 136
-    w.append(label("Level (in)", 522, 80, 88, 18, 10, True, GREY_TEXT))
-    w.append(rect(530, top, 28, h, GREY_FILL, GREY_LINE, name="Placeholder_MagnetLevelBar"))
+    w.append(label("Level (in)", 522, 80, 88, 18, 10, True, MUTED))
+    w.append(tank(MAGNET_LEVEL, 530, top, 28, h, 0, 31, name="MagnetLevelBar"))
     for inch, rgb, text in ((20.0, RED, '20" alarm'), (16.5, AMBER, '16.5" top')):
         yy = top + h - round(inch / 31.0 * h)
         w.append(rect(526, yy, 36, 2, rgb))
         w.append(label(text, 564, yy - 8, 50, 16, 8, True, rgb))
-    w.append(placeholder("MagnetLevel", "Magnet LHe level", 518, 240, 92, "Magnet LHe level meter (AMI)"))
+    w.append(field("Magnet LHe level", MAGNET_LEVEL, 518, 240, 92, 11, prec=1, fmt=1))
     return w
 
 
+#: live entries carry (format, precision): 1 = decimal, 2 = exponential
 FRIDGE_READOUTS = (
-    ("placeholder", "FridgeLevel", "Fridge LHe (in)", "Fridge LHe level meter (AMI)"),
-    ("placeholder", "VaporTemp", "Vapor-press. T (K)", "Vapor-pressure temperature"),
-    ("live", f"{CRYO}:CELL:Cell_PI", "Mano. Hi (Torr)", None),
-    ("placeholder", "ManometerLo", "Mano. Lo", "Manometer Lo"),
-    ("live", torr_from_mbar(f"{CRYO}:VAC:Pump_PI"), "Roots top (Torr)", None),
-    ("live", torr_from_mbar(f"{CRYO}:VAC:OVC_PI"), "Roots bottom (Torr)", None),
+    ("live", FRIDGE_LEVEL, "Fridge LHe (in)", (1, 1)),
+    ("live", f"{CRYO}:VAC:LOW:Mano_VapT", "Vapor-press. T (K)", (1, 3)),
+    ("live", f"{CRYO}:CELL:Cell_PI", "Mano. Hi (Torr)", (2, 3)),
+    ("live", f"{CRYO}:VAC:LOW:Mano_PI", "Mano. Lo (Torr)", (2, 3)),
+    ("live", f"{HIST}:PRESS:Pump_Torr_NOW", "Roots top (Torr)", (2, 3)),
+    ("live", f"{HIST}:PRESS:OVC_Torr_NOW", "Roots bottom (Torr)", (2, 3)),
     ("placeholder", "Pirani", "Pirani", "Pirani gauge"),
-    ("placeholder", "SeparatorFlow", "Separator flow (slm)", "Separator flow meter"),
-    ("placeholder", "RootsTotalFlow", "Roots total flow", "Roots flow meters"),
-    ("placeholder", "BackingLFlow", "Backing L flow", "Roots L flow meter"),
-    ("placeholder", "BackingRFlow", "Backing R flow", "Roots R flow meter"),
+    ("live", FLOW_SEP, "Separator flow (slm)", (1, 2)),
+    ("live", total(FLOW_L, FLOW_R), "Roots total (slm)", (1, 2)),
+    ("live", FLOW_L, "Roots L flow (slm)", (1, 2)),
+    ("live", FLOW_R, "Roots R flow (slm)", (1, 2)),
 )
 
 
 def fridge_space():
     x, y = 4, 284
     w = [card("Fridge Space", x, y, 610, 410, "Fridge", ("Fridge", "genesis_cryo_fridge.bob"))]
-    w.append(placeholder_plot("FlowTrend", "Flows: separator, Roots L / R / total (1 h)",
-                              12, 314, 170, 150, "Flow meters (separator, Roots L/R)"))
-    # the history IOC converts the TPG 262's mbar to Torr (Pump_Torr, OVC_Torr)
-    w.append(history_plot("FridgePressures", "Pressures (Torr, log)", 12, 470, 170, 200, "PRESS",
+    w.append(history_plot("Flows", "Flows (slm)", 12, 314, 170, 136, "FLOW",
+                          [(n, k, FLOW_COLOURS[n], 0) for n, k in (("Separator", "SepFlow_SLM"),
+                                                                    ("Roots L", "LPump_SLM"),
+                                                                    ("Roots R", "RPump_SLM"))],
+                          [("slm", False, 0, 10)], 60))
+    w.append(key(12, 451, [("Sep.", FLOW_COLOURS["Separator"]), ("Roots L", FLOW_COLOURS["Roots L"]),
+                           ("Roots R", FLOW_COLOURS["Roots R"])], 56))
+    # the history IOC converts the TPG 262 from its display unit to Torr (Pump_Torr, OVC_Torr)
+    w.append(history_plot("FridgePressures", "Pressures (Torr, log)", 12, 470, 170, 194, "PRESS",
                           [("Mano. Hi", "Cell_PI", (230, 110, 0), 0),
+                           ("Mano. Lo", "Mano_PI", (0, 140, 60), 0),
                            ("Roots top", "Pump_Torr", (220, 0, 160), 0),
                            ("Roots bottom", "OVC_Torr", (120, 40, 200), 0)],
                           [("Torr", True, 0.01, 100)], 60))
-    w.append(key(12, 672, [("Mano. Hi", (230, 110, 0)), ("Roots top", (220, 0, 160)),
-                           ("Roots bot.", (120, 40, 200))], 56))
+    w.append(key(12, 666, [("Mano. Hi", (230, 110, 0)), ("Mano. Lo", (0, 140, 60))], 84))
+    w.append(key(12, 679, [("Roots top", (220, 0, 160)), ("Roots bot.", (120, 40, 200))], 84))
     w.append(history_plot("FridgeThermometry", "Fridge thermometry (K, log)", 188, 314, 282, 224, "FRIDGE",
                           [(s, f"{s}_TI", c, 0) for s, c in FRIDGE_T.items()],
                           [("K", True, 0.5, 300)], 40))
-    w.append(placeholder_plot("FridgeLevelTrend", "Fridge LHe level (AMI meter), 6 h",
-                              188, 544, 282, 142, "Fridge LHe level meter (AMI)"))
+    w.append(history_plot("FridgeLevel", "Fridge LHe level (in)", 188, 544, 282, 142, "LEVEL",
+                          [("Fridge LHe", "Fridge_LI", FRIDGE_LINE, 0)], [("in", False, 0, 10)], 360))
     for i, (kind, ref, caption, what) in enumerate(FRIDGE_READOUTS):
         yy = 314 + i * 34
         if kind == "live":
-            w.append(field(caption, ref, 476, yy, 132, 10, prec=3, fmt=2, units=not ref.startswith("="),
-                           compact=True))
+            fmt, prec = what
+            w.append(field(caption, ref, 476, yy, 132, 10, prec=prec, fmt=fmt,
+                           units=not ref.startswith("="), compact=True))
         else:
             w.append(placeholder(ref, caption, 476, yy, 132, what, compact=True))
     return w
@@ -653,6 +680,24 @@ def insert_cartoon():
     return w
 
 
+def lhe_line(axis_x):
+    """The magnet LHe surface: a line across the LHe space at the measured
+    level.  Its screen y follows Magnet_LI by a rule (y = A - B * inches, the
+    depth scale mapped to the screen); hidden outside 0-31 in or without a
+    reading."""
+    a_screen = INSERT_DST[1] + (LEVEL_Y0 - INSERT_SRC[1]) * INSERT_SCALE
+    b_screen = PX_PER_INCH * INSERT_SCALE
+    xml = rect(axis_x - BELLY_HALF, level_y(0), 2 * BELLY_HALF, 3, LHE_BLUE, name="Magnet_LHe_Level",
+               tooltip="Magnet LHe level (AMI 135), at its height on the depth scale")
+    rules = (f'<rules><rule name="LHe height" prop_id="y" out_exp="true">'
+             f'<exp bool_exp="true"><expression>{a_screen:.3f} - {b_screen:.4f}*pv0</expression></exp>'
+             f"<pv_name>ca://{MAGNET_LEVEL}</pv_name></rule>"
+             f'<rule name="LHe shown" prop_id="visible" out_exp="false">'
+             f'<exp bool_exp="pv0 &gt;= 0 &amp;&amp; pv0 &lt;= 31"><value>true</value></exp>'
+             f"<pv_name>ca://{MAGNET_LEVEL}</pv_name></rule></rules>")
+    return xml.replace("</widget>", f"<visible>false</visible>{rules}</widget>")
+
+
 def _insert_drawing():
     """The insert, magnet space and depth scale in drawing coordinates."""
     w = []
@@ -672,8 +717,10 @@ def _insert_drawing():
         w.append(rect(762, yy, 10, 1, NAVY))
         if inch != 20:
             w.append(label(str(inch), 740, yy - 6, 20, 12, 8, False, NAVY, align=2))
-    w.append(label(f"magnet LHe (in): {NOT_YET}", 726, 420, 40, 90, 8, False, GREY_TEXT, italic=True,
-                   wrap=True, name="Placeholder_MagnetLevelScale"))
+    w.append(label("LHe (in)", 722, 420, 44, 14, 8, True, LHE_BLUE, align=2))
+    w.append(update(MAGNET_LEVEL, 722, 434, 44, 16, 8, True, fmt=1, prec=1, units=False,
+                    fg=LHE_BLUE, align=2, name="Magnet_LHe_Reading"))
+    w.append(lhe_line(a))
     alarm_y = level_y(20)
     top_y = support_y
     # solenoid (the nose fits in its bore), from 0.9" to just under the 16.5" support baffle

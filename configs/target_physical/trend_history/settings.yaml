@@ -8,8 +8,10 @@
 general:
   prefix: UNH:GEN:HIST
   log_dir: logs
-  # LS224 magnet + fridge, MKS 902B, TPG 262, IONIVAC, and the online fitter
+  # LS224 magnet + fridge, MKS 902B, TPG 262, IONIVAC, flowmeters (5123-5125),
+  # LHe levels (5126-5127), Manometer-Lo (5128), and the online fitter
   epics_addr_list: 127.0.0.1:5112 127.0.0.1:5113 127.0.0.1:5114 127.0.0.1:5116 127.0.0.1:5117
+    127.0.0.1:5123 127.0.0.1:5124 127.0.0.1:5125 127.0.0.1:5126 127.0.0.1:5127 127.0.0.1:5128
     127.0.0.1:5100
   delay: 0.5
 trend_history:
@@ -54,9 +56,23 @@ trend_history:
     PRESS:
       sources:
         Cell_PI: {pv: UNH:GEN:CRYO:CELL:Cell_PI, egu: Torr}
-        # the TPG 262 reports mbar; the Panopticon shows every pressure in Torr
-        Pump_Torr: {pv: UNH:GEN:CRYO:VAC:Pump_PI, scale: 0.750062, egu: Torr}
-        OVC_Torr: {pv: UNH:GEN:CRYO:VAC:OVC_PI, scale: 0.750062, egu: Torr}
+        Mano_PI: {pv: UNH:GEN:CRYO:VAC:LOW:Mano_PI, egu: Torr}
+        # the TPG 262 reads in its display unit (Pump_Unit: mbar, Torr or Pa,
+        # one unit for both gauges); the Panopticon shows every pressure in Torr
+        Pump_Torr: {pv: UNH:GEN:CRYO:VAC:Pump_PI, unit_pv: UNH:GEN:CRYO:VAC:Pump_Unit, to: Torr,
+                    egu: Torr}
+        OVC_Torr: {pv: UNH:GEN:CRYO:VAC:OVC_PI, unit_pv: UNH:GEN:CRYO:VAC:Pump_Unit, to: Torr,
+                   egu: Torr}
+    LEVEL:
+      # the DAQ trends the magnet level over 40 min, the fridge level over 6 h
+      sources:
+        Magnet_LI: {pv: UNH:GEN:CRYO:MAG:LHE:Magnet_LI, egu: in}
+        Fridge_LI: {pv: UNH:GEN:CRYO:FRIDGE:LHE:Fridge_LI, egu: in}
+    FLOW:
+      sources:
+        SepFlow_SLM: {pv: UNH:GEN:CRYO:FLOW:SEP:SepFlow_SLM, egu: slm}
+        LPump_SLM: {pv: UNH:GEN:CRYO:FLOW:LEFT:LPump_SLM, egu: slm}
+        RPump_SLM: {pv: UNH:GEN:CRYO:FLOW:RIGHT:RPump_SLM, egu: slm}
     SHELLS:
       # the DAQ trends the insulating vacuum over 2 days
       window: 172800

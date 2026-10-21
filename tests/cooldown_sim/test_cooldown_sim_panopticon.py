@@ -27,12 +27,22 @@ CONFIG_DIRS = ("configs/target_physical", "configs/commissioning/microwave_physi
 
 #: instruments the DAQ shows and Genesis does not read yet
 PLACEHOLDERS = (
-    "MagnetLevelTrend", "MagnetLevelBar", "MagnetLevel", "MagnetLevelScale",
-    "FlowTrend", "FridgeLevelTrend", "FridgeLevel", "VaporTemp", "ManometerLo", "Pirani",
-    "SeparatorFlow", "RootsTotalFlow", "BackingLFlow", "BackingRFlow",
+    "Pirani",
     "LabTrend", "BackingPumpL", "BackingPumpR", "VMETemp", "SeparatorHeater",
     "TargetStick", "MagnetCurrent", "MagnetField", "NMRFreqFromField", "SwitchHeater",
     "SIG", "Magic", "EPRSignal", "EPRLockIn", "EPRCoils", "EPRFieldSweep", "SlowSweep",
+)
+
+#: read by Genesis now (Utsav's flowmeter, LHe-level and Manometer-Lo IOCs):
+#: no longer placeholders, and wired to these PVs
+WIRED = {
+    "MagnetLevelBar": "UNH:GEN:CRYO:MAG:LHE:Magnet_LI",
+    "Magnet_LHe_Reading": "UNH:GEN:CRYO:MAG:LHE:Magnet_LI",
+}
+FORMER_PLACEHOLDERS = (
+    "MagnetLevelTrend", "MagnetLevelBar", "MagnetLevel", "MagnetLevelScale", "FlowTrend",
+    "FridgeLevelTrend", "FridgeLevel", "VaporTemp", "ManometerLo", "SeparatorFlow",
+    "RootsTotalFlow", "BackingLFlow", "BackingRFlow",
 )
 
 #: top to bottom: the physical order of the sensors in the insert
@@ -111,11 +121,14 @@ def test_screen_pvs_exist_and_links_resolve():
     missing = pvs - served_pvs()
     assert not missing, sorted(missing)
     # Channel Access only, never a sim or local PV; the one formula is the
-    # TPG gauges' mbar -> Torr conversion
+    # Roots total flow (L + R)
     names = re.findall(r"<(?:pv_name|x_pv|y_pv)>([^<]*)<", text)
-    formula = re.compile(r"=0\.750062\*`ca://UNH:GEN:CRYO:VAC:(Pump|OVC)_PI`")
+    formula = re.compile(r"=`ca://UNH:GEN:CRYO:FLOW:LEFT:LPump_SLM`\+`ca://UNH:GEN:CRYO:FLOW:RIGHT:RPump_SLM`")
     odd = [n for n in names if not (n.startswith("ca://UNH:GEN:") or formula.fullmatch(n))]
     assert names and not odd, odd
+    assert sum(1 for n in names if n.startswith("=")) == 1
+    # no fixed mbar -> Torr factor any more: the TPG's own unit is followed
+    assert "0.750062" not in text
     assert "UNH:GEN:SIM" not in text and "SIMULATION" not in text
     root = ET.parse(BOB).getroot()
     files = [f.text for f in root.iter("file")]
@@ -150,7 +163,32 @@ def test_placeholders_are_grey_and_have_no_pv():
             assert grey in ET.tostring(w, encoding="unicode").replace(" />", "/>"), name
     # every placeholder trend says so
     text = BOB.read_text(encoding="utf-8")
-    assert text.count(f"<text>{gen.NOT_YET}</text>") >= 25
+    assert text.count(f"<text>{gen.NOT_YET}</text>") >= 15
+
+
+def test_levels_flows_and_manometer_lo_are_wired():
+    """Utsav's flowmeter, LHe-level and Manometer-Lo IOCs: their grey boxes are
+    live read-backs and trends now."""
+    widgets = _by_name()
+    assert not [n for n in FORMER_PLACEHOLDERS if f"Placeholder_{n}" in widgets]
+    for name, pv in WIRED.items():
+        assert widgets[name].findtext("pv_name") == f"ca://{pv}", name
+    assert widgets["MagnetLevelBar"].get("type") == "tank"
+    text = BOB.read_text(encoding="utf-8")
+    for pv in ("CRYO:FRIDGE:LHE:Fridge_LI", "CRYO:MAG:LHE:Magnet_LI", "CRYO:VAC:LOW:Mano_PI",
+               "CRYO:VAC:LOW:Mano_VapT", "CRYO:FLOW:SEP:SepFlow_SLM", "CRYO:FLOW:LEFT:LPump_SLM",
+               "CRYO:FLOW:RIGHT:RPump_SLM", "HIST:PRESS:Pump_Torr_NOW", "HIST:PRESS:OVC_Torr_NOW"):
+        assert f"ca://UNH:GEN:{pv}" in text, pv
+    # the LHe surface in the drawing follows the level, and hides without a reading
+    line = widgets["Magnet_LHe_Level"]
+    rules = {r.get("prop_id"): r for r in line.iter("rule")}
+    assert set(rules) == {"y", "visible"} and line.findtext("visible") == "false"
+    gen = _generator()
+    expr = rules["y"].findtext("exp/expression")
+    a, b = (float(x) for x in re.fullmatch(r"([\d.]+) - ([\d.]+)\*pv0", expr).groups())
+    # y at 0 in and at the 20" alarm are where the depth scale draws them
+    assert abs(a - gen.to_screen(0, gen.level_y(0))[1]) < 1
+    assert abs((a - 20 * b) - gen.to_screen(0, gen.level_y(20))[1]) < 1
 
 
 def _trends():
@@ -428,7 +466,8 @@ def test_trends_are_history_plots_full_on_open():
     sources = history_pvs()
     trends = _trends()
     assert set(trends) == {"Trend_MagnetThermometry", "Trend_FridgePressures", "Trend_FridgeThermometry",
-                           "Trend_ShellsVacuum", "Trend_Polarization"}
+                           "Trend_ShellsVacuum", "Trend_Polarization", "Trend_MagnetLevel",
+                           "Trend_FridgeLevel", "Trend_Flows"}
     for name, w in trends.items():
         assert w.get("type") == "xyplot" and w.get("version") == "3.0.0", name
         for trace in w.iter("trace"):
@@ -439,16 +478,23 @@ def test_trends_are_history_plots_full_on_open():
             assert trace.findtext("trace_type") == "1", name   # lines; unfilled slots are NaN
     # the history covers the PVs the strip charts plotted, in the same order and colours
     want = {"Trend_MagnetThermometry": [f"UNH:GEN:CRYO:MAG:{s}_TI" for s in ("M1", "M2", "M3", "M4", "M5")],
-            "Trend_FridgePressures": ["UNH:GEN:CRYO:CELL:Cell_PI", "UNH:GEN:CRYO:VAC:Pump_PI",
-                                      "UNH:GEN:CRYO:VAC:OVC_PI"],
+            "Trend_FridgePressures": ["UNH:GEN:CRYO:CELL:Cell_PI", "UNH:GEN:CRYO:VAC:LOW:Mano_PI",
+                                      "UNH:GEN:CRYO:VAC:Pump_PI", "UNH:GEN:CRYO:VAC:OVC_PI"],
+            "Trend_MagnetLevel": ["UNH:GEN:CRYO:MAG:LHE:Magnet_LI"],
+            "Trend_FridgeLevel": ["UNH:GEN:CRYO:FRIDGE:LHE:Fridge_LI"],
+            "Trend_Flows": ["UNH:GEN:CRYO:FLOW:SEP:SepFlow_SLM", "UNH:GEN:CRYO:FLOW:LEFT:LPump_SLM",
+                            "UNH:GEN:CRYO:FLOW:RIGHT:RPump_SLM"],
             "Trend_ShellsVacuum": ["UNH:GEN:CRYO:ION:Ion_PI"],
             "Trend_Polarization": [f"UNH:GEN:SSRF:FIT:{n}" for n in ("P_AREA", "P_FIT", "Q_FIT", "Q_EQ")]}
     for name, pvs in want.items():
         assert [sources[t.findtext("y_pv").removeprefix("ca://")] for t in trends[name].iter("trace")] == pvs
-    # the TPG gauges (mbar) are shown in Torr: the history IOC scales them
+    # the TPG gauges are shown in Torr whatever unit the controller is set to:
+    # the history IOC follows Pump_Unit; nothing is scaled by a fixed factor
     cfg = yaml.safe_load(HIST_SETTINGS.read_text(encoding="utf-8"))["trend_history"]["groups"]["PRESS"]
-    assert {k: v.get("scale", 1.0) for k, v in cfg["sources"].items()} == \
-        {"Cell_PI": 1.0, "Pump_Torr": 0.750062, "OVC_Torr": 0.750062}
+    src = cfg["sources"]
+    assert {k: v.get("scale", 1.0) for k, v in src.items()} == dict.fromkeys(src, 1.0)
+    for k in ("Pump_Torr", "OVC_Torr"):
+        assert src[k]["unit_pv"] == "UNH:GEN:CRYO:VAC:Pump_Unit" and src[k]["to"] == "Torr", k
 
 
 def test_trends_have_the_daq_windows_and_log_pressures():
@@ -457,7 +503,8 @@ def test_trends_have_the_daq_windows_and_log_pressures():
     # the DAQ windows: x from -window to 0 (now); the shells vacuum in hours
     span = {"Trend_MagnetThermometry": (-15, "min"), "Trend_FridgeThermometry": (-40, "min"),
             "Trend_FridgePressures": (-60, "min"), "Trend_Polarization": (-180, "min"),
-            "Trend_ShellsVacuum": (-48, "h")}
+            "Trend_ShellsVacuum": (-48, "h"), "Trend_MagnetLevel": (-40, "min"),
+            "Trend_FridgeLevel": (-360, "min"), "Trend_Flows": (-60, "min")}
     hist = yaml.safe_load(HIST_SETTINGS.read_text(encoding="utf-8"))["trend_history"]
     for name, (lo, unit) in span.items():
         xa = charts[name].find("x_axis")

@@ -111,8 +111,15 @@ def test_hold_at_carries_values_up_to_max_hold(th):
 
 
 def test_archive_path_comes_from_the_archiver_settings(th, tmp_path):
-    assert th.archiver_archive_path(ROOT / "configs/target_physical/archiver/settings.yaml") == \
-        Path("archive/data")
+    from archive.data_paths import legacy_archive_path
+    # the live archiver's own resolution: under the Genesis data root, not the checkout
+    live = th.archiver_archive_path(ROOT / "configs/target_physical/archiver/settings.yaml")
+    assert live == Path(legacy_archive_path("archive/subsystems/pv_csv")) and live.is_absolute()
+    # an absolute path (the simulator's run folder) is kept as it is
+    cfg = tmp_path / "archiver.yaml"
+    cfg.write_text(yaml.safe_dump({"archiver": {"module": "logic_devices.archiver",
+                                                "archive_path": str(tmp_path / "pv")}}))
+    assert th.archiver_archive_path(cfg) == tmp_path / "pv"
     assert th.archiver_archive_path(tmp_path / "missing.yaml") is None
 
 
@@ -217,6 +224,7 @@ def test_device_publishes_every_configured_array(th, tmp_path):
     now = NOON
     write_archive(tmp_path, "UNH:GEN:CRYO:MAG:M1_TI", [(now - 3600 + 30 * k, 4.0) for k in range(120)])
     write_archive(tmp_path, "UNH:GEN:CRYO:VAC:Pump_PI", [(now - 600, 1.0)])
+    write_archive(tmp_path, "UNH:GEN:CRYO:VAC:Pump_Unit", [(now - 7200, "mbar")])
     dev = _device(th, tmp_path, now)
     dev.backfill()
     recs = th._stub.builder.records
@@ -233,7 +241,70 @@ def test_device_publishes_every_configured_array(th, tmp_path):
     assert recs["PRESS:Pump_Torr"].value[-1] == pytest.approx(0.750062)       # mbar -> Torr
     assert recs["SHELLS:TIME"].EGU == "h" and len(recs["SHELLS:TIME"].value) == 1440
     assert recs["Hist_Backfilled"].value == dev.backfilled > 0
-    assert recs["Hist_Sources"].value == 26
+    assert recs["Hist_Sources"].value == 32
+    assert {"LEVEL:Magnet_LI", "LEVEL:Fridge_LI", "FLOW:SepFlow_SLM", "FLOW:LPump_SLM",
+            "FLOW:RPump_SLM", "PRESS:Mano_PI", "PRESS:Pump_Torr_NOW", "PRESS:OVC_Torr_NOW"} <= set(recs)
+
+
+# ---------------------------------------------------------------- units
+def _unit_group(th):
+    src = th.Source("Pump_Torr", "X:Pump_PI", egu="Torr", unit_pv="X:Pump_Unit", to="Torr")
+    return th.Group("P", [src], 600, 10)
+
+
+def test_unit_factor_converts_to_torr(th):
+    assert th.unit_factor("mbar", "Torr") == pytest.approx(0.750062)
+    assert th.unit_factor(" Torr ", "Torr") == 1.0
+    assert th.unit_factor("Pa", "Torr") == pytest.approx(0.00750062)
+    assert math.isnan(th.unit_factor("furlong", "Torr")) and math.isnan(th.unit_factor(None, "Torr"))
+
+
+def test_live_unit_follows_the_unit_pv(th):
+    g = _unit_group(th)
+    g.update("Pump_Torr", 1000.0)
+    assert math.isnan(g.latest["Pump_Torr"])          # unit not known yet: not shown
+    g.set_unit("X:Pump_Unit", "mbar")
+    assert g.latest["Pump_Torr"] == pytest.approx(750.062)
+    g.set_unit("X:Pump_Unit", "Torr")                 # the controller switched to Torr
+    g.update("Pump_Torr", 760.0)
+    assert g.latest["Pump_Torr"] == 760.0
+    g.set_unit("X:Pump_Unit", "Torr")
+    g.set_unit("X:Other_Unit", "mbar")                # another gauge's unit: no effect
+    assert g.latest["Pump_Torr"] == 760.0
+
+
+def test_backfill_uses_the_unit_in_force_at_each_sample(th, tmp_path):
+    g = _unit_group(th)
+    now = NOON
+    write_archive(tmp_path, "X:Pump_PI", [(now - 300 + 30 * k, 1000.0) for k in range(10)])
+    write_archive(tmp_path, "X:Pump_Unit", [(now - 3000, "mbar"), (now - 150, "Torr")])
+    g.backfill(tmp_path, now, max_hold=120)
+    t, v = g.buffer.ordered()
+    by_t = dict(zip(np.round(t - now), v[0]))
+    assert by_t[-200] == pytest.approx(750.062) and by_t[-100] == 1000.0
+    assert g.latest["Pump_Torr"] == 1000.0           # seeded in the last archived unit
+
+
+def test_backfill_without_a_unit_archive_shows_nothing(th, tmp_path):
+    g = _unit_group(th)
+    write_archive(tmp_path, "X:Pump_PI", [(NOON - 60, 5.0)])
+    g.backfill(tmp_path, NOON, max_hold=120)
+    assert np.all(np.isnan(g.buffer.ordered()[1]))
+    assert math.isnan(g.latest["Pump_Torr"])
+
+
+def test_device_publishes_the_converted_reading(th, tmp_path):
+    import asyncio
+    dev = _device(th, tmp_path, NOON)
+    dev._started = True
+    press = next(g for g in dev.groups if g.name == "PRESS")
+    src = next(s for s in press.sources if s.key == "Pump_Torr")
+    dev._callback(press, src)(1013.25)
+    dev._unit_callback("UNH:GEN:CRYO:VAC:Pump_Unit")("mbar")
+    assert asyncio.run(dev.do_reads())
+    recs = th._stub.builder.records
+    assert recs["PRESS:Pump_Torr_NOW"].value == pytest.approx(760.0, abs=0.01)      # 1 atm
+    assert recs["PRESS:Pump_Torr_NOW"].EGU == "Torr"
 
 
 def test_device_samples_monitor_updates(th, tmp_path):
