@@ -45,14 +45,36 @@ def _channels(settings: dict) -> list[str]:
 
 
 def _ls224_inverse(settings: dict) -> dict:
-    cal_path = settings.get("calibration")
-    if not cal_path:
-        return {}
+    """{slot: inverse curve} -- the same curves the driver applies, loaded the
+    same way: classic rows from the calibration file (ODS or legacy CSV), and
+    the multi-band CCX Cernox curves (T1/T3) from ``ccx_calibration``."""
     from target_ioc.instruments import ls224 as drv   # same curves the driver applies
-    path = Path(cal_path)
-    table = drv.load_calibration(path if path.is_absolute() else REPO_ROOT / path)
-    return {slot: conversions.InverseCalibration(functools.partial(drv.resistance_to_kelvin, entry))
-            for slot, entry in table.items()}
+
+    def _path(p):
+        p = Path(p)
+        return p if p.is_absolute() else REPO_ROOT / p
+
+    chans = _channels(settings)
+    slots = dict(zip(chans, [str(s) for s in settings.get("slots", [])]))
+    ccx_sensors = settings.get("ccx_sensors", {}) or {}
+    out = {}
+    cal_path = settings.get("calibration")
+    if cal_path:
+        if str(cal_path).lower().endswith(".ods"):
+            from genesis_common.thermometry_ods import load_classic_ods
+            expected = {name: slots[name] for name in chans if name in slots and name not in ccx_sensors}
+            table = load_classic_ods(_path(cal_path), expected)
+        else:
+            table = drv.load_calibration(_path(cal_path))
+        out.update({slot: conversions.InverseCalibration(functools.partial(drv.resistance_to_kelvin, entry))
+                    for slot, entry in table.items()})
+    if settings.get("ccx_calibration") and ccx_sensors:
+        from genesis_common.cernox_ccx import ccx_kelvin, load_ccx_bands
+        bands = load_ccx_bands(_path(settings["ccx_calibration"]))
+        for name, source in ccx_sensors.items():
+            if name in slots and source in bands:
+                out[slots[name]] = conversions.InverseCalibration(functools.partial(ccx_kelvin, bands[source]))
+    return out
 
 
 def build(spec: LaunchSpec, settings: dict, source, initial: dict | None = None) -> Emulator:

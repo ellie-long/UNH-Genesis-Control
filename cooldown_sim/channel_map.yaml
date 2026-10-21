@@ -31,7 +31,7 @@ instruments:
     wire: ls224_ohms     # profile has calibration: -> driver reads SRDG? ohms
     absent: invalid
     channels:
-      F1:  {source: F1,  units: K, valid: [0.01, 400], confidence: high, note: "Same F1-F11 names in LabVIEW and Genesis; F-sensor slots from calibration/fridge_thermometry.csv"}
+      F1:  {source: F1,  units: K, valid: [0.01, 400], confidence: high, note: "Same F1-F11 names in LabVIEW and Genesis; slots from the profile, curves from calibration/Thermo_Calibrations.ods (Utsav ccce63e; the old fridge_thermometry.csv is historical only)"}
       F2:  {source: F2,  units: K, valid: [0.01, 400], confidence: high}
       F3:  {source: F3,  units: K, valid: [0.01, 400], confidence: high}
       F4:  {source: F4,  units: K, valid: [0.01, 400], confidence: high}
@@ -47,13 +47,13 @@ instruments:
     wire: ls224_ohms
     absent: invalid
     channels:
-      M1: {source: M1, units: K, valid: [0.01, 400], confidence: high, note: "Same M1-M5 names; slots from calibration/magnet_thermometry.csv"}
+      M1: {source: M1, units: K, valid: [0.01, 400], confidence: high, note: "Same M1-M5 names; slots from the profile, curves from calibration/Thermo_Calibrations.ods (Utsav ccce63e)"}
       M2: {source: M2, units: K, valid: [0.01, 400], confidence: high}
       M3: {source: M3, units: K, valid: [0.01, 400], confidence: high}
       M4: {source: M4, units: K, valid: [0.01, 400], confidence: high}
       M5: {source: M5, units: K, valid: [0.01, 400], confidence: high}
-      T1: {source: T1, units: K, valid: [0.05, 400], confidence: high, note: "Target-cup Cernox on slot C2, stick 2 (Ells, 2026-10-15); CCX curve in calibration/magnet_thermometry.csv.  The record's T1 came from whichever stick was in at the time."}
-      T3: {source: T3, units: K, valid: [0.05, 400], confidence: high, note: "Target-cup Cernox on slot C4, stick 2 (Ells, 2026-10-15)"}
+      T1: {source: T1, units: K, valid: [0.05, 400], confidence: high, note: "Target-cup Cernox, stick 2, on slot C4: ODS row 2-T1 (Utsav ccce63e, operator-confirmed; his C4 curve gives 297 K at the live ~40 ohm room-temperature reading).  Reverses dev-sim's earlier T1 = C2 (Ells 2026-10-15).  Multi-band CCX Chebyshev from calibration/Thermo_Calibrations.ods (genesis_common/cernox_ccx.py).  The record's T1 came from whichever stick was in at the time."}
+      T3: {source: T3, units: K, valid: [0.05, 400], confidence: high, note: "Target-cup Cernox, stick 2, on slot C2: ODS row 2-T3 (Utsav ccce63e; was C4 in dev-sim before)"}
 
   mks902b:               # UNH:GEN:CRYO:CELL  Cell_PI (Torr)
     wire: none
@@ -100,13 +100,35 @@ instruments:
           old LabVIEW DAQ never logged it, so the replay serves no value for
           it (the gauge reads invalid in the sim); it stays in the live
           datastream for new data (Ells, 2026-10-16).  The shells' insulating
-          vacuum is the IONIVAC.
+          vacuum is the IONIVAC.  Utsav's ccce63e labels both gauges' records
+          Torr, but his driver sets EGU from the controller's UNI? at start-up
+          (the emulator answers mbar, as Ells said the TPG is always set), so
+          the PVs read mbar in the sim (open question).
 
   ionivac:               # UNH:GEN:CRYO:ION  Ion_PI (Torr)
     wire: ionivac_count
     absent: refuse       # a silent IONIVAC is how the driver detects "not present"
     channels:
       Ion: {source: ionivac, fallback: cold_cathode, units: Torr, valid: [1.0e-12, 1100.0], confidence: high, note: "Same instrument name in LabVIEW and Genesis.  Measures the vacuum of the shells separating the fridge space from the magnet space (Ells, 2026-10-15).  Fallback: the cold-cathode gauge, an older back-up on the same vacuum (2021+, NaN from 2025-11; now disconnected).  The model's quench vacuum rise acts here (question 20, 2026-10-16)."}
+
+  ionivac_pump:          # UNH:GEN:CRYO:ION:PUMP  Ion_PI (Torr), TXI040 :5005
+    wire: ionivac_count
+    absent: refuse       # no record column in any era: the cart's gauge is not there
+    channels:
+      Ion:
+        source: null
+        units: Torr
+        valid: [1.0e-12, 1100.0]
+        confidence: high
+        note: >-
+          The second IONIVAC, on the portable pumping station (roughing +
+          turbo cart, moved around the lab), TXI040 port 2, TCP 5005 (Ells
+          2026-10-16); Genesis IOC ionivac_pump since Utsav's ccce63e.  The
+          old LabVIEW DAQ never logged it ("Ionivac (Torr)" is the shells'
+          gauge), so in a replay the emulated cart gauge is absent
+          (connection refused; the driver reports COMM 0).  Not coupled to
+          the target model.  A scenario or Sim Control can still override it
+          (the same telegram emulator as the shells' IONIVAC).
 
   ls455:                 # UNH:GEN:CRYO:FIELD  Fringe_Field (G) / Fringe_FieldT
     wire: none           # emulator reports UNIT?=1 (gauss)
@@ -192,7 +214,7 @@ instruments:
           separator).  ~50 slm while running in 2026-06, ~0.05 slm in 2020-22:
           check that the column means the same thing in every era.
 
-  lhe_fridge:            # UNH:GEN:CRYO:FRIDGE:LHE  Fridge_LI (AMI 1700, 192.168.1.27:7180)
+  lhe_fridge:            # UNH:GEN:CRYO:FRIDGE:LHE  Fridge_LI (AMI 1700, 192.168.1.30:7180)
     wire: level_raw      # (level - offset) / scale from the profile: inches as-is (1.0 / 0.0)
     absent: refuse
     channels:
@@ -264,7 +286,7 @@ history:
   field:      {source: central_field, units: T, valid: [0.0, 6.0], confidence: high}
   magnet_i:   {source: magnet_current, units: A, valid: [0.0, 120.0], confidence: high}
   online_p:   {source: online_p, units: "%", valid: [-110.0, 110.0], confidence: high, note: "LabVIEW live area-method P; values beyond +/-110 % are display glitches"}
-  t_cup:      {source: T1, units: K, valid: [0.05, 400], confidence: medium, note: "Target-cup thermometer T1 (magnet LS224 slot C2); the model's lattice temperature"}
+  t_cup:      {source: T1, units: K, valid: [0.05, 400], confidence: medium, note: "Target-cup thermometer T1 (magnet LS224 slot C4, ODS 2-T1); the model's lattice temperature"}
   he_level_fridge: {source: fridge_he_level, units: in, valid: [0.0, 60.0], confidence: high}
   he_level_magnet: {source: magnet_lhe_level, units: in, valid: [0.0, 60.0], confidence: high}
 
@@ -330,7 +352,17 @@ equipment:
     map: ionivac.Ion
     sim: IONIVAC emulator
     confidence: high
-    note: "Ells 2026-10-16: the lab has TWO IONIVACs. The one on the shells (the important one) is on TXI040 :5006; the other is on the portable pumping station (a cart with roughing and turbo pumps, moved around the lab) on :5005. Genesis connected to :5005, i.e. read the cart, until the dev-sim fix (question 48). Alarm limits: above 1e-4 Torr with the magnet bottom > 300 K, above 1e-5 Torr below 80 K (Genesis has HIGH/HIHI 800/900 Torr; open questions 25, 39)"
+    note: "Ells 2026-10-16: the lab has TWO IONIVACs. The one on the shells (the important one) is on TXI040 :5006; the other is on the portable pumping station (a cart with roughing and turbo pumps, moved around the lab) on :5005. Genesis connected to :5005, i.e. read the cart, until the dev-sim fix (question 48); Utsav's ccce63e keeps :5006 and gives the cart its own IOC, ionivac_pump. Alarm limits: above 1e-4 Torr with the magnet bottom > 300 K, above 1e-5 Torr below 80 K (Genesis has HIGH/HIHI 800/900 Torr; open questions 25, 39)"
+  - genesis: ionivac_pump
+    equipment: Leybold IONIVAC combination gauge (the second one)
+    role: "IONIVAC on the portable pumping station (roughing + turbo cart), TXI040 :5005 (Ells 2026-10-16)"
+    link: RS-232 via serial gateway 192.168.1.251:5005 (TXI040 port 2)
+    prefix: UNH:GEN:CRYO:ION:PUMP
+    control: read-only (write_enabled false)
+    map: ionivac_pump.Ion (no past-record column)
+    sim: IONIVAC emulator (same telegram stream); absent (connection refused) in every replay, overridable
+    confidence: high
+    note: "Utsav's ccce63e: a second IONIVAC IOC (live CA 5129), on the cart's gauge; the shells' ionivac moved to :5006. The old DAQ never recorded the cart"
   - genesis: ls455
     equipment: Lake Shore 455 DSP gaussmeter
     role: Magnet fringe field
@@ -383,7 +415,7 @@ equipment:
   - genesis: lhe_fridge
     equipment: American Magnetics Model 1700 helium level instrument
     role: Fridge-space liquid-helium level
-    link: Ethernet SCPI 192.168.1.27:7180 (AMI's command port)
+    link: Ethernet SCPI 192.168.1.30:7180 (AMI's command port; 192.168.1.27 before Utsav's ccce63e)
     prefix: UNH:GEN:CRYO:FRIDGE:LHE
     control: read-only (write_enabled false)
     map: lhe_fridge.Fridge (Fridge He Level)
@@ -412,14 +444,14 @@ equipment:
     note: "Ells: XCG-HT-FB-1, 10 Torr F.S., on a KJL-SPARC, USB to the keysight Pi; the old DAQ crossed from Manometer-Hi to Manometer-Lo at 5 Torr. Utsav's driver reads an unprompted line stream (drop 4 characters, first number), while Ells has said the KJL-SPARC speaks a TPG-style protocol: CHECK which. Head specs (Ells 2026-10-16): 0.5 % of reading, resolution 0.05 % F.S. = 0.005 Torr on its 0-10 V output, usable for LHe to at least 0.9 K (~0.04 Torr). Mano_VapT is NaN below 0.8606 Torr (1.25 K), i.e. whenever the fridge is cold, until a sub-1.25 K band is added to calibration/vapor_pressure_he4.csv"
   - genesis: (serial gateway)
     equipment: DIE WU TXI040 8-port RS-232/422/485 serial device server
-    role: "Carries Genesis's six RS-232 instruments on it: MKS 902B, IONIVAC, LS455, TPG 262 and the left-Roots and separator flowmeters"
-    link: 192.168.1.251, TCP ports 5004 / 5006 / 5007 / 5011 / 5012 / 5013
+    role: "Carries Genesis's seven RS-232 instruments on it: MKS 902B, both IONIVACs (shells and pumping cart), LS455, TPG 262 and the left-Roots and separator flowmeters"
+    link: 192.168.1.251, TCP ports 5004 / 5005 / 5006 / 5007 / 5011 / 5012 / 5013
     prefix: "-"
     control: transport only
     map: "-"
     sim: the emulators listen on loopback instead
     confidence: high
-    note: "Ells 2026-10-16: a DIE WU TXI040 (8 serial ports to Ethernet) with 7 devices plugged in; Genesis uses 6 of them (ports 6 and 7, the left-Roots and separator flowmeters, since Utsav's cryo GUI work). Port map (lab technote 2026-TN-02, all TCP server mode, 1 connection): 1 Manometer_HI :5004 (9600 8N1); 2 Pumping Station :5005 (9600 8N1; the portable cart's IONIVAC); 3 Ionivac :5006 (9600 8N1; the shells'); 4 Fringe Field :5007 (19200 7O1); 5 ROOTS :5011 (19200 8N1, the TPG 262); 6 left_Roots_Pump :5012 (19200 8N1); 7 Separator_Pump :5013 (19200 8N1); 8 vacant, but set to :5011, the same TCP port as port 5. Genesis's IONIVAC used :5005 (the cart) until fixed to :5006 (question 48)"
+    note: "Ells 2026-10-16: a DIE WU TXI040 (8 serial ports to Ethernet) with 7 devices plugged in; Genesis uses all 7 (ports 6 and 7, the left-Roots and separator flowmeters, since Utsav's cryo GUI work; port 2, the pumping cart's IONIVAC, since his ccce63e). Port map (lab technote 2026-TN-02, all TCP server mode, 1 connection): 1 Manometer_HI :5004 (9600 8N1); 2 Pumping Station :5005 (9600 8N1; the portable cart's IONIVAC); 3 Ionivac :5006 (9600 8N1; the shells'); 4 Fringe Field :5007 (19200 7O1); 5 ROOTS :5011 (19200 8N1, the TPG 262); 6 left_Roots_Pump :5012 (19200 8N1); 7 Separator_Pump :5013 (19200 8N1); 8 vacant, but set to :5011, the same TCP port as port 5. Genesis's IONIVAC used :5005 (the cart) until fixed to :5006 (question 48)"
   - genesis: (serial gateway 2)
     equipment: DIE WU TXI017 4-port RS-232/485/422 serial device server
     role: "Serial-to-Ethernet for the magnet's two instruments: port 1 Magnet_IPS (TCP 5001, 9600 8N2, RS-232; the magnet power supply, presumably the Oxford IPS120-10; not in Genesis yet), port 2 Magnet_LHE_Prob (TCP 23, 9600 8N1, RS-232; the magnet LHe level probe, Genesis lhe_magnet). Both TCP server mode, 1 connection (Ells 2026-10-16, port setup pages)"
@@ -575,7 +607,7 @@ record_only:
   - instrument: Target-cup thermometer T2 (target stick 1 only)
     columns: [T2]
     used_by: "model-fit channel"
-    note: "Ells 2026-10-15: stick 2 is in, with T1 (C2) and T3 (C4) only; stick 1 had T2. T1 and T3 are now ls224_magnet channels (dev-sim)"
+    note: "Ells 2026-10-15: stick 2 is in, with T1 and T3 only; stick 1 had T2. T1 (C4, ODS 2-T1) and T3 (C2, ODS 2-T3) are ls224_magnet channels (slots per Utsav ccce63e)"
   - instrument: Microwave power monitor (SIG output of the microwave chain)
     columns: [sig_v]
     used_by: nothing

@@ -64,10 +64,13 @@ def assert_read_failed(dev, channel_pv):
 
 # ------------------------------------------------------------------- LS224
 def ls224_emulator(settings, temps, mod):
+    """The emulator exactly as the host builds it: the inverse of every curve
+    the driver applies (classic rows and the multi-band CCX Cernoxes, both from
+    calibration/Thermo_Calibrations.ods), keyed by the profile's slots."""
+    from cooldown_sim.emulators import host
     slots = dict(zip(settings["slots"], settings["channels"]))
-    cal = mod.load_calibration(ROOT / settings["calibration"])
-    inverse = {slot: conversions.InverseCalibration(functools.partial(mod.resistance_to_kelvin, cal[slot]))
-               for slot in slots if slot in cal}
+    inverse = host._ls224_inverse(settings)
+    assert set(inverse) == set(slots), "every configured slot must be calibrated"
     return LS224(slots, lambda ch: temps.get(ch, float("nan")), inverse)
 
 
@@ -120,6 +123,63 @@ def test_ls224_silent_then_recovers(monkeypatch):
         dev.reconnect()
         assert read(dev) is True and value(dev, "COMM") == 1
         assert dev.pvs["F1_TI"].severity == 0
+
+
+def test_ls224_magnet_target_stick_slots_follow_the_ods(monkeypatch):
+    """T1 is on C4 (ODS row 2-T1) and T3 on C2 (2-T3), per Utsav's ccce63e:
+    the emulator answers SRDG? on those inputs with the resistance whose
+    2-T1 / 2-T3 Chebyshev temperature is the record's, and the driver reads
+    exactly that back (no KRDG? fallback)."""
+    monkeypatch.chdir(ROOT)
+    settings = profile("ls224_magnet")
+    assert dict(zip(settings["channels"], settings["slots"]))["T1"] == "C4"
+    assert dict(zip(settings["channels"], settings["slots"]))["T3"] == "C2"
+    from genesis_common.cernox_ccx import ccx_kelvin, load_ccx_bands
+    bands = load_ccx_bands(ROOT / settings["ccx_calibration"])
+    temps = {"T1": 297.0, "T3": 4.2}
+    with softioc_stub.installed():
+        mod = importlib.import_module("target_ioc.instruments.ls224")
+        emu = ls224_emulator(settings, temps, mod)
+    r_t1 = float(emu.respond(b"SRDG? C4\r\n"))
+    r_t3 = float(emu.respond(b"SRDG? C2\r\n"))
+    assert ccx_kelvin(bands["2-T1"], r_t1) == pytest.approx(297.0, rel=1e-5)
+    assert ccx_kelvin(bands["2-T3"], r_t3) == pytest.approx(4.2, rel=1e-5)
+    assert 35.0 < r_t1 < 45.0                       # the live ~40 ohm room-temperature reading
+    with real_driver("ls224", settings, emu) as (dev, _srv, _mod):
+        assert read(dev) is True
+        assert value(dev, "T1_RI") == pytest.approx(r_t1, rel=1e-6)
+        assert value(dev, "T1_TI") == pytest.approx(297.0, rel=1e-5)
+        assert value(dev, "T3_TI") == pytest.approx(4.2, rel=1e-5)
+        assert value(dev, "T1_Status") == value(dev, "T3_Status") == "OK"
+
+
+@pytest.mark.parametrize("bits,ok", [(16, True), (32, True), (48, True), (64, False), (128, False),
+                                     (33, False)])
+@pytest.mark.parametrize("ioc,ch", [("ls224_magnet", "T1"), ("ls224_magnet", "T3"),
+                                    ("ls224_magnet", "M2"), ("ls224_fridge", "F5")])
+def test_ls224_rdgst_range_bits_accepted_sensor_bits_invalid(ioc, ch, bits, ok, monkeypatch):
+    """RDGST? 16/32 (outside the 224's own internal curve) still give a
+    temperature from the ODS curve, 'OK; 224 TEMP RANGE'; any other bit makes
+    the reading NaN with a non-OK status (Utsav's driver, ccce63e)."""
+    monkeypatch.chdir(ROOT)
+    settings = profile(ioc)
+    temps = {c: 4.0 for c in settings["channels"]}
+    with softioc_stub.installed():
+        mod = importlib.import_module("target_ioc.instruments.ls224")
+        emu = ls224_emulator(settings, temps, mod)
+    slot = dict(zip(settings["channels"], settings["slots"]))[ch]
+    emu.range_bits[slot] = bits
+    assert emu.respond(f"RDGST? {slot}\r\n".encode()) == f"{bits:03d}\r\n".encode()
+    with real_driver("ls224", settings, emu) as (dev, _srv, _mod):
+        assert read(dev) is True
+        if ok:
+            assert value(dev, f"{ch}_TI") == pytest.approx(4.0, rel=1e-5)
+            assert value(dev, f"{ch}_Status") == "OK; 224 TEMP RANGE"
+        else:
+            assert math.isnan(value(dev, f"{ch}_TI"))
+            assert not value(dev, f"{ch}_Status").startswith("OK")
+        others = [c for c in settings["channels"] if c != ch]
+        assert all(value(dev, f"{c}_Status") == "OK" for c in others)
 
 
 # ---------------------------------------------------------------- MKS 902B

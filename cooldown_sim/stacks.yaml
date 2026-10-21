@@ -19,6 +19,10 @@ legs:
       mks902b:           {ca: 6112, pva: 6212, emulator: {kind: mks902b, port: 16004}}
       tpg262:            {ca: 6113, pva: 6213, emulator: {kind: tpg262, port: 16011}}
       ionivac:           {ca: 6114, pva: 6214, emulator: {kind: ionivac, port: 16005}}
+      # the portable pumping-station cart's IONIVAC (TXI040 :5005, Utsav's
+      # ccce63e).  Live CA 5129; 6110/6210 because 6111-6129 are taken and
+      # 6123 stays free for dev-visualizer's trend-history IOC.
+      ionivac_pump:      {ca: 6110, pva: 6210, emulator: {kind: ionivac, port: 16006}}
       ls455:             {ca: 6115, pva: 6215, emulator: {kind: ls455, port: 16007}}
       ls224_fridge:      {ca: 6116, pva: 6216, emulator: {kind: ls224, port: 16012}}
       ls224_magnet:      {ca: 6117, pva: 6217, emulator: {kind: ls224, port: 16013}}
