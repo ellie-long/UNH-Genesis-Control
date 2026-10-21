@@ -69,7 +69,12 @@ the session.
 * **Buttons** in the headers open the Cryo, Microwave, ssRF and NMR-fitter
   screens; **Magnet** and **Fridge** open the magnet and fridge screens.
 * **Grey "not in Genesis yet" boxes** are LabVIEW-era readouts that Genesis
-  does not have an instrument IOC for yet.
+  does not have an instrument IOC for yet (Pirani, lab thermocouples, magnet
+  power supply, EPR, SIG, slow sweep). The LHe levels, flowmeters and
+  Manometer-Lo are live.
+* **Pressures are all in Torr.** The TPG 262 reads in whatever unit its front
+  panel is set to (`Pump_Unit`); the trend-history IOC follows that unit and
+  converts, so the Roots gauges show Torr either way (1 atm = 760 Torr).
 * **Target material and dopant** are set on the Cryo Safety screen (Target
   Operating State card).
 
