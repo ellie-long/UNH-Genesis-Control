@@ -108,13 +108,6 @@ named in each item. Numbers are stable: answered items move to *Settled*.
       (e.g. 50 GB), (c) adding storage / COPYING completed days to lab storage
       (backup, never a move-and-delete). Which? And how much free space does
       the DAQ (DESKTOP-M34HHNQ) have?
-- [ ] 72. **Over-pressure on 2026-10-20, 15:12-15:21 (live sample):** both
-      Roots gauges (899-959 Torr), the OVC gauge (892-954) and the cell MKS
-      902B (890-950) read ~1.25 atm at the same time, then ~760 Torr at 15:34.
-      Three gauges agree, and the TPG unit was Torr throughout, so it looks
-      real: a helium backfill / pressurization? (The per-PV cryo CSVs show the
-      archiver ran in five short sessions that day: 00:43-01:00, 09:12-09:17,
-      09:22-09:29, 15:12-15:21, 15:34-15:46.)
 - [ ] 73. **Start-up zeros recorded as valid data (for Utsav, live):** the
       master archive's first F1-F11 samples are 0 K with quality `valid`; the
       per-PV CSVs log Pump_PI 0 at 09:12 and Cell_PI 0 in the early sessions.
@@ -399,6 +392,12 @@ named in each item. Numbers are stable: answered items move to *Settled*.
     varactors at 0-19 V. Keep a rule, change it, or drop it?
 
 ## Settled
+
+* Over-pressure on 2026-10-20 (question 72): Ells (2026-10-21), yes -- an
+  over-pressure test, 15:12-15:21 local: both Roots gauges, the OVC gauge and
+  the cell MKS 902B read ~890-959 Torr (~1.25 atm) together, back to ~760 Torr
+  by 15:34. A real event, and a useful cross-check that the three gauge IOCs
+  agree (per-PV cryo CSVs in sample_data/).
 
 * T1 / T3 slots (Ells 2026-10-21): keep Utsav's ccce63e, operator-confirmed:
   T1 = C4 (ODS row 2-T1), T3 = C2 (row 2-T3), all LS224 curves from
