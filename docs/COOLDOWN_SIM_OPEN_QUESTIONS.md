@@ -16,6 +16,9 @@ named in each item. Numbers are stable: answered items move to *Settled*.
       level, and Genesis's `lhe_fridge` has scale 1.0, offset 0.0, so Genesis
       will not show the numbers LabVIEW logged. What zero/offset (or other
       instrument) produced the record? The sim replays it as recorded.
+      Live 2026-10-20 (warm, empty fridge): the AMI 1700 itself reads
+      `Fridge_LI` -18.7 in, so the negative values come from the meter's own
+      zero/probe setup, not a LabVIEW offset. Still: what should 'empty' read?
 - [ ] 61. **Flowmeter record units and labels:** (a) are the record's
       `Roots Flow L/R` and `Seperator Flow (SLM)` corrected SLM (the 28/19
       in Utsav's profiles already applied)? The sim assumes yes, so Genesis
@@ -26,6 +29,9 @@ named in each item. Numbers are stable: answered items move to *Settled*.
       2020-22: same quantity? (e) Excursions such as -84 / +166 slm (R,
       2026-06) and -308 slm (separator, 2021-09): real or DAQ artifacts? And
       the repeated 105.49 maximum on L: a saturation?
+      Live 2026-10-20 (warm, no flow): left +1.36 slm, right -0.42 slm,
+      separator -0.17 slm -- the meters carry zero offsets, which explains
+      small negative readings.
 - [ ] 62. **Manometer-Lo protocol and record:** (a) Utsav's `manometer_low`
       driver reads an unprompted line stream from `tools/pi_gateway.py`
       (drop 4 characters, take the first number, Torr), but you said the
@@ -35,6 +41,10 @@ named in each item. Numbers are stable: answered items move to *Settled*.
       Manometer-Hi is above ~9-10 Torr: over-range reported as 0, or a valve?
       (c) Between 1 and 9 Torr, Manometer-Lo reads 1.1-1.6x Manometer-Hi in
       every era; which gauge is right there?
+      Live 2026-10-20: the KJL-SPARC line is `VAC=<value>` (the 4-character
+      prefix the driver strips); at atmosphere it sends `VAC=RANGE` (over the
+      10 Torr range), which the driver reports as PARSE_ERR. See 69 for a
+      fragment bug.
 - [ ] 63. **ITS-90 in Utsav's `genesis_common/its90_helium.py` vs the lab's
       conversion** (not changed; for you and Utsav): (a) it uses 133.322
       Pa/Torr (exact) where the lab code uses 133.3, so it reads +0.025 mK
@@ -67,10 +77,25 @@ named in each item. Numbers are stable: answered items move to *Settled*.
       only the label until the IOC reads `UNI` at start-up. The alarm/trip
       numbers and the Panopticon's x0.750062 mbar->Torr conversion all
       silently assume mbar.
+      Live 2026-10-20: the controller reports `Pump_Unit` = **Torr** (Pump_PI
+      765 at atmosphere), so the live TPG 262 IS on Torr now. Was that
+      intended? If yes: the Panopticon's x0.750062 mbar->Torr conversion is
+      now wrong (atmosphere would show 574), the interlock's 1e-3 trip is in
+      Torr, and the sim's TPG emulator should answer Torr.
 - [ ] 68. **Enforce the TPG 262 unit?** (a) have the IOC check the `UNI`
       reply and flag (alarm) anything but mbar, read-only; or (b) send
       `UNI,0` at start-up to force mbar (a write to the instrument: needs
       your and Utsav's OK); or (c) leave it to the front panel.
+- [ ] 69. **Manometer-Lo reads line fragments (for Utsav, live):** in the
+      2026-10-20 sample 12 of 35 raw lines were fragments (`NGE`, `=RANGE`,
+      `GE`, `E` ...): after `discard_input()` the next `read_until()` returns the
+      tail of a half-received line. Harmless for `VAC=RANGE`, but a fragment of
+      a number (e.g. the tail of `VAC=1.234E-01`) would parse to a wrong
+      pressure after the 4-character strip. Suggest dropping the first line
+      after discarding, and reporting `RANGE` as over-range, not PARSE_ERR.
+- [ ] 70. **LS455 gaussmeter (live):** in the sample `Fringe_IDN` and the unit
+      are empty, the field reads 0 and COMM flips between 0 and 1. Is the
+      gaussmeter powered/connected?
 - [ ] 66. **LS224 RDGST? range bits:** Utsav's driver accepts RDGST? bits 16 /
       32 (outside the 224's own internal curve) as "OK; 224 TEMP RANGE",
       because it converts SRDG? ohms itself, and his test data say the live
@@ -78,6 +103,9 @@ named in each item. Numbers are stable: answered items move to *Settled*.
       each 224 to C2 / C4 (and to the F / M inputs), so that the emulator can
       raise 16 / 32 where the real units do? The emulator can serve them
       (tested), but answers 000 by default.
+      Live 2026-10-20: T1 (C4, 39.92 ohm) and T3 (C2, 47.77 ohm) both read
+      ~298 K with status `OK; 224 TEMP RANGE` at room temperature, i.e. bits
+      16/32 set -- confirms Utsav's C4/C2 mapping and his curves.
 - [ ] 67. **Pumping cart in the sim:** the old DAQ never logged the cart's
       IONIVAC, so `ionivac_pump` is absent (connection refused) in every
       replay. Would you rather it serve a plausible constant (e.g. turbo base
