@@ -101,10 +101,13 @@ named in each item. Numbers are stable: answered items move to *Settled*.
       ssRF and the fitter live), i.e. ~0.7-1.35 TB/year recording around the
       clock. The master recorder stops when < 2 GB is free
       (`archive/master_service.py`, ~0.5-1 day of margin) and nothing compresses
-      or offloads old days (the zip compresses ~10x). Add (a) compression of each
-      completed UTC day, (b) a free-disk PV with an early alarm (e.g. 50 GB),
-      (c) an offload/retention routine after each cool-down? And how much free
-      space does the DAQ (DESKTOP-M34HHNQ) have?
+      or offloads old days (the zip compresses ~10x). Ells (2026-10-21): NO data
+      may ever be pruned or deleted -- all data is important. So the options are
+      only: (a) LOSSLESS compression of each completed UTC day (verified before
+      the uncompressed copy is replaced), (b) a free-disk PV with an early alarm
+      (e.g. 50 GB), (c) adding storage / COPYING completed days to lab storage
+      (backup, never a move-and-delete). Which? And how much free space does
+      the DAQ (DESKTOP-M34HHNQ) have?
 - [ ] 66. **LS224 RDGST? range bits:** Utsav's driver accepts RDGST? bits 16 /
       32 (outside the 224's own internal curve) as "OK; 224 TEMP RANGE",
       because it converts SRDG? ohms itself, and his test data say the live
