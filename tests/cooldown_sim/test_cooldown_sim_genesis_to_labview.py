@@ -209,5 +209,21 @@ def test_never_overwrites_or_writes_into_inputs(recording):
     assert not (tmp / "local_data" / "copy").exists()
 
 
+def test_command_lines(recording, capsys):
+    from cooldown_sim.__main__ import main as sim_main
+    tmp, _ = recording
+    args = [str(tmp / "local_data"), "--pynmr", str(tmp / "pynmr_data")]
+    assert sim_main(["genesis-to-labview", *args, "--out", str(tmp / "a")]) == 0
+    assert sim_main(["genesis-to-labview", *args, "--out", str(tmp / "a")]) == 2   # refused
+    assert g2l.main([*args, "--out", str(tmp / "b")]) == 0                          # standalone
+    assert (tmp / "a" / "data_record_2026-11-04.csv").read_bytes() == \
+        (tmp / "b" / "data_record_2026-11-04.csv").read_bytes()
+    assert "refused" in capsys.readouterr().out
+    for cmd in (["cooldowns", "--help"], ["channel-map-report", "--help"]):   # siblings still wired
+        with pytest.raises(SystemExit) as exc:
+            sim_main(cmd)
+        assert exc.value.code == 0
+
+
 def test_report_lists_every_column_source():
     assert all(g2l.source_text(src) for _, src in g2l.COLUMNS)

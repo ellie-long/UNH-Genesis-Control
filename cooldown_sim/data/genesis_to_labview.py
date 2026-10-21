@@ -39,10 +39,16 @@ Layout written (one file per lab-local day, like the old DAQ)
   row at or after the sweep's end, within ``max_sweep_lag_s``; ``NMR Number``
   is the sweep length, the frequency window comes from pyNMR's ``freq_list``.
   Rows without a new sweep have ``NMR Number`` 0 and no sweep.
+
+How to run it: ``cooldown_sim/data/GENESIS_TO_LABVIEW.md``.  In the repo,
+``python -m cooldown_sim genesis-to-labview``; on its own, this file plus
+Genesis's ``genesis_common/its90_helium.py`` (Python 3.9+, no other packages):
+``python genesis_to_labview.py ...``.
 """
 
 from __future__ import annotations
 
+import argparse
 import csv
 import datetime as dt
 import json
@@ -501,8 +507,7 @@ def convert(inputs, out_dir, pynmr_dirs=(), *, strict=False, max_sweep_lag_s=5.0
             nmr_hold_s=300.0, log=print) -> Report:
     """Write new LabVIEW-layout day files for the Genesis master recordings
     under ``inputs``.  Returns the :class:`Report` (also written beside them)."""
-    from genesis_common import its90_helium as its90
-
+    its90 = _its90()
     out_dir = Path(out_dir)
     files, _ = plan(inputs, out_dir, pynmr_dirs)
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -602,6 +607,24 @@ def convert(inputs, out_dir, pynmr_dirs=(), *, strict=False, max_sweep_lag_s=5.0
     with open(out_dir / REPORT_NAME, "x", encoding="utf-8", newline="\n") as fh:
         fh.write(report_markdown(rep))
     return rep
+
+
+def _its90():
+    """Genesis's ITS-90 helium module: from the repo, or beside this file."""
+    try:
+        from genesis_common import its90_helium
+        return its90_helium
+    except ImportError:
+        pass
+    beside = Path(__file__).with_name("its90_helium.py")
+    if not beside.is_file():
+        raise SystemExit("needs Genesis's genesis_common/its90_helium.py: run inside "
+                         "UNH-Genesis-Control, or put its90_helium.py beside this file")
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("its90_helium", beside)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
 
 
 def _render(r: _Row, t, attach, settings, its90, rep) -> list[str]:
@@ -741,3 +764,43 @@ def report_markdown(rep: Report) -> str:
           "row at or after it ended."]
     L += [f"- {n}" for n in rep.notes]
     return "\n".join(L) + "\n"
+
+
+# ------------------------------------------------------------------ command line
+def add_arguments(p: argparse.ArgumentParser) -> None:
+    p.add_argument("inputs", nargs="+",
+                   help="Genesis data root, archive/master folder, session folder or genesis_master.csv")
+    p.add_argument("--out", required=True, help="NEW folder for the converted copies")
+    p.add_argument("--pynmr", action="append", default=[], metavar="DIR",
+                   help="pyNMR event_dir to take NMR sweeps from (repeatable)")
+    p.add_argument("--strict", action="store_true",
+                   help="use only 'valid' readings (default also uses 'stale' = unchanged)")
+    p.add_argument("--max-sweep-lag", type=float, default=5.0, metavar="S",
+                   help="attach a pyNMR sweep only to a row within S seconds after it ended")
+
+
+def run(args) -> int:
+    """0 written, 2 refused (nothing written)."""
+    try:
+        rep = convert(args.inputs, args.out, args.pynmr, strict=args.strict,
+                      max_sweep_lag_s=args.max_sweep_lag)
+    except Refused as exc:
+        print(f"refused: {exc}")
+        return 2
+    for day, (rows, sweeps) in sorted(rep.days.items()):
+        print(f"  data_record_{day}.csv  {rows} rows, {sweeps} with an NMR sweep")
+    print(f"wrote {len(rep.days)} day file(s) and {REPORT_NAME} in {args.out}")
+    return 0
+
+
+def main(argv=None) -> int:
+    p = argparse.ArgumentParser(
+        prog="genesis_to_labview.py",
+        description="Write LabVIEW-style data_record copies of Genesis recordings "
+                    "(never changes or overwrites anything).")
+    add_arguments(p)
+    return run(p.parse_args(argv))
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

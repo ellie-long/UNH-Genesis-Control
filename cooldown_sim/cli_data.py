@@ -27,33 +27,16 @@ def add_parsers(sub) -> None:
 
     p = sub.add_parser("genesis-to-labview",
                        help="write LabVIEW-style data_record copies of Genesis recordings")
-    p.add_argument("inputs", nargs="+",
-                   help="Genesis data root, archive/master folder, session folder or genesis_master.csv")
-    p.add_argument("--out", required=True, help="NEW folder for the converted copies")
-    p.add_argument("--pynmr", action="append", default=[], metavar="DIR",
-                   help="pyNMR event_dir to take NMR sweeps from (repeatable)")
-    p.add_argument("--strict", action="store_true",
-                   help="use only 'valid' readings (default also uses 'stale' = unchanged)")
-    p.add_argument("--max-sweep-lag", type=float, default=5.0, metavar="S",
-                   help="attach a pyNMR sweep only to a row within S seconds after it ended")
+    from .data import genesis_to_labview as g2l
+    g2l.add_arguments(p)
     p.set_defaults(func=_genesis_to_labview)
 
     add_model_parsers(sub)
 
 
 def _genesis_to_labview(args) -> int:
-    from .__main__ import EXIT_OK, EXIT_REFUSED
     from .data import genesis_to_labview as g2l
-    try:
-        rep = g2l.convert(args.inputs, args.out, args.pynmr, strict=args.strict,
-                          max_sweep_lag_s=args.max_sweep_lag)
-    except g2l.Refused as exc:
-        print(f"refused: {exc}")
-        return EXIT_REFUSED
-    for day, (rows, sweeps) in sorted(rep.days.items()):
-        print(f"  data_record_{day}.csv  {rows} rows, {sweeps} with an NMR sweep")
-    print(f"wrote {len(rep.days)} day file(s) and {g2l.REPORT_NAME} in {args.out}")
-    return EXIT_OK
+    return g2l.run(args)          # 0 written, 2 refused (= EXIT_REFUSED)
 
 
 def _cooldowns(args) -> int:

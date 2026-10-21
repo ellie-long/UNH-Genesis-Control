@@ -77,6 +77,10 @@ lab answers are in `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`.
   subsets of files (e.g. 20 s averages like the old DAQ); rebuild
   `blast_log_*.csv` from `archive/events/ssrf`; filter start-up zeros once
   question 73 is settled.
+* Run instructions for others: `cooldown_sim/data/GENESIS_TO_LABVIEW.md`. The
+  converter also runs on its own (`python genesis_to_labview.py ...`, Python
+  3.9+, no packages) with Genesis's `its90_helium.py` beside it; dev-sim
+  pushed to origin so it can be shared (Ells 2026-10-21).
 * `Area/Polarization` (question 74 settled by Ells): area sum(V * df) of
   pyNMR's processed sweep before calibration, P with a `%` sign after
   (`SSRF:FIT:CALIBRATED`), as the old DAQ wrote it; `--online-p` removed.
@@ -797,7 +801,7 @@ unlogged burns).
 
 ## Test status (latest)
 
-* 2026-10-21 (Genesis -> LabVIEW converter): `tests/cooldown_sim` **278 passed,
+* 2026-10-21 (Genesis -> LabVIEW converter): `tests/cooldown_sim` **279 passed,
   8 skipped on Windows** (`genesis-p1`), including the new converter tests in
   `test_cooldown_sim_genesis_to_labview.py`.
 
