@@ -120,6 +120,27 @@ named in each item. Numbers are stable: answered items move to *Settled*.
       calibrated (writes P %), else the area. But pyNMR always carries a `cc`
       from its channel config. Does pyNMR record whether a TE was taken, or is
       the Genesis fitter's `CALIBRATED` (Preset = not calibrated) the rule?
+- [ ] 82. **Magnet supply model (magnet controls, due 2026-10-22):** is the
+      supply on `Magnet_IPS` (TCP 5001, 9600 8N2) an Oxford IPS120-10, and
+      which firmware? The sim's emulator will speak whatever protocol Utsav's
+      driver uses, but its limits and status codes depend on the model.
+      See `docs/COOLDOWN_SIM_MAGNET_PREP.md`.
+- [ ] 83. **Persistent mode:** every record since 2022 logs the supply
+      current equal to the magnet current, i.e. driven, never persistent. Is
+      the magnet always run driven (switch heater on), or does it go
+      persistent and the DAQ logged it wrongly?
+- [ ] 84. **Magnet limits:** maximum current / field (the records reach
+      53.5 A, 5.5 T in 2024-08), and the ramp-rate limit (the handbook's 3
+      A/min; the records peak near 3 A/min). One rate at every field, or
+      slower near the top?
+- [ ] 85. **Who may ramp, and what stops a ramp:** will Genesis write to the
+      supply from the start, or read it only at first? Which conditions
+      should refuse or abort a ramp (magnet LHe below 20", magnet
+      thermometry, a quench, the vacuum interlock)?
+- [ ] 86. **Field constant:** the DAQ's field is the current x 0.10274113 T/A
+      in every cool-down. Is that from the magnet's calibration sheet, and
+      should Genesis use the same constant (and publish the field), or read
+      the supply's own field read-back?
 - [ ] 75. **Converter, `NMR Status`:** filled with pyNMR's free-text event
       `label` (default "None"). The old values were Baseline / Polarization /
       TE / Tuning / Scanning, and the McClellan reader sorts sweeps by them.

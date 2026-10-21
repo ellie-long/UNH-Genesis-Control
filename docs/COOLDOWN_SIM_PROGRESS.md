@@ -48,6 +48,13 @@ lab answers are in `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`.
 
 ## Log
 
+### 2026-10-21: ready for the magnet controls (due 2026-10-22)
+* `docs/COOLDOWN_SIM_MAGNET_PREP.md`: what we know of the magnet supply
+  (`Magnet_IPS`, TCP 5001; presumably an Oxford IPS120-10), what the records
+  show (0.10274 T/A in every cool-down 2022-2026, 5.0-5.5 T, driven never
+  persistent, ramps 1-2 A/min peaking near 3), every place the IOC plugs into
+  the sim and the screens, and the safety checks. Questions 82-86.
+
 ### 2026-10-21: Genesis -> LabVIEW data_record converter
 * New `python -m cooldown_sim genesis-to-labview INPUT... --out NEW_DIR
   [--pynmr DIR]` (`cooldown_sim/data/genesis_to_labview.py`): reads the
