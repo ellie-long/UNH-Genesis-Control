@@ -32,6 +32,7 @@ lab answers are in `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`.
 | D3 | Scenario library, fault scenarios, after-action report | done |
 | E1 | Utsav's optional cryo IOCs (flowmeters, LHe levels, Manometer-Lo) emulated and fed | done |
 | E2 | Utsav's main ccce63e: ODS thermometry (T1 = C4, T3 = C2), pumping-cart IONIVAC `ionivac_pump` | done |
+| F1 | Genesis -> LabVIEW converter (`genesis-to-labview`): master archive + pyNMR sweeps to 2026-06 data_record copies | done (1 s rows; 20 s averaging is a stretch goal) |
 
 **The planned build is complete.** What is left is Ells's call:
 
@@ -46,6 +47,39 @@ lab answers are in `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`.
    separate change to the live system, deliberately not made here.
 
 ## Log
+
+### 2026-10-21: Genesis -> LabVIEW data_record converter
+* New `python -m cooldown_sim genesis-to-labview INPUT... --out NEW_DIR
+  [--pynmr DIR]` (`cooldown_sim/data/genesis_to_labview.py`): reads the
+  Genesis master archive (any data root / session / `genesis_master.csv`)
+  and pyNMR eventfiles, and writes NEW `data_record_YYYY-MM-DD.csv` files in
+  the 2026-06 layout (93 titles, TAB, CRLF, latin-1, lab-local days) plus
+  `genesis_to_labview_report.md` (sources, sessions, counts, column table).
+* **Never deletes or overwrites:** inputs read-only; every output created
+  exclusively; any existing output file, or an output folder inside an
+  input, refuses the run before anything is written (Ells 2026-10-21).
+* Ells's decisions: 2026-06 layout; old rows were 20 s averages, but **1 s
+  rows for now** (stretch goal below); columns Genesis does not record yet
+  hold `NOT_IN_GENESIS`, so what is left to build shows in every file;
+  `Vapor Pressure Range` names the manometer (`Lo: <phase>` = Genesis's
+  ITS-90 `Mano_VapT`, `Hi: <phase>` = the same ITS-90 function applied to
+  `Cell_PI` by the converter).
+* Readings used when `valid` or `stale` (`--strict`: valid only); TPG
+  pressure converted to Torr from `Pump_Unit`; fringe field from
+  `Fringe_FieldT` x 1e4 G. pyNMR sweeps (raw `phase`) go once each on the
+  first row within 5 s after they end, with `NMR Number` = width and the
+  window from `freq_list`, so the vendored McClellan reader reads them.
+* On the 2026-10-20 sample: 743 rows, every mapped cell equal to the master
+  value (22 290 checked); the sim's `records` reader reads it as a cool-down
+  day. No pyNMR data overlaps the sample (pyNMR's saved eventfiles are
+  2026-10-05 test runs), so the NMR path is covered by synthetic tests.
+* **Stretch goals (later):** reduce the row rate, for whole files and for
+  subsets of files (e.g. 20 s averages like the old DAQ); rebuild
+  `blast_log_*.csv` from `archive/events/ssrf`; filter start-up zeros once
+  question 73 is settled.
+* Questions 74-80 (P column, NMR Status labels, pyNMR equivalents for VME
+  Mode etc., microwave sweep settings, a Genesis Hi VapT, stale default,
+  sweep signal and width).
 
 ### 2026-10-21: Utsav's main ccce63e (ODS thermometry, cart IONIVAC)
 * Merged Utsav's `main` ccce63e ("Integrate validated ssRF with Cryogenics
@@ -759,6 +793,10 @@ points. It does not reproduce deliberate fast depolarisations (AFP, anneals,
 unlogged burns).
 
 ## Test status (latest)
+
+* 2026-10-21 (Genesis -> LabVIEW converter): `tests/cooldown_sim` **276 passed,
+  8 skipped on Windows** (`genesis-p1`), including 6 new in
+  `test_cooldown_sim_genesis_to_labview.py`.
 
 * 2026-10-21 (Utsav's ccce63e): `tests/cooldown_sim` **271 passed, 7
   skipped on Windows** (was 13 failed, 6 errors after the merge). WSL:

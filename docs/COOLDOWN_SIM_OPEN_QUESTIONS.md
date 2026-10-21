@@ -114,6 +114,34 @@ named in each item. Numbers are stable: answered items move to *Settled*.
       A gauge that has not produced a reading should be NaN / `missing`, not a
       measured zero (same pattern as the sim's known issue
       never-connected-reads-zero for the IONIVAC).
+      The Genesis -> LabVIEW converter passes these zeros through for now.
+- [ ] 74. **Converter, `Area/Polarization`:** the converter writes the Genesis
+      online fitter's `SSRF:FIT:P_AREA` (percent); `--online-p pynmr` writes
+      pyNMR's own `pol` x 100 instead. Which should the column hold, and what
+      unit did the old column use (2026-06 shows -0.00015 while tuning)?
+- [ ] 75. **Converter, `NMR Status`:** filled with pyNMR's free-text event
+      `label` (default "None"). The old values were Baseline / Polarization /
+      TE / Tuning / Scanning, and the McClellan reader sorts sweeps by them.
+      Should pyNMR labels be mapped onto those words, and how?
+- [ ] 76. **Converter, `VME Mode`, `NMR Domain`, `IF Attenuation`:** written as
+      NOT_IN_GENESIS. Does pyNMR have equivalents (in its channel / settings
+      record) that should fill them?
+- [ ] 77. **Converter, microwave settings:** `mmWave Freq Setting 1` is taken
+      from `MW:SUP:OutputFrequency` (the output-frequency command), which is
+      an assumption. `Setting 2`, `mmWaves Span` and `Sweep/Hop Time` are
+      NOT_IN_GENESIS. Should they come from the supervisor's software sweep
+      (`SweepStart` / `SweepStop` / `SweepDwell`)?
+- [ ] 78. **Manometer-Hi vapour-pressure temperature (for Utsav):** Genesis
+      computes `Mano_VapT` from Manometer-Lo only. The converter applies the
+      same ITS-90 function to `Cell_PI` and labels it `Hi:`. Should Genesis
+      publish a `Cell_VapT` itself, as LabVIEW did?
+- [ ] 79. **Converter, stale readings:** used by default, because a steady
+      value stops updating and turns `stale` after 60 s (`Pump_Unit`, a 0 G
+      fringe field). `--strict` uses `valid` only. Is the default right?
+- [ ] 80. **Converter, NMR sweep:** each row carries pyNMR's raw `phase` sweep
+      (512 points, against the old 451), once per sweep. Is `phase` the right
+      signal? The McClellan reader refuses mixed sweep widths across files, so
+      old and Genesis-era days cannot be stitched into one session as is.
 - [ ] 66. **LS224 RDGST? range bits:** Utsav's driver accepts RDGST? bits 16 /
       32 (outside the 224's own internal curve) as "OK; 224 TEMP RANGE",
       because it converts SRDG? ohms itself, and his test data say the live
