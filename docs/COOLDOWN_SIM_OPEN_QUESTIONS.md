@@ -96,6 +96,15 @@ named in each item. Numbers are stable: answered items move to *Settled*.
 - [ ] 70. **LS455 gaussmeter (live):** in the sample `Fringe_IDN` and the unit
       are empty, the field reads 0 and COMM flips between 0 and 1. Is the
       gaussmeter powered/connected?
+- [ ] 71. **Recording disk space (24/7, for Utsav):** the 2026-10-20 sample
+      scales to ~2 GB/day (cryo only; ~3.5-4 GB/day estimated with microwaves,
+      ssRF and the fitter live), i.e. ~0.7-1.35 TB/year recording around the
+      clock. The master recorder stops when < 2 GB is free
+      (`archive/master_service.py`, ~0.5-1 day of margin) and nothing compresses
+      or offloads old days (the zip compresses ~10x). Add (a) compression of each
+      completed UTC day, (b) a free-disk PV with an early alarm (e.g. 50 GB),
+      (c) an offload/retention routine after each cool-down? And how much free
+      space does the DAQ (DESKTOP-M34HHNQ) have?
 - [ ] 66. **LS224 RDGST? range bits:** Utsav's driver accepts RDGST? bits 16 /
       32 (outside the 224's own internal curve) as "OK; 224 TEMP RANGE",
       because it converts SRDG? ohms itself, and his test data say the live
