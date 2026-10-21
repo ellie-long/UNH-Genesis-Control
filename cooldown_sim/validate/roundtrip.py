@@ -64,17 +64,34 @@ def device_channels(stack: GeneratedStack, run: Path, known_clamps: dict | None 
         rel, factor, *rest = TOLERANCE[kind]
         if spec.name in (absent or {}):
             for pv in device_channel_pvs(spec, _settings(spec)):
-                nums = probe[probe["pv"] == pv]["num"].to_numpy()
-                ok = bool(np.isnan(nums).all())
-                checks.append(Check(f"roundtrip {pv}", "PASS" if ok else "FAIL",
-                                    "instrument absent in this era's record: PV stays invalid (NaN)"
-                                    if ok else "instrument absent, yet the PV took a number"))
+                checks.append(_absent_check(pv, kind, probe[probe["pv"] == pv]))
             continue
         for pv, (inst, ch) in device_channel_pvs(spec, _settings(spec)).items():
             s = served[(served["instrument"] == inst) & (served["channel"] == ch)]
             p = probe[probe["pv"] == pv]
             checks.append(_match(pv, kind, s, p, rel, factor, *rest))
     return checks
+
+
+#: drivers without the read-only health mixin keep their start-up value when
+#: the instrument never connects (known issue never-connected-reads-zero)
+START_VALUE_KINDS = {"ionivac"}
+
+
+def _absent_check(pv, kind, probe: pd.DataFrame) -> Check:
+    """An instrument absent from the era's record (connection refused): its
+    reading PV must never show a number as if it were a measurement."""
+    nums = probe["num"].to_numpy()
+    if bool(np.isnan(nums).all()):
+        return Check(f"roundtrip {pv}", "PASS",
+                     "instrument absent in this era's record: PV stays invalid (NaN)")
+    sev = probe["severity"].to_numpy() if "severity" in probe else np.zeros(len(nums))
+    if kind in START_VALUE_KINDS and len(nums) and bool((nums == 0.0).all()) and bool((sev >= 2).all()):
+        return Check(f"roundtrip {pv}", "KNOWN",
+                     "instrument absent: the PV holds its start-up 0 in alarm, never a reading "
+                     "(known issue never-connected-reads-zero)",
+                     data={"issue": "never-connected-reads-zero"})
+    return Check(f"roundtrip {pv}", "FAIL", "instrument absent, yet the PV took a number")
 
 
 def _match(pv, kind, served: pd.DataFrame, probe: pd.DataFrame, rel: float, factor: float,

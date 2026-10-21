@@ -383,7 +383,7 @@ equipment:
     confidence: high
     note: "Ells 2026-10-16: now at 192.168.1.18 (the sticker and the old config said 192.168.1.5, before the post-outage static-IP rework). An SPD1305X. Before Genesis the cold board ran from an external DC supply, never recorded."
   - genesis: flowmeter_pi
-    equipment: Teledyne Hastings flowmeter (USB CDC on the keysight Pi, served by flowmeter_pi_headless.py)
+    equipment: Teledyne Hastings flowmeter (USB CDC on the keysight Pi, served by scripts/pi_cryo_bridges/flowmeter_pi_headless.py)
     role: "Right Roots/backing-pump line helium flow ('Backing R'): the fridge boil-off"
     link: TCP 192.168.1.24:5010 (the Pi's flowmeter server; 'F' + CR -> '<raw>>')
     prefix: UNH:GEN:CRYO:FLOW:RIGHT
@@ -435,7 +435,7 @@ equipment:
   - genesis: manometer_low
     equipment: "Manometer-Lo: KJLC XCG-HT-FB-1 capacitance manometer (10 Torr full scale) on a Kurt J. Lesker KJL-SPARC controller"
     role: Low-range target-cell (helium vapour) pressure, and its ITS-90 vapour-pressure temperature
-    link: "USB from the KJL-SPARC to the keysight Pi (192.168.1.24); tools/pi_gateway.py forwards the stream on TCP 5030"
+    link: "USB from the KJL-SPARC to the keysight Pi (192.168.1.24); scripts/pi_cryo_bridges/pi_gateway.py (byte pass-through) forwards the stream on TCP 5030"
     prefix: UNH:GEN:CRYO:VAC:LOW
     control: read-only (write_enabled false)
     map: manometer_low.Mano (Manometer-Lo)

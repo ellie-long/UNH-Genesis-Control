@@ -87,3 +87,14 @@ ionivac-alarm-limits:
     above 300 K, above 1e-5 Torr once it is below 80 K (open questions 25, 39).
   where: [configs/target_physical/ionivac/settings.yaml, logic_devices/states_unh.yaml]
   match: {scenario_check: shells_vacuum_alarm}
+
+never-connected-reads-zero:
+  summary: >-
+    The IONIVAC driver (target_ioc/instruments/ionivac.py, both the shells'
+    ionivac and Utsav's ionivac_pump) does not use the read-only health mixin
+    (genesis_common/cryo_readonly_health.py) that sets the newer cryo IOCs'
+    readings to NaN while disconnected.  A gauge that never connects (the
+    pumping cart's, absent in every replay) shows Ion_PI = 0.0 Torr in MAJOR
+    alarm (its LOLO is 0.0) with COMM 0, not an invalid reading.
+  where: [target_ioc/instruments/ionivac.py]
+  match: {roundtrip_absent: [ionivac]}

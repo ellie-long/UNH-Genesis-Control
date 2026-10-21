@@ -277,3 +277,27 @@ def test_absent_instrument_is_refused_and_validated_as_absent(tmp_path):
     assert logic.heartbeats(only, tmp_path, {}, {})[0].verdict == "FAIL"     # if it were expected
     rt = roundtrip.device_channels(only, tmp_path, absent=absent)
     assert [c.verdict for c in rt] == ["PASS"]
+
+
+def test_pumping_cart_ionivac_is_absent_in_every_replay(tmp_path):
+    """ionivac_pump (the pumping cart's IONIVAC, Utsav's ccce63e) has no record
+    column in any era: it is launched, but its emulator refuses connections.
+    Its IONIVAC driver then holds Ion_PI at the start-up 0.0 in alarm (known
+    issue never-connected-reads-zero): KNOWN, while a real number is a FAIL."""
+    from cooldown_sim.validate import roundtrip
+    stack = profile.generate(tmp_path, legs=("cryo",))
+    cmap = channel_map.load()
+    tl = flows_record()
+    with_shells = Timeline(SlowTable(t=tl.table.t, numeric=dict(
+        tl.table.numeric, ionivac=np.full(len(tl.table.t), 3.2e-7))), max_hold_s=60)
+    absent = host.absent_instruments(stack, cmap, with_shells)
+    assert "ionivac_pump" in absent and "ionivac" not in absent
+    spec = stack.by_name("ionivac_pump")
+    assert spec.emulator["kind"] == "ionivac" and spec.prefix == "UNH:GEN:CRYO:ION:PUMP"
+    only = profile.GeneratedStack(stack.run_dir, iocs=[spec])
+    (tmp_path / "served.csv").write_text("wall,sim,instrument,channel,value\n", encoding="utf-8")
+    for value, sev, verdict in (("nan", 3, "PASS"), ("0.0", 2, "KNOWN"), ("3.2e-07", 0, "FAIL")):
+        rows = ["wall,pv,value,severity,connected", f"1.0,{spec.prefix}:Ion_PI,{value},{sev},1"]
+        (tmp_path / "probe.csv").write_text("\n".join(rows) + "\n", encoding="utf-8")
+        rt = roundtrip.device_channels(only, tmp_path, absent=absent)
+        assert [c.verdict for c in rt] == [verdict], value
