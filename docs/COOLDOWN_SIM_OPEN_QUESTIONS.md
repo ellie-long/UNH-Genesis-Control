@@ -60,6 +60,17 @@ named in each item. Numbers are stable: answered items move to *Settled*.
       0.01 on Pump, 1e-3 / 1e-4 on OVC) and the vacuum interlock's 1e-3 trip
       are now Torr, and the sim's emulator (UNI = 0, mbar) should answer
       Torr. The sim keeps mbar until you say.
+      Checked 2026-10-21: the driver (`target_ioc/instruments/tpg262.py`)
+      sends only `PRX` (both pressures), `UNI` (QUERY the display unit) and
+      `TID`; it never sends `UNI,<n>`, so values arrive in whatever unit the
+      controller's front panel is set to, and the settings' `EGU: Torr` is
+      only the label until the IOC reads `UNI` at start-up. The alarm/trip
+      numbers and the Panopticon's x0.750062 mbar->Torr conversion all
+      silently assume mbar.
+- [ ] 68. **Enforce the TPG 262 unit?** (a) have the IOC check the `UNI`
+      reply and flag (alarm) anything but mbar, read-only; or (b) send
+      `UNI,0` at start-up to force mbar (a write to the instrument: needs
+      your and Utsav's OK); or (c) leave it to the front panel.
 - [ ] 66. **LS224 RDGST? range bits:** Utsav's driver accepts RDGST? bits 16 /
       32 (outside the 224's own internal curve) as "OK; 224 TEMP RANGE",
       because it converts SRDG? ohms itself, and his test data say the live
