@@ -108,6 +108,19 @@ named in each item. Numbers are stable: answered items move to *Settled*.
       (e.g. 50 GB), (c) adding storage / COPYING completed days to lab storage
       (backup, never a move-and-delete). Which? And how much free space does
       the DAQ (DESKTOP-M34HHNQ) have?
+- [ ] 72. **Over-pressure on 2026-10-20, 15:12-15:21 (live sample):** both
+      Roots gauges (899-959 Torr), the OVC gauge (892-954) and the cell MKS
+      902B (890-950) read ~1.25 atm at the same time, then ~760 Torr at 15:34.
+      Three gauges agree, and the TPG unit was Torr throughout, so it looks
+      real: a helium backfill / pressurization? (The per-PV cryo CSVs show the
+      archiver ran in five short sessions that day: 00:43-01:00, 09:12-09:17,
+      09:22-09:29, 15:12-15:21, 15:34-15:46.)
+- [ ] 73. **Start-up zeros recorded as valid data (for Utsav, live):** the
+      master archive's first F1-F11 samples are 0 K with quality `valid`; the
+      per-PV CSVs log Pump_PI 0 at 09:12 and Cell_PI 0 in the early sessions.
+      A gauge that has not produced a reading should be NaN / `missing`, not a
+      measured zero (same pattern as the sim's known issue
+      never-connected-reads-zero for the IONIVAC).
 - [ ] 66. **LS224 RDGST? range bits:** Utsav's driver accepts RDGST? bits 16 /
       32 (outside the 224's own internal curve) as "OK; 224 TEMP RANGE",
       because it converts SRDG? ohms itself, and his test data say the live
