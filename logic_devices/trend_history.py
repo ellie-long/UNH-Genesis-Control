@@ -189,6 +189,34 @@ def read_archive_text(archive_path, pv: str, t0: float, t1: float) -> tuple[np.n
     return t[order], [values[i] for i in order]
 
 
+def read_unit_archive(archive_path, pv: str, t0: float, t1: float) -> tuple[np.ndarray, list]:
+    """Archived unit texts of ``pv`` for t0..t1, led by the last row before t0
+    (a unit is written when it changes, so the one in force at t0 may be in an
+    older day file).  Only files that exist are opened."""
+    t, text = read_archive_text(archive_path, pv, t0, t1)
+    prefix = f"{safe_pv_name(pv)}_"
+    first_day = datetime.fromtimestamp(t0).date()
+    older = []
+    try:
+        for f in Path(archive_path).glob(f"{prefix}*.csv"):
+            try:
+                day = datetime.strptime(f.stem[len(prefix):], "%Y-%m-%d").date()
+            except ValueError:
+                continue
+            if day <= first_day:
+                older.append(day)
+    except OSError:
+        return t, text
+    for day in sorted(older, reverse=True):
+        start = datetime.combine(day, datetime.min.time()).timestamp()
+        bt, btext = read_archive_text(archive_path, pv, start, min(t0, start + 86400.0))
+        keep = [i for i, x in enumerate(bt) if x < t0]
+        if keep:
+            i = keep[-1]
+            return np.concatenate(([bt[i]], t)), [btext[i]] + list(text)
+    return t, text
+
+
 def hold_at(row_t: np.ndarray, row_v: np.ndarray, grid: np.ndarray, max_hold: float) -> np.ndarray:
     """Sample-and-hold: at each grid time, the last row at or before it, unless
     that row is older than ``max_hold`` (then NaN)."""
@@ -353,7 +381,7 @@ class Group:
             last_factor = 1.0
             if s.unit_pv:
                 # the unit in force at each sample (written on change, held indefinitely)
-                ut, utext = read_archive_text(archive_path, s.unit_pv, 0.0, now)
+                ut, utext = read_unit_archive(archive_path, s.unit_pv, now - self.window - max_hold, now)
                 codes = np.asarray([unit_factor(u, s.to) for u in utext], dtype=float)
                 factor = hold_at(ut, codes, grid, math.inf) if len(ut) else np.full(len(grid), np.nan)
                 last_factor = float(codes[-1]) if len(codes) else NAN

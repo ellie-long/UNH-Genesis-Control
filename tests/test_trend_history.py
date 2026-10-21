@@ -285,6 +285,27 @@ def test_backfill_uses_the_unit_in_force_at_each_sample(th, tmp_path):
     assert g.latest["Pump_Torr"] == 1000.0           # seeded in the last archived unit
 
 
+def test_unit_set_days_ago_is_found_without_scanning_every_day(th, tmp_path):
+    g = _unit_group(th)
+    write_archive(tmp_path, "X:Pump_PI", [(NOON - 60, 1000.0)])
+    write_archive(tmp_path, "X:Pump_Unit", [(NOON - 9 * 86400, "mbar")])     # 9 days back
+    opened = []
+    real_open = open
+
+    def counting_open(path, *a, **k):
+        opened.append(str(path))
+        return real_open(path, *a, **k)
+
+    import builtins
+    builtins.open, saved = counting_open, builtins.open
+    try:
+        g.backfill(tmp_path, NOON, max_hold=120)
+    finally:
+        builtins.open = saved
+    assert g.buffer.ordered()[1][0][-1] == pytest.approx(750.062)
+    assert len(opened) < 20                          # not one open per day since 1970
+
+
 def test_backfill_without_a_unit_archive_shows_nothing(th, tmp_path):
     g = _unit_group(th)
     write_archive(tmp_path, "X:Pump_PI", [(NOON - 60, 5.0)])
