@@ -136,7 +136,11 @@ named in each item. Numbers are stable: answered items move to *Settled*.
       through the clamp. Agreed, or is there a risk to the switch? (b) Are the
       supply and the DAQ on a UPS? (c) Is the supply's hardware auto-run-down
       wired to the magnet AMI 135's level relays (it only works while the
-      supply has power)?
+      supply has power)? (d) Driven at the outage: the clamp closes at once in
+      any mode (manual p47) and the manual says the magnet then "slowly runs
+      down"; but the switch heater loses power too, so does the switch close
+      within seconds and catch the magnet persistent near its old field, with
+      only the lead current decaying? (Matters for recovery step 5 b.)
 - [ ] 75. **Converter, `NMR Status`:** filled with pyNMR's free-text event
       `label` (default "None"). The old values were Baseline / Polarization /
       TE / Tuning / Scanning, and the McClellan reader sorts sweeps by them.
