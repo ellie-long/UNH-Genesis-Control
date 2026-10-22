@@ -454,14 +454,14 @@ equipment:
     note: "Ells 2026-10-16: a DIE WU TXI040 (8 serial ports to Ethernet) with 7 devices plugged in; Genesis uses all 7 (ports 6 and 7, the left-Roots and separator flowmeters, since Utsav's cryo GUI work; port 2, the pumping cart's IONIVAC, since his ccce63e). Port map (lab technote 2026-TN-02, all TCP server mode, 1 connection): 1 Manometer_HI :5004 (9600 8N1); 2 Pumping Station :5005 (9600 8N1; the portable cart's IONIVAC); 3 Ionivac :5006 (9600 8N1; the shells'); 4 Fringe Field :5007 (19200 7O1); 5 ROOTS :5011 (19200 8N1, the TPG 262); 6 left_Roots_Pump :5012 (19200 8N1); 7 Separator_Pump :5013 (19200 8N1); 8 vacant, but set to :5011, the same TCP port as port 5. Genesis's IONIVAC used :5005 (the cart) until fixed to :5006 (question 48)"
   - genesis: (serial gateway 2)
     equipment: DIE WU TXI017 4-port RS-232/485/422 serial device server
-    role: "Serial-to-Ethernet for the magnet's two instruments: port 1 Magnet_IPS (TCP 5001, 9600 8N2, RS-232; the magnet power supply, presumably the Oxford IPS120-10; not in Genesis yet), port 2 Magnet_LHE_Prob (TCP 23, 9600 8N1, RS-232; the magnet LHe level probe, Genesis lhe_magnet). Both TCP server mode, 1 connection (Ells 2026-10-16, port setup pages)"
+    role: "Serial-to-Ethernet for the magnet's two instruments: port 1 Magnet_IPS (TCP 5001, 9600 8N2, RS-232; the magnet power supply, an Oxford IPS120-10 (Ells 2026-10-22); not in Genesis yet), port 2 Magnet_LHE_Prob (TCP 23, 9600 8N1, RS-232; the magnet LHe level probe, Genesis lhe_magnet). Both TCP server mode, 1 connection (Ells 2026-10-16, port setup pages)"
     link: 192.168.1.250, TCP 5001 / 23
     prefix: "-"
     control: transport only
     map: "-"
     sim: the AMI 135 emulator listens on loopback instead of port 2; port 1 not emulated
     confidence: high
-    note: "Ells 2026-10-16: 2 devices plugged in (above). Magnet supply = highest Genesis priority (question 26). Utsav's lhe_magnet driver says the level meter is an AMI Model 135 (open question 49, level-meter half). CHECK: the IPS model"
+    note: "Ells 2026-10-16: 2 devices plugged in (above). Magnet supply = highest Genesis priority (question 26). Utsav's lhe_magnet driver says the level meter is an AMI Model 135 (open question 49, level-meter half). The supply is an Oxford IPS120-10 (Ells 2026-10-22)"
   # ----------------------------------------------------------- microwave
   - genesis: mw_spd1305x
     equipment: "Siglent SPD1305X single-channel DC supply (confirmed by Ells, 2026-10-15)"
@@ -623,7 +623,7 @@ record_only:
   - instrument: Magnet power supply
     columns: [ps_current, magnet_current, central_field]
     used_by: "central field = the model's B (DNP optimum, NMR line)"
-    note: "Oxford IPS supply; no Genesis IOC. Ells 2026-10-15: HIGHEST priority of the missing instruments (no magnet, no cool-down). \"PS Current\" is the magnet supply, not the cold board"
+    note: "Oxford IPS120-10 supply (Ells 2026-10-22); no Genesis IOC yet (magnet controls due 2026-10-22). Run persistent sometimes, not always (Ells 2026-10-22), though the records always log PS = magnet current. Field = current x 0.10274113 T/A in the records; Ells has a better equation with an NMR-measured offset (question 86). Ells 2026-10-15: HIGHEST priority of the missing instruments (no magnet, no cool-down). \"PS Current\" is the magnet supply, not the cold board"
   - instrument: Lab thermocouples (backing pumps L/R, separator heater)
     columns: [backing_pump_l_temp, backing_pump_r_temp, sep_heater_temp]
     used_by: nothing

@@ -120,27 +120,23 @@ named in each item. Numbers are stable: answered items move to *Settled*.
       calibrated (writes P %), else the area. But pyNMR always carries a `cc`
       from its channel config. Does pyNMR record whether a TE was taken, or is
       the Genesis fitter's `CALIBRATED` (Preset = not calibrated) the rule?
-- [ ] 82. **Magnet supply model (magnet controls, due 2026-10-22):** is the
-      supply on `Magnet_IPS` (TCP 5001, 9600 8N2) an Oxford IPS120-10, and
-      which firmware? The sim's emulator will speak whatever protocol Utsav's
-      driver uses, but its limits and status codes depend on the model.
-      See `docs/COOLDOWN_SIM_MAGNET_PREP.md`.
-- [ ] 83. **Persistent mode:** every record since 2022 logs the supply
-      current equal to the magnet current, i.e. driven, never persistent. Is
-      the magnet always run driven (switch heater on), or does it go
-      persistent and the DAQ logged it wrongly?
-- [ ] 84. **Magnet limits:** maximum current / field (the records reach
-      53.5 A, 5.5 T in 2024-08), and the ramp-rate limit (the handbook's 3
-      A/min; the records peak near 3 A/min). One rate at every field, or
-      slower near the top?
-- [ ] 85. **Who may ramp, and what stops a ramp:** will Genesis write to the
-      supply from the start, or read it only at first? Which conditions
-      should refuse or abort a ramp (magnet LHe below 20", magnet
-      thermometry, a quench, the vacuum interlock)?
-- [ ] 86. **Field constant:** the DAQ's field is the current x 0.10274113 T/A
-      in every cool-down. Is that from the magnet's calibration sheet, and
-      should Genesis use the same constant (and publish the field), or read
-      the supply's own field read-back?
+- [ ] 84. **Magnet limits (Ells will send them):** maximum current / field (the
+      records reach 53.5 A, 5.5 T in 2024-08), and the ramp-rate limit (the
+      handbook's 3 A/min; the records peak near 3 A/min). One rate at every
+      field, or slower near the top?
+- [ ] 85. **Magnet ramps from Genesis (rephrased):** two parts. (a) When
+      Genesis first gets the magnet IOC, should it only *display* the supply
+      (current, field, heater), or also be able to *command* it (set a target
+      field and ramp)? (b) If it can command it: should Genesis refuse to
+      start a ramp, or stop one already running, when something is wrong?
+      For example, the magnet LHe level below the 20" alarm, magnet
+      thermometers warming, a quench, or a shells-vacuum alarm. Which of these
+      (or others) should block a ramp?
+- [ ] 86. **Field equation (Ells will send it):** the DAQ's field is the
+      current x 0.10274113 T/A in every cool-down. Ells (2026-10-22): close,
+      but there is a better equation, with an offset measured from NMR. Until
+      it arrives the sim keeps 0.10274113 T/A (`model/target.py`
+      `FIELD_T_PER_A`).
 - [ ] 75. **Converter, `NMR Status`:** filled with pyNMR's free-text event
       `label` (default "None"). The old values were Baseline / Polarization /
       TE / Tuning / Scanning, and the McClellan reader sorts sweeps by them.
@@ -442,6 +438,15 @@ named in each item. Numbers are stable: answered items move to *Settled*.
     varactors at 0-19 V. Keep a rule, change it, or drop it?
 
 ## Settled
+
+* Magnet supply model (question 82): Ells (2026-10-22), yes, the supply on
+  `Magnet_IPS` (TCP 5001, 9600 8N2) is an Oxford IPS120-10.
+
+* Persistent mode (question 83): Ells (2026-10-22), the magnet is run
+  persistent sometimes, not always. The records never show it (they log the
+  supply current equal to the magnet current), so the emulator must support
+  both: driven, and persistent (switch heater off, magnet current held while
+  the supply's output goes to zero).
 
 * `Area/Polarization` in the converter (question 74): Ells (2026-10-21),
   before any TE / calibration constant it is the area sum(V * df); after a

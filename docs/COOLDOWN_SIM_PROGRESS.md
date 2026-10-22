@@ -54,6 +54,10 @@ lab answers are in `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`.
   show (0.10274 T/A in every cool-down 2022-2026, 5.0-5.5 T, driven never
   persistent, ramps 1-2 A/min peaking near 3), every place the IOC plugs into
   the sim and the screens, and the safety checks. Questions 82-86.
+* Ells 2026-10-22: 82 settled (Oxford IPS120-10), 83 settled (persistent
+  sometimes, not always: the emulator needs both modes), 84 and 86 to come
+  from Ells (limits; a better field equation with an NMR-measured offset),
+  85 rephrased. Channel map and its report updated.
 
 ### 2026-10-21: Genesis -> LabVIEW data_record converter
 * New `python -m cooldown_sim genesis-to-labview INPUT... --out NEW_DIR

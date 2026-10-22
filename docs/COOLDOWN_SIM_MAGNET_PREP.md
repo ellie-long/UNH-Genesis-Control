@@ -7,17 +7,19 @@ code arrives.
 ## What we know
 
 - **Instrument:** the magnet power supply on the magnet's serial-to-Ethernet
-  server (port 1, `Magnet_IPS`, TCP 5001, 9600 8N2, RS-232). Presumably an
-  Oxford IPS120-10; the model is not confirmed (question 82). Highest priority of
-  the instruments Genesis does not read yet (question 26).
+  server (port 1, `Magnet_IPS`, TCP 5001, 9600 8N2, RS-232): an **Oxford
+  IPS120-10** (Ells 2026-10-22). Highest priority of the instruments Genesis
+  does not read yet (question 26).
 - **Field per current:** 0.10274 T/A, the same in every cool-down from 2022 to
   2026 (`FIELD_T_PER_A` in `cooldown_sim/model/target.py`). The DAQ's "Central
   Mag Field" is that constant times the current, not a separate measurement.
-  5 T is about 48.7 A.
+  5 T is about 48.7 A. Ells has a better equation, with an offset measured
+  from NMR, to come (question 86).
 - **How it is run** (2022-05 to 2026-07 records):
   - operating fields 5.0-5.5 T (48.7-53.5 A);
-  - the logged supply current always equals the magnet current, so there is
-    no sign of persistent mode;
+  - the logged supply current always equals the magnet current, yet the
+    magnet IS run persistent sometimes (Ells 2026-10-22), so the records do
+    not show persistent periods and the emulator must support both modes;
   - ramps typically 1-2 A/min, peaks near 3 A/min (the shift handbook's ramp
     limit is 3 A/min).
   - The one outlier is 2022-05's 299.6 A reading beside a 5.08 T maximum, a
@@ -58,5 +60,7 @@ simulator:
 
 ## To settle when the code arrives
 
-Questions 82-86 in `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`, plus question 8
-(quench behaviour).
+Settled: 82 (IPS120-10), 83 (persistent sometimes). Open: 84 (limits; Ells
+will send), 85 (display only, or command too, and what blocks a ramp), 86 (the
+better field equation; Ells will send), and 8 (quench behaviour). All in
+`docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`.
