@@ -24,6 +24,12 @@ code arrives.
     limit is 3 A/min).
   - The one outlier is 2022-05's 299.6 A reading beside a 5.08 T maximum, a
     glitch.
+- **Existing Genesis magnet drivers:** `target_ioc/instruments/cm4g_magnet.py`
+  and `cs4_magnet.py` drive Cryomagnetics supplies (Model 4G, CS-4), not the
+  IPS120-10, and no UNH profile uses them. They show the Genesis pattern a
+  new driver follows (`TelnetDevice`, write gating with `can_write`).
+- **The student's draft IOC** (Magnet_V3, local in `magnet_student/`,
+  unchanged) and its review: `magnet_student/docs/`.
 - **Old record columns:** `PS Current (A)`, `Magnet Current (A)`, `Central Mag
   Field (T)`, `Mag Field Span (T)`. The converter writes them as
   `NOT_IN_GENESIS` today.

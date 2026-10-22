@@ -49,8 +49,8 @@ lab answers are in `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`.
 ## Log
 
 ### 2026-10-22: student's magnet IOC reviewed (not changed)
-* `magnet/` (local, gitignored): the student's Magnet_V3 draft IOC for the
-  IPS120-10, unchanged, and three review documents in `magnet/docs/`: how it
+* `magnet_student/` (local, gitignored): the student's Magnet_V3 draft IOC for the
+  IPS120-10, unchanged, and three review documents in `magnet_student/docs/`: how it
   works, the protections in place, and the issues found (band-rate bug at
   20 / 40 A, no quench decoding, overlapping operations, reply mix-up after a
   reconnect, a second client on the LS455 port, and two fail-safe bugs).

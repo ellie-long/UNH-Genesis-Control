@@ -140,7 +140,7 @@ named in each item. Numbers are stable: answered items move to *Settled*.
       it arrives the sim keeps 0.10274113 T/A (`model/target.py`
       `FIELD_T_PER_A`).
 - [ ] 88. **LS455 port shared with the student's magnet IOC?** The student's
-      draft magnet IOC (reviewed 2026-10-22, kept local in `magnet/`) reads
+      draft magnet IOC (reviewed 2026-10-22, kept local in `magnet_student/`) reads
       the fringe-field gaussmeter itself at 192.168.1.251:5007 every second.
       That serial-server port takes one connection, and Genesis's `ls455` IOC
       uses it too. Was the student's IOC running on 2026-10-20? If so, it
