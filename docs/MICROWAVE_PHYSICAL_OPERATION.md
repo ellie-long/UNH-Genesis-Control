@@ -194,6 +194,8 @@ Validated on Ubuntu/WSL under the utsav account:
   /home/unhpoltarg/vaunix_shim/vaunix_shim.py.backup.20261022T083314
 - Startup/readiness verifies the deployed shim and running service.
 - RF ON/OFF physically tested with source at 140 GHz, +10 dBm.
+- Physical SIG aluminum/foil reflector response test PASSED (operator confirmed on 2026-10-22).
+- Quantitative SIG/reflected-power values were not recorded in this commissioning summary.
 - UCA voltage adjusted from 5.001 V to 4.501 V with RF ON,
   restored to 5.001 V before RF OFF.
 - RF Permissive may become 0 below the 5 V ON-edge requirement;
