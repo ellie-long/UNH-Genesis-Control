@@ -97,7 +97,10 @@ simulator:
   question 85), and refuse to start, or stop, a ramp on: magnet LHe below
   the 20" alarm, magnet thermometers warming, a quench, a shells-vacuum
   alarm. What "stop" does (hold, or run down) and the thresholds: question 87;
-- **record everything as output** (Ells 2026-10-22): all readings in the
+- **record everything as output** (Ells 2026-10-22): all readings, plus the
+  field from the NMR-measured equation (B = 0.1027405 x I + 0.00003497875 T,
+  from the current that is right in each mode: supply while driven, R16 while
+  persistent) with the coefficients in force, in the
   master archive and per-PV CSVs (the archiver's PV list), every operator
   request, refusal, completion and fault in an event log, and the converter's
   four magnet columns filled from the new PVs; nothing pruned;
