@@ -833,7 +833,7 @@ unlogged burns).
 
 ## Test status (latest)
 
-* 2026-10-22 (magnet constants, LHe volumes): `tests/cooldown_sim` **284 passed,
+* 2026-10-22 (magnet constants, LHe volumes): `tests/cooldown_sim` **283 passed,
   8 skipped on Windows** (`genesis-p1`).
 
 * 2026-10-21 (Genesis -> LabVIEW converter): `tests/cooldown_sim` **279 passed,
