@@ -214,7 +214,7 @@ instruments:
           separator).  ~50 slm while running in 2026-06, ~0.05 slm in 2020-22:
           check that the column means the same thing in every era.
 
-  lhe_fridge:            # UNH:GEN:CRYO:FRIDGE:LHE  Fridge_LI (AMI 1700, 192.168.1.30:7180)
+  lhe_fridge:            # UNH:GEN:CRYO:FRIDGE:LHE  Fridge_LI (AMI 1700, confirmed by Ells 2026-10-22; 192.168.1.30:7180)
     wire: level_raw      # (level - offset) / scale from the profile: inches as-is (1.0 / 0.0)
     absent: refuse
     channels:
@@ -234,7 +234,7 @@ instruments:
           until the LabVIEW zero/offset is known.
           Volume: conversions.fridge_lhe_liters (Ells 2026-10-22; open question 89).
 
-  lhe_magnet:            # UNH:GEN:CRYO:MAG:LHE  Magnet_LI (AMI 135, TXI017 port 2, TCP 23)
+  lhe_magnet:            # UNH:GEN:CRYO:MAG:LHE  Magnet_LI (AMI 135, confirmed by Ells 2026-10-22; TXI017 port 2, TCP 23)
     wire: level_raw      # cm = inch / 0.393 on the wire, to 0.1 cm
     absent: refuse
     channels:

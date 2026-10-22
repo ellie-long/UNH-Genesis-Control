@@ -132,15 +132,17 @@ named in each item. Numbers are stable: answered items move to *Settled*.
       Live 2026-10-20: T1 (C4, 39.92 ohm) and T3 (C2, 47.77 ohm) both read
       ~298 K with status `OK; 224 TEMP RANGE` at room temperature, i.e. bits
       16/32 set -- confirms Utsav's C4/C2 mapping and his curves.
-- [ ] 49. Models, and Genesis priority: (a) settled: `Magnet_IPS` on the
-      TXI017 is the Oxford IPS120-10 (question 82). (b) `Magnet_LHE_Prob`
-      (TCP 23) -- which level meter (AMI model)? Utsav's `lhe_magnet` driver
-      says an AMI Model 135 (cm, echo on); the 2020 record's 0.1 cm steps
-      agree: confirm. (c) settled: Utsav's ccce63e gives the cart's IONIVAC
-      its own IOC, `ionivac_pump` (see Settled). (d) `left_Roots_Pump` (5012) and
-      `Separator_Pump` (5013): Utsav's configs make them the left-Roots and
-      separator Hastings flowmeters (now Genesis IOCs `flowmeter_left`,
-      `flowmeter_sep`): confirm.
+- [ ] 49. **Flowmeters (d), with an expert's help (2026-10-22):** Utsav's drivers say all
+      three are Teledyne Hastings: left Roots (TXI040 port 6, TCP 5012) and
+      separator (port 7, TCP 5013) direct, right Roots via the Pi
+      (192.168.1.24:5010); each answers `F`+CR with a number ending in `>`;
+      SLM = raw x 28/19 (1.4737). (1) Model, full scale, all three the same?
+      (2) Is 28/19 Hastings's helium correction for these meters? Commonly
+      published He factors (vs N2) are ~1.45, 1.4 % lower. (3) Zero offsets
+      at no flow (2026-10-20: L +1.36, R -0.42, sep -0.17 slm): normal,
+      adjustable? (4) Separator ~50 slm running in 2026-06 vs ~0.05 in
+      2020-22; left meter empty from 2025-11; a repeated 105.49 maximum on
+      left: same meter? broken? saturation? (Parts a-c settled.)
 - [ ] 50. (Housekeeping) TXI040 port 8 is vacant but set to TCP 5011, the
       same as port 5 (the TPG 262 that Genesis uses); give it a free port
       (e.g. 5014) before anything is plugged in. TXI017 port 2 uses TCP 23
@@ -433,6 +435,10 @@ named in each item. Numbers are stable: answered items move to *Settled*.
     varactors at 0-19 V. Keep a rule, change it, or drop it?
 
 ## Settled
+
+* LHe level meters (question 49 b): Ells (2026-10-22), the magnet's is an
+  AMI Model 135 and the fridge's an AMI Model 1700, as Utsav's `lhe_magnet` /
+  `lhe_fridge` drivers assume.
 
 * TPG 262 units (questions 65, 68): Ells (2026-10-22), the readings must
   be in Torr: if the controller ever reports another unit, Genesis sets it to
