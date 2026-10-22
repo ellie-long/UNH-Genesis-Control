@@ -48,6 +48,22 @@ lab answers are in `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`.
 
 ## Log
 
+### 2026-10-22: Utsav's main c088cdb merged
+* Merged `upstream/main` c088cdb into dev-sim (7fed56e; backup
+  `backup/dev-sim-pre-utsav-c088cdb`). Six commits since ccce63e: PyNMR
+  spectrum streaming and baseline-subtracted fitter plots; microwave physical
+  control validated with deployment safeguards (Vaunix, robot, supervisor
+  settings, six microwave screens); the SIG reflector acceptance note; the
+  master archiver covering every PV with physical CA discovery; a dedicated
+  microwave Phoebus server port. No magnet code yet.
+* No conflicts: `gui/genesis_microwave.bob`, changed on both sides, merged
+  cleanly and keeps dev-sim's dopant control (`MW:SUP:Dopant`).
+* Tests: `tests/cooldown_sim` 284 passed, 8 skipped (Windows, genesis-p1);
+  WSL `tests/test_master_*.py tests/test_microwave_*.py
+  tests/test_phoebus_launcher.py tests/test_ssrf_fitter_gui_static.py
+  tests/test_cryo_*.py tests/test_target_cryo_integration.py` 446 passed
+  (102 subtests).
+
 ### 2026-10-22: Ells's answers (TPG Torr, vapour pressure, cart, 60-62)
 * TPG 262 in Torr always (65, 68): Genesis sets the unit to Torr if it is not
   (for Utsav); the sim's TPG emulator now answers Torr (UNI = 1, as live) and
