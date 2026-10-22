@@ -90,7 +90,7 @@ class VaunixManagerIntegration(unittest.TestCase):
         dev = cfg["vaunix_lms"]
 
         self.assertFalse(dev["simulation"])
-        self.assertEqual(dev["ip"], "mmWaveRobot.local")
+        self.assertEqual(dev["ip"], "192.168.1.23")
         self.assertEqual(dev["port"], 1701)
 
     def test_ca_discovery_contains_vaunix(self):
@@ -108,7 +108,7 @@ class VaunixManagerIntegration(unittest.TestCase):
 
     def test_phoebus_discovery_contains_vaunix(self):
         self.assertIn(
-            "127.0.0.1:5079",
+            "127.0.0.1:5069",
             PHOEBUS.read_text(),
         )
 

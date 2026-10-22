@@ -112,7 +112,7 @@
     <y>142</y>
     <width>26</width>
     <height>26</height>
-    <pv_name>pva://$(P):SystemConnected</pv_name>
+    <pv_name>ca://$(P):SystemConnected</pv_name>
     <bit>0</bit>
     <off_color>
       <color red="200" green="50" blue="50" />
@@ -139,7 +139,7 @@
     <y>142</y>
     <width>26</width>
     <height>26</height>
-    <pv_name>pva://$(P):UCAConnected</pv_name>
+    <pv_name>ca://$(P):UCAConnected</pv_name>
     <bit>0</bit>
     <off_color>
       <color red="200" green="50" blue="50" />
@@ -166,7 +166,7 @@
     <y>142</y>
     <width>26</width>
     <height>26</height>
-    <pv_name>pva://$(P):VaunixConnected</pv_name>
+    <pv_name>ca://$(P):VaunixConnected</pv_name>
     <bit>0</bit>
     <off_color>
       <color red="200" green="50" blue="50" />
@@ -193,7 +193,7 @@
     <y>142</y>
     <width>26</width>
     <height>26</height>
-    <pv_name>pva://$(P):RFPermissive</pv_name>
+    <pv_name>ca://$(P):RFPermissive</pv_name>
     <bit>0</bit>
     <off_color>
       <color red="200" green="50" blue="50" />
@@ -220,7 +220,7 @@
     <y>142</y>
     <width>26</width>
     <height>26</height>
-    <pv_name>pva://$(P):Simulation</pv_name>
+    <pv_name>ca://$(P):Simulation</pv_name>
     <bit>0</bit>
     <off_color>
       <color red="200" green="50" blue="50" />
@@ -247,7 +247,7 @@
     <y>183</y>
     <width>120</width>
     <height>25</height>
-    <pv_name>pva://$(P):UCAVoltage</pv_name>
+    <pv_name>ca://$(P):UCAVoltage</pv_name>
     <precision>4</precision>
   </widget>
   <widget type="label" version="2.0.0">
@@ -280,7 +280,7 @@
     <y>183</y>
     <width>570</width>
     <height>25</height>
-    <pv_name>pva://$(P):InterlockMessage</pv_name>
+    <pv_name>ca://$(P):InterlockMessage</pv_name>
     <format>6</format>
   </widget>
   <widget type="label" version="2.0.0">
@@ -301,7 +301,7 @@
     <y>223</y>
     <width>840</width>
     <height>25</height>
-    <pv_name>pva://$(P):LastError</pv_name>
+    <pv_name>ca://$(P):LastError</pv_name>
     <format>6</format>
   </widget>
   <widget type="rectangle" version="2.0.0">
@@ -389,7 +389,7 @@
     <y>392</y>
     <width>125</width>
     <height>28</height>
-    <pv_name>pva://$(P):OutputFrequency</pv_name>
+    <pv_name>ca://$(P):OutputFrequency</pv_name>
     <precision>5</precision>
   </widget>
   <widget type="textupdate" version="2.0.0">
@@ -398,7 +398,7 @@
     <y>393</y>
     <width>125</width>
     <height>25</height>
-    <pv_name>pva://$(P):OutputFrequencyRBV</pv_name>
+    <pv_name>ca://$(P):OutputFrequencyRBV</pv_name>
     <precision>5</precision>
   </widget>
   <widget type="label" version="2.0.0">
@@ -431,7 +431,7 @@
     <y>439</y>
     <width>125</width>
     <height>28</height>
-    <pv_name>pva://$(P):RFEnable</pv_name>
+    <pv_name>ca://$(P):RFEnable</pv_name>
     <label />
   </widget>
   <widget type="led" version="2.0.0">
@@ -440,7 +440,7 @@
     <y>440</y>
     <width>26</width>
     <height>26</height>
-    <pv_name>pva://$(P):RFActual</pv_name>
+    <pv_name>ca://$(P):RFActual</pv_name>
     <bit>0</bit>
     <off_color>
       <color red="150" green="155" blue="160" />
@@ -453,7 +453,7 @@
       <rule name="Fresh RF readback only" prop_id="visible" out_exp="false">
         <exp bool_exp="pv0 == 1 &amp;&amp; pvSev0 == 0"><value>true</value></exp>
         <exp bool_exp="!(pv0 == 1 &amp;&amp; pvSev0 == 0)"><value>false</value></exp>
-        <pv_name>pva://$(P):RFValid</pv_name>
+        <pv_name>ca://$(P):RFValid</pv_name>
       </rule>
     </rules>
   </widget>
@@ -475,7 +475,7 @@
     <y>393</y>
     <width>125</width>
     <height>25</height>
-    <pv_name>pva://$(P):CentralFrequency</pv_name>
+    <pv_name>ca://$(P):CentralFrequency</pv_name>
     <precision>5</precision>
   </widget>
   <widget type="label" version="2.0.0">
@@ -564,7 +564,7 @@
     <y>597</y>
     <width>105</width>
     <height>28</height>
-    <pv_name>pva://$(P):SweepStart</pv_name>
+    <pv_name>ca://$(P):SweepStart</pv_name>
     <precision>5</precision>
   </widget>
   <widget type="label" version="2.0.0">
@@ -597,7 +597,7 @@
     <y>597</y>
     <width>105</width>
     <height>28</height>
-    <pv_name>pva://$(P):SweepStop</pv_name>
+    <pv_name>ca://$(P):SweepStop</pv_name>
     <precision>5</precision>
   </widget>
   <widget type="label" version="2.0.0">
@@ -630,7 +630,7 @@
     <y>597</y>
     <width>105</width>
     <height>28</height>
-    <pv_name>pva://$(P):SweepStep</pv_name>
+    <pv_name>ca://$(P):SweepStep</pv_name>
     <precision>5</precision>
   </widget>
   <widget type="label" version="2.0.0">
@@ -663,7 +663,7 @@
     <y>597</y>
     <width>105</width>
     <height>28</height>
-    <pv_name>pva://$(P):SweepDwell</pv_name>
+    <pv_name>ca://$(P):SweepDwell</pv_name>
     <precision>5</precision>
   </widget>
   <widget type="label" version="2.0.0">
@@ -684,7 +684,7 @@
     <y>650</y>
     <width>130</width>
     <height>30</height>
-    <pv_name>pva://$(P):SweepStartCommand</pv_name>
+    <pv_name>ca://$(P):SweepStartCommand</pv_name>
   </widget>
   <widget type="label" version="2.0.0">
     <name>SweepStartCommand_L</name>
@@ -704,7 +704,7 @@
     <y>650</y>
     <width>130</width>
     <height>30</height>
-    <pv_name>pva://$(P):SweepStopCommand</pv_name>
+    <pv_name>ca://$(P):SweepStopCommand</pv_name>
   </widget>
   <widget type="label" version="2.0.0">
     <name>SweepStopCommand_L</name>
@@ -724,7 +724,7 @@
     <y>650</y>
     <width>130</width>
     <height>30</height>
-    <pv_name>pva://$(P):SweepCancel</pv_name>
+    <pv_name>ca://$(P):SweepCancel</pv_name>
   </widget>
   <widget type="label" version="2.0.0">
     <name>SweepCancel_L</name>
@@ -756,7 +756,7 @@
     <y>708</y>
     <width>130</width>
     <height>25</height>
-    <pv_name>pva://$(P):SweepState</pv_name>
+    <pv_name>ca://$(P):SweepState</pv_name>
     <format>6</format>
   </widget>
   <widget type="label" version="2.0.0">
@@ -777,7 +777,7 @@
     <y>708</y>
     <width>130</width>
     <height>25</height>
-    <pv_name>pva://$(P):SweepPoint</pv_name>
+    <pv_name>ca://$(P):SweepPoint</pv_name>
     <precision>0</precision>
   </widget>
   <widget type="label" version="2.0.0">
@@ -798,7 +798,7 @@
     <y>708</y>
     <width>130</width>
     <height>25</height>
-    <pv_name>pva://$(P):SweepTotal</pv_name>
+    <pv_name>ca://$(P):SweepTotal</pv_name>
     <precision>0</precision>
   </widget>
   <widget type="label" version="2.0.0">
@@ -819,7 +819,7 @@
     <y>748</y>
     <width>130</width>
     <height>25</height>
-    <pv_name>pva://$(P):SweepProgress</pv_name>
+    <pv_name>ca://$(P):SweepProgress</pv_name>
     <precision>1</precision>
   </widget>
   <widget type="label" version="2.0.0">
@@ -840,7 +840,7 @@
     <y>748</y>
     <width>130</width>
     <height>25</height>
-    <pv_name>pva://$(P):SweepCurrentFrequency</pv_name>
+    <pv_name>ca://$(P):SweepCurrentFrequency</pv_name>
     <precision>5</precision>
   </widget>
   <widget type="label" version="2.0.0">
@@ -861,7 +861,7 @@
     <y>748</y>
     <width>240</width>
     <height>25</height>
-    <pv_name>pva://$(P):SweepError</pv_name>
+    <pv_name>ca://$(P):SweepError</pv_name>
     <format>6</format>
   </widget>
   <widget type="label" version="2.0.0">
@@ -883,7 +883,7 @@
     <y>440</y>
     <width>80</width>
     <height>25</height>
-    <pv_name>pva://$(P):RFState</pv_name>
+    <pv_name>ca://$(P):RFState</pv_name>
     <format>6</format>
   </widget>
 <widget type="label" version="2.0.0">
@@ -900,7 +900,7 @@
     <y>900</y>
     <width>160</width>
     <height>25</height>
-    <pv_name>pva://$(P):RFState</pv_name>
+    <pv_name>ca://$(P):RFState</pv_name>
     <format>6</format>
   </widget>
 <widget type="label" version="2.0.0">
@@ -917,7 +917,7 @@
     <y>930</y>
     <width>160</width>
     <height>25</height>
-    <pv_name>pva://$(P):RFValid</pv_name>
+    <pv_name>ca://$(P):RFValid</pv_name>
   </widget>
 <widget type="label" version="2.0.0">
     <name>RF_ControlOwned_Label</name>
@@ -933,7 +933,7 @@
     <y>960</y>
     <width>160</width>
     <height>25</height>
-    <pv_name>pva://$(P):ControlOwned</pv_name>
+    <pv_name>ca://$(P):ControlOwned</pv_name>
   </widget>
 <widget type="action_button" version="3.0.0">
     <name>RF_OFF_ABORT</name>
@@ -944,7 +944,7 @@
     <text>RF OFF / ABORT</text>
     <actions>
       <action type="write_pv">
-        <pv_name>pva://$(P):RFAbort</pv_name>
+        <pv_name>ca://$(P):RFAbort</pv_name>
         <value>1</value>
       </action>
     </actions>

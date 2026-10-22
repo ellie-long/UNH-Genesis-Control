@@ -109,7 +109,7 @@
     <y>137</y>
     <width>26</width>
     <height>26</height>
-    <pv_name>pva://UNH:GEN:MW:PS:COMM</pv_name>
+    <pv_name>ca://UNH:GEN:MW:PS:COMM</pv_name>
     <bit>0</bit>
     <off_color>
       <color red="200" green="50" blue="50" />
@@ -124,7 +124,7 @@
     <y>138</y>
     <width>90</width>
     <height>25</height>
-    <pv_name>pva://UNH:GEN:MW:PS:COMM</pv_name>
+    <pv_name>ca://UNH:GEN:MW:PS:COMM</pv_name>
     <format>6</format>
   </widget>
   <widget type="label" version="2.0.0">
@@ -145,7 +145,7 @@
     <y>173</y>
     <width>75</width>
     <height>25</height>
-    <pv_name>pva://UNH:GEN:MAN:mw_spd1305x_hb</pv_name>
+    <pv_name>ca://UNH:GEN:MAN:mw_spd1305x_hb</pv_name>
     <precision>0</precision>
   </widget>
   <widget type="label" version="2.0.0">
@@ -178,7 +178,7 @@
     <y>137</y>
     <width>26</width>
     <height>26</height>
-    <pv_name>pva://UNH:GEN:MW:SRC:MW_Connected</pv_name>
+    <pv_name>ca://UNH:GEN:MW:SRC:MW_Connected</pv_name>
     <bit>0</bit>
     <off_color>
       <color red="200" green="50" blue="50" />
@@ -193,7 +193,7 @@
     <y>138</y>
     <width>90</width>
     <height>25</height>
-    <pv_name>pva://UNH:GEN:MW:SRC:MW_Connected</pv_name>
+    <pv_name>ca://UNH:GEN:MW:SRC:MW_Connected</pv_name>
     <format>6</format>
   </widget>
   <widget type="label" version="2.0.0">
@@ -214,7 +214,7 @@
     <y>173</y>
     <width>75</width>
     <height>25</height>
-    <pv_name>pva://UNH:GEN:MAN:mw_vaunix_lms_hb</pv_name>
+    <pv_name>ca://UNH:GEN:MAN:mw_vaunix_lms_hb</pv_name>
     <precision>0</precision>
   </widget>
   <widget type="label" version="2.0.0">
@@ -247,7 +247,7 @@
     <y>137</y>
     <width>26</width>
     <height>26</height>
-    <pv_name>pva://UNH:GEN:MW:SUP:SystemConnected</pv_name>
+    <pv_name>ca://UNH:GEN:MW:SUP:SystemConnected</pv_name>
     <bit>0</bit>
     <off_color>
       <color red="200" green="50" blue="50" />
@@ -262,7 +262,7 @@
     <y>138</y>
     <width>90</width>
     <height>25</height>
-    <pv_name>pva://UNH:GEN:MW:SUP:SystemConnected</pv_name>
+    <pv_name>ca://UNH:GEN:MW:SUP:SystemConnected</pv_name>
     <format>6</format>
   </widget>
   <widget type="label" version="2.0.0">
@@ -283,7 +283,7 @@
     <y>173</y>
     <width>75</width>
     <height>25</height>
-    <pv_name>pva://UNH:GEN:MAN:mw_supervisor_hb</pv_name>
+    <pv_name>ca://UNH:GEN:MAN:mw_supervisor_hb</pv_name>
     <precision>0</precision>
   </widget>
   <widget type="label" version="2.0.0">
@@ -316,7 +316,7 @@
     <y>137</y>
     <width>26</width>
     <height>26</height>
-    <pv_name>pva://UNH:GEN:MW:ROBOT:COMM_STATUS</pv_name>
+    <pv_name>ca://UNH:GEN:MW:ROBOT:COMM_STATUS</pv_name>
     <bit>0</bit>
     <off_color>
       <color red="200" green="50" blue="50" />
@@ -331,7 +331,7 @@
     <y>138</y>
     <width>90</width>
     <height>25</height>
-    <pv_name>pva://UNH:GEN:MW:ROBOT:COMM_STATUS</pv_name>
+    <pv_name>ca://UNH:GEN:MW:ROBOT:COMM_STATUS</pv_name>
     <format>6</format>
   </widget>
   <widget type="label" version="2.0.0">
@@ -352,7 +352,7 @@
     <y>173</y>
     <width>75</width>
     <height>25</height>
-    <pv_name>pva://UNH:GEN:MAN:mw_pcl602_hb</pv_name>
+    <pv_name>ca://UNH:GEN:MAN:mw_pcl602_hb</pv_name>
     <precision>0</precision>
   </widget>
   <widget type="label" version="2.0.0">
@@ -428,7 +428,7 @@
     <y>277</y>
     <width>26</width>
     <height>26</height>
-    <pv_name>pva://UNH:GEN:MW:SUP:SystemConnected</pv_name>
+    <pv_name>ca://UNH:GEN:MW:SUP:SystemConnected</pv_name>
     <bit>0</bit>
     <off_color>
       <color red="200" green="50" blue="50" />
@@ -443,7 +443,7 @@
     <y>278</y>
     <width>100</width>
     <height>25</height>
-    <pv_name>pva://UNH:GEN:MW:SUP:SystemConnected</pv_name>
+    <pv_name>ca://UNH:GEN:MW:SUP:SystemConnected</pv_name>
     <format>6</format>
   </widget>
   <widget type="label" version="2.0.0">
@@ -464,7 +464,7 @@
     <y>277</y>
     <width>26</width>
     <height>26</height>
-    <pv_name>pva://UNH:GEN:MW:SUP:RFPermissive</pv_name>
+    <pv_name>ca://UNH:GEN:MW:SUP:RFPermissive</pv_name>
     <bit>0</bit>
     <off_color>
       <color red="200" green="50" blue="50" />
@@ -479,7 +479,7 @@
     <y>278</y>
     <width>100</width>
     <height>25</height>
-    <pv_name>pva://UNH:GEN:MW:SUP:RFPermissive</pv_name>
+    <pv_name>ca://UNH:GEN:MW:SUP:RFPermissive</pv_name>
     <format>6</format>
   </widget>
   <widget type="label" version="2.0.0">
@@ -500,7 +500,7 @@
     <y>277</y>
     <width>26</width>
     <height>26</height>
-    <pv_name>pva://UNH:GEN:MW:SUP:Simulation</pv_name>
+    <pv_name>ca://UNH:GEN:MW:SUP:Simulation</pv_name>
     <bit>0</bit>
     <off_color>
       <color red="200" green="50" blue="50" />
@@ -515,7 +515,7 @@
     <y>278</y>
     <width>110</width>
     <height>25</height>
-    <pv_name>pva://UNH:GEN:MW:SUP:Simulation</pv_name>
+    <pv_name>ca://UNH:GEN:MW:SUP:Simulation</pv_name>
     <format>6</format>
   </widget>
   <widget type="label" version="2.0.0">
@@ -536,7 +536,7 @@
     <y>277</y>
     <width>120</width>
     <height>28</height>
-    <pv_name>pva://UNH:GEN:MW:SUP:RFEnable</pv_name>
+    <pv_name>ca://UNH:GEN:MW:SUP:RFEnable</pv_name>
     <label />
   </widget>
   <widget type="led" version="2.0.0">
@@ -545,7 +545,7 @@
     <y>277</y>
     <width>26</width>
     <height>26</height>
-    <pv_name>pva://UNH:GEN:MW:SUP:RFActual</pv_name>
+    <pv_name>ca://UNH:GEN:MW:SUP:RFActual</pv_name>
     <bit>0</bit>
     <off_color>
       <color red="150" green="155" blue="160" />
@@ -558,7 +558,7 @@
       <rule name="Fresh RF readback only" prop_id="visible" out_exp="false">
         <exp bool_exp="pv0 == 1 &amp;&amp; pvSev0 == 0"><value>true</value></exp>
         <exp bool_exp="!(pv0 == 1 &amp;&amp; pvSev0 == 0)"><value>false</value></exp>
-        <pv_name>pva://UNH:GEN:MW:SUP:RFValid</pv_name>
+        <pv_name>ca://UNH:GEN:MW:SUP:RFValid</pv_name>
       </rule>
     </rules>
   </widget>
@@ -580,7 +580,7 @@
     <y>318</y>
     <width>915</width>
     <height>25</height>
-    <pv_name>pva://UNH:GEN:MW:SUP:InterlockMessage</pv_name>
+    <pv_name>ca://UNH:GEN:MW:SUP:InterlockMessage</pv_name>
     <format>6</format>
   </widget>
   <widget type="label" version="2.0.0">
@@ -601,7 +601,7 @@
     <y>359</y>
     <width>120</width>
     <height>28</height>
-    <pv_name>pva://UNH:GEN:MW:SUP:OutputFrequency</pv_name>
+    <pv_name>ca://UNH:GEN:MW:SUP:OutputFrequency</pv_name>
     <precision>5</precision>
   </widget>
   <widget type="textupdate" version="2.0.0">
@@ -610,7 +610,7 @@
     <y>360</y>
     <width>120</width>
     <height>25</height>
-    <pv_name>pva://UNH:GEN:MW:SUP:OutputFrequencyRBV</pv_name>
+    <pv_name>ca://UNH:GEN:MW:SUP:OutputFrequencyRBV</pv_name>
     <precision>5</precision>
   </widget>
   <widget type="label" version="2.0.0">
@@ -643,7 +643,7 @@
     <y>360</y>
     <width>120</width>
     <height>25</height>
-    <pv_name>pva://UNH:GEN:MW:SUP:CentralFrequency</pv_name>
+    <pv_name>ca://UNH:GEN:MW:SUP:CentralFrequency</pv_name>
     <precision>5</precision>
   </widget>
   <widget type="label" version="2.0.0">
@@ -676,7 +676,7 @@
     <y>360</y>
     <width>160</width>
     <height>25</height>
-    <pv_name>pva://UNH:GEN:MW:SUP:SweepState</pv_name>
+    <pv_name>ca://UNH:GEN:MW:SUP:SweepState</pv_name>
     <format>6</format>
   </widget>
   <widget type="label" version="2.0.0">
@@ -697,7 +697,7 @@
     <y>402</y>
     <width>115</width>
     <height>28</height>
-    <pv_name>pva://UNH:GEN:MW:SUP:SweepStart</pv_name>
+    <pv_name>ca://UNH:GEN:MW:SUP:SweepStart</pv_name>
     <precision>5</precision>
   </widget>
   <widget type="label" version="2.0.0">
@@ -718,7 +718,7 @@
     <y>402</y>
     <width>115</width>
     <height>28</height>
-    <pv_name>pva://UNH:GEN:MW:SUP:SweepStop</pv_name>
+    <pv_name>ca://UNH:GEN:MW:SUP:SweepStop</pv_name>
     <precision>5</precision>
   </widget>
   <widget type="label" version="2.0.0">
@@ -739,7 +739,7 @@
     <y>402</y>
     <width>115</width>
     <height>28</height>
-    <pv_name>pva://UNH:GEN:MW:SUP:SweepStep</pv_name>
+    <pv_name>ca://UNH:GEN:MW:SUP:SweepStep</pv_name>
     <precision>5</precision>
   </widget>
   <widget type="label" version="2.0.0">
@@ -760,7 +760,7 @@
     <y>402</y>
     <width>115</width>
     <height>28</height>
-    <pv_name>pva://UNH:GEN:MW:SUP:SweepDwell</pv_name>
+    <pv_name>ca://UNH:GEN:MW:SUP:SweepDwell</pv_name>
     <precision>5</precision>
   </widget>
   <widget type="label" version="2.0.0">
@@ -817,7 +817,7 @@
     <y>450</y>
     <width>150</width>
     <height>30</height>
-    <pv_name>pva://UNH:GEN:MW:SUP:SweepStartCommand</pv_name>
+    <pv_name>ca://UNH:GEN:MW:SUP:SweepStartCommand</pv_name>
   </widget>
   <widget type="label" version="2.0.0">
     <name>SUP_SweepStart_CMD_L</name>
@@ -837,7 +837,7 @@
     <y>450</y>
     <width>150</width>
     <height>30</height>
-    <pv_name>pva://UNH:GEN:MW:SUP:SweepStopCommand</pv_name>
+    <pv_name>ca://UNH:GEN:MW:SUP:SweepStopCommand</pv_name>
   </widget>
   <widget type="label" version="2.0.0">
     <name>SUP_SweepStop_CMD_L</name>
@@ -869,7 +869,7 @@
     <y>452</y>
     <width>100</width>
     <height>25</height>
-    <pv_name>pva://UNH:GEN:MW:SUP:SweepProgress</pv_name>
+    <pv_name>ca://UNH:GEN:MW:SUP:SweepProgress</pv_name>
     <precision>1</precision>
   </widget>
   <widget type="label" version="2.0.0">
@@ -902,7 +902,7 @@
     <y>452</y>
     <width>120</width>
     <height>25</height>
-    <pv_name>pva://UNH:GEN:MW:SUP:SweepCurrentFrequency</pv_name>
+    <pv_name>ca://UNH:GEN:MW:SUP:SweepCurrentFrequency</pv_name>
     <precision>5</precision>
   </widget>
   <widget type="label" version="2.0.0">
@@ -935,7 +935,7 @@
     <y>493</y>
     <width>710</width>
     <height>25</height>
-    <pv_name>pva://UNH:GEN:MW:SUP:LastError</pv_name>
+    <pv_name>ca://UNH:GEN:MW:SUP:LastError</pv_name>
     <format>6</format>
   </widget>
   <widget type="action_button" version="3.0.0">
@@ -1014,7 +1014,7 @@
     <y>602</y>
     <width>26</width>
     <height>26</height>
-    <pv_name>pva://UNH:GEN:MW:PS:COMM</pv_name>
+    <pv_name>ca://UNH:GEN:MW:PS:COMM</pv_name>
     <bit>0</bit>
     <off_color>
       <color red="200" green="50" blue="50" />
@@ -1029,7 +1029,7 @@
     <y>603</y>
     <width>100</width>
     <height>25</height>
-    <pv_name>pva://UNH:GEN:MW:PS:COMM</pv_name>
+    <pv_name>ca://UNH:GEN:MW:PS:COMM</pv_name>
     <format>6</format>
   </widget>
   <widget type="label" version="2.0.0">
@@ -1050,7 +1050,7 @@
     <y>602</y>
     <width>26</width>
     <height>26</height>
-    <pv_name>pva://UNH:GEN:MW:PS:OUTPUT_RBV</pv_name>
+    <pv_name>ca://UNH:GEN:MW:PS:OUTPUT_RBV</pv_name>
     <bit>0</bit>
     <off_color>
       <color red="200" green="50" blue="50" />
@@ -1065,7 +1065,7 @@
     <y>603</y>
     <width>100</width>
     <height>25</height>
-    <pv_name>pva://UNH:GEN:MW:PS:OUTPUT_RBV</pv_name>
+    <pv_name>ca://UNH:GEN:MW:PS:OUTPUT_RBV</pv_name>
     <format>6</format>
   </widget>
   <widget type="label" version="2.0.0">
@@ -1086,7 +1086,7 @@
     <y>643</y>
     <width>110</width>
     <height>25</height>
-    <pv_name>pva://UNH:GEN:MW:PS:VMEAS</pv_name>
+    <pv_name>ca://UNH:GEN:MW:PS:VMEAS</pv_name>
     <precision>4</precision>
   </widget>
   <widget type="label" version="2.0.0">
@@ -1119,7 +1119,7 @@
     <y>675</y>
     <width>110</width>
     <height>25</height>
-    <pv_name>pva://UNH:GEN:MW:PS:IMEAS</pv_name>
+    <pv_name>ca://UNH:GEN:MW:PS:IMEAS</pv_name>
     <precision>4</precision>
   </widget>
   <widget type="label" version="2.0.0">
@@ -1152,7 +1152,7 @@
     <y>707</y>
     <width>110</width>
     <height>25</height>
-    <pv_name>pva://UNH:GEN:MW:PS:PMEAS</pv_name>
+    <pv_name>ca://UNH:GEN:MW:PS:PMEAS</pv_name>
     <precision>4</precision>
   </widget>
   <widget type="label" version="2.0.0">
@@ -1185,7 +1185,7 @@
     <y>643</y>
     <width>175</width>
     <height>25</height>
-    <pv_name>pva://UNH:GEN:MW:PS:ERROR</pv_name>
+    <pv_name>ca://UNH:GEN:MW:PS:ERROR</pv_name>
     <format>6</format>
   </widget>
   <widget type="action_button" version="3.0.0">
@@ -1264,7 +1264,7 @@
     <y>602</y>
     <width>26</width>
     <height>26</height>
-    <pv_name>pva://UNH:GEN:MW:SRC:MW_Connected</pv_name>
+    <pv_name>ca://UNH:GEN:MW:SRC:MW_Connected</pv_name>
     <bit>0</bit>
     <off_color>
       <color red="200" green="50" blue="50" />
@@ -1279,7 +1279,7 @@
     <y>603</y>
     <width>100</width>
     <height>25</height>
-    <pv_name>pva://UNH:GEN:MW:SRC:MW_Connected</pv_name>
+    <pv_name>ca://UNH:GEN:MW:SRC:MW_Connected</pv_name>
     <format>6</format>
   </widget>
   <widget type="label" version="2.0.0">
@@ -1300,7 +1300,7 @@
     <y>602</y>
     <width>26</width>
     <height>26</height>
-    <pv_name>pva://UNH:GEN:MW:SRC:MW_Lock</pv_name>
+    <pv_name>ca://UNH:GEN:MW:SRC:MW_Lock</pv_name>
     <bit>0</bit>
     <off_color>
       <color red="200" green="50" blue="50" />
@@ -1327,7 +1327,7 @@
     <y>643</y>
     <width>115</width>
     <height>25</height>
-    <pv_name>pva://UNH:GEN:MW:SRC:MW_OutFI</pv_name>
+    <pv_name>ca://UNH:GEN:MW:SRC:MW_OutFI</pv_name>
     <precision>5</precision>
   </widget>
   <widget type="label" version="2.0.0">
@@ -1360,7 +1360,7 @@
     <y>675</y>
     <width>115</width>
     <height>25</height>
-    <pv_name>pva://UNH:GEN:MW:SRC:MW_FI</pv_name>
+    <pv_name>ca://UNH:GEN:MW:SRC:MW_FI</pv_name>
     <precision>5</precision>
   </widget>
   <widget type="label" version="2.0.0">
@@ -1393,7 +1393,7 @@
     <y>707</y>
     <width>115</width>
     <height>25</height>
-    <pv_name>pva://UNH:GEN:MW:SRC:MW_PWRI</pv_name>
+    <pv_name>ca://UNH:GEN:MW:SRC:MW_PWRI</pv_name>
     <precision>5</precision>
   </widget>
   <widget type="label" version="2.0.0">
@@ -1426,7 +1426,7 @@
     <y>642</y>
     <width>26</width>
     <height>26</height>
-    <pv_name>pva://UNH:GEN:MW:SRC:MW_RF_RBV</pv_name>
+    <pv_name>ca://UNH:GEN:MW:SRC:MW_RF_RBV</pv_name>
     <bit>0</bit>
     <off_color>
       <color red="150" green="155" blue="160" />
@@ -1439,7 +1439,7 @@
       <rule name="Valid source RF readback only" prop_id="visible" out_exp="false">
         <exp bool_exp="pv0 == 1 &amp;&amp; pvSev0 == 0"><value>true</value></exp>
         <exp bool_exp="!(pv0 == 1 &amp;&amp; pvSev0 == 0)"><value>false</value></exp>
-        <pv_name>pva://UNH:GEN:MW:SRC:MW_RF_VALID</pv_name>
+        <pv_name>ca://UNH:GEN:MW:SRC:MW_RF_VALID</pv_name>
       </rule>
     </rules>
   </widget>
@@ -1461,7 +1461,7 @@
     <y>678</y>
     <width>26</width>
     <height>26</height>
-    <pv_name>pva://UNH:GEN:MW:SRC:MW_Simulation</pv_name>
+    <pv_name>ca://UNH:GEN:MW:SRC:MW_Simulation</pv_name>
     <bit>0</bit>
     <off_color>
       <color red="200" green="50" blue="50" />
@@ -1546,7 +1546,7 @@
     <y>857</y>
     <width>26</width>
     <height>26</height>
-    <pv_name>pva://UNH:GEN:MW:ROBOT:COMM_STATUS</pv_name>
+    <pv_name>ca://UNH:GEN:MW:ROBOT:COMM_STATUS</pv_name>
     <bit>0</bit>
     <off_color>
       <color red="200" green="50" blue="50" />
@@ -1573,7 +1573,7 @@
     <y>857</y>
     <width>26</width>
     <height>26</height>
-    <pv_name>pva://UNH:GEN:MW:ROBOT:SIMULATION</pv_name>
+    <pv_name>ca://UNH:GEN:MW:ROBOT:SIMULATION</pv_name>
     <bit>0</bit>
     <off_color>
       <color red="200" green="50" blue="50" />
@@ -1600,7 +1600,7 @@
     <y>858</y>
     <width>130</width>
     <height>25</height>
-    <pv_name>pva://UNH:GEN:MW:ROBOT:CONTROL_MODE</pv_name>
+    <pv_name>ca://UNH:GEN:MW:ROBOT:CONTROL_MODE</pv_name>
     <format>6</format>
   </widget>
   <widget type="label" version="2.0.0">
@@ -1621,7 +1621,7 @@
     <y>901</y>
     <width>110</width>
     <height>25</height>
-    <pv_name>pva://UNH:GEN:MW:ROBOT:X_CM</pv_name>
+    <pv_name>ca://UNH:GEN:MW:ROBOT:X_CM</pv_name>
     <precision>4</precision>
   </widget>
   <widget type="label" version="2.0.0">
@@ -1654,7 +1654,7 @@
     <y>901</y>
     <width>110</width>
     <height>25</height>
-    <pv_name>pva://UNH:GEN:MW:ROBOT:Y_CM</pv_name>
+    <pv_name>ca://UNH:GEN:MW:ROBOT:Y_CM</pv_name>
     <precision>4</precision>
   </widget>
   <widget type="label" version="2.0.0">
@@ -1687,7 +1687,7 @@
     <y>900</y>
     <width>26</width>
     <height>26</height>
-    <pv_name>pva://UNH:GEN:MW:ROBOT:X_REFERENCED</pv_name>
+    <pv_name>ca://UNH:GEN:MW:ROBOT:X_REFERENCED</pv_name>
     <bit>0</bit>
     <off_color>
       <color red="200" green="50" blue="50" />
@@ -1714,7 +1714,7 @@
     <y>900</y>
     <width>26</width>
     <height>26</height>
-    <pv_name>pva://UNH:GEN:MW:ROBOT:Y_REFERENCED</pv_name>
+    <pv_name>ca://UNH:GEN:MW:ROBOT:Y_REFERENCED</pv_name>
     <bit>0</bit>
     <off_color>
       <color red="200" green="50" blue="50" />
@@ -1741,7 +1741,7 @@
     <y>900</y>
     <width>26</width>
     <height>26</height>
-    <pv_name>pva://UNH:GEN:MW:ROBOT:X_BUSY</pv_name>
+    <pv_name>ca://UNH:GEN:MW:ROBOT:X_BUSY</pv_name>
     <bit>0</bit>
     <off_color>
       <color red="150" green="155" blue="160" />
@@ -1768,7 +1768,7 @@
     <y>900</y>
     <width>26</width>
     <height>26</height>
-    <pv_name>pva://UNH:GEN:MW:ROBOT:Y_BUSY</pv_name>
+    <pv_name>ca://UNH:GEN:MW:ROBOT:Y_BUSY</pv_name>
     <bit>0</bit>
     <off_color>
       <color red="150" green="155" blue="160" />
@@ -1795,7 +1795,7 @@
     <y>946</y>
     <width>700</width>
     <height>25</height>
-    <pv_name>pva://UNH:GEN:MW:ROBOT:LAST_ERROR</pv_name>
+    <pv_name>ca://UNH:GEN:MW:ROBOT:LAST_ERROR</pv_name>
     <format>6</format>
   </widget>
   <widget type="action_button" version="3.0.0">
@@ -1832,7 +1832,7 @@
     <y>278</y>
     <width>55</width>
     <height>25</height>
-    <pv_name>pva://UNH:GEN:MW:SUP:RFState</pv_name>
+    <pv_name>ca://UNH:GEN:MW:SUP:RFState</pv_name>
     <format>6</format>
   </widget>
 <widget type="label" version="2.0.0">
@@ -1849,7 +1849,7 @@
     <y>1110</y>
     <width>160</width>
     <height>25</height>
-    <pv_name>pva://UNH:GEN:MW:SUP:RFState</pv_name>
+    <pv_name>ca://UNH:GEN:MW:SUP:RFState</pv_name>
     <format>6</format>
   </widget>
 <widget type="label" version="2.0.0">
@@ -1866,7 +1866,7 @@
     <y>1140</y>
     <width>160</width>
     <height>25</height>
-    <pv_name>pva://UNH:GEN:MW:SUP:RFValid</pv_name>
+    <pv_name>ca://UNH:GEN:MW:SUP:RFValid</pv_name>
   </widget>
 <widget type="label" version="2.0.0">
     <name>RF_ControlOwned_Label</name>
@@ -1882,7 +1882,7 @@
     <y>1170</y>
     <width>160</width>
     <height>25</height>
-    <pv_name>pva://UNH:GEN:MW:SUP:ControlOwned</pv_name>
+    <pv_name>ca://UNH:GEN:MW:SUP:ControlOwned</pv_name>
   </widget>
 <widget type="action_button" version="3.0.0">
     <name>RF_OFF_ABORT</name>
@@ -1893,7 +1893,7 @@
     <text>RF OFF / ABORT</text>
     <actions>
       <action type="write_pv">
-        <pv_name>pva://UNH:GEN:MW:SUP:RFAbort</pv_name>
+        <pv_name>ca://UNH:GEN:MW:SUP:RFAbort</pv_name>
         <value>1</value>
       </action>
     </actions>
@@ -1901,7 +1901,7 @@
   <widget type="textupdate" version="2.0.0">
     <name>VX_RF_ActualState</name>
     <x>1030</x><y>642</y><width>85</width><height>26</height>
-    <pv_name>pva://UNH:GEN:MW:SRC:MW_RF_STATE</pv_name>
+    <pv_name>ca://UNH:GEN:MW:SRC:MW_RF_STATE</pv_name>
     <format>6</format>
   </widget>
   <widget type="label" version="2.0.0">
@@ -1910,7 +1910,7 @@
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>RB_JOY_V</name><x>130</x><y>990</y><width>145</width><height>24</height>
-    <pv_name>pva://UNH:GEN:MW:ROBOT:JOYSTICK_CONNECTED</pv_name><format>6</format>
+    <pv_name>ca://UNH:GEN:MW:ROBOT:JOYSTICK_CONNECTED</pv_name><format>6</format>
   </widget>
   <widget type="label" version="2.0.0">
     <name>RB_STOP_L</name><x>345</x><y>990</y><width>120</width><height>24</height>
@@ -1918,7 +1918,7 @@
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>RB_STOP_V</name><x>465</x><y>990</y><width>145</width><height>24</height>
-    <pv_name>pva://UNH:GEN:MW:ROBOT:MOTION_INHIBITED</pv_name><format>6</format>
+    <pv_name>ca://UNH:GEN:MW:ROBOT:MOTION_INHIBITED</pv_name><format>6</format>
   </widget>
   <widget type="label" version="2.0.0">
     <name>RB_XLIMIT_L</name><x>660</x><y>990</y><width>100</width><height>24</height>
@@ -1926,7 +1926,7 @@
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>RB_XLIMIT_V</name><x>760</x><y>990</y><width>145</width><height>24</height>
-    <pv_name>pva://UNH:GEN:MW:ROBOT:X_LIMITS</pv_name><format>6</format>
+    <pv_name>ca://UNH:GEN:MW:ROBOT:X_LIMITS</pv_name><format>6</format>
   </widget>
   <widget type="label" version="2.0.0">
     <name>RB_YLIMIT_L</name><x>915</x><y>990</y><width>100</width><height>24</height>
@@ -1934,7 +1934,7 @@
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>RB_YLIMIT_V</name><x>1015</x><y>990</y><width>145</width><height>24</height>
-    <pv_name>pva://UNH:GEN:MW:ROBOT:Y_LIMITS</pv_name><format>6</format>
+    <pv_name>ca://UNH:GEN:MW:ROBOT:Y_LIMITS</pv_name><format>6</format>
   </widget>
   <widget type="action_button" version="3.0.0"><name>Open_MW_Visualization</name><x>978</x><y>52</y><width>190</width><height>32</height><actions><action type="open_display"><file>genesis_mw_visualization.bob</file><target>tab</target><description>Open MW Live Visualization</description></action></actions><text>MW Live Visualization</text></widget>
 </display>

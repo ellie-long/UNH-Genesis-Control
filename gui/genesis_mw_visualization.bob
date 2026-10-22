@@ -158,7 +158,7 @@
     <y>109</y>
     <width>129</width>
     <height>23</height>
-    <pv_name>pva://UNH:GEN:MW:SUP:SystemConnected</pv_name>
+    <pv_name>ca://UNH:GEN:MW:SUP:SystemConnected</pv_name>
     <background_color>
       <color red="255" green="255" blue="255" alpha="255" />
     </background_color>
@@ -190,7 +190,7 @@
     <y>109</y>
     <width>129</width>
     <height>23</height>
-    <pv_name>pva://UNH:GEN:MW:SUP:RFPermissive</pv_name>
+    <pv_name>ca://UNH:GEN:MW:SUP:RFPermissive</pv_name>
     <background_color>
       <color red="255" green="255" blue="255" alpha="255" />
     </background_color>
@@ -222,7 +222,7 @@
     <y>142</y>
     <width>129</width>
     <height>23</height>
-    <pv_name>pva://UNH:GEN:MW:SUP:RFActual</pv_name>
+    <pv_name>ca://UNH:GEN:MW:SUP:RFActual</pv_name>
     <background_color>
       <color red="255" green="255" blue="255" alpha="255" />
     </background_color>
@@ -254,7 +254,7 @@
     <y>142</y>
     <width>129</width>
     <height>23</height>
-    <pv_name>pva://UNH:GEN:MW:SUP:RFState</pv_name>
+    <pv_name>ca://UNH:GEN:MW:SUP:RFState</pv_name>
     <background_color>
       <color red="255" green="255" blue="255" alpha="255" />
     </background_color>
@@ -323,7 +323,7 @@
     <y>109</y>
     <width>129</width>
     <height>23</height>
-    <pv_name>pva://UNH:GEN:MW:SRC:MW_Connected</pv_name>
+    <pv_name>ca://UNH:GEN:MW:SRC:MW_Connected</pv_name>
     <background_color>
       <color red="255" green="255" blue="255" alpha="255" />
     </background_color>
@@ -355,7 +355,7 @@
     <y>109</y>
     <width>129</width>
     <height>23</height>
-    <pv_name>pva://UNH:GEN:MW:SRC:MW_RF_STATE</pv_name>
+    <pv_name>ca://UNH:GEN:MW:SRC:MW_RF_STATE</pv_name>
     <background_color>
       <color red="255" green="255" blue="255" alpha="255" />
     </background_color>
@@ -387,7 +387,7 @@
     <y>142</y>
     <width>129</width>
     <height>23</height>
-    <pv_name>pva://UNH:GEN:MW:SRC:MW_FI</pv_name>
+    <pv_name>ca://UNH:GEN:MW:SRC:MW_FI</pv_name>
     <background_color>
       <color red="255" green="255" blue="255" alpha="255" />
     </background_color>
@@ -419,7 +419,7 @@
     <y>142</y>
     <width>129</width>
     <height>23</height>
-    <pv_name>pva://UNH:GEN:MW:SRC:MW_PWRI</pv_name>
+    <pv_name>ca://UNH:GEN:MW:SRC:MW_PWRI</pv_name>
     <background_color>
       <color red="255" green="255" blue="255" alpha="255" />
     </background_color>
@@ -488,7 +488,7 @@
     <y>109</y>
     <width>129</width>
     <height>23</height>
-    <pv_name>pva://UNH:GEN:MW:ROBOT:COMM_STATUS</pv_name>
+    <pv_name>ca://UNH:GEN:MW:ROBOT:COMM_STATUS</pv_name>
     <background_color>
       <color red="255" green="255" blue="255" alpha="255" />
     </background_color>
@@ -520,7 +520,7 @@
     <y>109</y>
     <width>129</width>
     <height>23</height>
-    <pv_name>pva://UNH:GEN:MW:ROBOT:MOTION_INHIBITED</pv_name>
+    <pv_name>ca://UNH:GEN:MW:ROBOT:MOTION_INHIBITED</pv_name>
     <background_color>
       <color red="255" green="255" blue="255" alpha="255" />
     </background_color>
@@ -552,7 +552,7 @@
     <y>142</y>
     <width>129</width>
     <height>23</height>
-    <pv_name>pva://UNH:GEN:MW:ROBOT:X_CM</pv_name>
+    <pv_name>ca://UNH:GEN:MW:ROBOT:X_CM</pv_name>
     <background_color>
       <color red="255" green="255" blue="255" alpha="255" />
     </background_color>
@@ -584,7 +584,7 @@
     <y>142</y>
     <width>129</width>
     <height>23</height>
-    <pv_name>pva://UNH:GEN:MW:ROBOT:Y_CM</pv_name>
+    <pv_name>ca://UNH:GEN:MW:ROBOT:Y_CM</pv_name>
     <background_color>
       <color red="255" green="255" blue="255" alpha="255" />
     </background_color>
@@ -653,7 +653,7 @@
     <y>236</y>
     <width>129</width>
     <height>23</height>
-    <pv_name>pva://UNH:GEN:MW:PS:COMM</pv_name>
+    <pv_name>ca://UNH:GEN:MW:PS:COMM</pv_name>
     <background_color>
       <color red="255" green="255" blue="255" alpha="255" />
     </background_color>
@@ -685,7 +685,7 @@
     <y>236</y>
     <width>129</width>
     <height>23</height>
-    <pv_name>pva://UNH:GEN:MW:PS:OUTPUT_RBV</pv_name>
+    <pv_name>ca://UNH:GEN:MW:PS:OUTPUT_RBV</pv_name>
     <background_color>
       <color red="255" green="255" blue="255" alpha="255" />
     </background_color>
@@ -717,7 +717,7 @@
     <y>269</y>
     <width>129</width>
     <height>23</height>
-    <pv_name>pva://UNH:GEN:MW:PS:VMEAS</pv_name>
+    <pv_name>ca://UNH:GEN:MW:PS:VMEAS</pv_name>
     <background_color>
       <color red="255" green="255" blue="255" alpha="255" />
     </background_color>
@@ -749,7 +749,7 @@
     <y>269</y>
     <width>129</width>
     <height>23</height>
-    <pv_name>pva://UNH:GEN:MW:PS:IMEAS</pv_name>
+    <pv_name>ca://UNH:GEN:MW:PS:IMEAS</pv_name>
     <background_color>
       <color red="255" green="255" blue="255" alpha="255" />
     </background_color>
@@ -818,7 +818,7 @@
     <y>236</y>
     <width>129</width>
     <height>23</height>
-    <pv_name>pva://UNH:GEN:MW:SUP:SweepState</pv_name>
+    <pv_name>ca://UNH:GEN:MW:SUP:SweepState</pv_name>
     <background_color>
       <color red="255" green="255" blue="255" alpha="255" />
     </background_color>
@@ -850,7 +850,7 @@
     <y>236</y>
     <width>129</width>
     <height>23</height>
-    <pv_name>pva://UNH:GEN:MW:SUP:SweepProgress</pv_name>
+    <pv_name>ca://UNH:GEN:MW:SUP:SweepProgress</pv_name>
     <background_color>
       <color red="255" green="255" blue="255" alpha="255" />
     </background_color>
@@ -882,7 +882,7 @@
     <y>269</y>
     <width>129</width>
     <height>23</height>
-    <pv_name>pva://UNH:GEN:MW:SUP:SweepCurrentFrequency</pv_name>
+    <pv_name>ca://UNH:GEN:MW:SUP:SweepCurrentFrequency</pv_name>
     <background_color>
       <color red="255" green="255" blue="255" alpha="255" />
     </background_color>
@@ -914,7 +914,7 @@
     <y>269</y>
     <width>129</width>
     <height>23</height>
-    <pv_name>pva://UNH:GEN:MW:SUP:SweepDwell</pv_name>
+    <pv_name>ca://UNH:GEN:MW:SUP:SweepDwell</pv_name>
     <background_color>
       <color red="255" green="255" blue="255" alpha="255" />
     </background_color>
@@ -983,7 +983,7 @@
     <y>236</y>
     <width>129</width>
     <height>23</height>
-    <pv_name>pva://UNH:GEN:MW:SUP:ControlOwned</pv_name>
+    <pv_name>ca://UNH:GEN:MW:SUP:ControlOwned</pv_name>
     <background_color>
       <color red="255" green="255" blue="255" alpha="255" />
     </background_color>
@@ -1015,7 +1015,7 @@
     <y>236</y>
     <width>129</width>
     <height>23</height>
-    <pv_name>pva://UNH:GEN:MW:SUP:RFValid</pv_name>
+    <pv_name>ca://UNH:GEN:MW:SUP:RFValid</pv_name>
     <background_color>
       <color red="255" green="255" blue="255" alpha="255" />
     </background_color>
@@ -1047,7 +1047,7 @@
     <y>269</y>
     <width>129</width>
     <height>23</height>
-    <pv_name>pva://UNH:GEN:MW:SUP:Simulation</pv_name>
+    <pv_name>ca://UNH:GEN:MW:SUP:Simulation</pv_name>
     <background_color>
       <color red="255" green="255" blue="255" alpha="255" />
     </background_color>
@@ -1079,7 +1079,7 @@
     <y>269</y>
     <width>129</width>
     <height>23</height>
-    <pv_name>pva://UNH:GEN:MW:SRC:MW_Simulation</pv_name>
+    <pv_name>ca://UNH:GEN:MW:SRC:MW_Simulation</pv_name>
     <background_color>
       <color red="255" green="255" blue="255" alpha="255" />
     </background_color>

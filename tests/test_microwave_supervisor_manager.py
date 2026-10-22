@@ -172,7 +172,7 @@ class MicrowaveSupervisorManager(unittest.TestCase):
 
     def test_phoebus_contains_supervisor_pva(self):
         self.assertIn(
-            "127.0.0.1:5086",
+            "127.0.0.1:5085",
             PHOEBUS.read_text(),
         )
 
