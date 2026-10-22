@@ -15,6 +15,10 @@ code arrives.
   Mag Field" is that constant times the current, not a separate measurement.
   5 T is about 48.7 A. Ells has a better equation, with an offset measured
   from NMR, to come (question 86).
+- **The magnet's limits** (AMI specification, system 14109, question 84):
+  rated 67.9 A for 70 kG (7 T), not warranted above; maximum charge rate
+  0.0504 A/s = 3.02 A/min; inductance 38 H; coil constant 1.031 kG/A;
+  minimum operating LHe level 16.0".
 - **How it is run** (2022-05 to 2026-07 records):
   - operating fields 5.0-5.5 T (48.7-53.5 A);
   - the logged supply current always equals the magnet current, yet the
@@ -71,8 +75,8 @@ simulator:
 
 ## To settle when the code arrives
 
-Settled: 82 (IPS120-10), 83 (persistent sometimes), 85 (show and command;
-the four conditions block or stop a ramp). Open: 84 (limits; Ells will send),
-86 (the better field equation; Ells will send), 87 (what "stop" does, and the
+Settled: 82 (IPS120-10), 83 (persistent sometimes), 84 (limits, from the AMI
+specification), 85 (show and command; the four conditions block or stop a
+ramp). Open: 86 (the better field equation; Ells will send), 87 (what "stop" does, and the
 thresholds), and 8 (quench behaviour). All in
 `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`.

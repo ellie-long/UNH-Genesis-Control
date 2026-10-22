@@ -120,10 +120,6 @@ named in each item. Numbers are stable: answered items move to *Settled*.
       calibrated (writes P %), else the area. But pyNMR always carries a `cc`
       from its channel config. Does pyNMR record whether a TE was taken, or is
       the Genesis fitter's `CALIBRATED` (Preset = not calibrated) the rule?
-- [ ] 84. **Magnet limits (Ells will send them):** maximum current / field (the
-      records reach 53.5 A, 5.5 T in 2024-08), and the ramp-rate limit (the
-      handbook's 3 A/min; the records peak near 3 A/min). One rate at every
-      field, or slower near the top?
 - [ ] 87. **Magnet ramp interlock details (follows 85):** (a) when a
       condition trips during a ramp, should Genesis HOLD at the present
       field, or run the magnet DOWN to zero (and at what rate)? Is it the
@@ -134,11 +130,15 @@ named in each item. Numbers are stable: answered items move to *Settled*.
       question 3: 1e-4 Torr warm, 1e-5 Torr cold) the trigger, or a trip
       level? (c) In persistent mode, does any of this apply (the supply is
       at zero then)?
+      Note: AMI's minimum operating LHe level is 16.0" ("for safe magnet
+      operation"); Genesis's magnet LHe alarm is at 20". Which blocks a ramp?
 - [ ] 86. **Field equation (Ells will send it):** the DAQ's field is the
       current x 0.10274113 T/A in every cool-down. Ells (2026-10-22): close,
       but there is a better equation, with an offset measured from NMR. Until
       it arrives the sim keeps 0.10274113 T/A (`model/target.py`
       `FIELD_T_PER_A`).
+      AMI's own coil constant (magnet specification, system 14109) is
+      1.031 kG/A = 0.1031 T/A, 0.35 % above the DAQ's 0.10274 T/A.
 - [ ] 88. **LS455 port shared with the student's magnet IOC?** The student's
       draft magnet IOC (reviewed 2026-10-22, kept local in `magnet_student/`) reads
       the fringe-field gaussmeter itself at 192.168.1.251:5007 every second.
@@ -446,6 +446,14 @@ named in each item. Numbers are stable: answered items move to *Settled*.
     varactors at 0-19 V. Keep a rule, change it, or drop it?
 
 ## Settled
+
+* Magnet limits (question 84): from the AMI magnet specification (system
+  14109, tested 2013-01-23; Ells 2026-10-22 pointed to it): rated operating
+  current 67.9 A for the rated 70 kG (7 T) central field, not warranted above
+  it (tested to 71 kG at 4.2 K); maximum charge rate 0.0504 A/s = 3.02 A/min;
+  38 H, 2.0 V charging voltage. The lab ramps slower at higher current: 3 / 2 /
+  1 A/min below 20 / 40 / 65 A (the student's draft; the records peak near 3
+  A/min). The draft's software limit is < 65 A.
 
 * Magnet ramps from Genesis (question 85): Ells (2026-10-22), (a) Genesis
   both shows AND commands the supply (target field, ramp) from the start;

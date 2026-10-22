@@ -623,7 +623,7 @@ record_only:
   - instrument: Magnet power supply
     columns: [ps_current, magnet_current, central_field]
     used_by: "central field = the model's B (DNP optimum, NMR line)"
-    note: "Oxford IPS120-10 supply (Ells 2026-10-22); no Genesis IOC yet (magnet controls due 2026-10-22). Run persistent sometimes, not always (Ells 2026-10-22), though the records always log PS = magnet current. Field = current x 0.10274113 T/A in the records; Ells has a better equation with an NMR-measured offset (question 86). Ells 2026-10-15: HIGHEST priority of the missing instruments (no magnet, no cool-down). \"PS Current\" is the magnet supply, not the cold board"
+    note: "Oxford IPS120-10 supply (Ells 2026-10-22) for the AMI magnet (system 14109: rated 67.9 A / 70 kG, max charge rate 0.0504 A/s, coil constant 1.031 kG/A, minimum operating LHe 16.0 in); no Genesis IOC yet (magnet controls due 2026-10-22). Run persistent sometimes, not always (Ells 2026-10-22), though the records always log PS = magnet current. Field = current x 0.10274113 T/A in the records; Ells has a better equation with an NMR-measured offset (question 86). Ells 2026-10-15: HIGHEST priority of the missing instruments (no magnet, no cool-down). \"PS Current\" is the magnet supply, not the cold board"
   - instrument: Lab thermocouples (backing pumps L/R, separator heater)
     columns: [backing_pump_l_temp, backing_pump_r_temp, sep_heater_temp]
     used_by: nothing
