@@ -254,6 +254,11 @@ instruments:
           Volume: conversions.magnet_lhe_liters (Ells 2026-10-22; bore, solenoid,
           belly, insert-tube segments). Ramps blocked below 20 in; an Expert
           option allows down to 16 in, AMI's minimum (Ells 2026-10-22).
+          Remote control (AMI Model 135/136 manual Rev. 3, section 4.1.4):
+          SAMPLE vs UPDATE is the front-panel toggle only, no serial command;
+          MEASURE forces one immediate reading (in SAMPLE), HOLD stops
+          measuring, INTERVAL=<value> sets the sample interval (SAVE keeps
+          it). Genesis's driver sends only LEVEL.
           The 2020 values step by 0.0393 in = 0.1 cm x 0.393, i.e. this AMI 135
           read in cm with the same 0.393 the Genesis profile uses; the emulator
           answers in cm to 0.1 cm.  The magnet LHe meter is on TXI017 port 2,
