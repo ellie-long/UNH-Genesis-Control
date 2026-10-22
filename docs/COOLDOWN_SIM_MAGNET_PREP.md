@@ -25,8 +25,10 @@ code arrives.
   - the logged supply current always equals the magnet current, yet the
     magnet IS run persistent sometimes (Ells 2026-10-22), so the records do
     not show persistent periods and the emulator must support both modes;
-  - ramps typically 1-2 A/min, peaks near 3 A/min (the shift handbook's ramp
-    limit is 3 A/min).
+  - ramps in current bands from 2021-09 on: median 3.0 / 2.0 / 1.0 A/min
+    below 20 / 40 / 65 A (3 A/min at every current in 2020). The shift
+    handbook and AMI give a single 3 A/min limit; where the bands come from
+    is question 90.
   - The one outlier is 2022-05's 299.6 A reading beside a 5.08 T maximum, a
     glitch.
 - **Existing Genesis magnet drivers:** `target_ioc/instruments/cm4g_magnet.py`

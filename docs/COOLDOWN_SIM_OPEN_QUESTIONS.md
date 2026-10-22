@@ -103,6 +103,13 @@ named in each item. Numbers are stable: answered items move to *Settled*.
       joints (which steps are spigots, which recesses) are read from the
       section views and could each be off by 0.2. The diameters do not
       depend on any of this.
+- [ ] 90. **Source of the banded magnet ramp rates:** the student's IOC ramps
+      at 3 / 2 / 1 A/min below 20 / 40 / 65 A, with no source given; the shift
+      handbook and AMI give only a single 3 A/min (3.02) limit. The records
+      show exactly these bands from 2021-09 on (medians 3.0 / 2.0 / 1.0 A/min),
+      3 A/min at every current in 2020, and about half rate above 40 A in
+      2022-05 and 2024-08/09. Where do the bands come from (the LabVIEW magnet
+      program, a quench-safety rule?), and should Genesis keep them?
 - [ ] 75. **Converter, `NMR Status`:** filled with pyNMR's free-text event
       `label` (default "None"). The old values were Baseline / Polarization /
       TE / Tuning / Scanning, and the McClellan reader sorts sweeps by them.
@@ -492,9 +499,9 @@ named in each item. Numbers are stable: answered items move to *Settled*.
   14109, tested 2013-01-23; Ells 2026-10-22 pointed to it): rated operating
   current 67.9 A for the rated 70 kG (7 T) central field, not warranted above
   it (tested to 71 kG at 4.2 K); maximum charge rate 0.0504 A/s = 3.02 A/min;
-  38 H, 2.0 V charging voltage. The lab ramps slower at higher current: 3 / 2 /
-  1 A/min below 20 / 40 / 65 A (the student's draft; the records peak near 3
-  A/min). The draft's software limit is < 65 A.
+  38 H, 2.0 V charging voltage. The student's draft ramps at 3 / 2 / 1 A/min
+  below 20 / 40 / 65 A, and the records show those bands from 2021-09 on (the
+  source is question 90). The draft's software limit is < 65 A.
 
 * Magnet ramps from Genesis (question 85): Ells (2026-10-22), (a) Genesis
   both shows AND commands the supply (target field, ramp) from the start;
