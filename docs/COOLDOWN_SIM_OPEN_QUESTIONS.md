@@ -124,14 +124,16 @@ named in each item. Numbers are stable: answered items move to *Settled*.
       records reach 53.5 A, 5.5 T in 2024-08), and the ramp-rate limit (the
       handbook's 3 A/min; the records peak near 3 A/min). One rate at every
       field, or slower near the top?
-- [ ] 85. **Magnet ramps from Genesis (rephrased):** two parts. (a) When
-      Genesis first gets the magnet IOC, should it only *display* the supply
-      (current, field, heater), or also be able to *command* it (set a target
-      field and ramp)? (b) If it can command it: should Genesis refuse to
-      start a ramp, or stop one already running, when something is wrong?
-      For example, the magnet LHe level below the 20" alarm, magnet
-      thermometers warming, a quench, or a shells-vacuum alarm. Which of these
-      (or others) should block a ramp?
+- [ ] 87. **Magnet ramp interlock details (follows 85):** (a) when a
+      condition trips during a ramp, should Genesis HOLD at the present
+      field, or run the magnet DOWN to zero (and at what rate)? Is it the
+      same for every condition (e.g. hold for a vacuum alarm, run down for
+      low LHe)? (b) Thresholds: magnet LHe below 20" (the existing alarm)?
+      Which magnet thermometers, and how warm, count as "warming" (e.g. M4 /
+      M5 above some K)? Is a shells-vacuum *alarm* (the IONIVAC limits of
+      question 3: 1e-4 Torr warm, 1e-5 Torr cold) the trigger, or a trip
+      level? (c) In persistent mode, does any of this apply (the supply is
+      at zero then)?
 - [ ] 86. **Field equation (Ells will send it):** the DAQ's field is the
       current x 0.10274113 T/A in every cool-down. Ells (2026-10-22): close,
       but there is a better equation, with an offset measured from NMR. Until
@@ -438,6 +440,13 @@ named in each item. Numbers are stable: answered items move to *Settled*.
     varactors at 0-19 V. Keep a rule, change it, or drop it?
 
 ## Settled
+
+* Magnet ramps from Genesis (question 85): Ells (2026-10-22), (a) Genesis
+  both shows AND commands the supply (target field, ramp) from the start;
+  (b) yes, Genesis refuses to start a ramp, and stops one already running,
+  when something is wrong: magnet LHe below the 20" alarm, magnet
+  thermometers warming, a quench, a shells-vacuum alarm. What "stop" does
+  and the exact thresholds: question 87.
 
 * Magnet supply model (question 82): Ells (2026-10-22), yes, the supply on
   `Magnet_IPS` (TCP 5001, 9600 8N2) is an Oxford IPS120-10.

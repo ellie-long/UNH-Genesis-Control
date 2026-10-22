@@ -58,6 +58,9 @@ lab answers are in `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`.
   sometimes, not always: the emulator needs both modes), 84 and 86 to come
   from Ells (limits; a better field equation with an NMR-measured offset),
   85 rephrased. Channel map and its report updated.
+* Ells 2026-10-22: 85 settled (Genesis shows AND commands the supply; magnet
+  LHe < 20", warming magnet thermometers, a quench or a shells-vacuum alarm
+  block or stop a ramp). New question 87: hold or run down, and thresholds.
 
 ### 2026-10-21: Genesis -> LabVIEW data_record converter
 * New `python -m cooldown_sim genesis-to-labview INPUT... --out NEW_DIR

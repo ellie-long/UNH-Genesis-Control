@@ -55,12 +55,18 @@ simulator:
 - the driver's write-enable / simulation flags are never rewritten by profile
   generation (`profile.SAFETY_KEYS`); check the new driver's flag names are
   in that set;
-- a scenario should exercise refusals: ramp above the rate limit, ramp with
-  low magnet LHe, a quench during a ramp.
+- Genesis will both show and **command** the supply (Ells 2026-10-22,
+  question 85), and refuse to start, or stop, a ramp on: magnet LHe below
+  the 20" alarm, magnet thermometers warming, a quench, a shells-vacuum
+  alarm. What "stop" does (hold, or run down) and the thresholds: question 87;
+- scenarios should exercise each: a ramp above the rate limit, a ramp with
+  low magnet LHe, warming magnet thermometers, a shells-vacuum alarm, and a
+  quench during a ramp; and check the refusal is seen by the operator.
 
 ## To settle when the code arrives
 
-Settled: 82 (IPS120-10), 83 (persistent sometimes). Open: 84 (limits; Ells
-will send), 85 (display only, or command too, and what blocks a ramp), 86 (the
-better field equation; Ells will send), and 8 (quench behaviour). All in
+Settled: 82 (IPS120-10), 83 (persistent sometimes), 85 (show and command;
+the four conditions block or stop a ramp). Open: 84 (limits; Ells will send),
+86 (the better field equation; Ells will send), 87 (what "stop" does, and the
+thresholds), and 8 (quench behaviour). All in
 `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`.
