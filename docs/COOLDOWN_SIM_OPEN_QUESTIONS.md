@@ -115,6 +115,14 @@ named in each item. Numbers are stable: answered items move to *Settled*.
       limiting"). Are 3 / 2 / 1 A/min programmed in the supply? Someone can
       read them on the front panel (Test 07). If so they are a cap that does
       not depend on Genesis.
+- [ ] 91. **"Cryogenics running" before magnet control (Ells 2026-10-22:
+      required; the level-meter checks most important):** which cryogenics
+      IOCs must be up for the magnet to move: the magnet LHe meter
+      (`lhe_magnet`) and magnet thermometry (`ls224_magnet`) surely; also the
+      fridge LHe meter, the shells' IONIVAC, the safety interlock, the alarm
+      summary? How recent must the LHe reading be (e.g. updated within 60 s)?
+      And with the magnet persistent at field when the cryo IOCs stop (a
+      restart), should Genesis only block new commands, or alarm too?
 - [ ] 75. **Converter, `NMR Status`:** filled with pyNMR's free-text event
       `label` (default "None"). The old values were Baseline / Polarization /
       TE / Tuning / Scanning, and the McClellan reader sorts sweeps by them.
@@ -446,6 +454,12 @@ named in each item. Numbers are stable: answered items move to *Settled*.
     varactors at 0-19 V. Keep a rule, change it, or drop it?
 
 ## Settled
+
+* Magnet needs the cryogenics running (Ells, 2026-10-22): the magnet
+  subsystem must not command the supply unless the cryogenics subsystem is
+  running; the magnet LHe level-meter checks are the most important part.
+  Missing or stale cryo data blocks the magnet. HOLD is always allowed.
+  Details: question 91; plan: `docs/COOLDOWN_SIM_MAGNET_PREP.md`.
 
 * Flowmeters (question 49 d; Ells with a lab expert, 2026-10-22):
   separator = Hastings **HFM-D-300B, 40 slm**; left Roots = Hastings

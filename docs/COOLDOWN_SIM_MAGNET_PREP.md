@@ -60,6 +60,31 @@ changed.
 
 ## Safety
 
+### The magnet needs the cryogenics running (Ells, 2026-10-22)
+
+The magnet cannot run without liquid helium, so the magnet subsystem must not
+command the supply unless the cryogenics subsystem is running too. A
+precondition for every magnet command that changes the current or the switch
+(target, rate, go to set point, heater):
+
+- **the cryogenics IOCs are up:** their heartbeats are current (at least the
+  magnet LHe level meter, `lhe_magnet`, and the magnet thermometry,
+  `ls224_magnet`; question 91 for the full list);
+- **the level-meter checks pass (the most important part):** the magnet LHe
+  reading is connected, `valid`, recent, and >= 20" (>= 16" with the Expert
+  option);
+- **missing data blocks:** a disconnected, stale or absent cryogenics reading
+  counts as "not running", never as "OK". The magnet IOC reads these as
+  Genesis PVs, so if the cryo IOCs are down, the magnet is blocked rather than
+  unguarded;
+- **during a ramp:** if the cryogenics stop running (an IOC dies, a reading
+  goes stale) the ramp stops, as for the other ramp blocks (what "stop" does:
+  question 87).
+
+HOLD stays allowed at all times; it never needs the cryogenics.
+
+### In the simulator
+
 The supply is the most consequential thing Genesis will write to. In the
 simulator:
 
@@ -79,6 +104,9 @@ simulator:
   from any band table so a later edit cannot raise it: refuse to send a rate
   above it, read `R6` back before starting, and HOLD during a ramp if `R6` or
   the rate seen in the current exceeds it (AMI's maximum is 3.02 A/min);
+- scenarios should also exercise the cryogenics precondition: a ramp request
+  with the cryo leg not running, with `lhe_magnet` down or stale, and the cryo
+  IOCs dying mid-ramp;
 - scenarios should exercise each: a ramp above the rate limit, a ramp with
   low magnet LHe, warming magnet thermometers, a shells-vacuum alarm, and a
   quench during a ramp; and check the refusal is seen by the operator.
