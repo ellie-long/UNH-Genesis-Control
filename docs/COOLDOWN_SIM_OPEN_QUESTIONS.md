@@ -132,17 +132,6 @@ named in each item. Numbers are stable: answered items move to *Settled*.
       Live 2026-10-20: T1 (C4, 39.92 ohm) and T3 (C2, 47.77 ohm) both read
       ~298 K with status `OK; 224 TEMP RANGE` at room temperature, i.e. bits
       16/32 set -- confirms Utsav's C4/C2 mapping and his curves.
-- [ ] 49. **Flowmeters (d), with an expert's help (2026-10-22):** Utsav's drivers say all
-      three are Teledyne Hastings: left Roots (TXI040 port 6, TCP 5012) and
-      separator (port 7, TCP 5013) direct, right Roots via the Pi
-      (192.168.1.24:5010); each answers `F`+CR with a number ending in `>`;
-      SLM = raw x 28/19 (1.4737). (1) Model, full scale, all three the same?
-      (2) Is 28/19 Hastings's helium correction for these meters? Commonly
-      published He factors (vs N2) are ~1.45, 1.4 % lower. (3) Zero offsets
-      at no flow (2026-10-20: L +1.36, R -0.42, sep -0.17 slm): normal,
-      adjustable? (4) Separator ~50 slm running in 2026-06 vs ~0.05 in
-      2020-22; left meter empty from 2025-11; a repeated 105.49 maximum on
-      left: same meter? broken? saturation? (Parts a-c settled.)
 - [ ] 50. (Housekeeping) TXI040 port 8 is vacant but set to TCP 5011, the
       same as port 5 (the TPG 262 that Genesis uses); give it a free port
       (e.g. 5014) before anything is plugged in. TXI017 port 2 uses TCP 23
@@ -288,6 +277,10 @@ named in each item. Numbers are stable: answered items move to *Settled*.
       Live 2026-10-20 (warm, no flow): left +1.36 slm, right -0.42 slm,
       separator -0.17 slm -- the meters carry zero offsets, which explains
       small negative readings.
+      Ells 2026-10-22: (d) separator ~50 vs ~0.05 slm: uncertain; (c) the
+      left meter was broken and replaced (HFM-D-301B, 120 slm); (e) the 105.49
+      maximum is most likely saturation, not certain. Zero offsets: after the
+      cool-down (see below).
 - 62. **Manometer-Lo protocol and record:** (a) Utsav's `manometer_low`
       driver reads an unprompted line stream from `tools/pi_gateway.py`
       (drop 4 characters, take the first number, Torr), but you said the
@@ -301,6 +294,12 @@ named in each item. Numbers are stable: answered items move to *Settled*.
       prefix the driver strips); at atmosphere it sends `VAC=RANGE` (over the
       10 Torr range), which the driver reports as PARSE_ERR. See 69 for a
       fragment bug.
+
+## After the cool-down (Ells 2026-10-22: not yet)
+
+- Flowmeter zero offsets: with no flow (warm, 2026-10-20) the meters read
+  left +1.36, right -0.42, separator -0.17 slm. Normal for these Hastings
+  meters, and can the zero be adjusted?
 
 ## Details
 
@@ -435,6 +434,17 @@ named in each item. Numbers are stable: answered items move to *Settled*.
     varactors at 0-19 V. Keep a rule, change it, or drop it?
 
 ## Settled
+
+* Flowmeters (question 49 d; Ells with a lab expert, 2026-10-22):
+  separator = Hastings **HFM-D-300B, 40 slm**; left Roots = Hastings
+  **HFM-D-301B, 120 slm** (it replaced the broken earlier meter, which is why
+  the record's left flow is empty from 2025-11); right Roots = Hastings
+  **HFM-D-300B, 40 slm**. The 28/19 factor applies to the **right Roots only**;
+  the separator and left-Roots meters have none. **For Utsav:**
+  `configs/target_physical/flowmeter_left` and `flowmeter_sep` both set
+  `correction: 1.4736842105`, so Genesis reports those two flows 47 % high;
+  they should be 1.0 (`flowmeter_pi` keeps 28/19). The sim is unaffected: its
+  emulators divide the record by whatever factor the profile holds.
 
 * LHe level meters (question 49 b): Ells (2026-10-22), the magnet's is an
   AMI Model 135 and the fridge's an AMI Model 1700, as Utsav's `lhe_magnet` /

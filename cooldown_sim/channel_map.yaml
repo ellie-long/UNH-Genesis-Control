@@ -163,7 +163,7 @@ instruments:
   # Within a cool-down a missing value is answered as "no number" (see
   # cooldown_sim/emulators/cryo_optional.py) and the IOC flags it invalid.
 
-  flowmeter_pi:          # UNH:GEN:CRYO:FLOW:RIGHT  RPump_SLM / RPump_Raw (keysight Pi server, TCP 5010)
+  flowmeter_pi:          # UNH:GEN:CRYO:FLOW:RIGHT  RPump_SLM / RPump_Raw (Hastings HFM-D-300B, 40 slm; Pi server, TCP 5010)
     wire: flow_raw       # emulator sends record / correction (28/19); the driver multiplies back
     absent: refuse
     channels:
@@ -175,14 +175,15 @@ instruments:
         note: >-
           "Roots Flow R (SLM)", 2021-09 on (2020 had a single "Roots Flow"; see
           flowmeter_left).  Utsav's config labels this meter "Backing R", the
-          right pump line.  The model adds its heat boil-off to it (share of
+          right pump line; the only meter the 28/19 factor belongs to (Ells
+          2026-10-22).  The model adds its heat boil-off to it (share of
           the recorded L+R flow).  ASSUMED the record is corrected SLM (28/19
           applied), so Genesis RPump_SLM = record and RPump_Raw = record x 19/28;
           the logbook's ~1 slm per 60 mW (16.7 slm/W, close to Keith's 16.8)
           supports corrected He SLM.  The record has unphysical excursions
           (-84 to +166 slm in 2026-06) that are replayed as recorded.
 
-  flowmeter_left:        # UNH:GEN:CRYO:FLOW:LEFT  LPump_SLM (TXI040 port 6, TCP 5012)
+  flowmeter_left:        # UNH:GEN:CRYO:FLOW:LEFT  LPump_SLM (Hastings HFM-D-301B, 120 slm, since 2025-11; TXI040 port 6, TCP 5012)
     wire: flow_raw
     absent: refuse
     channels:
@@ -196,10 +197,13 @@ instruments:
           (SLM)" (alias).  TXI040 port 6 is labelled left_Roots_Pump in the lab
           technote; Utsav's config makes it the left backing-pump flowmeter.
           EMPTY for the whole of 2026-06, so this instrument is refused (absent)
-          when replaying 2026-06.  Repeated 105.49 maxima across eras look like
-          a saturation value.  Model boil-off share added as for RPump.
+          when replaying 2026-06 (Ells 2026-10-22: the old meter broke and was
+          replaced by this HFM-D-301B).  Repeated 105.49 maxima across eras look
+          like a saturation value (Ells: most likely).  NO correction factor on
+          this meter (Ells 2026-10-22); Utsav's profile has 28/19 (for Utsav).
+          Model boil-off share added as for RPump.
 
-  flowmeter_sep:         # UNH:GEN:CRYO:FLOW:SEP  SepFlow_SLM (TXI040 port 7, TCP 5013)
+  flowmeter_sep:         # UNH:GEN:CRYO:FLOW:SEP  SepFlow_SLM (Hastings HFM-D-300B, 40 slm; TXI040 port 7, TCP 5013)
     wire: flow_raw
     absent: refuse
     channels:
@@ -212,7 +216,9 @@ instruments:
           "Seperator Flow (SLM)" (sic), every era.  TXI040 port 7 is labelled
           Separator_Pump in the lab technote.  Replayed (the model has no
           separator).  ~50 slm while running in 2026-06, ~0.05 slm in 2020-22:
-          check that the column means the same thing in every era.
+          check that the column means the same thing in every era (Ells
+          2026-10-22: uncertain).  NO correction factor on this meter (Ells
+          2026-10-22); Utsav's profile has 28/19 (for Utsav).
 
   lhe_fridge:            # UNH:GEN:CRYO:FRIDGE:LHE  Fridge_LI (AMI 1700, confirmed by Ells 2026-10-22; 192.168.1.30:7180)
     wire: level_raw      # (level - offset) / scale from the profile: inches as-is (1.0 / 0.0)

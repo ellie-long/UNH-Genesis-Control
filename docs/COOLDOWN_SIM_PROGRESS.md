@@ -786,6 +786,10 @@ Tracked in `cooldown_sim/known_issues.yaml` and reported as KNOWN, not FAIL:
 
 Also observed:
 
+* Flowmeter correction (Ells 2026-10-22): the 28/19 factor belongs to the
+  right-Roots meter only, but `flowmeter_left` and `flowmeter_sep` apply it
+  too, so Genesis's left-Roots and separator flows read 47 % high (question
+  49 d, Settled).
 * The IONIVAC (the shells' vacuum) alarms only at 800 / 900 Torr, so a loss
   of the shells' vacuum raises no alarm. Ells: warn on a rapid rise and above
   the 1e-4 Torr range (open question 25).
