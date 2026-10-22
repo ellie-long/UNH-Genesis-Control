@@ -180,3 +180,36 @@ remaining defects: carrier/output frequency can move away from the commanded
 hardware safe state has already been established. Those defects must be closed
 and the physical RF/SIG acceptance repeated before this document represents a
 final cooldown-ready baseline.
+
+## Physical commissioning update — 2026-10-22
+
+Validated on Ubuntu/WSL under the utsav account:
+
+- Microwave IOC Manager moved to CA port 5094 to avoid the Windows Magnet IOC conflict.
+- Microwave Phoebus overview and detail screens validated using Channel Access.
+- Raspberry Pi mmWaveRobot at 192.168.1.23.
+- Corrected Vaunix shim deployed and verified:
+  SHA-256 da52dfc7e6cd5b724dece9a3ef96a2fa33ff602aa5b631071fe30914dbdebbb6
+- Previous Pi shim preserved as:
+  /home/unhpoltarg/vaunix_shim/vaunix_shim.py.backup.20261022T083314
+- Startup/readiness verifies the deployed shim and running service.
+- RF ON/OFF physically tested with source at 140 GHz, +10 dBm.
+- Physical SIG aluminum/foil reflector response test PASSED (operator confirmed on 2026-10-22).
+- Quantitative SIG/reflected-power values were not recorded in this commissioning summary.
+- UCA voltage adjusted from 5.001 V to 4.501 V with RF ON,
+  restored to 5.001 V before RF OFF.
+- RF Permissive may become 0 below the 5 V ON-edge requirement;
+  this does not itself terminate an existing RF session.
+- RF OFF preserves the 140 GHz carrier with the corrected shim.
+- RF-OFF software frequency sweep tested from 139.9 to 140.1 GHz
+  with 0.025 GHz steps and 2-second dwell.
+- Stop Sweep successfully interrupted at point 4 of 9.
+- Final state: RF OFF, UCA 5.001 V, 140 GHz, robot Disabled.
+- Microwave archiver active with 76 PVs.
+- Full Genesis regression: 1308 passed, 203 subtests passed.
+
+Outstanding physical acceptance:
+- Document quantitative SIG/reflected-power acceptance.
+- Validate RF-enabled frequency sweeping separately.
+- Complete robot referencing, limits, and motion acceptance.
+- Confirm controlled shutdown and restart from the finalized main.

@@ -78,9 +78,9 @@ def test_existing_physical_coverage_unchanged():
     assert report["counts"] == {
         "Cryo": 168,
         "ssRF": 97,
-        "Microwave": 104,
+        "Microwave": 113,
     }
 
-    assert report["total"] == 369
-    assert len(report["invalid_archive_references"]) == 9
-    assert len(registry) == 369
+    assert report["total"] == 378
+    assert len(report["invalid_archive_references"]) == 0
+    assert len(registry) == 378

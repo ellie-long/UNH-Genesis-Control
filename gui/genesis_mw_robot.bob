@@ -112,7 +112,7 @@
     <y>142</y>
     <width>26</width>
     <height>26</height>
-    <pv_name>pva://$(P):COMM_STATUS</pv_name>
+    <pv_name>ca://$(P):COMM_STATUS</pv_name>
     <bit>0</bit>
     <off_color>
       <color red="200" green="50" blue="50" />
@@ -139,7 +139,7 @@
     <y>142</y>
     <width>26</width>
     <height>26</height>
-    <pv_name>pva://$(P):SIMULATION</pv_name>
+    <pv_name>ca://$(P):SIMULATION</pv_name>
     <bit>0</bit>
     <off_color>
       <color red="200" green="50" blue="50" />
@@ -166,7 +166,7 @@
     <y>142</y>
     <width>26</width>
     <height>26</height>
-    <pv_name>pva://$(P):X_REFERENCED</pv_name>
+    <pv_name>ca://$(P):X_REFERENCED</pv_name>
     <bit>0</bit>
     <off_color>
       <color red="200" green="50" blue="50" />
@@ -193,7 +193,7 @@
     <y>142</y>
     <width>26</width>
     <height>26</height>
-    <pv_name>pva://$(P):Y_REFERENCED</pv_name>
+    <pv_name>ca://$(P):Y_REFERENCED</pv_name>
     <bit>0</bit>
     <off_color>
       <color red="200" green="50" blue="50" />
@@ -220,7 +220,7 @@
     <y>188</y>
     <width>155</width>
     <height>25</height>
-    <pv_name>pva://$(P):CONTROL_MODE</pv_name>
+    <pv_name>ca://$(P):CONTROL_MODE</pv_name>
     <format>6</format>
   </widget>
   <widget type="label" version="2.0.0">
@@ -241,7 +241,7 @@
     <y>188</y>
     <width>200</width>
     <height>25</height>
-    <pv_name>pva://$(P):CONTROLLER_ERROR</pv_name>
+    <pv_name>ca://$(P):CONTROLLER_ERROR</pv_name>
   </widget>
   <widget type="label" version="2.0.0">
     <name>RobotError_L</name>
@@ -261,7 +261,7 @@
     <y>233</y>
     <width>895</width>
     <height>25</height>
-    <pv_name>pva://$(P):LAST_ERROR</pv_name>
+    <pv_name>ca://$(P):LAST_ERROR</pv_name>
     <format>6</format>
   </widget>
   <widget type="rectangle" version="2.0.0">
@@ -397,7 +397,7 @@
     <y>418</y>
     <width>120</width>
     <height>25</height>
-    <pv_name>pva://$(P):X_CM</pv_name>
+    <pv_name>ca://$(P):X_CM</pv_name>
     <precision>4</precision>
   </widget>
   <widget type="textupdate" version="2.0.0">
@@ -406,7 +406,7 @@
     <y>418</y>
     <width>140</width>
     <height>25</height>
-    <pv_name>pva://$(P):X_MACHINE_CM</pv_name>
+    <pv_name>ca://$(P):X_MACHINE_CM</pv_name>
     <precision>4</precision>
   </widget>
   <widget type="led" version="2.0.0">
@@ -415,7 +415,7 @@
     <y>417</y>
     <width>26</width>
     <height>26</height>
-    <pv_name>pva://$(P):X_POSITION_FRESH</pv_name>
+    <pv_name>ca://$(P):X_POSITION_FRESH</pv_name>
     <bit>0</bit>
     <off_color>
       <color red="200" green="50" blue="50" />
@@ -430,7 +430,7 @@
     <y>417</y>
     <width>26</width>
     <height>26</height>
-    <pv_name>pva://$(P):X_BUSY</pv_name>
+    <pv_name>ca://$(P):X_BUSY</pv_name>
     <bit>0</bit>
     <off_color>
       <color red="150" green="155" blue="160" />
@@ -445,7 +445,7 @@
     <y>417</y>
     <width>26</width>
     <height>26</height>
-    <pv_name>pva://$(P):X_MOTOR_ENABLE</pv_name>
+    <pv_name>ca://$(P):X_MOTOR_ENABLE</pv_name>
     <bit>0</bit>
     <off_color>
       <color red="150" green="155" blue="160" />
@@ -472,7 +472,7 @@
     <y>478</y>
     <width>120</width>
     <height>25</height>
-    <pv_name>pva://$(P):Y_CM</pv_name>
+    <pv_name>ca://$(P):Y_CM</pv_name>
     <precision>4</precision>
   </widget>
   <widget type="textupdate" version="2.0.0">
@@ -481,7 +481,7 @@
     <y>478</y>
     <width>140</width>
     <height>25</height>
-    <pv_name>pva://$(P):Y_MACHINE_CM</pv_name>
+    <pv_name>ca://$(P):Y_MACHINE_CM</pv_name>
     <precision>4</precision>
   </widget>
   <widget type="led" version="2.0.0">
@@ -490,7 +490,7 @@
     <y>477</y>
     <width>26</width>
     <height>26</height>
-    <pv_name>pva://$(P):Y_POSITION_FRESH</pv_name>
+    <pv_name>ca://$(P):Y_POSITION_FRESH</pv_name>
     <bit>0</bit>
     <off_color>
       <color red="200" green="50" blue="50" />
@@ -505,7 +505,7 @@
     <y>477</y>
     <width>26</width>
     <height>26</height>
-    <pv_name>pva://$(P):Y_BUSY</pv_name>
+    <pv_name>ca://$(P):Y_BUSY</pv_name>
     <bit>0</bit>
     <off_color>
       <color red="150" green="155" blue="160" />
@@ -520,7 +520,7 @@
     <y>477</y>
     <width>26</width>
     <height>26</height>
-    <pv_name>pva://$(P):Y_MOTOR_ENABLE</pv_name>
+    <pv_name>ca://$(P):Y_MOTOR_ENABLE</pv_name>
     <bit>0</bit>
     <off_color>
       <color red="150" green="155" blue="160" />
@@ -591,7 +591,7 @@
     <background_color><color red="200" green="50" blue="50" /></background_color>
     <foreground_color><color red="255" green="255" blue="255" /></foreground_color>
     <actions><action type="write_pv">
-      <pv_name>pva://$(P):ESTOP</pv_name><value>1</value>
+      <pv_name>ca://$(P):ESTOP</pv_name><value>1</value>
       <description>Software STOP ALL; disable ownership and preserve holding current</description>
     </action></actions>
     <tooltip>Software stop, not a hardware E-stop. Stops both axes and selects Disabled.</tooltip>
@@ -614,7 +614,7 @@
     <y>642</y>
     <width>26</width>
     <height>26</height>
-    <pv_name>pva://$(P):LIMITS_CONFIGURABLE</pv_name>
+    <pv_name>ca://$(P):LIMITS_CONFIGURABLE</pv_name>
     <bit>0</bit>
     <off_color>
       <color red="150" green="155" blue="160" />
@@ -641,7 +641,7 @@
     <y>642</y>
     <width>26</width>
     <height>26</height>
-    <pv_name>pva://$(P):X_SOFT_LIMITS_ENABLED</pv_name>
+    <pv_name>ca://$(P):X_SOFT_LIMITS_ENABLED</pv_name>
     <bit>0</bit>
     <off_color>
       <color red="150" green="155" blue="160" />
@@ -668,7 +668,7 @@
     <y>642</y>
     <width>26</width>
     <height>26</height>
-    <pv_name>pva://$(P):Y_SOFT_LIMITS_ENABLED</pv_name>
+    <pv_name>ca://$(P):Y_SOFT_LIMITS_ENABLED</pv_name>
     <bit>0</bit>
     <off_color>
       <color red="150" green="155" blue="160" />
@@ -705,19 +705,19 @@
   </widget>
   <widget type="action_button" version="3.0.0">
     <name>Control_Disabled</name><x>690</x><y>188</y><width>95</width><height>28</height>
-    <actions><action type="write_pv"><pv_name>pva://$(P):CONTROL_MODE</pv_name>
+    <actions><action type="write_pv"><pv_name>ca://$(P):CONTROL_MODE</pv_name>
       <value>0</value><description>Select Disabled ownership</description></action></actions>
     <text>Disabled</text><tooltip>Stops both axes before changing ownership. Joystick requires neutral and released deadman before movement.</tooltip>
   </widget>
   <widget type="action_button" version="3.0.0">
     <name>Control_EPICS</name><x>790</x><y>188</y><width>95</width><height>28</height>
-    <actions><action type="write_pv"><pv_name>pva://$(P):CONTROL_MODE</pv_name>
+    <actions><action type="write_pv"><pv_name>ca://$(P):CONTROL_MODE</pv_name>
       <value>1</value><description>Select EPICS ownership</description></action></actions>
     <text>EPICS</text><tooltip>Stops both axes before changing ownership. Joystick requires neutral and released deadman before movement.</tooltip>
   </widget>
   <widget type="action_button" version="3.0.0">
     <name>Control_Joystick</name><x>890</x><y>188</y><width>95</width><height>28</height>
-    <actions><action type="write_pv"><pv_name>pva://$(P):CONTROL_MODE</pv_name>
+    <actions><action type="write_pv"><pv_name>ca://$(P):CONTROL_MODE</pv_name>
       <value>2</value><description>Select Joystick ownership</description></action></actions>
     <text>Joystick</text><tooltip>Stops both axes before changing ownership. Joystick requires neutral and released deadman before movement.</tooltip>
   </widget>
@@ -727,7 +727,7 @@
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Joystick_V</name><x>125</x><y>275</y><width>145</width><height>24</height>
-    <pv_name>pva://$(P):JOYSTICK_CONNECTED</pv_name><format>6</format>
+    <pv_name>ca://$(P):JOYSTICK_CONNECTED</pv_name><format>6</format>
   </widget>
   <widget type="label" version="2.0.0">
     <name>JoystickActive_L</name><x>340</x><y>275</y><width>125</width><height>24</height>
@@ -735,7 +735,7 @@
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>JoystickActive_V</name><x>465</x><y>275</y><width>145</width><height>24</height>
-    <pv_name>pva://$(P):JOYSTICK_ACTIVE</pv_name><format>6</format>
+    <pv_name>ca://$(P):JOYSTICK_ACTIVE</pv_name><format>6</format>
   </widget>
   <widget type="label" version="2.0.0">
     <name>StopState_L</name><x>690</x><y>275</y><width>130</width><height>24</height>
@@ -743,7 +743,7 @@
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>StopState_V</name><x>820</x><y>275</y><width>145</width><height>24</height>
-    <pv_name>pva://$(P):MOTION_INHIBITED</pv_name><format>6</format>
+    <pv_name>ca://$(P):MOTION_INHIBITED</pv_name><format>6</format>
   </widget>
   <widget type="label" version="2.0.0">
     <name>XHardwareLimits_L</name><x>45</x><y>780</y><width>155</width><height>24</height>
@@ -751,7 +751,7 @@
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>XHardwareLimits_V</name><x>200</x><y>780</y><width>145</width><height>24</height>
-    <pv_name>pva://$(P):X_LIMITS</pv_name><format>6</format>
+    <pv_name>ca://$(P):X_LIMITS</pv_name><format>6</format>
   </widget>
   <widget type="label" version="2.0.0">
     <name>YHardwareLimits_L</name><x>410</x><y>780</y><width>155</width><height>24</height>
@@ -759,7 +759,7 @@
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>YHardwareLimits_V</name><x>565</x><y>780</y><width>145</width><height>24</height>
-    <pv_name>pva://$(P):Y_LIMITS</pv_name><format>6</format>
+    <pv_name>ca://$(P):Y_LIMITS</pv_name><format>6</format>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Jog_H</name><x>885</x><y>375</y><width>110</width><height>24</height>
@@ -768,77 +768,77 @@
   <widget type="action_button" version="3.0.0">
     <name>X_Jog_Minus</name><x>875</x><y>413</y><width>60</width><height>36</height>
     <text>X−</text>
-    <actions><action type="write_pv"><pv_name>pva://$(P):X_JOG</pv_name><value>-1</value><description>Jog X− by selected distance in cm</description></action></actions>
+    <actions><action type="write_pv"><pv_name>ca://$(P):X_JOG</pv_name><value>-1</value><description>Jog X− by selected distance in cm</description></action></actions>
     <tooltip>One bounded jog per click. Requires healthy EPICS ownership and both axes idle, fresh and motor-enabled. IOC checks remain authoritative.</tooltip>
     <enabled>false</enabled>
     <rules><rule name="Healthy EPICS ownership and both axes ready" prop_id="enabled" out_exp="false">
       <exp bool_exp="pv0 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pv1 == 1 &amp;&amp; pvSev1 == 0 &amp;&amp; pv2 == 0 &amp;&amp; pvSev2 == 0 &amp;&amp; pv3 == 0 &amp;&amp; pvSev3 == 0 &amp;&amp; pv4 == 1 &amp;&amp; pvSev4 == 0 &amp;&amp; pv5 == 1 &amp;&amp; pvSev5 == 0 &amp;&amp; pv6 == 1 &amp;&amp; pvSev6 == 0 &amp;&amp; pv7 == 1 &amp;&amp; pvSev7 == 0"><value>true</value></exp>
       <exp bool_exp="!(pv0 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pv1 == 1 &amp;&amp; pvSev1 == 0 &amp;&amp; pv2 == 0 &amp;&amp; pvSev2 == 0 &amp;&amp; pv3 == 0 &amp;&amp; pvSev3 == 0 &amp;&amp; pv4 == 1 &amp;&amp; pvSev4 == 0 &amp;&amp; pv5 == 1 &amp;&amp; pvSev5 == 0 &amp;&amp; pv6 == 1 &amp;&amp; pvSev6 == 0 &amp;&amp; pv7 == 1 &amp;&amp; pvSev7 == 0)"><value>false</value></exp>
-      <pv_name>pva://$(P):COMM_STATUS</pv_name>
-      <pv_name>pva://$(P):CONTROL_MODE</pv_name>
-      <pv_name>pva://$(P):X_BUSY</pv_name>
-      <pv_name>pva://$(P):Y_BUSY</pv_name>
-      <pv_name>pva://$(P):X_POSITION_FRESH</pv_name>
-      <pv_name>pva://$(P):Y_POSITION_FRESH</pv_name>
-      <pv_name>pva://$(P):X_MOTOR_ENABLE</pv_name>
-      <pv_name>pva://$(P):Y_MOTOR_ENABLE</pv_name>
+      <pv_name>ca://$(P):COMM_STATUS</pv_name>
+      <pv_name>ca://$(P):CONTROL_MODE</pv_name>
+      <pv_name>ca://$(P):X_BUSY</pv_name>
+      <pv_name>ca://$(P):Y_BUSY</pv_name>
+      <pv_name>ca://$(P):X_POSITION_FRESH</pv_name>
+      <pv_name>ca://$(P):Y_POSITION_FRESH</pv_name>
+      <pv_name>ca://$(P):X_MOTOR_ENABLE</pv_name>
+      <pv_name>ca://$(P):Y_MOTOR_ENABLE</pv_name>
     </rule></rules>
   </widget>
   <widget type="action_button" version="3.0.0">
     <name>X_Jog_Plus</name><x>940</x><y>413</y><width>60</width><height>36</height>
     <text>X+</text>
-    <actions><action type="write_pv"><pv_name>pva://$(P):X_JOG</pv_name><value>1</value><description>Jog X+ by selected distance in cm</description></action></actions>
+    <actions><action type="write_pv"><pv_name>ca://$(P):X_JOG</pv_name><value>1</value><description>Jog X+ by selected distance in cm</description></action></actions>
     <tooltip>One bounded jog per click. Requires healthy EPICS ownership and both axes idle, fresh and motor-enabled. IOC checks remain authoritative.</tooltip>
     <enabled>false</enabled>
     <rules><rule name="Healthy EPICS ownership and both axes ready" prop_id="enabled" out_exp="false">
       <exp bool_exp="pv0 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pv1 == 1 &amp;&amp; pvSev1 == 0 &amp;&amp; pv2 == 0 &amp;&amp; pvSev2 == 0 &amp;&amp; pv3 == 0 &amp;&amp; pvSev3 == 0 &amp;&amp; pv4 == 1 &amp;&amp; pvSev4 == 0 &amp;&amp; pv5 == 1 &amp;&amp; pvSev5 == 0 &amp;&amp; pv6 == 1 &amp;&amp; pvSev6 == 0 &amp;&amp; pv7 == 1 &amp;&amp; pvSev7 == 0"><value>true</value></exp>
       <exp bool_exp="!(pv0 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pv1 == 1 &amp;&amp; pvSev1 == 0 &amp;&amp; pv2 == 0 &amp;&amp; pvSev2 == 0 &amp;&amp; pv3 == 0 &amp;&amp; pvSev3 == 0 &amp;&amp; pv4 == 1 &amp;&amp; pvSev4 == 0 &amp;&amp; pv5 == 1 &amp;&amp; pvSev5 == 0 &amp;&amp; pv6 == 1 &amp;&amp; pvSev6 == 0 &amp;&amp; pv7 == 1 &amp;&amp; pvSev7 == 0)"><value>false</value></exp>
-      <pv_name>pva://$(P):COMM_STATUS</pv_name>
-      <pv_name>pva://$(P):CONTROL_MODE</pv_name>
-      <pv_name>pva://$(P):X_BUSY</pv_name>
-      <pv_name>pva://$(P):Y_BUSY</pv_name>
-      <pv_name>pva://$(P):X_POSITION_FRESH</pv_name>
-      <pv_name>pva://$(P):Y_POSITION_FRESH</pv_name>
-      <pv_name>pva://$(P):X_MOTOR_ENABLE</pv_name>
-      <pv_name>pva://$(P):Y_MOTOR_ENABLE</pv_name>
+      <pv_name>ca://$(P):COMM_STATUS</pv_name>
+      <pv_name>ca://$(P):CONTROL_MODE</pv_name>
+      <pv_name>ca://$(P):X_BUSY</pv_name>
+      <pv_name>ca://$(P):Y_BUSY</pv_name>
+      <pv_name>ca://$(P):X_POSITION_FRESH</pv_name>
+      <pv_name>ca://$(P):Y_POSITION_FRESH</pv_name>
+      <pv_name>ca://$(P):X_MOTOR_ENABLE</pv_name>
+      <pv_name>ca://$(P):Y_MOTOR_ENABLE</pv_name>
     </rule></rules>
   </widget>
   <widget type="action_button" version="3.0.0">
     <name>Y_Jog_Minus</name><x>875</x><y>473</y><width>60</width><height>36</height>
     <text>Y−</text>
-    <actions><action type="write_pv"><pv_name>pva://$(P):Y_JOG</pv_name><value>-1</value><description>Jog Y− by selected distance in cm</description></action></actions>
+    <actions><action type="write_pv"><pv_name>ca://$(P):Y_JOG</pv_name><value>-1</value><description>Jog Y− by selected distance in cm</description></action></actions>
     <tooltip>One bounded jog per click. Requires healthy EPICS ownership and both axes idle, fresh and motor-enabled. IOC checks remain authoritative.</tooltip>
     <enabled>false</enabled>
     <rules><rule name="Healthy EPICS ownership and both axes ready" prop_id="enabled" out_exp="false">
       <exp bool_exp="pv0 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pv1 == 1 &amp;&amp; pvSev1 == 0 &amp;&amp; pv2 == 0 &amp;&amp; pvSev2 == 0 &amp;&amp; pv3 == 0 &amp;&amp; pvSev3 == 0 &amp;&amp; pv4 == 1 &amp;&amp; pvSev4 == 0 &amp;&amp; pv5 == 1 &amp;&amp; pvSev5 == 0 &amp;&amp; pv6 == 1 &amp;&amp; pvSev6 == 0 &amp;&amp; pv7 == 1 &amp;&amp; pvSev7 == 0"><value>true</value></exp>
       <exp bool_exp="!(pv0 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pv1 == 1 &amp;&amp; pvSev1 == 0 &amp;&amp; pv2 == 0 &amp;&amp; pvSev2 == 0 &amp;&amp; pv3 == 0 &amp;&amp; pvSev3 == 0 &amp;&amp; pv4 == 1 &amp;&amp; pvSev4 == 0 &amp;&amp; pv5 == 1 &amp;&amp; pvSev5 == 0 &amp;&amp; pv6 == 1 &amp;&amp; pvSev6 == 0 &amp;&amp; pv7 == 1 &amp;&amp; pvSev7 == 0)"><value>false</value></exp>
-      <pv_name>pva://$(P):COMM_STATUS</pv_name>
-      <pv_name>pva://$(P):CONTROL_MODE</pv_name>
-      <pv_name>pva://$(P):X_BUSY</pv_name>
-      <pv_name>pva://$(P):Y_BUSY</pv_name>
-      <pv_name>pva://$(P):X_POSITION_FRESH</pv_name>
-      <pv_name>pva://$(P):Y_POSITION_FRESH</pv_name>
-      <pv_name>pva://$(P):X_MOTOR_ENABLE</pv_name>
-      <pv_name>pva://$(P):Y_MOTOR_ENABLE</pv_name>
+      <pv_name>ca://$(P):COMM_STATUS</pv_name>
+      <pv_name>ca://$(P):CONTROL_MODE</pv_name>
+      <pv_name>ca://$(P):X_BUSY</pv_name>
+      <pv_name>ca://$(P):Y_BUSY</pv_name>
+      <pv_name>ca://$(P):X_POSITION_FRESH</pv_name>
+      <pv_name>ca://$(P):Y_POSITION_FRESH</pv_name>
+      <pv_name>ca://$(P):X_MOTOR_ENABLE</pv_name>
+      <pv_name>ca://$(P):Y_MOTOR_ENABLE</pv_name>
     </rule></rules>
   </widget>
   <widget type="action_button" version="3.0.0">
     <name>Y_Jog_Plus</name><x>940</x><y>473</y><width>60</width><height>36</height>
     <text>Y+</text>
-    <actions><action type="write_pv"><pv_name>pva://$(P):Y_JOG</pv_name><value>1</value><description>Jog Y+ by selected distance in cm</description></action></actions>
+    <actions><action type="write_pv"><pv_name>ca://$(P):Y_JOG</pv_name><value>1</value><description>Jog Y+ by selected distance in cm</description></action></actions>
     <tooltip>One bounded jog per click. Requires healthy EPICS ownership and both axes idle, fresh and motor-enabled. IOC checks remain authoritative.</tooltip>
     <enabled>false</enabled>
     <rules><rule name="Healthy EPICS ownership and both axes ready" prop_id="enabled" out_exp="false">
       <exp bool_exp="pv0 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pv1 == 1 &amp;&amp; pvSev1 == 0 &amp;&amp; pv2 == 0 &amp;&amp; pvSev2 == 0 &amp;&amp; pv3 == 0 &amp;&amp; pvSev3 == 0 &amp;&amp; pv4 == 1 &amp;&amp; pvSev4 == 0 &amp;&amp; pv5 == 1 &amp;&amp; pvSev5 == 0 &amp;&amp; pv6 == 1 &amp;&amp; pvSev6 == 0 &amp;&amp; pv7 == 1 &amp;&amp; pvSev7 == 0"><value>true</value></exp>
       <exp bool_exp="!(pv0 == 1 &amp;&amp; pvSev0 == 0 &amp;&amp; pv1 == 1 &amp;&amp; pvSev1 == 0 &amp;&amp; pv2 == 0 &amp;&amp; pvSev2 == 0 &amp;&amp; pv3 == 0 &amp;&amp; pvSev3 == 0 &amp;&amp; pv4 == 1 &amp;&amp; pvSev4 == 0 &amp;&amp; pv5 == 1 &amp;&amp; pvSev5 == 0 &amp;&amp; pv6 == 1 &amp;&amp; pvSev6 == 0 &amp;&amp; pv7 == 1 &amp;&amp; pvSev7 == 0)"><value>false</value></exp>
-      <pv_name>pva://$(P):COMM_STATUS</pv_name>
-      <pv_name>pva://$(P):CONTROL_MODE</pv_name>
-      <pv_name>pva://$(P):X_BUSY</pv_name>
-      <pv_name>pva://$(P):Y_BUSY</pv_name>
-      <pv_name>pva://$(P):X_POSITION_FRESH</pv_name>
-      <pv_name>pva://$(P):Y_POSITION_FRESH</pv_name>
-      <pv_name>pva://$(P):X_MOTOR_ENABLE</pv_name>
-      <pv_name>pva://$(P):Y_MOTOR_ENABLE</pv_name>
+      <pv_name>ca://$(P):COMM_STATUS</pv_name>
+      <pv_name>ca://$(P):CONTROL_MODE</pv_name>
+      <pv_name>ca://$(P):X_BUSY</pv_name>
+      <pv_name>ca://$(P):Y_BUSY</pv_name>
+      <pv_name>ca://$(P):X_POSITION_FRESH</pv_name>
+      <pv_name>ca://$(P):Y_POSITION_FRESH</pv_name>
+      <pv_name>ca://$(P):X_MOTOR_ENABLE</pv_name>
+      <pv_name>ca://$(P):Y_MOTOR_ENABLE</pv_name>
     </rule></rules>
   </widget>
   <widget type="label" version="2.0.0">
@@ -847,7 +847,7 @@
   </widget>
   <widget type="combo" version="2.0.0">
     <name>Speed_Mode</name><x>145</x><y>530</y><width>150</width><height>28</height>
-    <pv_name>pva://$(P):SPEED_MODE</pv_name><items_from_pv>true</items_from_pv><tooltip>Select Slow, Medium or Fast using the existing shim profiles.</tooltip>
+    <pv_name>ca://$(P):SPEED_MODE</pv_name><items_from_pv>true</items_from_pv><tooltip>Select Slow, Medium or Fast using the existing shim profiles.</tooltip>
   </widget>
   <widget type="label" version="2.0.0">
     <name>JogDistance_L</name><x>340</x><y>533</y><width>135</width><height>24</height>
@@ -855,6 +855,6 @@
   </widget>
   <widget type="textentry" version="3.0.0">
     <name>Jog_Distance_CM</name><x>480</x><y>530</y><width>150</width><height>28</height>
-    <pv_name>pva://$(P):JOG_DISTANCE_CM</pv_name><precision>4</precision><tooltip>Positive distance in cm. Editing never starts motion; IOC validates range and resolution.</tooltip>
+    <pv_name>ca://$(P):JOG_DISTANCE_CM</pv_name><precision>4</precision><tooltip>Positive distance in cm. Editing never starts motion; IOC validates range and resolution.</tooltip>
   </widget>
 </display>

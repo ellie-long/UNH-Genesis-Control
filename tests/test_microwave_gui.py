@@ -98,20 +98,20 @@ class MicrowaveGUI(unittest.TestCase):
         pvs = pv_names(UCA)
 
         for pv in (
-            "pva://$(P):COMM",
-            "pva://$(P):VMEAS",
-            "pva://$(P):IMEAS",
-            "pva://$(P):PMEAS",
-            "pva://$(P):OUTPUT_CMD",
-            "pva://$(P):VSET_CMD",
-            "pva://$(P):ISET_CMD",
-            "pva://$(P):OVP_CMD",
-            "pva://$(P):OCP_CMD",
-            "pva://$(P):OUTPUT_RBV",
-            "pva://$(P):VSET_RBV",
-            "pva://$(P):ISET_RBV",
-            "pva://$(P):OVP_RBV",
-            "pva://$(P):OCP_RBV",
+            "ca://$(P):COMM",
+            "ca://$(P):VMEAS",
+            "ca://$(P):IMEAS",
+            "ca://$(P):PMEAS",
+            "ca://$(P):OUTPUT_CMD",
+            "ca://$(P):VSET_CMD",
+            "ca://$(P):ISET_CMD",
+            "ca://$(P):OVP_CMD",
+            "ca://$(P):OCP_CMD",
+            "ca://$(P):OUTPUT_RBV",
+            "ca://$(P):VSET_RBV",
+            "ca://$(P):ISET_RBV",
+            "ca://$(P):OVP_RBV",
+            "ca://$(P):OCP_RBV",
         ):
             self.assertIn(
                 pv,
@@ -133,7 +133,7 @@ class MicrowaveGUI(unittest.TestCase):
 
         self.assertEqual(
             match.findtext("pv_name"),
-            "pva://UNH:GEN:MW:SUP:RFState",
+            "ca://UNH:GEN:MW:SUP:RFState",
         )
 
     def test_supervisor_rf_column_is_below_header_band(self):
@@ -241,10 +241,10 @@ class MicrowaveGUI(unittest.TestCase):
         pvs = pv_names(MAIN)
 
         for pv in (
-            "pva://UNH:GEN:MAN:mw_spd1305x_hb",
-            "pva://UNH:GEN:MAN:mw_vaunix_lms_hb",
-            "pva://UNH:GEN:MAN:mw_supervisor_hb",
-            "pva://UNH:GEN:MAN:mw_pcl602_hb",
+            "ca://UNH:GEN:MAN:mw_spd1305x_hb",
+            "ca://UNH:GEN:MAN:mw_vaunix_lms_hb",
+            "ca://UNH:GEN:MAN:mw_supervisor_hb",
+            "ca://UNH:GEN:MAN:mw_pcl602_hb",
         ):
             self.assertIn(pv, pvs)
 
@@ -259,22 +259,22 @@ class MicrowaveGUI(unittest.TestCase):
         )
 
         self.assertIn(
-            "pva://UNH:GEN:MW:SUP:OutputFrequency",
+            "ca://UNH:GEN:MW:SUP:OutputFrequency",
             writes,
         )
 
         self.assertIn(
-            "pva://UNH:GEN:MW:SUP:RFEnable",
+            "ca://UNH:GEN:MW:SUP:RFEnable",
             writes,
         )
 
         self.assertNotIn(
-            "pva://UNH:GEN:MW:SRC:MW_FC",
+            "ca://UNH:GEN:MW:SRC:MW_FC",
             writes,
         )
 
         self.assertNotIn(
-            "pva://UNH:GEN:MW:SRC:MW_RF",
+            "ca://UNH:GEN:MW:SRC:MW_RF",
             writes,
         )
 
@@ -289,10 +289,10 @@ class MicrowaveGUI(unittest.TestCase):
         )
 
         forbidden = {
-            "pva://$(P):MW_FC",
-            "pva://$(P):MW_PWRC",
-            "pva://$(P):MW_RF",
-            "pva://$(P):MW_SweepRun",
+            "ca://$(P):MW_FC",
+            "ca://$(P):MW_PWRC",
+            "ca://$(P):MW_RF",
+            "ca://$(P):MW_SweepRun",
         }
 
         self.assertTrue(
@@ -301,7 +301,7 @@ class MicrowaveGUI(unittest.TestCase):
 
     def test_robot_operator_commands_are_bounded_and_explicit(self):
         self.assertEqual(write_pvs(ROBOT), {
-            "pva://$(P):" + name for name in (
+            "ca://$(P):" + name for name in (
                 "CONTROL_MODE", "SPEED_MODE", "JOG_DISTANCE_CM",
                 "X_JOG", "Y_JOG", "ESTOP",
             )
@@ -309,12 +309,12 @@ class MicrowaveGUI(unittest.TestCase):
         root = parse(ROBOT)
         jogs = [action for action in root.iter("action")
                 if action.findtext("pv_name") in
-                {"pva://$(P):X_JOG", "pva://$(P):Y_JOG"}]
+                {"ca://$(P):X_JOG", "ca://$(P):Y_JOG"}]
         self.assertEqual(len(jogs), 4)
         for axis in ("X", "Y"):
             self.assertEqual(sorted(action.findtext("value") for action in jogs
                                     if action.findtext("pv_name") ==
-                                    f"pva://$(P):{axis}_JOG"), ["-1", "1"])
+                                    f"ca://$(P):{axis}_JOG"), ["-1", "1"])
             for action in jogs:
                 self.assertEqual(action.attrib["type"], "write_pv")
         inputs = {widget.findtext("name"): widget for widget in root.iter("widget")}
@@ -327,7 +327,7 @@ class MicrowaveGUI(unittest.TestCase):
         for name in ("COMM_STATUS", "CONTROL_MODE", "LAST_ERROR", "CONTROLLER_ERROR",
                      "X_CM", "Y_CM", "X_BUSY", "Y_BUSY", "X_POSITION_FRESH",
                      "Y_POSITION_FRESH", "X_MOTOR_ENABLE", "Y_MOTOR_ENABLE"):
-            self.assertIn("pva://$(P):" + name, readbacks)
+            self.assertIn("ca://$(P):" + name, readbacks)
         for pv in write_pvs(ROBOT):
             for forbidden in ("MOVE_REL", "HOME", "ZERO", "MACHINE_", "LIMIT_",
                               "SOFT_LIMIT", "MAX_SPEED", "ACCEL", "MOTOR_ENABLE",
@@ -352,7 +352,7 @@ class MicrowaveGUI(unittest.TestCase):
             self.assertEqual(rule.attrib["prop_id"], "enabled")
             self.assertEqual(rule.attrib["out_exp"], "false")
             self.assertEqual([pv.text for pv in rule.findall("pv_name")],
-                             ["pva://$(P):" + name for name in expected])
+                             ["ca://$(P):" + name for name in expected])
             expressions = rule.findall("exp")
             self.assertEqual([exp.findtext("value") for exp in expressions],
                              ["true", "false"])
@@ -388,34 +388,34 @@ class MicrowaveGUI(unittest.TestCase):
         actions = stop.findall("actions/action")
         self.assertEqual(len(actions), 1)
         self.assertEqual(actions[0].attrib["type"], "write_pv")
-        self.assertEqual(actions[0].findtext("pv_name"), "pva://$(P):ESTOP")
+        self.assertEqual(actions[0].findtext("pv_name"), "ca://$(P):ESTOP")
         self.assertEqual(actions[0].findtext("value"), "1")
 
     def test_robot_ownership_actions_and_status(self):
         root = parse(ROBOT)
         modes = [action.findtext('value') for action in root.iter('action')
                  if action.attrib.get('type') == 'write_pv'
-                 and action.findtext('pv_name') == 'pva://$(P):CONTROL_MODE']
+                 and action.findtext('pv_name') == 'ca://$(P):CONTROL_MODE']
         self.assertEqual(modes, ['0', '1', '2'])
-        for path, prefix in ((ROBOT, 'pva://$(P):'),
-                             (MAIN, 'pva://UNH:GEN:MW:ROBOT:')):
+        for path, prefix in ((ROBOT, 'ca://$(P):'),
+                             (MAIN, 'ca://UNH:GEN:MW:ROBOT:')):
             pvs = widget_pvs(path, {'textupdate', 'led'})
             for name in ('CONTROL_MODE', 'JOYSTICK_CONNECTED', 'MOTION_INHIBITED',
                          'X_BUSY', 'Y_BUSY', 'X_LIMITS', 'Y_LIMITS'):
                 self.assertIn(prefix + name, pvs)
-        self.assertIn('pva://$(P):JOYSTICK_ACTIVE', pv_names(ROBOT))
+        self.assertIn('ca://$(P):JOYSTICK_ACTIVE', pv_names(ROBOT))
 
     def test_supervisor_detail_contains_safety_interface(self):
         pvs = pv_names(SUP)
 
         for pv in (
-            "pva://$(P):RFPermissive",
-            "pva://$(P):InterlockMessage",
-            "pva://$(P):RFEnable",
-            "pva://$(P):OutputFrequency",
-            "pva://$(P):OutputFrequencyRBV",
-            "pva://$(P):SweepStartCommand",
-            "pva://$(P):SweepStopCommand",
+            "ca://$(P):RFPermissive",
+            "ca://$(P):InterlockMessage",
+            "ca://$(P):RFEnable",
+            "ca://$(P):OutputFrequency",
+            "ca://$(P):OutputFrequencyRBV",
+            "ca://$(P):SweepStartCommand",
+            "ca://$(P):SweepStopCommand",
         ):
             self.assertIn(pv, pvs)
 

@@ -6,7 +6,7 @@ general:
 vaunix_lms:
   module: microwave_ioc.vaunix_lms.toolkit_device
   autostart: false
-  ip: mmWaveRobot.local
+  ip: 192.168.1.23
   port: 1701
   timeout: 2.0
   delay: 1.0
@@ -15,7 +15,7 @@ vaunix_lms:
   - MW
   shim:
     start_with_ioc: false
-    ssh_host: mmWaveRobot.local
+    ssh_host: 192.168.1.23
     ssh_user: unhpoltarg
     remote_dir: /home/unhpoltarg/vaunix_shim
     startup_timeout: 15

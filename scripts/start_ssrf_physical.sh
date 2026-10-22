@@ -130,7 +130,29 @@ echo "===== CHECK PYNMR IPC ====="
 import errno, os, socket, stat
 from pathlib import Path
 
-p = Path("/run/genesis-nmr-ipc/events.sock")
+p = Path.home() / ".local/state/genesis/nmr-ipc/events.sock"
+
+# Create and validate the private listener directory.
+parent = p.parent
+parent.mkdir(mode=0o700, parents=True, exist_ok=True)
+
+for component in (
+    Path.home() / ".local",
+    Path.home() / ".local/state",
+    Path.home() / ".local/state/genesis",
+    parent,
+):
+    info = component.lstat()
+    if (
+        component.is_symlink()
+        or not stat.S_ISDIR(info.st_mode)
+        or info.st_uid != os.getuid()
+    ):
+        raise SystemExit("[FAIL] Unsafe IPC directory component")
+
+info = parent.lstat()
+if stat.S_IMODE(info.st_mode) != 0o700:
+    raise SystemExit("[FAIL] Private IPC requires mode 0700")
 
 if not os.path.lexists(p):
     print("[PASS] PyNMR IPC path clear")
@@ -240,7 +262,7 @@ read -r PYNMR_PID PYNMR_TICKS <<< "$PYNMR_ID"
 }
 echo "[PASS] Authorized PyNMR producer PID=$PYNMR_PID"
 
-screen -dmS genesis-ssrf-fitter bash -lc "cd '$ROOT' && exec env EPICS_CAS_SERVER_PORT=5100 EPICS_PVA_SERVER_PORT=5101 EPICS_CA_MAX_ARRAY_BYTES=262144 EPICS_CA_AUTO_ADDR_LIST=NO EPICS_CA_ADDR_LIST=127.0.0.1:5071 PYTHONPATH='$ROOT' GENESIS_PYNMR_PRODUCER_PID='$PYNMR_PID' GENESIS_PYNMR_PRODUCER_START_TICKS='$PYNMR_TICKS' '$PYTHON_BIN' -u -m online_fitter.epics_run --nmr-protected --nmr-source pynmr --pynmr-only --pynmr-port 8779 --pynmr-ipc-path /run/genesis-nmr-ipc/events.sock --pynmr-ipc-allowed-uid '$(id -u)' --pynmr-ipc-shared-gid '$(stat -c %g /run/genesis-nmr-ipc)' --material d-butanol --mode equilibrium >> '$ROOT/logs/genesis-ssrf-fitter.log' 2>&1"
+screen -dmS genesis-ssrf-fitter bash -lc "cd '$ROOT' && exec env EPICS_CAS_SERVER_PORT=5100 EPICS_PVA_SERVER_PORT=5101 EPICS_CA_MAX_ARRAY_BYTES=262144 EPICS_CA_AUTO_ADDR_LIST=NO EPICS_CA_ADDR_LIST=127.0.0.1:5071 PYTHONPATH='$ROOT' GENESIS_PYNMR_PRODUCER_PID='$PYNMR_PID' GENESIS_PYNMR_PRODUCER_START_TICKS='$PYNMR_TICKS' '$PYTHON_BIN' -u -m online_fitter.epics_run --nmr-protected --nmr-source pynmr --pynmr-only --pynmr-port 8779 --pynmr-ipc-path '$HOME/.local/state/genesis/nmr-ipc/events.sock' --pynmr-ipc-allowed-uid '$(id -u)' --material d-butanol --mode equilibrium >> '$ROOT/logs/genesis-ssrf-fitter.log' 2>&1"
 sleep 3
 session_exists genesis-ssrf-fitter || { tail -100 "$ROOT/logs/genesis-ssrf-fitter.log"; exit 1; }
 start_local_ioc genesis-ssrf-recipe configs/ssrf_physical/burn_recipe burn_recipe 5090 5091

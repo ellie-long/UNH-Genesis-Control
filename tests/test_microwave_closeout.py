@@ -223,7 +223,7 @@ class MicrowavePhaseICloseout(unittest.TestCase):
 
         self.assertEqual(
             dev["ip"],
-            "mmWaveRobot.local",
+            "192.168.1.23",
         )
 
         self.assertEqual(

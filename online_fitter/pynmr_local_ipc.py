@@ -286,6 +286,10 @@ class PyNMRLocalIPC:
 
     @staticmethod
     def _reply(connection, accepted, reason):
+        print(
+            f"[GENESIS IPC] accepted={accepted} reason={reason}",
+            flush=True,
+        )
         response = {
             "ok": bool(accepted),
             "reason": reason,

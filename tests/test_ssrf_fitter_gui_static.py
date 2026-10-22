@@ -327,7 +327,7 @@ class TestSsrfFitterGuiStatic(
         )
 
         expected = {
-            "Incoming_NMR_Plot": {"RAW"},
+            "Incoming_NMR_Plot": {"BASESUB"},
             "NMR_Fit_Plot": {"DATA", "TOTAL_FIT"},
         }
 

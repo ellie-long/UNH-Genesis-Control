@@ -31,6 +31,16 @@ class PhoebusLauncherPolicy(unittest.TestCase):
         self.assertIn("Phoebus launcher not found", text)
         self.assertIn("Set PHOEBUS_BIN", text)
 
+    def test_microwave_has_dedicated_phoebus_port(self):
+        script = (
+            ROOT / "scripts/start_microwave_phoebus.sh"
+        ).read_text()
+        self.assertIn('"4921"', script)
+        self.assertIn(
+            "start_phoebus_instance.sh",
+            script,
+        )
+
     def test_microwave_physical_stack_has_no_phoebus_binary_path(self):
         text = MICROWAVE.read_text()
         self.assertNotIn(

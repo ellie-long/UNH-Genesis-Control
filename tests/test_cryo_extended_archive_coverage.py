@@ -33,7 +33,7 @@ def test_extended_cryo_pvs_in_both_archivers():
 
     assert report["counts"]["Cryo"] == 168
     assert report["counts"]["ssRF"] == 97
-    assert report["counts"]["Microwave"] == 104
+    assert report["counts"]["Microwave"] == 113
 
     for pv in ADDITIONAL_PVS:
         assert pv in registry

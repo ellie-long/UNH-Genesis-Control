@@ -1,9 +1,9 @@
 general:
   prefix: UNH:GEN
   log_dir: logs
-  epics_addr_list: 127.0.0.1:5064 127.0.0.1:5066 127.0.0.1:5067 127.0.0.1:5069 127.0.0.1:5085
+  epics_addr_list: 127.0.0.1:5094 127.0.0.1:5066 127.0.0.1:5067 127.0.0.1:5069 127.0.0.1:5085
     127.0.0.1:5087
-  manager_ca_server_port: 5064
+  manager_ca_server_port: 5094
   manager_pva_server_port: 5075
   delay: 0.5
 mw_spd1305x:

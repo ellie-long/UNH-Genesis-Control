@@ -3,8 +3,8 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PROFILE="${ROOT}/configs/commissioning/microwave_physical"
-MANAGER_CA="127.0.0.1:5064"
-ALL_CA="127.0.0.1:5064 127.0.0.1:5066 127.0.0.1:5067 127.0.0.1:5069 127.0.0.1:5085 127.0.0.1:5087"
+MANAGER_CA="127.0.0.1:5094"
+ALL_CA="127.0.0.1:5094 127.0.0.1:5066 127.0.0.1:5067 127.0.0.1:5069 127.0.0.1:5085 127.0.0.1:5087"
 
 die() {
     echo "[STOP] $*" >&2
@@ -54,7 +54,7 @@ start_manager() {
     screen -dmS ioc-manager bash -lc \
         "cd '$ROOT' && \
          exec env \
-         EPICS_CAS_SERVER_PORT=5064 \
+         EPICS_CAS_SERVER_PORT=5094 \
          EPICS_PVA_SERVER_PORT=5075 \
          '$CONDA_PREFIX/bin/python' ioc_manager.py \
          -s '$PROFILE/ioc_manager'"
@@ -157,8 +157,42 @@ asyncio.run(main())
 PY
 }
 
+verify_vaunix_deployment() {
+    local expected deployed
+
+    expected="$(sha256sum \
+        "$ROOT/tools/vaunix_shim/vaunix_shim.py")" \
+        || die "Cannot hash Genesis Vaunix source"
+    expected="${expected%% *}"
+
+    deployed="$(ssh -o ConnectTimeout=8 \
+        "unhpoltarg@${MW_PI_HOST:-192.168.1.23}" '
+        set -eu
+        F=/home/unhpoltarg/vaunix_shim/vaunix_shim.py
+        S=vaunix-shim.service
+
+        test "$(systemctl --user is-active "$S")" = active
+
+        PID=$(systemctl --user show -P MainPID "$S")
+        test "$PID" -gt 0
+
+        tr "\000" "\n" < "/proc/$PID/cmdline" |
+            grep -Fxq "$F"
+
+        START=$(systemctl --user show -P ExecMainStartTimestamp "$S")
+        test "$(date -d "$START" +%s)" -ge "$(stat -c %Y "$F")"
+
+        sha256sum "$F" | cut -d " " -f1
+    ')" || die "Vaunix Pi service/version verification failed"
+
+    [[ "$expected" == "$deployed" ]] \
+        || die "Vaunix Pi shim differs from Genesis repository"
+
+    echo "[PASS] Vaunix deployed and running version verified: ${expected:0:12}"
+}
+
 check_vaunix_service() {
-    ssh unhpoltarg@mmWaveRobot.local \
+    ssh unhpoltarg@"${MW_PI_HOST:-192.168.1.23}" \
         'systemctl --user restart vaunix-shim.service &&
          sleep 2 &&
          systemctl --user --no-pager --full status vaunix-shim.service |
@@ -167,10 +201,11 @@ check_vaunix_service() {
     python - <<'PY'
 import socket
 import sys
+import os
 
 def ask(command):
     with socket.create_connection(
-        ("mmWaveRobot.local", 1701),
+        (os.environ.get("MW_PI_HOST", "192.168.1.23"), 1701),
         timeout=4,
     ) as s:
         f = s.makefile("rb")
@@ -469,6 +504,7 @@ PY
 }
 
 rf_ready() {
+    verify_vaunix_deployment
     EPICS_CA_ADDR_LIST="${ALL_CA}" \
     EPICS_CA_AUTO_ADDR_LIST=NO \
     python - <<'PY'
@@ -693,6 +729,7 @@ PY
 
 start_stack() {
     require_env
+    verify_vaunix_deployment
 
     [[ -d "$PROFILE/ioc_manager" ]] \
         || die \

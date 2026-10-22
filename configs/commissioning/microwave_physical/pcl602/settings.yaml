@@ -7,7 +7,7 @@ pcl602:
   module: microwave_ioc.pcl602.toolkit_device
   autostart: false
   simulation: false
-  ip: mmWaveRobot.local
+  ip: 192.168.1.23
   port: 1702
   timeout: 3.0
   delay: 0.2

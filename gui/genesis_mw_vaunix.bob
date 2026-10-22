@@ -112,7 +112,7 @@
     <y>142</y>
     <width>26</width>
     <height>26</height>
-    <pv_name>pva://$(P):MW_Connected</pv_name>
+    <pv_name>ca://$(P):MW_Connected</pv_name>
     <bit>0</bit>
     <off_color>
       <color red="200" green="50" blue="50" />
@@ -139,7 +139,7 @@
     <y>142</y>
     <width>26</width>
     <height>26</height>
-    <pv_name>pva://$(P):MW_Lock</pv_name>
+    <pv_name>ca://$(P):MW_Lock</pv_name>
     <bit>0</bit>
     <off_color>
       <color red="200" green="50" blue="50" />
@@ -166,7 +166,7 @@
     <y>142</y>
     <width>26</width>
     <height>26</height>
-    <pv_name>pva://$(P):MW_Simulation</pv_name>
+    <pv_name>ca://$(P):MW_Simulation</pv_name>
     <bit>0</bit>
     <off_color>
       <color red="200" green="50" blue="50" />
@@ -193,7 +193,7 @@
     <y>142</y>
     <width>26</width>
     <height>26</height>
-    <pv_name>pva://$(P):MW_TestMode</pv_name>
+    <pv_name>ca://$(P):MW_TestMode</pv_name>
     <bit>0</bit>
     <off_color>
       <color red="200" green="50" blue="50" />
@@ -220,7 +220,7 @@
     <y>192</y>
     <width>26</width>
     <height>26</height>
-    <pv_name>pva://$(P):MW_RF_RBV</pv_name>
+    <pv_name>ca://$(P):MW_RF_RBV</pv_name>
     <bit>0</bit>
     <off_color>
       <color red="150" green="155" blue="160" />
@@ -233,7 +233,7 @@
       <rule name="Fresh RF readback only" prop_id="visible" out_exp="false">
         <exp bool_exp="pv0 == 1 &amp;&amp; pvSev0 == 0"><value>true</value></exp>
         <exp bool_exp="!(pv0 == 1 &amp;&amp; pvSev0 == 0)"><value>false</value></exp>
-        <pv_name>pva://$(P):MW_RF_VALID</pv_name>
+        <pv_name>ca://$(P):MW_RF_VALID</pv_name>
       </rule>
     </rules>
   </widget>
@@ -243,7 +243,7 @@
     <y>193</y>
     <width>100</width>
     <height>25</height>
-    <pv_name>pva://$(P):MW_RF_STATE</pv_name>
+    <pv_name>ca://$(P):MW_RF_STATE</pv_name>
     <format>6</format>
   </widget>
   <widget type="rectangle" version="2.0.0">
@@ -307,7 +307,7 @@
     <y>358</y>
     <width>135</width>
     <height>25</height>
-    <pv_name>pva://$(P):MW_FI</pv_name>
+    <pv_name>ca://$(P):MW_FI</pv_name>
     <precision>6</precision>
   </widget>
   <widget type="label" version="2.0.0">
@@ -340,7 +340,7 @@
     <y>406</y>
     <width>135</width>
     <height>25</height>
-    <pv_name>pva://$(P):MW_OutFI</pv_name>
+    <pv_name>ca://$(P):MW_OutFI</pv_name>
     <precision>6</precision>
   </widget>
   <widget type="label" version="2.0.0">
@@ -373,7 +373,7 @@
     <y>358</y>
     <width>135</width>
     <height>25</height>
-    <pv_name>pva://$(P):MW_PWRI</pv_name>
+    <pv_name>ca://$(P):MW_PWRI</pv_name>
     <precision>3</precision>
   </widget>
   <widget type="label" version="2.0.0">
@@ -406,7 +406,7 @@
     <y>406</y>
     <width>135</width>
     <height>25</height>
-    <pv_name>pva://$(P):MW_Ref</pv_name>
+    <pv_name>ca://$(P):MW_Ref</pv_name>
     <precision>3</precision>
     <format>6</format>
   </widget>
@@ -471,7 +471,7 @@
     <y>588</y>
     <width>105</width>
     <height>25</height>
-    <pv_name>pva://$(P):MW_SweepStartI</pv_name>
+    <pv_name>ca://$(P):MW_SweepStartI</pv_name>
     <precision>6</precision>
   </widget>
   <widget type="label" version="2.0.0">
@@ -492,7 +492,7 @@
     <y>588</y>
     <width>105</width>
     <height>25</height>
-    <pv_name>pva://$(P):MW_SweepEndI</pv_name>
+    <pv_name>ca://$(P):MW_SweepEndI</pv_name>
     <precision>6</precision>
   </widget>
   <widget type="label" version="2.0.0">
@@ -513,7 +513,7 @@
     <y>588</y>
     <width>105</width>
     <height>25</height>
-    <pv_name>pva://$(P):MW_SweepStepI</pv_name>
+    <pv_name>ca://$(P):MW_SweepStepI</pv_name>
     <precision>6</precision>
   </widget>
   <widget type="label" version="2.0.0">
@@ -534,7 +534,7 @@
     <y>588</y>
     <width>105</width>
     <height>25</height>
-    <pv_name>pva://$(P):MW_SweepTimeI</pv_name>
+    <pv_name>ca://$(P):MW_SweepTimeI</pv_name>
     <precision>6</precision>
   </widget>
   <widget type="label" version="2.0.0">
@@ -555,7 +555,7 @@
     <y>637</y>
     <width>26</width>
     <height>26</height>
-    <pv_name>pva://$(P):MW_SweepActive</pv_name>
+    <pv_name>ca://$(P):MW_SweepActive</pv_name>
     <bit>0</bit>
     <off_color>
       <color red="150" green="155" blue="160" />
@@ -570,7 +570,7 @@
     <y>638</y>
     <width>110</width>
     <height>25</height>
-    <pv_name>pva://$(P):MW_SweepActive</pv_name>
+    <pv_name>ca://$(P):MW_SweepActive</pv_name>
     <format>6</format>
   </widget>
   <widget type="label" version="2.0.0">
@@ -600,7 +600,7 @@
     <y>630</y>
     <width>480</width>
     <height>25</height>
-    <pv_name>pva://$(P):MW_RF_VALID</pv_name>
+    <pv_name>ca://$(P):MW_RF_VALID</pv_name>
   </widget>
 <widget type="label" version="2.0.0">
     <name>MW_CONTROL_OWNED_Label</name>
@@ -616,7 +616,7 @@
     <y>660</y>
     <width>480</width>
     <height>25</height>
-    <pv_name>pva://$(P):MW_CONTROL_OWNED</pv_name>
+    <pv_name>ca://$(P):MW_CONTROL_OWNED</pv_name>
   </widget>
 <widget type="label" version="2.0.0">
     <name>MW_CONTROL_SESSION_Label</name>
@@ -632,7 +632,7 @@
     <y>690</y>
     <width>480</width>
     <height>25</height>
-    <pv_name>pva://$(P):MW_CONTROL_SESSION</pv_name>
+    <pv_name>ca://$(P):MW_CONTROL_SESSION</pv_name>
   </widget>
 <widget type="label" version="2.0.0">
     <name>MW_RF_ERROR_Label</name>
@@ -648,6 +648,6 @@
     <y>720</y>
     <width>480</width>
     <height>25</height>
-    <pv_name>pva://$(P):MW_RF_ERROR</pv_name>
+    <pv_name>ca://$(P):MW_RF_ERROR</pv_name>
   </widget>
 </display>
