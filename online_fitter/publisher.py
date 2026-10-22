@@ -72,7 +72,7 @@ class Publisher:
             with self._lock:
                 self._subs.add(conn)
 
-    def publish(self, result, ts=None, freqs=None, raw=None, constants=None):
+    def publish(self, result, ts=None, freqs=None, raw=None, constants=None, baseline_sub=None):
         """Broadcast one fitted sweep to all subscribers. No-op if nobody is subscribed. Fields, in
         the streamed order:
           1. good fit constants  -- ``constants`` (engine.constants_snapshot): CC, CC_DAQ, lineshape
@@ -125,6 +125,7 @@ class Publisher:
             "I_minus_secondary": _clean(sec_m),
             # 4. raw NMR
             "raw": _clean(raw),
+            "baseline_sub": _clean(baseline_sub) if baseline_sub is not None else [],
         }
         line = (json.dumps(msg) + "\r\n").encode("utf-8")
         dead = []

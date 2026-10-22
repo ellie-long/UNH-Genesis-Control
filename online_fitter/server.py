@@ -97,6 +97,7 @@ def _handle_sweep(state, msg):
     })
     if state.publisher is not None:    # fan out the constants + processed data + fit + raw to other software
         state.publisher.publish(result, ts=msg.get("ts"), freqs=freqs, raw=raw,
+                                baseline_sub=baseline_sub,
                                 constants=state.engine.constants_snapshot())
 
     def num(x):

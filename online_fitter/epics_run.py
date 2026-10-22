@@ -240,6 +240,7 @@ class FitterEpicsInterface:
             "DATA",
             "TOTAL_FIT",
             "RAW",
+            "BASESUB",
         ):
             p[name] = builder.WaveformIn(
                 name,
@@ -786,6 +787,7 @@ class FitterEpicsInterface:
             "DATA": msg.get("data"),
             "TOTAL_FIT": msg.get("total_fit"),
             "RAW": msg.get("raw"),
+            "BASESUB": msg.get("baseline_sub"),
         }
 
         for name, values in arrays.items():
