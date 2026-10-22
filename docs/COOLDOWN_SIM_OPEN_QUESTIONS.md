@@ -123,6 +123,11 @@ named in each item. Numbers are stable: answered items move to *Settled*.
       summary? How recent must the LHe reading be (e.g. updated within 60 s)?
       And with the magnet persistent at field when the cryo IOCs stop (a
       restart), should Genesis only block new commands, or alarm too?
+- [ ] 92. **Inductance check tolerance (magnet, Ells 2026-10-22: check it is
+      near 38 H before ramping):** how close to 38 H must the supply's stored
+      inductance (`R24`) and the inductance measured as a ramp starts be
+      (e.g. +/- 10 %)? And should a mismatch refuse the ramp outright, or
+      allow an Expert override?
 - [ ] 75. **Converter, `NMR Status`:** filled with pyNMR's free-text event
       `label` (default "None"). The old values were Baseline / Polarization /
       TE / Tuning / Scanning, and the McClellan reader sorts sweeps by them.
