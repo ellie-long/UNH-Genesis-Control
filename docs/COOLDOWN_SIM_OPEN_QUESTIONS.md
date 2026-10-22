@@ -142,6 +142,20 @@ named in each item. Numbers are stable: answered items move to *Settled*.
       10.3")? Also exactly 15.71" matched no branch in the original (the sim
       uses the neighbours' equal value). `cooldown_sim/conversions.py`
       `fridge_lhe_liters` keeps it as written until you say.
+      Checked against the inner-shell drawings (2026-10-22, lab drawing set,
+      12 sheets): (a) Ø2.25" = the aluminium tube's bore (2.250 ID, 2.500 OD,
+      **19.100" long**) and its flange's bore (2.250); Ø5.78" = the 5.000"
+      stainless tube's bore (5.782). Both match. So 19.1 is the tube's length;
+      the aluminium part's Ø2.25 interior is ~0.4" longer (the tube seats 0.2"
+      into a 0.6" flange with the same bore), ~19.5" = 8.8 + 10.71. That points
+      to 19.51 being right for the third and fourth branches. (b) Between that
+      flange and the Ø5.782 tube, two stainless rings have a Ø3.000 bore
+      (~0.9" stacked, less overlaps, about 0.1 L), which no branch includes.
+      (c) **Ø7.26" does not match:** the 28.2" stainless tube above is Ø7.380
+      ID (7.500 OD); 7.250 is only the counterbore in the ring it seats in.
+      Ø7.38 gives 3.3 % more volume per inch above 15.71" (0.701 vs 0.678 L/in;
+      +0.10 L at 20"). Use 7.38?
+
 - [ ] 75. **Converter, `NMR Status`:** filled with pyNMR's free-text event
       `label` (default "None"). The old values were Baseline / Polarization /
       TE / Tuning / Scanning, and the McClellan reader sorts sweeps by them.
