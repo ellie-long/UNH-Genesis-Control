@@ -110,6 +110,11 @@ named in each item. Numbers are stable: answered items move to *Settled*.
       3 A/min at every current in 2020, and about half rate above 40 A in
       2022-05 and 2024-08/09. Where do the bands come from (the LabVIEW magnet
       program, a quench-safety rule?), and should Genesis keep them?
+      The IPS120-10 itself can hold rate limits by current band (test menu
+      Sup 05 breakpoints, Sup 08 / 09 rates; the status word then shows "sweep
+      limiting"). Are 3 / 2 / 1 A/min programmed in the supply? Someone can
+      read them on the front panel (Test 07). If so they are a cap that does
+      not depend on Genesis.
 - [ ] 75. **Converter, `NMR Status`:** filled with pyNMR's free-text event
       `label` (default "None"). The old values were Baseline / Polarization /
       TE / Tuning / Scanning, and the McClellan reader sorts sweeps by them.
