@@ -97,6 +97,11 @@ simulator:
   question 85), and refuse to start, or stop, a ramp on: magnet LHe below
   the 20" alarm, magnet thermometers warming, a quench, a shells-vacuum
   alarm. What "stop" does (hold, or run down) and the thresholds: question 87;
+- **record the supply's voltage and measured current** (`R1`, `R2`) every
+  poll, besides the demand current (Ells 2026-10-22): lead / joint
+  resistance at steady current, an inductance check while ramping (~1.9 V at
+  3 A/min for 38 H), and an alarm if the voltage creeps up at steady current;
+  also read `R23` / `R24` (stored lead resistance and inductance) at start-up;
 - a **20 s switch-heater wait** after both heater ON and heater OFF (Ells
   2026-10-22), during which nothing may change the current; the emulator
   models the switch taking that long to open / close;
