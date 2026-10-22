@@ -132,8 +132,8 @@ named in each item. Numbers are stable: answered items move to *Settled*.
       Live 2026-10-20: T1 (C4, 39.92 ohm) and T3 (C2, 47.77 ohm) both read
       ~298 K with status `OK; 224 TEMP RANGE` at room temperature, i.e. bits
       16/32 set -- confirms Utsav's C4/C2 mapping and his curves.
-- [ ] 49. Models, and Genesis priority: (a) `Magnet_IPS` on the TXI017
-      (TCP 5001, 9600 8N2) -- the Oxford IPS120-10? (b) `Magnet_LHE_Prob`
+- [ ] 49. Models, and Genesis priority: (a) settled: `Magnet_IPS` on the
+      TXI017 is the Oxford IPS120-10 (question 82). (b) `Magnet_LHE_Prob`
       (TCP 23) -- which level meter (AMI model)? Utsav's `lhe_magnet` driver
       says an AMI Model 135 (cm, echo on); the 2020 record's 0.1 cm steps
       agree: confirm. (c) settled: Utsav's ccce63e gives the cart's IONIVAC
