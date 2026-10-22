@@ -97,6 +97,10 @@ simulator:
   question 85), and refuse to start, or stop, a ramp on: magnet LHe below
   the 20" alarm, magnet thermometers warming, a quench, a shells-vacuum
   alarm. What "stop" does (hold, or run down) and the thresholds: question 87;
+- **record everything as output** (Ells 2026-10-22): all readings in the
+  master archive and per-PV CSVs (the archiver's PV list), every operator
+  request, refusal, completion and fault in an event log, and the converter's
+  four magnet columns filled from the new PVs; nothing pruned;
 - **record the supply's voltage and measured current** (`R1`, `R2`) every
   poll, besides the demand current (Ells 2026-10-22): lead / joint
   resistance at steady current, an inductance check while ramping (~1.9 V at
