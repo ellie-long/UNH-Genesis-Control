@@ -13,8 +13,9 @@ code arrives.
 - **Field per current:** 0.10274 T/A, the same in every cool-down from 2022 to
   2026 (`FIELD_T_PER_A` in `cooldown_sim/model/target.py`). The DAQ's "Central
   Mag Field" is that constant times the current, not a separate measurement.
-  5 T is about 48.7 A. Ells has a better equation, with an offset measured
-  from NMR, to come (question 86).
+  5 T is about 48.7 A. The field at the target, measured by NMR (Ells,
+  question 86): **B = 0.1027405 x I + 0.00003497875 T**, the offset being the
+  fields around the magnet, Earth's included (`field_from_current`).
 - **The magnet's limits** (AMI specification, system 14109, question 84):
   rated 67.9 A for 70 kG (7 T), not warranted above; maximum charge rate
   0.0504 A/s = 3.02 A/min; inductance 38 H; coil constant 1.031 kG/A;
@@ -77,6 +78,6 @@ simulator:
 
 Settled: 82 (IPS120-10), 83 (persistent sometimes), 84 (limits, from the AMI
 specification), 85 (show and command; the four conditions block or stop a
-ramp). Open: 86 (the better field equation; Ells will send), 87 (what "stop" does, and the
+ramp), 86 (the field equation). Open: 87 (what "stop" does, and the
 thresholds), and 8 (quench behaviour). All in
 `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`.

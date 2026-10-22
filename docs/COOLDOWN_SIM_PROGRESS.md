@@ -48,6 +48,16 @@ lab answers are in `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`.
 
 ## Log
 
+### 2026-10-22: magnet limits, field equation, LHe volumes
+* Question 84 from the AMI magnet specification (67.9 A / 70 kG rated,
+  0.0504 A/s); 86 from Ells: B = 0.1027405 x I + 0.00003497875 T (NMR on the
+  target, Earth's field in the offset), now `model/target.py
+  field_from_current` (the McClellan reader already used it); 87 in part:
+  magnet LHe 20" blocks ramps, an Expert option allows down to 16".
+* LHe height -> volume (Ells): `conversions.magnet_lhe_liters` /
+  `magnet_lhe_inches` and `fridge_lhe_liters`, tested against her code
+  verbatim. Question 89: the fridge conversion steps down 0.027 L at 10.71".
+
 ### 2026-10-22: student's magnet IOC reviewed (not changed)
 * `magnet_student/` (local, gitignored): the student's Magnet_V3 draft IOC for the
   IPS120-10, unchanged, and three review documents in `magnet_student/docs/`: how it
@@ -822,6 +832,9 @@ points. It does not reproduce deliberate fast depolarisations (AFP, anneals,
 unlogged burns).
 
 ## Test status (latest)
+
+* 2026-10-22 (magnet constants, LHe volumes): `tests/cooldown_sim` **284 passed,
+  8 skipped on Windows** (`genesis-p1`).
 
 * 2026-10-21 (Genesis -> LabVIEW converter): `tests/cooldown_sim` **279 passed,
   8 skipped on Windows** (`genesis-p1`), including the new converter tests in

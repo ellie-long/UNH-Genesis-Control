@@ -124,27 +124,24 @@ named in each item. Numbers are stable: answered items move to *Settled*.
       condition trips during a ramp, should Genesis HOLD at the present
       field, or run the magnet DOWN to zero (and at what rate)? Is it the
       same for every condition (e.g. hold for a vacuum alarm, run down for
-      low LHe)? (b) Thresholds: magnet LHe below 20" (the existing alarm)?
-      Which magnet thermometers, and how warm, count as "warming" (e.g. M4 /
+      low LHe)? (b) Thresholds (magnet LHe settled, see Settled): which magnet thermometers, and how warm, count as "warming" (e.g. M4 /
       M5 above some K)? Is a shells-vacuum *alarm* (the IONIVAC limits of
       question 3: 1e-4 Torr warm, 1e-5 Torr cold) the trigger, or a trip
       level? (c) In persistent mode, does any of this apply (the supply is
       at zero then)?
-      Note: AMI's minimum operating LHe level is 16.0" ("for safe magnet
-      operation"); Genesis's magnet LHe alarm is at 20". Which blocks a ramp?
-- [ ] 86. **Field equation (Ells will send it):** the DAQ's field is the
-      current x 0.10274113 T/A in every cool-down. Ells (2026-10-22): close,
-      but there is a better equation, with an offset measured from NMR. Until
-      it arrives the sim keeps 0.10274113 T/A (`model/target.py`
-      `FIELD_T_PER_A`).
-      AMI's own coil constant (magnet specification, system 14109) is
-      1.031 kG/A = 0.1031 T/A, 0.35 % above the DAQ's 0.10274 T/A.
 - [ ] 88. **LS455 port shared with the student's magnet IOC?** The student's
       draft magnet IOC (reviewed 2026-10-22, kept local in `magnet_student/`) reads
       the fringe-field gaussmeter itself at 192.168.1.251:5007 every second.
       That serial-server port takes one connection, and Genesis's `ls455` IOC
       uses it too. Was the student's IOC running on 2026-10-20? If so, it
       would explain question 70 (Genesis's LS455 reading nothing).
+- [ ] 89. **Fridge LHe volume conversion, step at 10.71":** below 10.71" the
+      conversion counts 8.8 + h inches of the Ø2.25" tube; from 10.71" a fixed
+      19.1". 8.8 + 10.71 = 19.51, so the volume steps DOWN by ~0.027 L (1.2705 L
+      at 10.70" -> 1.2445 L at 10.71"). Should it be 19.51 (or the boundary
+      10.3")? Also exactly 15.71" matched no branch in the original (the sim
+      uses the neighbours' equal value). `cooldown_sim/conversions.py`
+      `fridge_lhe_liters` keeps it as written until you say.
 - [ ] 75. **Converter, `NMR Status`:** filled with pyNMR's free-text event
       `label` (default "None"). The old values were Baseline / Polarization /
       TE / Tuning / Scanning, and the McClellan reader sorts sweeps by them.
@@ -446,6 +443,24 @@ named in each item. Numbers are stable: answered items move to *Settled*.
     varactors at 0-19 V. Keep a rule, change it, or drop it?
 
 ## Settled
+
+* Field equation (question 86): Ells (2026-10-22), measured by NMR on the
+  target material, so it includes every field around the magnet (Earth's as
+  an offset): **B = 0.1027405 x I + 0.00003497875 T**. The McClellan reader
+  and the sim's synthetic cool-downs already used it; the sim's target model
+  now does too (`model/target.py` `field_from_current`) where a record logs
+  only the current. The DAQ's own field column used 0.10274113 T/A, no
+  offset; AMI's catalogue coil constant is 1.031 kG/A.
+
+* Magnet LHe threshold for ramps (question 87, part b): Ells (2026-10-22),
+  20" blocks a ramp for most users; an **Expert** option allows ramps down to
+  16" (AMI's minimum operating level, "for safe magnet operation").
+
+* LHe level -> volume (Ells 2026-10-22): magnet space and fridge, piecewise in
+  height, now `cooldown_sim/conversions.py` `magnet_lhe_liters` /
+  `magnet_lhe_inches` and `fridge_lhe_liters` (tested against her code
+  verbatim). Magnet: 20.0 L at 16", 31.6 L at 20", 59.0 L at a full 31".
+  Fridge: 0.57 L at 0", 6.30 L at 20" (one quirk, question 89).
 
 * Magnet limits (question 84): from the AMI magnet specification (system
   14109, tested 2013-01-23; Ells 2026-10-22 pointed to it): rated operating

@@ -100,9 +100,19 @@ def load_params(path: Path = PARAMS_FILE, cooldown: str | None = None) -> dict:
 #: ramp-down -- the deuteron T1 collapses at low field; minutes, not hours
 LOW_FIELD_T1_S = 120.0
 
-#: central field per magnet supply amp, as the DAQ computed it (0.10274 T/A in
-#: every cool-down that logs both; ~48.7 A for 5.0 T)
-FIELD_T_PER_A = 0.10274113
+#: Field at the target from the magnet supply current, measured by NMR on the
+#: target material (Ells 2026-10-22): B = FIELD_T_PER_A * I + FIELD_OFFSET_T.
+#: The offset holds every field around the magnet, Earth's included.  The
+#: same equation as the McClellan reader (online_fitter/vendored/cooldown_io);
+#: the DAQ's own "Central Mag Field" used 0.10274113 T/A and no offset.
+#: ~48.7 A for 5.0 T.
+FIELD_T_PER_A = 0.1027405
+FIELD_OFFSET_T = 0.00003497875
+
+
+def field_from_current(current_a: float) -> float:
+    """Field at the target (T) for a magnet supply current (A)."""
+    return FIELD_T_PER_A * current_a + FIELD_OFFSET_T
 
 #: NMR sweep span (MHz) when neither the operator nor the record gives one
 NMR_DEFAULT_SPAN_MHZ = 0.4
@@ -216,12 +226,12 @@ class TargetModel:
     def field_T(self, t: float) -> float:
         """Central field (T): the record's, else from the magnet supply current.
 
-        The DAQ computed "Central Mag Field" from the supply current (exactly
-        FIELD_T_PER_A in every cool-down that logs both); 2020-21 log only the
-        current."""
+        The DAQ computed "Central Mag Field" from the supply current (0.10274113
+        T/A in every cool-down that logs both); 2020-21 log only the current,
+        which is converted with the NMR-measured equation (field_from_current)."""
         b = self.tl.value_at("central_field", t)
         if not math.isfinite(b):
-            b = self.tl.value_at("magnet_current", t) * FIELD_T_PER_A
+            b = field_from_current(self.tl.value_at("magnet_current", t))
         return b if math.isfinite(b) and b > 0.5 else 0.0
 
     def _hist_freq(self, t: float) -> float:
