@@ -48,6 +48,18 @@ lab answers are in `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`.
 
 ## Log
 
+### 2026-10-22: Ells's answers (TPG Torr, vapour pressure, cart, 60-62)
+* TPG 262 in Torr always (65, 68): Genesis sets the unit to Torr if it is not
+  (for Utsav); the sim's TPG emulator now answers Torr (UNI = 1, as live) and
+  accepts `UNI,<n>`. Scenarios that trip on the TPG should be re-run on WSL
+  (the emulator used to send mbar, 1.33x the Torr value).
+* 63: Genesis should use Ells's sub-1.25 K conversion; 78: Genesis should
+  publish a Manometer-Hi vapour-pressure temperature (both for Utsav).
+* 67: the cart IONIVAC is recorded, gets its own screen with a plot, and stays
+  off the Panopticon.
+* 60-62 moved to a Notes section (findings, not questions); 64 rephrased;
+  89 re-checked with the drawings' sideways orientation.
+
 ### 2026-10-22: magnet limits, field equation, LHe volumes
 * Question 84 from the AMI magnet specification (67.9 A / 70 kG rated,
   0.0504 A/s); 86 from Ells: B = 0.1027405 x I + 0.00003497875 T (NMR on the

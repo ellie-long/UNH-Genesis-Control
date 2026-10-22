@@ -7,7 +7,8 @@ Genesis drivers do their own conversions:
   lab's CCS/CCS2/CCCS curves itself, so the emulator must send the resistance
   that the driver will convert back to the recorded kelvin --
   :class:`InverseCalibration`.
-* TPG262 reports in its display unit (mbar, ``UNI`` = 0); the record is Torr.
+* TPG262 reports in its display unit: Torr (``UNI`` = 1), as the live
+  controller is set; the record is Torr too.
 * IONIVAC streams a 16-bit count: ``P(Torr) = 10**(count/4000 - 12.625)``.
 * LS455 reports field in its display unit (gauss, ``UNIT?`` = 1).
 

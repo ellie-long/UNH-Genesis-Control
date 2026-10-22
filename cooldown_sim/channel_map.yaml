@@ -75,8 +75,8 @@ instruments:
           manometer_low since Utsav's cryo GUI work) from 2021.
           Replayed values below ~1 Torr carry the real gauge's poor accuracy.
 
-  tpg262:                # UNH:GEN:CRYO:VAC  Pump_PI / OVC_PI (mbar)
-    wire: torr_to_mbar   # TPG answers in its display unit; emulator reports UNI=0 (mbar)
+  tpg262:                # UNH:GEN:CRYO:VAC  Pump_PI / OVC_PI (Torr)
+    wire: none           # TPG answers in its display unit: Torr (UNI=1) as live; Genesis sets Torr if not (Ells 2026-10-22)
     absent: invalid
     channels:
       Pump:
