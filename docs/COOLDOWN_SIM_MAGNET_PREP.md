@@ -72,6 +72,10 @@ simulator:
   question 85), and refuse to start, or stop, a ramp on: magnet LHe below
   the 20" alarm, magnet thermometers warming, a quench, a shells-vacuum
   alarm. What "stop" does (hold, or run down) and the thresholds: question 87;
+- an independent **3 A/min cap on the sweep rate** (Ells 2026-10-22), kept apart
+  from any band table so a later edit cannot raise it: refuse to send a rate
+  above it, read `R6` back before starting, and HOLD during a ramp if `R6` or
+  the rate seen in the current exceeds it (AMI's maximum is 3.02 A/min);
 - scenarios should exercise each: a ramp above the rate limit, a ramp with
   low magnet LHe, warming magnet thermometers, a shells-vacuum alarm, and a
   quench during a ramp; and check the refusal is seen by the operator.
