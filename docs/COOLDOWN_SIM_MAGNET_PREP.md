@@ -114,7 +114,7 @@ simulator:
   in the simulator with a power-cycle fault on the supply's emulator: cryo
   first, supply back clamped, magnet IOC back read-only with no automatic
   commands, work out what the magnet did (persistent / ran down / quenched),
-  then resume deliberately (outline in the student review, issue 18);
+  then resume deliberately (draft procedure: `magnet_student/docs/4_POWER_OUTAGE_RECOVERY.md`, local);
 - operate the supply **remote and unlocked** (`C3`, Ells 2026-10-22); since a
   held front-panel button then delays remote commands, every command
   (HOLD included) gets a reply deadline and a loud alarm if it is missed;
