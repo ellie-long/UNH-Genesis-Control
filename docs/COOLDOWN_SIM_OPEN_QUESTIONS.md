@@ -128,6 +128,15 @@ named in each item. Numbers are stable: answered items move to *Settled*.
       inductance (`R24`) and the inductance measured as a ramp starts be
       (e.g. +/- 10 %)? And should a mismatch refuse the ramp outright, or
       allow an Expert override?
+- [ ] 93. **Power outage and the magnet (for the recovery procedure):** (a) the
+      IPS manual says a persistent magnet with ZERO lead current stays
+      persistent through a mains failure; this cool-down the supply is kept
+      energized while persistent. Then the clamp catches energized leads:
+      presumably the magnet stays persistent and only the lead current decays
+      through the clamp. Agreed, or is there a risk to the switch? (b) Are the
+      supply and the DAQ on a UPS? (c) Is the supply's hardware auto-run-down
+      wired to the magnet AMI 135's level relays (it only works while the
+      supply has power)?
 - [ ] 75. **Converter, `NMR Status`:** filled with pyNMR's free-text event
       `label` (default "None"). The old values were Baseline / Polarization /
       TE / Tuning / Scanning, and the McClellan reader sorts sweeps by them.

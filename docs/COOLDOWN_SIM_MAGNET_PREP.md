@@ -110,6 +110,11 @@ simulator:
   `persistent_supply: hold` vs `run_down`) so it can change without code,
   refuse a "supply to zero" request while it is `hold`, and model it in the
   emulator. (Energized leads carry current, so some extra boil-off.)
+- **a written power-outage recovery procedure** (Ells 2026-10-22), rehearsed
+  in the simulator with a power-cycle fault on the supply's emulator: cryo
+  first, supply back clamped, magnet IOC back read-only with no automatic
+  commands, work out what the magnet did (persistent / ran down / quenched),
+  then resume deliberately (outline in the student review, issue 18);
 - operate the supply **remote and unlocked** (`C3`, Ells 2026-10-22); since a
   held front-panel button then delays remote commands, every command
   (HOLD included) gets a reply deadline and a loud alarm if it is missed;
