@@ -274,7 +274,7 @@ def hist(group, key):
 
 #: time unit of each trend-history group (configs/target_physical/trend_history)
 HIST_UNITS = {"MAG": "min", "FRIDGE": "min", "PRESS": "min", "POL": "min", "SHELLS": "h",
-              "LEVEL": "min", "FLOW": "min"}
+              "LEVEL": "min", "FLOW": "min", "CART": "min"}
 
 
 def history_plot(key, title, x, y, w, h, group, traces, axes, span):

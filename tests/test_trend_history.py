@@ -241,7 +241,7 @@ def test_device_publishes_every_configured_array(th, tmp_path):
     assert recs["PRESS:Pump_Torr"].value[-1] == pytest.approx(0.750062)       # mbar -> Torr
     assert recs["SHELLS:TIME"].EGU == "h" and len(recs["SHELLS:TIME"].value) == 1440
     assert recs["Hist_Backfilled"].value == dev.backfilled > 0
-    assert recs["Hist_Sources"].value == 32
+    assert recs["Hist_Sources"].value == 33
     assert {"LEVEL:Magnet_LI", "LEVEL:Fridge_LI", "FLOW:SepFlow_SLM", "FLOW:LPump_SLM",
             "FLOW:RPump_SLM", "PRESS:Mano_PI", "PRESS:Pump_Torr_NOW", "PRESS:OVC_Torr_NOW"} <= set(recs)
 
