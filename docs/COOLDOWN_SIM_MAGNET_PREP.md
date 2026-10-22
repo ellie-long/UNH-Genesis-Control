@@ -104,6 +104,9 @@ simulator:
   master archive and per-PV CSVs (the archiver's PV list), every operator
   request, refusal, completion and fault in an event log, and the converter's
   four magnet columns filled from the new PVs; nothing pruned;
+- operate the supply **remote and unlocked** (`C3`, Ells 2026-10-22); since a
+  held front-panel button then delays remote commands, every command
+  (HOLD included) gets a reply deadline and a loud alarm if it is missed;
 - **check the inductance before ramping** (Ells 2026-10-22): `R24` (the
   supply's stored inductance) near 38 H, and the inductance seen as the ramp
   starts (V / dI/dt, ~1.9 V at 3 A/min) near 38 H too; otherwise refuse /
