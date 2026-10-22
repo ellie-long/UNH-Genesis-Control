@@ -141,6 +141,13 @@ named in each item. Numbers are stable: answered items move to *Settled*.
       down"; but the switch heater loses power too, so does the switch close
       within seconds and catch the magnet persistent near its old field, with
       only the lead current decaying? (Matters for recovery step 5 b.)
+- [ ] 94. **The red "power outage" button (magnet; Ells 2026-10-22: wanted):**
+      what should it do? Proposed: HOLD; if driven, heater off, 20 s, confirm
+      persistent; then the leads to zero (the manual's safe outage state is
+      persistent with ZERO lead current), which overrides this cool-down's
+      keep-energized rule: is that right? Or only HOLD + persistent, leads
+      left energized? Should a UPS "on battery" signal press it
+      automatically? Is the supply on a UPS long enough to finish (~1 min)?
 - [ ] 75. **Converter, `NMR Status`:** filled with pyNMR's free-text event
       `label` (default "None"). The old values were Baseline / Polarization /
       TE / Tuning / Scanning, and the McClellan reader sorts sweeps by them.

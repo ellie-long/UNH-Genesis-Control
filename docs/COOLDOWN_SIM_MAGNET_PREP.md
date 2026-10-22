@@ -110,6 +110,10 @@ simulator:
   `persistent_supply: hold` vs `run_down`) so it can change without code,
   refuse a "supply to zero" request while it is `hold`, and model it in the
   emulator. (Energized leads carry current, so some extra boil-off.)
+- **a big red "power outage" button** on the magnet screen (Ells 2026-10-22):
+  when an outage is coming, HOLD, make the magnet persistent (heater off,
+  20 s), leads to zero, report "safe for power outage"; always available,
+  one confirmation; what exactly it does is question 94;
 - **a written power-outage recovery procedure** (Ells 2026-10-22), rehearsed
   in the simulator with a power-cycle fault on the supply's emulator: cryo
   first, supply back clamped, magnet IOC back read-only with no automatic
