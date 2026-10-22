@@ -12,7 +12,7 @@ from cooldown_sim.data.timeline import Timeline
 from cooldown_sim.model import hindcast
 from cooldown_sim.model import physics as ph
 from cooldown_sim.model import target
-from cooldown_sim.model.target import FIELD_T_PER_A, TargetModel, load_params
+from cooldown_sim.model.target import TargetModel, field_from_current, load_params
 
 from test_cooldown_sim_model import B, F_OPT, record   # noqa: E402  (same synthetic record)
 
@@ -46,7 +46,7 @@ def test_field_falls_back_to_the_supply_current():
     tl = Timeline(SlowTable(t=t, numeric={"magnet_current": np.full(n, 48.1), "T1": np.full(n, 1.0),
                                           "online_p": np.full(n, 1.0)}), max_hold_s=60)
     m = TargetModel(tl, 60.0, load_params())
-    assert m.field_T(600.0) == pytest.approx(48.1 * FIELD_T_PER_A)
+    assert m.field_T(600.0) == pytest.approx(field_from_current(48.1))
     assert 4.9 < m.field_T(600.0) < 5.0
 
 
@@ -72,3 +72,10 @@ def test_hindcast_tracks_a_record_that_follows_the_model():
     assert np.nanmax(s.p_model) > 10.0                                      # it spins up
     sc = hindcast.score("synthetic", "free", s)
     assert sc.n > 100 and math.isfinite(sc.mae)
+
+
+def test_field_from_current_is_the_nmr_measured_equation():
+    # Ells 2026-10-22: B = 0.1027405 * I + 0.00003497875 (T), the McClellan reader's too
+    assert field_from_current(0.0) == pytest.approx(3.497875e-5)
+    assert field_from_current(48.666) == pytest.approx(0.1027405 * 48.666 + 3.497875e-5)
+    assert 4.999 < field_from_current(48.666) < 5.001

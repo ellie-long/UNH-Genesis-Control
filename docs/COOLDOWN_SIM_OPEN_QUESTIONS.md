@@ -9,83 +9,19 @@ named in each item. Numbers are stable: answered items move to *Settled*.
 ## Checklist (all open items)
 
 **Equipment and wiring**
-- [ ] 60. **Fridge He Level zero:** the record's `Fridge He Level (")` is
-      NEGATIVE most of the time the fridge runs (2026-06-17: -9 to -26 in;
-      2022-05 down to -87, where `Fridge He Level Raw` is negative too) and
-      ~5-14 in when it is not pumped. An AMI 1700 reports a non-negative
-      level, and Genesis's `lhe_fridge` has scale 1.0, offset 0.0, so Genesis
-      will not show the numbers LabVIEW logged. What zero/offset (or other
-      instrument) produced the record? The sim replays it as recorded.
-      Live 2026-10-20 (warm, empty fridge): the AMI 1700 itself reads
-      `Fridge_LI` -18.7 in, so the negative values come from the meter's own
-      zero/probe setup, not a LabVIEW offset. Still: what should 'empty' read?
-- [ ] 61. **Flowmeter record units and labels:** (a) are the record's
-      `Roots Flow L/R` and `Seperator Flow (SLM)` corrected SLM (the 28/19
-      in Utsav's profiles already applied)? The sim assumes yes, so Genesis
-      `_SLM` = record (the logbook's ~1 slm per 60 mW supports He SLM).
-      (b) The 2020 single `Roots Flow (SLM)`: the left meter (as aliased), or
-      a total? (c) `Roots Flow L` is empty from 2025-11 on: meter broken?
-      (d) Separator flow is ~50 slm while running in 2026-06 but ~0.05 slm in
-      2020-22: same quantity? (e) Excursions such as -84 / +166 slm (R,
-      2026-06) and -308 slm (separator, 2021-09): real or DAQ artifacts? And
-      the repeated 105.49 maximum on L: a saturation?
-      Live 2026-10-20 (warm, no flow): left +1.36 slm, right -0.42 slm,
-      separator -0.17 slm -- the meters carry zero offsets, which explains
-      small negative readings.
-- [ ] 62. **Manometer-Lo protocol and record:** (a) Utsav's `manometer_low`
-      driver reads an unprompted line stream from `tools/pi_gateway.py`
-      (drop 4 characters, take the first number, Torr), but you said the
-      KJL-SPARC speaks a TPG-style serial protocol. Which is it, and what
-      does one line look like? (The emulator streams `Pr: 1.2345E-01`, a
-      guess.) (b) The record's Manometer-Lo reads exactly 0 whenever
-      Manometer-Hi is above ~9-10 Torr: over-range reported as 0, or a valve?
-      (c) Between 1 and 9 Torr, Manometer-Lo reads 1.1-1.6x Manometer-Hi in
-      every era; which gauge is right there?
-      Live 2026-10-20: the KJL-SPARC line is `VAC=<value>` (the 4-character
-      prefix the driver strips); at atmosphere it sends `VAC=RANGE` (over the
-      10 Torr range), which the driver reports as PARSE_ERR. See 69 for a
-      fragment bug.
-- [ ] 63. **ITS-90 in Utsav's `genesis_common/its90_helium.py` vs the lab's
-      conversion** (not changed; for you and Utsav): (a) it uses 133.322
-      Pa/Torr (exact) where the lab code uses 133.3, so it reads +0.025 mK
-      at 0.9 Torr up to +0.17 mK at 700 Torr warmer (same ITS-90
-      coefficients); (b) below 0.8606 Torr (1.25 K) it returns NaN, so
-      `Mano_VapT` is NaN whenever the fridge is cold (0.05 Torr: lab 0.9187 K;
-      0.12 Torr: 1.0028 K). The band CSV holds only T = poly(ln P), so the
-      lab's Donnelly-Barenghi branch needs either a fitted polynomial row or
-      code; (c) its docstring says the LabVIEW VI carries only the 2.18-5 K
-      equation, but the record's Med/Hi/VHi ranges match both ITS-90 bands to
-      < 1 mK and its Lo range is a sub-1.25 K equation.
-- [ ] 64. Port clash for question 54: the trend-history IOC's suggested live
-      CA/PVA 5123/5223 is now `flowmeter_pi`'s (Utsav's
-      `ioc_manager/settings.yaml`: flowmeters 5123-5125, level meters
-      5126-5127, Manometer-Lo 5128). 5129/5229 is now taken too (Utsav's
-      ccce63e: `ionivac_pump`, the pumping cart's IONIVAC). Use e.g.
-      5130/5230 (free in every live profile and script today)?
-- [ ] 65. **TPG 262 units:** Utsav's ccce63e labels `Pump_PI` / `OVC_PI` as
-      Torr in `configs/target_physical/tpg262/settings.yaml` (was mbar), but
-      his driver overwrites the EGU at start-up with what the controller's
-      `UNI?` says, and you said (2026-10-16) the TPG is always set to mbar.
-      Has the live TPG been switched to Torr? If so its alarm limits (0.1 /
-      0.01 on Pump, 1e-3 / 1e-4 on OVC) and the vacuum interlock's 1e-3 trip
-      are now Torr, and the sim's emulator (UNI = 0, mbar) should answer
-      Torr. The sim keeps mbar until you say.
-      Checked 2026-10-21: the driver (`target_ioc/instruments/tpg262.py`)
-      sends only `PRX` (both pressures), `UNI` (QUERY the display unit) and
-      `TID`; it never sends `UNI,<n>`, so values arrive in whatever unit the
-      controller's front panel is set to, and the settings' `EGU: Torr` is
-      only the label until the IOC reads `UNI` at start-up. The alarm/trip
-      numbers and the Panopticon's x0.750062 mbar->Torr conversion all
-      silently assume mbar.
-      Live 2026-10-20: the controller reports `Pump_Unit` = **Torr** (Pump_PI
-      765 at atmosphere), so the live TPG 262 IS on Torr now. Was that
-      intended? If yes: the Panopticon's x0.750062 mbar->Torr conversion is
-      now wrong (atmosphere would show 574), the interlock's 1e-3 trip is in
-      Torr, and the sim's TPG emulator should answer Torr.
-- [ ] 68. **Enforce the TPG 262 unit?** (a) have the IOC check the `UNI`
-      reply and flag (alarm) anything but mbar, read-only; or (b) send
-      `UNI,0` at start-up to force mbar (a write to the instrument: needs
-      your and Utsav's OK); or (c) leave it to the front panel.
+- [ ] 64. **A live port for the trend-history service (rephrased 2026-10-22).**
+      The Panopticon's trends come from a new Genesis service, the trend
+      history (`UNH:GEN:HIST`, built on dev-visualizer). In the simulator it
+      runs on sim ports. To run it on the real DAQ it must be added to Utsav's
+      IOC manager (`configs/target_physical/ioc_manager/settings.yaml`) with
+      its own Channel Access / PV Access server port pair, like every other
+      IOC, and the Phoebus settings must list that port. The pair first
+      suggested (5123/5223) has since been given to the flowmeters, and
+      5124-5129 are taken too (flowmeters, LHe levels, Manometer-Lo, the cart
+      IONIVAC). The question: may it have **5130/5230** (free everywhere
+      today), and should I add the entry (an edit to a Genesis file, so with
+      your and Utsav's OK)? Until then the Panopticon's trends work in the
+      simulator only.
 - [ ] 69. **Manometer-Lo reads line fragments (for Utsav, live):** in the
       2026-10-20 sample 12 of 35 raw lines were fragments (`NGE`, `=RANGE`,
       `GE`, `E` ...): after `discard_input()` the next `read_until()` returns the
@@ -120,6 +56,98 @@ named in each item. Numbers are stable: answered items move to *Settled*.
       calibrated (writes P %), else the area. But pyNMR always carries a `cc`
       from its channel config. Does pyNMR record whether a TE was taken, or is
       the Genesis fitter's `CALIBRATED` (Preset = not calibrated) the rule?
+- [ ] 87. **Magnet ramp interlock details (follows 85):** (a) when a
+      condition trips during a ramp, should Genesis HOLD at the present
+      field, or run the magnet DOWN to zero (and at what rate)? Is it the
+      same for every condition (e.g. hold for a vacuum alarm, run down for
+      low LHe)? (b) Thresholds (magnet LHe settled, see Settled): which magnet thermometers, and how warm, count as "warming" (e.g. M4 /
+      M5 above some K)? Is a shells-vacuum *alarm* (the IONIVAC limits of
+      question 3: 1e-4 Torr warm, 1e-5 Torr cold) the trigger, or a trip
+      level? (c) In persistent mode, does any of this apply (the supply is
+      at zero then)?
+- [ ] 88. **LS455 port shared with the student's magnet IOC?** The student's
+      draft magnet IOC (reviewed 2026-10-22, kept local in `magnet_student/`) reads
+      the fringe-field gaussmeter itself at 192.168.1.251:5007 every second.
+      That serial-server port takes one connection, and Genesis's `ls455` IOC
+      uses it too. Was the student's IOC running on 2026-10-20? If so, it
+      would explain question 70 (Genesis's LS455 reading nothing).
+- [ ] 89. **Fridge LHe volume conversion, step at 10.71":** below 10.71" the
+      conversion counts 8.8 + h inches of the Ø2.25" tube; from 10.71" a fixed
+      19.1". 8.8 + 10.71 = 19.51, so the volume steps DOWN by ~0.027 L (1.2705 L
+      at 10.70" -> 1.2445 L at 10.71"). Should it be 19.51 (or the boundary
+      10.3")? Also exactly 15.71" matched no branch in the original (the sim
+      uses the neighbours' equal value). `cooldown_sim/conversions.py`
+      `fridge_lhe_liters` keeps it as written until you say.
+      Checked against the inner-shell drawings (2026-10-22, lab drawing set,
+      12 sheets): (a) Ø2.25" = the aluminium tube's bore (2.250 ID, 2.500 OD,
+      **19.100" long**) and its flange's bore (2.250); Ø5.78" = the 5.000"
+      stainless tube's bore (5.782). Both match. So 19.1 is the tube's length;
+      the aluminium part's Ø2.25 interior is ~0.4" longer (the tube seats 0.2"
+      into a 0.6" flange with the same bore), ~19.5" = 8.8 + 10.71. That points
+      to 19.51 being right for the third and fourth branches. (b) Between that
+      flange and the Ø5.782 tube, two stainless rings have a Ø3.000 bore
+      (~0.9" stacked, less overlaps, about 0.1 L), which no branch includes.
+      (c) **Ø7.26" does not match:** the 28.2" stainless tube above is Ø7.380
+      ID (7.500 OD); 7.250 is only the counterbore in the ring it seats in.
+      Ø7.38 gives 3.3 % more volume per inch above 15.71" (0.701 vs 0.678 L/in;
+      +0.10 L at 20"). Use 7.38?
+      Re-checked 2026-10-22 with the drawings turned to the fridge's real
+      orientation (they are printed sideways): the paper's horizontal is the
+      fridge's vertical; the aluminium tail (Ø2.25) is the bottom, the
+      stainless cross with the CF ports the top, so up the fridge is Ø2.25,
+      then two Ø3.000 rings, Ø5.782, Ø7.380, the same order as the equation.
+      Lengths along the paper are heights. The aluminium part is 19.950 long
+      overall and its end cap 0.450 thick, so its Ø2.25 interior is 19.50
+      (if the cap's 0.2 step is a spigot into the tube) or 19.70 (if it is a
+      recess the tube sits in); 8.8 + 10.71 = 19.51 fits the first. The
+      joints (which steps are spigots, which recesses) are read from the
+      section views and could each be off by 0.2. The diameters do not
+      depend on any of this.
+- [ ] 90. **Source of the banded magnet ramp rates:** the student's IOC ramps
+      at 3 / 2 / 1 A/min below 20 / 40 / 65 A, with no source given; the shift
+      handbook and AMI give only a single 3 A/min (3.02) limit. The records
+      show exactly these bands from 2021-09 on (medians 3.0 / 2.0 / 1.0 A/min),
+      3 A/min at every current in 2020, and about half rate above 40 A in
+      2022-05 and 2024-08/09. Where do the bands come from (the LabVIEW magnet
+      program, a quench-safety rule?), and should Genesis keep them?
+      The IPS120-10 itself can hold rate limits by current band (test menu
+      Sup 05 breakpoints, Sup 08 / 09 rates; the status word then shows "sweep
+      limiting"). Are 3 / 2 / 1 A/min programmed in the supply? Someone can
+      read them on the front panel (Test 07). If so they are a cap that does
+      not depend on Genesis.
+- [ ] 91. **"Cryogenics running" before magnet control (Ells 2026-10-22:
+      required; the level-meter checks most important):** which cryogenics
+      IOCs must be up for the magnet to move: the magnet LHe meter
+      (`lhe_magnet`) and magnet thermometry (`ls224_magnet`) surely; also the
+      fridge LHe meter, the shells' IONIVAC, the safety interlock, the alarm
+      summary? How recent must the LHe reading be (e.g. updated within 60 s)?
+      And with the magnet persistent at field when the cryo IOCs stop (a
+      restart), should Genesis only block new commands, or alarm too?
+- [ ] 92. **Inductance check tolerance (magnet, Ells 2026-10-22: check it is
+      near 38 H before ramping):** how close to 38 H must the supply's stored
+      inductance (`R24`) and the inductance measured as a ramp starts be
+      (e.g. +/- 10 %)? And should a mismatch refuse the ramp outright, or
+      allow an Expert override?
+- [ ] 93. **Power outage and the magnet (for the recovery procedure):** (a) the
+      IPS manual says a persistent magnet with ZERO lead current stays
+      persistent through a mains failure; this cool-down the supply is kept
+      energized while persistent. Then the clamp catches energized leads:
+      presumably the magnet stays persistent and only the lead current decays
+      through the clamp. Agreed, or is there a risk to the switch? (b) Are the
+      supply and the DAQ on a UPS? (c) Is the supply's hardware auto-run-down
+      wired to the magnet AMI 135's level relays (it only works while the
+      supply has power)? (d) Driven at the outage: the clamp closes at once in
+      any mode (manual p47) and the manual says the magnet then "slowly runs
+      down"; but the switch heater loses power too, so does the switch close
+      within seconds and catch the magnet persistent near its old field, with
+      only the lead current decaying? (Matters for recovery step 5 b.)
+- [ ] 94. **The red "power outage" button (magnet; Ells 2026-10-22: wanted):**
+      what should it do? Proposed: HOLD; if driven, heater off, 20 s, confirm
+      persistent; then the leads to zero (the manual's safe outage state is
+      persistent with ZERO lead current), which overrides this cool-down's
+      keep-energized rule: is that right? Or only HOLD + persistent, leads
+      left energized? Should a UPS "on battery" signal press it
+      automatically? Is the supply on a UPS long enough to finish (~1 min)?
 - [ ] 75. **Converter, `NMR Status`:** filled with pyNMR's free-text event
       `label` (default "None"). The old values were Baseline / Polarization /
       TE / Tuning / Scanning, and the McClellan reader sorts sweeps by them.
@@ -132,10 +160,6 @@ named in each item. Numbers are stable: answered items move to *Settled*.
       an assumption. `Setting 2`, `mmWaves Span` and `Sweep/Hop Time` are
       NOT_IN_GENESIS. Should they come from the supervisor's software sweep
       (`SweepStart` / `SweepStop` / `SweepDwell`)?
-- [ ] 78. **Manometer-Hi vapour-pressure temperature (for Utsav):** Genesis
-      computes `Mano_VapT` from Manometer-Lo only. The converter applies the
-      same ITS-90 function to `Cell_PI` and labels it `Hi:`. Should Genesis
-      publish a `Cell_VapT` itself, as LabVIEW did?
 - [ ] 79. **Converter, stale readings:** used by default, because a steady
       value stops updating and turns `stale` after 60 s (`Pump_Unit`, a 0 G
       fringe field). `--strict` uses `valid` only. Is the default right?
@@ -153,21 +177,6 @@ named in each item. Numbers are stable: answered items move to *Settled*.
       Live 2026-10-20: T1 (C4, 39.92 ohm) and T3 (C2, 47.77 ohm) both read
       ~298 K with status `OK; 224 TEMP RANGE` at room temperature, i.e. bits
       16/32 set -- confirms Utsav's C4/C2 mapping and his curves.
-- [ ] 67. **Pumping cart in the sim:** the old DAQ never logged the cart's
-      IONIVAC, so `ionivac_pump` is absent (connection refused) in every
-      replay. Would you rather it serve a plausible constant (e.g. turbo base
-      pressure ~1e-6 Torr while it pumps on something, or ~760 Torr parked),
-      and is the cart typically connected during a cool-down? Also its alarm
-      limits copy the shells' gauge (HIGH / HIHI 800 / 900 Torr).
-- [ ] 49. Models, and Genesis priority: (a) `Magnet_IPS` on the TXI017
-      (TCP 5001, 9600 8N2) -- the Oxford IPS120-10? (b) `Magnet_LHE_Prob`
-      (TCP 23) -- which level meter (AMI model)? Utsav's `lhe_magnet` driver
-      says an AMI Model 135 (cm, echo on); the 2020 record's 0.1 cm steps
-      agree: confirm. (c) settled: Utsav's ccce63e gives the cart's IONIVAC
-      its own IOC, `ionivac_pump` (see Settled). (d) `left_Roots_Pump` (5012) and
-      `Separator_Pump` (5013): Utsav's configs make them the left-Roots and
-      separator Hastings flowmeters (now Genesis IOCs `flowmeter_left`,
-      `flowmeter_sep`): confirm.
 - [ ] 50. (Housekeeping) TXI040 port 8 is vacant but set to TCP 5011, the
       same as port 5 (the TPG 262 that Genesis uses); give it a free port
       (e.g. 5014) before anything is plugged in. TXI017 port 2 uses TCP 23
@@ -287,6 +296,55 @@ named in each item. Numbers are stable: answered items move to *Settled*.
       a transposed pair rather than swapping it.)
 - [ ] 22. Try an interactive rehearsal (guide section 2) in Phoebus.
 - [ ] 23. Merge into `elong` (and push `dev-sim` itself)? Your call.
+
+## Notes (findings, not questions; Ells 2026-10-22)
+
+- 60. **Fridge He Level zero:** the record's `Fridge He Level (")` is
+      NEGATIVE most of the time the fridge runs (2026-06-17: -9 to -26 in;
+      2022-05 down to -87, where `Fridge He Level Raw` is negative too) and
+      ~5-14 in when it is not pumped. An AMI 1700 reports a non-negative
+      level, and Genesis's `lhe_fridge` has scale 1.0, offset 0.0, so Genesis
+      will not show the numbers LabVIEW logged. What zero/offset (or other
+      instrument) produced the record? The sim replays it as recorded.
+      Live 2026-10-20 (warm, empty fridge): the AMI 1700 itself reads
+      `Fridge_LI` -18.7 in, so the negative values come from the meter's own
+      zero/probe setup, not a LabVIEW offset. Still: what should 'empty' read?
+- 61. **Flowmeter record units and labels:** (a) are the record's
+      `Roots Flow L/R` and `Seperator Flow (SLM)` corrected SLM (the 28/19
+      in Utsav's profiles already applied)? The sim assumes yes, so Genesis
+      `_SLM` = record (the logbook's ~1 slm per 60 mW supports He SLM).
+      (b) The 2020 single `Roots Flow (SLM)`: the left meter (as aliased), or
+      a total? (c) `Roots Flow L` is empty from 2025-11 on: meter broken?
+      (d) Separator flow is ~50 slm while running in 2026-06 but ~0.05 slm in
+      2020-22: same quantity? (e) Excursions such as -84 / +166 slm (R,
+      2026-06) and -308 slm (separator, 2021-09): real or DAQ artifacts? And
+      the repeated 105.49 maximum on L: a saturation?
+      Live 2026-10-20 (warm, no flow): left +1.36 slm, right -0.42 slm,
+      separator -0.17 slm -- the meters carry zero offsets, which explains
+      small negative readings.
+      Ells 2026-10-22: (d) separator ~50 vs ~0.05 slm: uncertain; (c) the
+      left meter was broken and replaced (HFM-D-301B, 120 slm); (e) the 105.49
+      maximum is most likely saturation, not certain. Zero offsets: after the
+      cool-down (see below).
+- 62. **Manometer-Lo protocol and record:** (a) Utsav's `manometer_low`
+      driver reads an unprompted line stream from `tools/pi_gateway.py`
+      (drop 4 characters, take the first number, Torr), but you said the
+      KJL-SPARC speaks a TPG-style serial protocol. Which is it, and what
+      does one line look like? (The emulator streams `Pr: 1.2345E-01`, a
+      guess.) (b) The record's Manometer-Lo reads exactly 0 whenever
+      Manometer-Hi is above ~9-10 Torr: over-range reported as 0, or a valve?
+      (c) Between 1 and 9 Torr, Manometer-Lo reads 1.1-1.6x Manometer-Hi in
+      every era; which gauge is right there?
+      Live 2026-10-20: the KJL-SPARC line is `VAC=<value>` (the 4-character
+      prefix the driver strips); at atmosphere it sends `VAC=RANGE` (over the
+      10 Torr range), which the driver reports as PARSE_ERR. See 69 for a
+      fragment bug.
+
+## After the cool-down (Ells 2026-10-22: not yet)
+
+- Flowmeter zero offsets: with no flow (warm, 2026-10-20) the meters read
+  left +1.36, right -0.42, separator -0.17 slm. Normal for these Hastings
+  meters, and can the zero be adjusted?
 
 ## Details
 
@@ -421,6 +479,94 @@ named in each item. Numbers are stable: answered items move to *Settled*.
     varactors at 0-19 V. Keep a rule, change it, or drop it?
 
 ## Settled
+
+* Persistent mode, this cool-down (Ells, 2026-10-22; may be revisited):
+  when the magnet goes persistent, the supply stays energized at the magnet's
+  current and is not ramped down. To be a setting, not code
+  (`docs/COOLDOWN_SIM_MAGNET_PREP.md`).
+
+* Magnet needs the cryogenics running (Ells, 2026-10-22): the magnet
+  subsystem must not command the supply unless the cryogenics subsystem is
+  running; the magnet LHe level-meter checks are the most important part.
+  Missing or stale cryo data blocks the magnet. HOLD is always allowed.
+  Details: question 91; plan: `docs/COOLDOWN_SIM_MAGNET_PREP.md`.
+
+* Flowmeters (question 49 d; Ells with a lab expert, 2026-10-22):
+  separator = Hastings **HFM-D-300B, 40 slm**; left Roots = Hastings
+  **HFM-D-301B, 120 slm** (it replaced the broken earlier meter, which is why
+  the record's left flow is empty from 2025-11); right Roots = Hastings
+  **HFM-D-300B, 40 slm**. The 28/19 factor applies to the **right Roots only**;
+  the separator and left-Roots meters have none. **For Utsav:**
+  `configs/target_physical/flowmeter_left` and `flowmeter_sep` both set
+  `correction: 1.4736842105`, so Genesis reports those two flows 47 % high;
+  they should be 1.0 (`flowmeter_pi` keeps 28/19). The sim is unaffected: its
+  emulators divide the record by whatever factor the profile holds.
+
+* LHe level meters (question 49 b): Ells (2026-10-22), the magnet's is an
+  AMI Model 135 and the fridge's an AMI Model 1700, as Utsav's `lhe_magnet` /
+  `lhe_fridge` drivers assume.
+
+* TPG 262 units (questions 65, 68): Ells (2026-10-22), the readings must
+  be in Torr: if the controller ever reports another unit, Genesis sets it to
+  Torr (`UNI,1`). For Utsav: `target_ioc/instruments/tpg262.py` today only
+  reads the unit (`UNI`). The alarm limits and the vacuum interlock's trip are
+  then in Torr. The sim's emulator now answers Torr (`UNI` = 1, as live) and
+  accepts `UNI,<n>`; the Panopticon's history service follows `Pump_Unit`.
+
+* Vapour-pressure temperature (question 63): Ells (2026-10-22), yes, Genesis
+  should use her conversion (the lab's offline `t90_torr_to_k`, in the sim as
+  `model/physics.py`), which covers below 1.25 K, instead of
+  `genesis_common/its90_helium.py` (NaN below 0.8606 Torr). For Utsav.
+
+* Manometer-Hi vapour-pressure temperature (question 78): Ells (2026-10-22),
+  yes, Genesis should publish it (e.g. `Cell_VapT`), as LabVIEW did. For Utsav.
+  The Genesis -> LabVIEW converter computes it itself meanwhile.
+
+* Pumping-cart IONIVAC (question 67): Ells (2026-10-22), record it (Utsav's
+  archiver already lists `UNH:GEN:CRYO:ION:PUMP:*`), give it its own separate
+  screen with a plot, and keep it off the Panopticon.
+
+* Field equation (question 86): Ells (2026-10-22), measured by NMR on the
+  target material, so it includes every field around the magnet (Earth's as
+  an offset): **B = 0.1027405 x I + 0.00003497875 T**. The McClellan reader
+  and the sim's synthetic cool-downs already used it; the sim's target model
+  now does too (`model/target.py` `field_from_current`) where a record logs
+  only the current. The DAQ's own field column used 0.10274113 T/A, no
+  offset; AMI's catalogue coil constant is 1.031 kG/A.
+
+* Magnet LHe threshold for ramps (question 87, part b): Ells (2026-10-22),
+  20" blocks a ramp for most users; an **Expert** option allows ramps down to
+  16" (AMI's minimum operating level, "for safe magnet operation").
+
+* LHe level -> volume (Ells 2026-10-22): magnet space and fridge, piecewise in
+  height, now `cooldown_sim/conversions.py` `magnet_lhe_liters` /
+  `magnet_lhe_inches` and `fridge_lhe_liters` (tested against her code
+  verbatim). Magnet: 20.0 L at 16", 31.6 L at 20", 59.0 L at a full 31".
+  Fridge: 0.57 L at 0", 6.30 L at 20" (one quirk, question 89).
+
+* Magnet limits (question 84): from the AMI magnet specification (system
+  14109, tested 2013-01-23; Ells 2026-10-22 pointed to it): rated operating
+  current 67.9 A for the rated 70 kG (7 T) central field, not warranted above
+  it (tested to 71 kG at 4.2 K); maximum charge rate 0.0504 A/s = 3.02 A/min;
+  38 H, 2.0 V charging voltage. The student's draft ramps at 3 / 2 / 1 A/min
+  below 20 / 40 / 65 A, and the records show those bands from 2021-09 on (the
+  source is question 90). The draft's software limit is < 65 A.
+
+* Magnet ramps from Genesis (question 85): Ells (2026-10-22), (a) Genesis
+  both shows AND commands the supply (target field, ramp) from the start;
+  (b) yes, Genesis refuses to start a ramp, and stops one already running,
+  when something is wrong: magnet LHe below the 20" alarm, magnet
+  thermometers warming, a quench, a shells-vacuum alarm. What "stop" does
+  and the exact thresholds: question 87.
+
+* Magnet supply model (question 82): Ells (2026-10-22), yes, the supply on
+  `Magnet_IPS` (TCP 5001, 9600 8N2) is an Oxford IPS120-10.
+
+* Persistent mode (question 83): Ells (2026-10-22), the magnet is run
+  persistent sometimes, not always. The records never show it (they log the
+  supply current equal to the magnet current), so the emulator must support
+  both: driven, and persistent (switch heater off, magnet current held while
+  the supply's output goes to zero).
 
 * `Area/Polarization` in the converter (question 74): Ells (2026-10-21),
   before any TE / calibration constant it is the area sum(V * df); after a

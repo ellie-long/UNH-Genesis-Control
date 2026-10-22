@@ -798,7 +798,7 @@ class GUIBoundary(unittest.TestCase):
         rule = rules[0]
         self.assertEqual(rule.attrib['prop_id'], 'enabled')
         self.assertEqual([pv.text for pv in rule.findall('pv_name')],
-                         ['pva://$(P):COMM', 'pva://UNH:GEN:MW:SUP:RFActual'])
+                         ['ca://$(P):COMM', 'ca://UNH:GEN:MW:SUP:RFActual'])
         for comm, rf_actual, severity, expected in ((1, 0, 0, True), (1, 1, 0, False),
                                                     (0, 0, 0, False), (1, 0, 3, False)):
             with self.subTest(comm=comm, rf_actual=rf_actual, severity=severity):
@@ -812,7 +812,7 @@ class GUIBoundary(unittest.TestCase):
         # Attenuation remains adjustable while RF is ON.
         voltage = next(w for w in root.iter('widget') if w.findtext('name') == 'VSET_CMD_V')
         self.assertEqual([pv.text for pv in voltage.findall('rules/rule/pv_name')],
-                         ['pva://$(P):COMM'])
+                         ['ca://$(P):COMM'])
 
     def test_supervised_on_and_abort_and_diagnostics(self):
         for filename in ('genesis_microwave.bob','genesis_mw_supervisor.bob'):

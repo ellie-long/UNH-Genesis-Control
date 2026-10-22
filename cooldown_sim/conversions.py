@@ -7,7 +7,8 @@ Genesis drivers do their own conversions:
   lab's CCS/CCS2/CCCS curves itself, so the emulator must send the resistance
   that the driver will convert back to the recorded kelvin --
   :class:`InverseCalibration`.
-* TPG262 reports in its display unit (mbar, ``UNI`` = 0); the record is Torr.
+* TPG262 reports in its display unit: Torr (``UNI`` = 1), as the live
+  controller is set; the record is Torr too.
 * IONIVAC streams a 16-bit count: ``P(Torr) = 10**(count/4000 - 12.625)``.
 * LS455 reports field in its display unit (gauss, ``UNIT?`` = 1).
 
@@ -144,3 +145,76 @@ def _bisect(f, lo: float, hi: float, guess: float, iters: int = 80) -> float:
         else:
             hi = mid
     return 0.5 * (lo + hi)
+
+
+# --------------------------------------------------------- magnet LHe volume
+#: Magnet-space LHe: height on the AMI level sensor (inches) -> litres, Ells's
+#: piecewise conversion (2026-10-22).  Each segment is the liquid's cross
+#: section at that height: the Ø12" bore (1.853 L/in) up to 0.75"; the bore
+#: around the Ø7" solenoid (1.223 L/in) to the 16.5" magnet-support baffle;
+#: the Ø16" belly (3.137 L/in) to 20.25"; the belly around the insert's Ø8"
+#: tube (2.471 L/in) above.  (start inch, litres at start, litres per inch)
+MAGNET_LHE_SEGMENTS = (
+    (0.0, 0.0, 1.85334),
+    (0.75, 1.39, 1.22269),
+    (16.5, 1.39 + 19.2573, 3.13716),
+    (20.25, 1.39 + 19.2573 + 11.7643, 2.47112),
+)
+
+
+def magnet_lhe_liters(inches: float) -> float:
+    """Magnet-space LHe volume (L) at a level-sensor height (in).
+
+    Exactly the lab's conversion, including its linear extension below 0 in
+    (a negative reading gives a negative volume, as it does there)."""
+    h = float(inches)
+    if not math.isfinite(h):
+        return math.nan
+    start, base, per_inch = MAGNET_LHE_SEGMENTS[0]
+    for seg in MAGNET_LHE_SEGMENTS[1:]:
+        if h > seg[0]:
+            start, base, per_inch = seg
+    return base + (h - start) * per_inch
+
+
+def magnet_lhe_inches(liters: float) -> float:
+    """Inverse of :func:`magnet_lhe_liters`: the height (in) holding ``liters``."""
+    v = float(liters)
+    if not math.isfinite(v):
+        return math.nan
+    start, base, per_inch = MAGNET_LHE_SEGMENTS[0]
+    for seg in MAGNET_LHE_SEGMENTS[1:]:
+        if v > seg[1]:
+            start, base, per_inch = seg
+    return start + (v - base) / per_inch
+
+
+# --------------------------------------------------------- fridge LHe volume
+IN_TO_CM = 2.54
+
+
+def _cyl_liters(diameter_in: float, length_in: float) -> float:
+    """Volume (L) of a cylinder given in inches."""
+    return 0.001 * math.pi * (diameter_in * IN_TO_CM / 2.0) ** 2 * length_in * IN_TO_CM
+
+
+def fridge_lhe_liters(inches: float) -> float:
+    """Fridge LHe volume (L) at a fridge level-probe height (in): Ells's
+    piecewise conversion (2026-10-22), branch for branch.
+
+    The fridge is a Ø2.25" tube (8.8" of it below the probe's zero), then a
+    Ø5.78" section from 10.71" for 5", then Ø7.26" above 15.71".  Kept as the
+    lab wrote it, including two quirks (open question 89): below 10.71" the
+    tube length is 8.8 + h, from 10.71" a fixed 19.1" (8.8 + 10.71 = 19.51), so
+    the volume steps DOWN by ~0.027 L there; and exactly 15.71", which the
+    original matches to no branch, uses the (equal) value of both neighbours."""
+    h = float(inches)
+    if not math.isfinite(h):
+        return math.nan
+    if h < 0.1:
+        return _cyl_liters(2.25, 8.8)
+    if h < 10.71:
+        return _cyl_liters(2.25, 8.8 + h)
+    if h < 15.71:
+        return _cyl_liters(2.25, 19.1) + _cyl_liters(5.78, h - 10.71)
+    return _cyl_liters(2.25, 19.1) + _cyl_liters(5.78, 5.0) + _cyl_liters(7.26, h - 15.71)

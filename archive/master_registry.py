@@ -52,7 +52,7 @@ def build_registry(root=ROOT, sources_file=DEFAULT_SOURCES):
         raise ValueError("A nonempty sources list is required")
 
     registry = {}
-    invalid = []
+    pending_invalid = []
 
     def add(pv, subsystem, origin, kind):
         if not isinstance(pv, str) or not pv.strip():
@@ -150,11 +150,15 @@ def build_registry(root=ROOT, sources_file=DEFAULT_SOURCES):
 
                 for record in archived:
                     if record not in records:
-                        invalid.append({
-                            "ioc": name,
-                            "record": record,
-                            "config": relative,
-                        })
+                        pending_invalid.append((
+                            f"{prefix}:{record}",
+                            subsystem,
+                            {
+                                "ioc": name,
+                                "record": record,
+                                "config": relative,
+                            },
+                        ))
 
                 heartbeat = entry.get("heartbeat_pv")
                 if heartbeat:
@@ -188,6 +192,18 @@ def build_registry(root=ROOT, sources_file=DEFAULT_SOURCES):
     counts = dict(Counter(
         data["subsystem"] for data in registry.values()
     ))
+
+    # Validate unresolved IOC archive references after processing
+    # all sources, including explicitly verified runtime PVs.
+    invalid = [
+        diagnostic
+        for pv, subsystem, diagnostic in pending_invalid
+        if not (
+            pv in registry
+            and registry[pv]["subsystem"] == subsystem
+            and registry[pv]["kind"] == "explicit_pv"
+        )
+    ]
 
     report = {
         "counts": counts,

@@ -257,3 +257,65 @@ def test_committed_report_is_current():
     fresh = channel_map.report_markdown(channel_map.load())
     assert _mapping_tables(doc) == _mapping_tables(fresh), \
         "regenerate: python -m cooldown_sim channel-map-report --coverage"
+
+
+# ------------------------------------------------------- magnet LHe volume
+def _lab_magnet_lhe(he_level):
+    """Ells's conversion, verbatim (2026-10-22)."""
+    if he_level <= 0.75:
+        return he_level * 1.85334
+    elif 0.75 < he_level <= 16.5:
+        return (he_level - 0.75) * 1.22269 + 1.39
+    elif 16.5 < he_level <= 20.25:
+        return (he_level - 16.5) * 3.13716 + 1.39 + 19.2573
+    return (he_level - 20.25) * 2.47112 + 1.39 + 19.2573 + 11.7643
+
+
+def test_magnet_lhe_liters_is_the_lab_conversion():
+    from cooldown_sim.conversions import magnet_lhe_liters
+    for h in np.linspace(-2.0, 35.0, 741):
+        assert magnet_lhe_liters(h) == pytest.approx(_lab_magnet_lhe(h), abs=1e-9), h
+    # continuous at every segment boundary (to the constants' 4-5 digits)
+    for edge in (0.75, 16.5, 20.25):
+        assert magnet_lhe_liters(edge + 1e-9) == pytest.approx(magnet_lhe_liters(edge), abs=1e-4)
+    assert magnet_lhe_liters(31.0) == pytest.approx(58.98, abs=0.01)     # full sensor
+    assert math.isnan(magnet_lhe_liters(float("nan")))
+
+
+def test_magnet_lhe_inches_inverts_it():
+    from cooldown_sim.conversions import magnet_lhe_inches, magnet_lhe_liters
+    # the published constants meet to ~1e-5 L at the segment edges, so the
+    # round trip is exact inside a segment and within ~4e-6 in at an edge
+    for h in np.linspace(0.0, 31.0, 311):
+        assert magnet_lhe_inches(magnet_lhe_liters(h)) == pytest.approx(h, abs=1e-4)
+
+
+def _lab_fridge_lhe(level):
+    """Ells's conversion, verbatim (2026-10-22); None where it matches no branch."""
+    inToCm = 2.54
+    v = None
+    if level < 0.1:
+        v = 0.001*np.pi*(2.25*inToCm/2)**2*8.8*inToCm
+    elif level >= 0.1 and level < 10.71:
+        v = 0.001*np.pi*(2.25*inToCm/2)**2*(8.8+level)*inToCm
+    elif level >= 10.71 and level < 15.71:
+        v = 0.001*np.pi*(2.25*inToCm/2)**2*19.1*inToCm+0.001*np.pi*(5.78*inToCm/2)**2*(level-10.71)*inToCm
+    elif level > 15.71:
+        v = (0.001*np.pi*(2.25*inToCm/2)**2*19.1*inToCm+0.001*np.pi*(5.78*inToCm/2)**2*(5)*inToCm
+             + 0.001*np.pi*(7.26*inToCm/2)**2*(level-15.71)*inToCm)
+    return v
+
+
+def test_fridge_lhe_liters_is_the_lab_conversion():
+    from cooldown_sim.conversions import fridge_lhe_liters
+    for h in list(np.linspace(-20.0, 30.0, 1001)) + [0.1, 10.71, 15.70999]:
+        want = _lab_fridge_lhe(h)
+        assert fridge_lhe_liters(h) == pytest.approx(want, rel=1e-12), h
+    # exactly 15.71 matches no lab branch; both neighbours agree there
+    assert _lab_fridge_lhe(15.71) is None
+    assert fridge_lhe_liters(15.71) == pytest.approx(_lab_fridge_lhe(15.7100001), abs=1e-6)
+    assert fridge_lhe_liters(15.71) == pytest.approx(_lab_fridge_lhe(15.7099999), abs=1e-6)
+    # the documented step down at 10.71 in (question 89)
+    step = fridge_lhe_liters(10.71) - fridge_lhe_liters(10.7099999)
+    assert step == pytest.approx(-0.001 * math.pi * (2.25 * 2.54 / 2) ** 2 * 0.41 * 2.54, abs=1e-6)
+    assert math.isnan(fridge_lhe_liters(float("nan")))

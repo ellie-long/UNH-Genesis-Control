@@ -135,7 +135,7 @@ class PCL602ManagerIntegration(unittest.TestCase):
         )
 
         self.assertIn(
-            "127.0.0.1:5088",
+            "127.0.0.1:5087",
             PHOEBUS.read_text(),
         )
 

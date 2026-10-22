@@ -4305,6 +4305,26 @@
 
 
     <name>Incoming_NMR_Plot</name>
+      <scripts>
+        <script file="EmbeddedPy">
+          <text>from org.csstudio.display.builder.runtime.script import PVUtil
+import math
+
+freqs = PVUtil.getDoubleArray(pvs[0])
+valid = [float(x) for x in freqs if not math.isnan(x) and not math.isinf(x) and x &gt; 1.0]
+
+if len(valid) &gt;= 2:
+    lo, hi = min(valid), max(valid)
+    if hi &gt; lo:
+        margin = max(0.05, 0.025 * (hi - lo))
+        widget.setPropertyValue("x_axis.autoscale", False)
+        widget.setPropertyValue("x_axis.minimum", lo - margin)
+        widget.setPropertyValue("x_axis.maximum", hi + margin)
+</text>
+          <pv_name trigger="true">ca://$(P):FREQS_MHZ</pv_name>
+        </script>
+      </scripts>
+
 
 
 
@@ -4396,9 +4416,9 @@
 
       <autoscale>false</autoscale>
 
-      <minimum>32.25</minimum>
+      <minimum>23.9</minimum>
 
-      <maximum>33.15</maximum>
+      <maximum>28.1</maximum>
 
 
 
@@ -4479,7 +4499,7 @@
 
 
 
-        <y_pv>ca://$(P):RAW</y_pv>
+        <y_pv>ca://$(P):BASESUB</y_pv>
 
 
 
@@ -4489,7 +4509,7 @@
 
 
 
-        <trace_type>1</trace_type>
+        <trace_type>0</trace_type><point_type>2</point_type><point_size>2</point_size>
 
 
 
@@ -4527,6 +4547,26 @@
 
 
     <name>NMR_Fit_Plot</name>
+      <scripts>
+        <script file="EmbeddedPy">
+          <text>from org.csstudio.display.builder.runtime.script import PVUtil
+import math
+
+freqs = PVUtil.getDoubleArray(pvs[0])
+valid = [float(x) for x in freqs if not math.isnan(x) and not math.isinf(x) and x &gt; 1.0]
+
+if len(valid) &gt;= 2:
+    lo, hi = min(valid), max(valid)
+    if hi &gt; lo:
+        margin = max(0.05, 0.025 * (hi - lo))
+        widget.setPropertyValue("x_axis.autoscale", False)
+        widget.setPropertyValue("x_axis.minimum", lo - margin)
+        widget.setPropertyValue("x_axis.maximum", hi + margin)
+</text>
+          <pv_name trigger="true">ca://$(P):FREQS_MHZ</pv_name>
+        </script>
+      </scripts>
+
 
 
 
@@ -4715,7 +4755,7 @@
 
 
 
-        <trace_type>1</trace_type>
+        <trace_type>0</trace_type><point_type>2</point_type><point_size>2</point_size>
 
 
 
@@ -4770,7 +4810,7 @@
 
 
 
-        <trace_type>1</trace_type>
+        <trace_type>0</trace_type><point_type>2</point_type><point_size>2</point_size>
 
 
 

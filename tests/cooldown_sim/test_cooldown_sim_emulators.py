@@ -206,14 +206,28 @@ def test_tpg262_handshake_units_and_status():
     state = {"Pump": 0.35, "OVC": float("nan")}
     emu = TPG262(tuple(settings["channels"]), lambda ch: state[ch])
     with real_driver("tpg262", settings, emu) as (dev, srv, _mod):
-        assert value(dev, "Pump_Unit") == "mbar"
+        assert value(dev, "Pump_Unit") == "Torr"                 # the live setting
         assert read(dev) is True
-        assert value(dev, "Pump_PI") == pytest.approx(0.35 * conversions.TORR_TO_MBAR, rel=1e-4)
+        assert value(dev, "Pump_PI") == pytest.approx(0.35, rel=1e-4)
         assert value(dev, "Pump_Status") == "OK"
         assert math.isnan(value(dev, "OVC_PI"))
         assert value(dev, "OVC_Status") == "Sensor off"
         srv.set_fault("nak")
         assert_read_failed(dev, "Pump_PI")
+
+
+def test_tpg262_unit_can_be_set_like_the_controller():
+    emu = TPG262(("Pump", "OVC"), lambda ch: 760.0, unit="0")
+    ack, nak, enq = TPG262.ACK + b"\r\n", TPG262.NAK + b"\r\n", TPG262.ENQ
+    assert emu.respond(b"UNI\r\n") == ack and emu.respond(enq) == b"0\r\n"
+    assert emu.respond(b"PRX\r\n") == ack
+    assert emu.respond(enq).startswith(b"0,1.0132E+03")        # 760 Torr in mbar
+    assert emu.respond(b"UNI,1\r\n") == ack and emu.respond(enq) == b"1\r\n"
+    emu.respond(b"PRX\r\n")
+    assert emu.respond(enq).startswith(b"0,7.6000E+02")        # now Torr
+    assert emu.respond(b"UNI,7\r\n") == nak and emu.unit == "1"
+    with pytest.raises(ValueError):
+        TPG262(("Pump", "OVC"), lambda ch: 1.0, unit="9")
 
 
 # ---------------------------------------------------------------- IONIVAC

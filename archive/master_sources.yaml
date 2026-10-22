@@ -21,3 +21,18 @@ sources:
 #    kind: pv_list
 #    pvs:
 #      - UNH:GEN:MAG:FIELD_RBV
+
+  # Verified runtime PVs generated dynamically by the Microwave IOCs.
+  # Read-only master recording; no IOC record definitions added.
+  - subsystem: Microwave
+    kind: pv_list
+    pvs:
+      - UNH:GEN:MW:SUP:RFActual
+      - UNH:GEN:MW:SUP:RFValid
+      - UNH:GEN:MW:SUP:RFState
+      - UNH:GEN:MW:SUP:ControlOwned
+      - UNH:GEN:MW:ROBOT:MOTION_INHIBITED
+      - UNH:GEN:MW:ROBOT:JOYSTICK_CONNECTED
+      - UNH:GEN:MW:ROBOT:JOYSTICK_ACTIVE
+      - UNH:GEN:MW:ROBOT:X_LIMITS
+      - UNH:GEN:MW:ROBOT:Y_LIMITS

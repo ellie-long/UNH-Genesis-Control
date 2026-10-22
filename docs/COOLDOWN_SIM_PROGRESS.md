@@ -48,6 +48,66 @@ lab answers are in `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`.
 
 ## Log
 
+### 2026-10-22: Utsav's main c088cdb merged
+* Merged `upstream/main` c088cdb into dev-sim (7fed56e; backup
+  `backup/dev-sim-pre-utsav-c088cdb`). Six commits since ccce63e: PyNMR
+  spectrum streaming and baseline-subtracted fitter plots; microwave physical
+  control validated with deployment safeguards (Vaunix, robot, supervisor
+  settings, six microwave screens); the SIG reflector acceptance note; the
+  master archiver covering every PV with physical CA discovery; a dedicated
+  microwave Phoebus server port. No magnet code yet.
+* No conflicts: `gui/genesis_microwave.bob`, changed on both sides, merged
+  cleanly and keeps dev-sim's dopant control (`MW:SUP:Dopant`).
+* Tests: `tests/cooldown_sim` 284 passed, 8 skipped (Windows, genesis-p1);
+  WSL `tests/test_master_*.py tests/test_microwave_*.py
+  tests/test_phoebus_launcher.py tests/test_ssrf_fitter_gui_static.py
+  tests/test_cryo_*.py tests/test_target_cryo_integration.py` 446 passed
+  (102 subtests).
+
+### 2026-10-22: Ells's answers (TPG Torr, vapour pressure, cart, 60-62)
+* TPG 262 in Torr always (65, 68): Genesis sets the unit to Torr if it is not
+  (for Utsav); the sim's TPG emulator now answers Torr (UNI = 1, as live) and
+  accepts `UNI,<n>`. Scenarios that trip on the TPG should be re-run on WSL
+  (the emulator used to send mbar, 1.33x the Torr value).
+* 63: Genesis should use Ells's sub-1.25 K conversion; 78: Genesis should
+  publish a Manometer-Hi vapour-pressure temperature (both for Utsav).
+* 67: the cart IONIVAC is recorded, gets its own screen with a plot, and stays
+  off the Panopticon.
+* 60-62 moved to a Notes section (findings, not questions); 64 rephrased;
+  89 re-checked with the drawings' sideways orientation.
+
+### 2026-10-22: magnet limits, field equation, LHe volumes
+* Question 84 from the AMI magnet specification (67.9 A / 70 kG rated,
+  0.0504 A/s); 86 from Ells: B = 0.1027405 x I + 0.00003497875 T (NMR on the
+  target, Earth's field in the offset), now `model/target.py
+  field_from_current` (the McClellan reader already used it); 87 in part:
+  magnet LHe 20" blocks ramps, an Expert option allows down to 16".
+* LHe height -> volume (Ells): `conversions.magnet_lhe_liters` /
+  `magnet_lhe_inches` and `fridge_lhe_liters`, tested against her code
+  verbatim. Question 89: the fridge conversion steps down 0.027 L at 10.71".
+
+### 2026-10-22: student's magnet IOC reviewed (not changed)
+* `magnet_student/` (local, gitignored): the student's Magnet_V3 draft IOC for the
+  IPS120-10, unchanged, and three review documents in `magnet_student/docs/`: how it
+  works, the protections in place, and the issues found (band-rate bug at
+  20 / 40 A, no quench decoding, overlapping operations, reply mix-up after a
+  reconnect, a second client on the LS455 port, and two fail-safe bugs).
+  Nothing implemented yet (Ells). Question 88.
+
+### 2026-10-21: ready for the magnet controls (due 2026-10-22)
+* `docs/COOLDOWN_SIM_MAGNET_PREP.md`: what we know of the magnet supply
+  (`Magnet_IPS`, TCP 5001; presumably an Oxford IPS120-10), what the records
+  show (0.10274 T/A in every cool-down 2022-2026, 5.0-5.5 T, driven never
+  persistent, ramps 1-2 A/min peaking near 3), every place the IOC plugs into
+  the sim and the screens, and the safety checks. Questions 82-86.
+* Ells 2026-10-22: 82 settled (Oxford IPS120-10), 83 settled (persistent
+  sometimes, not always: the emulator needs both modes), 84 and 86 to come
+  from Ells (limits; a better field equation with an NMR-measured offset),
+  85 rephrased. Channel map and its report updated.
+* Ells 2026-10-22: 85 settled (Genesis shows AND commands the supply; magnet
+  LHe < 20", warming magnet thermometers, a quench or a shells-vacuum alarm
+  block or stop a ramp). New question 87: hold or run down, and thresholds.
+
 ### 2026-10-21: Panopticon wired to the levels, flowmeters and Manometer-Lo (dev-visualizer)
 * Merged dev-sim into dev-visualizer (1b069d2; merge, the branch is public):
   Utsav's optional cryo IOCs and ccce63e, their sim emulators, the
@@ -800,6 +860,10 @@ Tracked in `cooldown_sim/known_issues.yaml` and reported as KNOWN, not FAIL:
 
 Also observed:
 
+* Flowmeter correction (Ells 2026-10-22): the 28/19 factor belongs to the
+  right-Roots meter only, but `flowmeter_left` and `flowmeter_sep` apply it
+  too, so Genesis's left-Roots and separator flows read 47 % high (question
+  49 d, Settled).
 * The IONIVAC (the shells' vacuum) alarms only at 800 / 900 Torr, so a loss
   of the shells' vacuum raises no alarm. Ells: warn on a rapid rise and above
   the 1e-4 Torr range (open question 25).
@@ -858,6 +922,9 @@ points. It does not reproduce deliberate fast depolarisations (AFP, anneals,
 unlogged burns).
 
 ## Test status (latest)
+
+* 2026-10-22 (magnet constants, LHe volumes): `tests/cooldown_sim` **283 passed,
+  8 skipped on Windows** (`genesis-p1`).
 
 * 2026-10-21 (Genesis -> LabVIEW converter): `tests/cooldown_sim` **279 passed,
   8 skipped on Windows** (`genesis-p1`), including the new converter tests in

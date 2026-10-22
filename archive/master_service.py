@@ -86,29 +86,63 @@ def save_status(status):
 
 
 def ca_addresses():
-    """Use explicitly configured CA addresses or discover configured IOC ports.
+    """Resolve physical Genesis CA endpoints without starting hardware.
 
-    With nonstandard ssRF ports, set GENESIS_MASTER_CA_ADDR_LIST to include
-    them; the IOC manager inventories are not assumed to include ssRF.
+    Explicit operator overrides retain precedence. Automatic discovery uses
+    physical Cryo, Microwave, and ssRF configurations only.
     """
     explicit = os.getenv("GENESIS_MASTER_CA_ADDR_LIST", "").strip()
     if explicit:
         return explicit
+
     inherited = os.getenv("EPICS_CA_ADDR_LIST", "").strip()
     if inherited:
         return inherited
 
     import yaml
-    ports = set()
-    for manifest in sorted((ROOT / "configs").glob("**/ioc_manager/settings.yaml")):
-        with manifest.open(encoding="utf-8") as handle:
-            mapping = yaml.safe_load(handle) or {}
-        for entry in mapping.values():
-            if isinstance(entry, dict) and entry.get("ca_server_port"):
-                ports.add(int(entry["ca_server_port"]))
-    if not ports:
-        raise RuntimeError("No CA addresses; set GENESIS_MASTER_CA_ADDR_LIST")
-    return " ".join(f"127.0.0.1:{port}" for port in sorted(ports))
+
+    addresses = set()
+
+    manager_paths = (
+        "configs/target_physical/ioc_manager/settings.yaml",
+        "configs/commissioning/microwave_physical/ioc_manager/settings.yaml",
+    )
+
+    for relative in manager_paths:
+        config = yaml.safe_load(
+            (ROOT / relative).read_text(encoding="utf-8")
+        ) or {}
+
+        for entry in config.values():
+            if not isinstance(entry, dict):
+                continue
+
+            for key in ("ca_server_port", "manager_ca_server_port"):
+                port = entry.get(key)
+                if port is not None:
+                    addresses.add(f"127.0.0.1:{int(port)}")
+
+            configured = entry.get("epics_addr_list")
+            if isinstance(configured, str) and configured.lower() != "none":
+                addresses.update(configured.split())
+
+    ssrf_path = ROOT / "configs/ssrf_physical/archiver/settings.yaml"
+    ssrf = yaml.safe_load(ssrf_path.read_text(encoding="utf-8")) or {}
+    configured = (ssrf.get("general") or {}).get("epics_addr_list")
+
+    if not isinstance(configured, str) or not configured.strip():
+        raise RuntimeError("Missing physical ssRF CA address configuration")
+
+    addresses.update(configured.split())
+
+    # Physical ssRF archive IOC, started on CA port 5092 by
+    # scripts/start_ssrf_physical.sh. The fitter uses port 5100.
+    addresses.add("127.0.0.1:5092")
+
+    if not addresses:
+        raise RuntimeError("No physical Genesis CA addresses configured")
+
+    return " ".join(sorted(addresses))
 
 
 def free_bytes(path):

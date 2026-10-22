@@ -2,7 +2,6 @@
 
 import csv
 import json
-from collections import Counter
 from datetime import datetime, timezone
 
 from archive.master_registry import build_registry
@@ -15,11 +14,11 @@ def test_complete_configured_registry():
     assert report["counts"] == {
         "Cryo": 168,
         "ssRF": 97,
-        "Microwave": 104,
+        "Microwave": 113,
     }
 
-    assert len(registry) == 369
-    assert report["total"] == 369
+    assert len(registry) == 378
+    assert report["total"] == 378
 
     assert all(
         data["transport"] == "unverified"
@@ -36,17 +35,53 @@ def test_important_physical_channels():
     assert "UNH:GEN:MW:PS:VMEAS" in registry
 
 
-def test_invalid_archive_references_reported():
-    _, report = build_registry()
+def test_verified_runtime_archive_references_resolved():
+    registry, report = build_registry()
 
-    missing = report["invalid_archive_references"]
+    assert report["invalid_archive_references"] == []
 
-    assert len(missing) == 9
+    expected = {
+        "UNH:GEN:MW:SUP:RFActual",
+        "UNH:GEN:MW:SUP:RFValid",
+        "UNH:GEN:MW:SUP:RFState",
+        "UNH:GEN:MW:SUP:ControlOwned",
+        "UNH:GEN:MW:ROBOT:MOTION_INHIBITED",
+        "UNH:GEN:MW:ROBOT:JOYSTICK_CONNECTED",
+        "UNH:GEN:MW:ROBOT:JOYSTICK_ACTIVE",
+        "UNH:GEN:MW:ROBOT:X_LIMITS",
+        "UNH:GEN:MW:ROBOT:Y_LIMITS",
+    }
 
-    counts = Counter(x["ioc"] for x in missing)
+    assert expected.issubset(registry)
 
-    assert counts["mw_supervisor"] == 4
-    assert counts["mw_pcl602"] == 5
+
+def test_genuinely_undefined_archive_reference_reported(monkeypatch):
+    import archive.master_registry as module
+
+    original_load = module._load
+    config_path = (
+        "configs/commissioning/microwave_physical/"
+        "supervisor/settings.yaml"
+    )
+
+    def load_with_invalid_reference(root, path):
+        data = original_load(root, path)
+        if str(path) == config_path:
+            data["microwave_supervisor"]["archive_records"].append(
+                "UNVERIFIED_ARCHIVE_RECORD"
+            )
+        return data
+
+    monkeypatch.setattr(module, "_load", load_with_invalid_reference)
+
+    registry, report = module.build_registry()
+
+    assert len(registry) == 378
+    assert report["invalid_archive_references"] == [{
+        "ioc": "mw_supervisor",
+        "record": "UNVERIFIED_ARCHIVE_RECORD",
+        "config": config_path,
+    }]
 
 
 def test_registry_master_recorder_integration(tmp_path):

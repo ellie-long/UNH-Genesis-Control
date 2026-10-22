@@ -243,6 +243,13 @@ class ProtectedNMRRuntime:
                 or self._commissioning_invalid
                 or not self.producer_session.matches_process()
             ):
+                print(
+                    "[GENESIS ADMISSION] commissioning rejected: "
+                    f"armed={self._commissioning_armed} "
+                    f"invalid={self._commissioning_invalid} "
+                    f"route={self.source_state.snapshot()}",
+                    flush=True,
+                )
                 return False
         if (
             self._stop.is_set()
@@ -250,9 +257,15 @@ class ProtectedNMRRuntime:
         ):
             return False
 
-        return self.event_adapter.attest_completed_event(
+        accepted = self.event_adapter.attest_completed_event(
             event, message
         )
+        print(
+            f"[GENESIS ADMISSION] adapter accepted={accepted} "
+            f"route={self.source_state.snapshot()}",
+            flush=True,
+        )
+        return accepted
 
     def select_source(self, source):
         """Select software input; invalidate prior acquisition authorization."""

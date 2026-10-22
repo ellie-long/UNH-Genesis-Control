@@ -146,7 +146,10 @@ class MKS902B(Emulator):
 
 # ----------------------------------------------------------------- TPG 262
 class TPG262(Emulator):
-    """Pfeiffer ACK/ENQ handshake.  Values served in mbar (UNI = 0).
+    """Pfeiffer ACK/ENQ handshake.  Values served in the display unit, Torr by
+    default (UNI = 1), as the live controller is set (2026-10-20) and as Ells
+    wants it kept (2026-10-22: Genesis sets it to Torr whenever it is not).
+    ``UNI,<n>`` changes the unit (0 mbar, 1 Torr, 2 Pa) like the real one.
 
     ``sources`` is (gauge1 channel, gauge2 channel); a NaN reading is sent
     with ``nan_status`` (default '4' Sensor off) and value 0, which the driver
@@ -156,8 +159,15 @@ class TPG262(Emulator):
     name = "tpg262"
     ACK, ENQ, NAK = b"\x06", b"\x05", b"\x15"
 
-    def __init__(self, channels: tuple[str, str], source: Source, nan_status: str = "4"):
+    #: display unit code -> factor from Torr
+    UNIT_FROM_TORR = {"0": conversions.TORR_TO_MBAR, "1": 1.0, "2": 133.322368}
+
+    def __init__(self, channels: tuple[str, str], source: Source, nan_status: str = "4",
+                 unit: str = "1"):
         super().__init__()
+        if unit not in self.UNIT_FROM_TORR:
+            raise ValueError(f"TPG 262 unit code {unit!r}: 0 mbar, 1 Torr or 2 Pa")
+        self.unit = unit
         self.channels = channels
         self.source = source
         self.nan_status = nan_status
@@ -190,7 +200,7 @@ class TPG262(Emulator):
         torr = self.source(ch)
         if not math.isfinite(torr):
             return self.nan_status, 0.0
-        return "0", conversions.torr_to_mbar(torr)
+        return "0", torr * self.UNIT_FROM_TORR[self.unit]
 
     def respond(self, request: bytes) -> bytes | None:
         if request == self.ENQ:
@@ -199,11 +209,18 @@ class TPG262(Emulator):
                 (s1, v1), (s2, v2) = (self._gauge(c) for c in self.channels)
                 return f"{s1},{v1:.4E},{s2},{v2:.4E}\r\n".encode()
             if mnemonic == "UNI":
-                return b"0\r\n"
+                return f"{self.unit}\r\n".encode()
             if mnemonic == "TID":
                 return b"PKR,IKR\r\n"
             return self.NAK + b"\r\n"
         mnemonic = request.decode("ascii", "replace").strip().upper()
+        if mnemonic.startswith("UNI,"):                     # set the display unit
+            code = mnemonic[4:].strip()
+            if code not in self.UNIT_FROM_TORR:
+                return self.NAK + b"\r\n"
+            self.unit = code
+            self._last = "UNI"
+            return self.ACK + b"\r\n"
         if mnemonic in ("PRX", "UNI", "TID"):
             self._last = mnemonic
             return self.ACK + b"\r\n"
