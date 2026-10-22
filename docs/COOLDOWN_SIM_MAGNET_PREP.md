@@ -104,6 +104,12 @@ simulator:
   master archive and per-PV CSVs (the archiver's PV list), every operator
   request, refusal, completion and fault in an event log, and the converter's
   four magnet columns filled from the new PVs; nothing pruned;
+- **persistent mode, this cool-down (Ells 2026-10-22, may be revisited):** keep
+  the supply energized at the magnet's current (held) after the switch closes;
+  never run the leads down to zero. Make it a setting (e.g.
+  `persistent_supply: hold` vs `run_down`) so it can change without code,
+  refuse a "supply to zero" request while it is `hold`, and model it in the
+  emulator. (Energized leads carry current, so some extra boil-off.)
 - operate the supply **remote and unlocked** (`C3`, Ells 2026-10-22); since a
   held front-panel button then delays remote commands, every command
   (HOLD included) gets a reply deadline and a loud alarm if it is missed;

@@ -460,6 +460,11 @@ named in each item. Numbers are stable: answered items move to *Settled*.
 
 ## Settled
 
+* Persistent mode, this cool-down (Ells, 2026-10-22; may be revisited):
+  when the magnet goes persistent, the supply stays energized at the magnet's
+  current and is not ramped down. To be a setting, not code
+  (`docs/COOLDOWN_SIM_MAGNET_PREP.md`).
+
 * Magnet needs the cryogenics running (Ells, 2026-10-22): the magnet
   subsystem must not command the supply unless the cryogenics subsystem is
   running; the magnet LHe level-meter checks are the most important part.
