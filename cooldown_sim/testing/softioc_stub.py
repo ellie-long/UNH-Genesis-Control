@@ -57,7 +57,7 @@ class FakeRecord:
 
 _RECORD_KINDS = ("aIn", "aOut", "boolIn", "boolOut", "longIn", "longOut", "mbbIn",
                  "mbbOut", "stringIn", "stringOut", "WaveformIn", "WaveformOut",
-                 "Waveform", "longStringIn", "longStringOut", "int64In", "int64Out")
+                 "Waveform", "longStringIn", "longStringOut", "int64In", "int64Out", "Action")
 
 
 def build_stub() -> types.ModuleType:
@@ -109,7 +109,7 @@ def build_stub() -> types.ModuleType:
 #: Modules that bind ``softioc`` at import time and must be re-imported
 #: against the stub.
 _EVICT_PREFIXES = ("genesis_common", "target_ioc", "logic_devices", "microwave_ioc",
-                   "ssrf_ioc", "tools.pv_map")
+                   "ssrf_ioc", "tools.pv_map", "magnet_ioc")
 
 
 @contextlib.contextmanager

@@ -1,0 +1,17 @@
+# Genesis Magnet subsystem IOC manager.  A separate subsystem, like the
+# Microwave one, so the magnet is recorded as "Magnet" by the master archiver
+# (archive/master_sources.yaml) without touching the Cryogenics profiles.
+general:
+  prefix: UNH:GEN
+  log_dir: logs
+  epics_addr_list: 127.0.0.1:5132 127.0.0.1:5131
+  manager_ca_server_port: 5132
+  manager_pva_server_port: 5232
+  delay: 0.5
+ips120:
+  autostart: false
+  settings_folder: configs/magnet_physical/ips120
+  ioc: ips120
+  heartbeat_pv: UNH:GEN:MAG:MAN:ips120_time
+  ca_server_port: 5131
+  pva_server_port: 5231

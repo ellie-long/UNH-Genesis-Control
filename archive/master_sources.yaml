@@ -15,12 +15,12 @@ sources:
     kind: ioc_manager
     settings: configs/commissioning/microwave_physical/ioc_manager/settings.yaml
 
-# Future example (do not enable until the PV is verified):
-#
-#  - subsystem: Magnet
-#    kind: pv_list
-#    pvs:
-#      - UNH:GEN:MAG:FIELD_RBV
+  # The magnet's IPS120-10 supply (magnet_ioc; dev-visualizer, 2026-10-23).
+  # Its PVs are the records of configs/magnet_physical/ips120; verified in the
+  # simulator against the IPS120 emulator, not yet against the real supply.
+  - subsystem: Magnet
+    kind: ioc_manager
+    settings: configs/magnet_physical/ioc_manager/settings.yaml
 
   # Verified runtime PVs generated dynamically by the Microwave IOCs.
   # Read-only master recording; no IOC record definitions added.

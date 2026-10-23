@@ -1,0 +1,125 @@
+# Genesis Magnet physical profile: the Oxford IPS120-10 supply for the AMI
+# magnet (system 14109).  Ported from the student's Magnet_V3 IOC with the
+# review's fixes (magnet_ioc/PORTING.md).
+#
+# Hardware writes are DISABLED by default.  Until write_enabled is true the
+# IOC only reads the supply; every command PV is refused and logged.
+#
+# Run:  python master_ioc.py -s configs/magnet_physical/ips120 -i ips120
+
+general:
+  prefix: UNH:GEN:MAG
+  log_dir: logs
+  # the cryogenics IOCs the permit reads: LS224 magnet (5117), IONIVAC (5114),
+  # magnet LHe level (5127)
+  epics_addr_list: 127.0.0.1:5117 127.0.0.1:5114 127.0.0.1:5127
+  delay: 1.0
+
+ips120:
+  module: magnet_ioc.device
+  autostart: false
+  # TXI017 serial-to-Ethernet server, port 1 (Magnet_IPS), 9600 8N2
+  ip: 192.168.1.250
+  port: 5001
+  timeout: 3
+  delay: 1.0                        # poll period (s)
+  channels:
+  - PS
+  write_enabled: false
+
+  # ---- limits and rates (AMI specification; Ells 2026-10-22) -------------
+  max_current: 65.0                 # A; AMI rated 67.9 A for 70 kG
+  # (upper current of the band, A; rate, A/min).  Seen in the records since
+  # 2021-09; the source is open question 90.
+  rate_bands: [[20.0, 3.0], [40.0, 2.0], [65.0, 1.0]]
+  max_sweep_rate: 3.0               # independent cap (Ells); AMI max 3.02 A/min
+  current_tolerance: 0.01
+  match_tolerance: 0.01
+  heater_wait_s: 20.0               # after heater ON and after heater OFF (Ells)
+  poll_s: 1.0
+  inductance_h: 38.0                # AMI
+  inductance_tolerance: 0.10        # R24 vs 38 H (question 92: provisional)
+  measured_inductance_tolerance: 0.25   # V / dI/dt while ramping (question 92)
+  observed_rate_margin: 0.25        # backstop on the rate seen in R0 (the cap is exact on S / R6)
+  observed_rate_window_s: 30.0
+  heater_ma: 40.0                   # AMI switch heater current
+  heater_ma_tolerance: 5.0
+  # this cool-down (Ells 2026-10-22, may be revisited): keep the supply
+  # energized while persistent; "run_down" would take the leads to zero
+  persistent_supply: hold
+  # the red POWER OUTAGE button: "hold" follows the rule above, "zero" runs
+  # the leads down (the manual's safe outage state; question 94)
+  outage_leads: hold
+
+  # ---- field (Ells: NMR-measured on the target, Earth's field in the offset)
+  field_equation:
+    slope_t_per_a: 0.1027405
+    offset_t: 0.00003497875
+
+  # ---- the cryogenics precondition (magnet_ioc/interlocks.py) -------------
+  permit:
+    lhe_pv: UNH:GEN:CRYO:MAG:LHE:Magnet_LI
+    lhe_min_in: 20.0                 # Ells: 20 in for most users
+    lhe_min_expert_in: 16.0          # Expert: down to AMI's minimum
+    heartbeats:                      # question 91: which IOCs
+      lhe_magnet: UNH:GEN:CRYO:MAG:LHE:MAN:lhe_magnet_time
+      ls224_magnet: UNH:GEN:CRYO:MAG:MAN:ls224_magnet_time
+      ionivac: UNH:GEN:CRYO:ION:MAN:ionivac_time
+    heartbeat_max_age_s: 60.0        # question 91
+    reading_max_age_s: 60.0
+    magnet_temps:                    # question 87: which, how warm
+      M4: UNH:GEN:CRYO:MAG:M4_TI
+      M5: UNH:GEN:CRYO:MAG:M5_TI
+    magnet_temp_max_k: 6.0
+    shells_pv: UNH:GEN:CRYO:ION:Ion_PI
+    magnet_bottom: M5
+    shells_max_cold_torr: 1.0e-5     # Ells: below 80 K at the magnet's bottom
+    shells_max_warm_torr: 1.0e-4     # above 300 K (used above 80 K too)
+    shells_cold_below_k: 80.0
+
+  records:
+    CURRENT: {DESC: Supply demand current R0, EGU: A}
+    CURRENT_MEAS: {DESC: Supply measured current R2, EGU: A}
+    VOLTAGE: {DESC: Supply output voltage R1, EGU: V}
+    PERSISTENT_CURRENT: {DESC: Persistent magnet current R16, EGU: A}
+    SETPOINT: {DESC: Target current R5, EGU: A}
+    SWEEP_RATE: {DESC: Current sweep rate R6, EGU: A/min}
+    TRIP_CURRENT: {DESC: Current at the last trip R17, EGU: A}
+    HEATER_MA: {DESC: Switch heater current setting R20, EGU: mA}
+    SAFE_NEG: {DESC: Safe current limit negative R21, EGU: A}
+    SAFE_POS: {DESC: Safe current limit positive R22, EGU: A}
+    LEAD_RES: {DESC: Lead resistance stored R23, EGU: mohm}
+    INDUCTANCE: {DESC: Magnet inductance stored R24, EGU: H}
+    INDUCTANCE_MEAS: {DESC: Inductance seen while ramping, EGU: H}
+    MAGNET_CURRENT: {DESC: Current in the magnet (both modes), EGU: A}
+    FIELD: {DESC: Field from the NMR equation, EGU: T}
+    FIELD_SOURCE: {DESC: Current the field is computed from}
+    FIELD_SLOPE: {DESC: Field equation slope, EGU: T/A}
+    FIELD_OFFSET: {DESC: Field equation offset, EGU: T}
+    NMR_D: {DESC: Deuteron NMR frequency at FIELD, EGU: MHz}
+    NMR_P: {DESC: Proton NMR frequency at FIELD, EGU: MHz}
+    STATUS: {DESC: IPS status word X}
+    SYSTEM: {DESC: System status (quench / fault)}
+    LIMITS: {DESC: Voltage / current limit flags}
+    ACTIVITY: {DESC: Activity (hold / to set / clamped)}
+    CONTROL: {DESC: Local / remote control}
+    HEATER: {DESC: Switch heater state}
+    MOTION: {DESC: Sweep motion}
+    HEATER_ON: {DESC: Switch heater on (switch open)}
+    QUENCH: {DESC: Supply reports a quench}
+    CLAMPED: {DESC: Supply output clamped}
+    STATE: {DESC: Magnet operation state}
+    OPERATION: {DESC: Operation in progress}
+    BUSY: {DESC: An operation is running}
+    HEATER_PROGRESS: {DESC: Switch heater wait progress, EGU: '%'}
+    PERMIT: {DESC: Cryogenics permit for magnet moves}
+    PERMIT_REASON: {DESC: Why the permit is blocked}
+    VERSION: {DESC: Supply version string}
+    TARGET_CURRENT: {DESC: Requested target current, EGU: A}
+    TARGET_FIELD: {DESC: Requested target field, EGU: T}
+    EXPERT: {DESC: Expert mode (LHe floor 16 in)}
+    COMM: {DESC: Supply communication}
+    ERROR: {DESC: Active communication fault}
+    LAST_EVENT: {DESC: Latest magnet event}
+    LAST_OK: {DESC: Last good read (epoch s)}
+    WRITE_ENABLED: {DESC: Hardware writes allowed}
