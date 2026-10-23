@@ -10,10 +10,10 @@ general:
   log_dir: logs
   # LS224 magnet + fridge, MKS 902B, TPG 262, IONIVAC, flowmeters (5123-5125),
   # LHe levels (5126-5127), Manometer-Lo (5128), the pumping cart's IONIVAC
-  # (5129), and the online fitter
+  # (5129), the magnet supply (5131) and the online fitter
   epics_addr_list: 127.0.0.1:5112 127.0.0.1:5113 127.0.0.1:5114 127.0.0.1:5116 127.0.0.1:5117
     127.0.0.1:5123 127.0.0.1:5124 127.0.0.1:5125 127.0.0.1:5126 127.0.0.1:5127 127.0.0.1:5128
-    127.0.0.1:5129 127.0.0.1:5100
+    127.0.0.1:5129 127.0.0.1:5131 127.0.0.1:5100
   delay: 0.5
 trend_history:
   module: logic_devices.trend_history
@@ -74,6 +74,15 @@ trend_history:
         SepFlow_SLM: {pv: UNH:GEN:CRYO:FLOW:SEP:SepFlow_SLM, egu: slm}
         LPump_SLM: {pv: UNH:GEN:CRYO:FLOW:LEFT:LPump_SLM, egu: slm}
         RPump_SLM: {pv: UNH:GEN:CRYO:FLOW:RIGHT:RPump_SLM, egu: slm}
+    MAGNET:
+      # the IPS120-10 magnet supply (magnet_ioc): its own screen
+      # (gui/genesis_magnet.bob); not in the cryo archiver's list, so this
+      # group fills from the moment the service starts
+      sources:
+        FIELD: {pv: UNH:GEN:MAG:FIELD, egu: T}
+        CURRENT: {pv: UNH:GEN:MAG:CURRENT, egu: A}
+        MAGNET_CURRENT: {pv: UNH:GEN:MAG:MAGNET_CURRENT, egu: A}
+        VOLTAGE: {pv: UNH:GEN:MAG:VOLTAGE, egu: V}
     CART:
       # the pumping cart's IONIVAC: its own screen (gui/genesis_pumping_cart.bob),
       # never the Panopticon (Ells 2026-10-22)

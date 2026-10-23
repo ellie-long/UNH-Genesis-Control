@@ -64,7 +64,9 @@ def replay_endpoints(stacks: dict | None = None, offset: int = 0) -> list[Endpoi
     def add(port, owner, kind):
         out.append(Endpoint(int(port) + offset, owner, kind))
 
-    for leg in ("cryo", "ssrf", "mw"):
+    for leg in ("cryo", "ssrf", "mw", "magnet"):
+        if leg not in legs:
+            continue
         entries = dict(legs[leg].get("iocs", {}))
         entries.update(legs[leg].get("borrowed", {}))
         for name, spec in entries.items():

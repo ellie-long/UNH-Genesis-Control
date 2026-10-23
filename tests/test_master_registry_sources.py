@@ -79,8 +79,9 @@ def test_existing_physical_coverage_unchanged():
         "Cryo": 168,
         "ssRF": 97,
         "Microwave": 113,
+        "Magnet": 46,           # magnet_ioc (IPS120-10), dev-visualizer
     }
 
-    assert report["total"] == 378
+    assert report["total"] == 424
     assert len(report["invalid_archive_references"]) == 0
-    assert len(registry) == 378
+    assert len(registry) == 424

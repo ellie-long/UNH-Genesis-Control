@@ -21,6 +21,7 @@ from ..profile import GeneratedStack, LaunchSpec
 from .base import Emulator, LoopbackServer
 from .cryo import IONIVAC, LS224, LS455, MKS902B, TPG262
 from .cryo_optional import AMI135, AMI1700, HastingsFlowmeter, KJLSparcStream
+from .ips120 import IPS120
 from .scpi_supply import ScpiSupply
 
 log = logging.getLogger(__name__)
@@ -108,7 +109,25 @@ def build(spec: LaunchSpec, settings: dict, source, initial: dict | None = None)
                           max_voltage=float(settings.get("voltage_limit", settings.get("max_voltage", 30.0))),
                           max_current=float(settings.get("current_limit", settings.get("max_current", 5.0))),
                           **init)
+    if kind == "ips120":
+        return IPS120(inductance_h=float(settings.get("inductance_h", 38.0)),
+                      heater_ma=float(settings.get("heater_ma", 40.0)), **dict(initial or {}))
     raise ValueError(f"no emulator for kind {kind!r}")
+
+
+def magnet_initial(cmap: ChannelMap, timeline, t: float | None) -> dict:
+    """The IPS120's starting state: the record's magnet current at the run's
+    start (driven), or zero when the record has none."""
+    ch = getattr(cmap, "history", {}).get("magnet_i")
+    if ch is None or timeline is None or t is None:
+        return {}
+    try:
+        amps = float(ch.recorded(timeline, t))
+    except Exception:                       # noqa: BLE001 - no record: start at zero
+        return {}
+    if amps != amps:                        # NaN: not in the record
+        return {}
+    return {"initial_current_a": round(min(max(amps, 0.0), 65.0), 3)}
 
 
 ABSENT_NOTE = "absent in this era's record: connection refused"
@@ -147,7 +166,11 @@ class EmulatorHost:
                 continue
             settings = _settings(spec)
             source = self.provider.source_for(spec.name)
-            emu = build(spec, settings, source, self.supply_initial.get(spec.name))
+            initial = self.supply_initial.get(spec.name)
+            if initial is None and spec.emulator["kind"] == "ips120":
+                clock = getattr(self.provider, "clock", None)
+                initial = magnet_initial(self.cmap, self.timeline, clock.now() if clock else None)
+            emu = build(spec, settings, source, initial)
             emu.name = spec.name
             # the generated profile already carries the (offset) emulator port
             server = LoopbackServer(emu, port=int(settings["port"]))

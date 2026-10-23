@@ -26,6 +26,8 @@ ips120:
   channels:
   - PS
   write_enabled: false
+  # operations log (JSONL, one file a day); null: <archive root>/events/magnet
+  magnet_event_dir: null
 
   # ---- limits and rates (AMI specification; Ells 2026-10-22) -------------
   max_current: 65.0                 # A; AMI rated 67.9 A for 70 kG

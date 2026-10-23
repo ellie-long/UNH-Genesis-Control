@@ -33,7 +33,7 @@ log = logging.getLogger("cooldown_sim")
 
 DEVICE_START_TIMEOUT_S = 45.0
 LOGIC_START_TIMEOUT_S = 45.0
-LEGS_AVAILABLE = {"cryo", "nmr", "mw", "ssrf"}
+LEGS_AVAILABLE = {"cryo", "nmr", "mw", "ssrf", "magnet"}
 #: equilibrium sweeps the fitter autopilot waits for before Update Constants
 FIT_AUTOPILOT_SWEEPS = 40
 #: ...and the polarization (%, model truth) it waits for: like an operator, it

@@ -57,6 +57,7 @@ HIST = "UNH:GEN:HIST"
 FIT = "UNH:GEN:SSRF:FIT"
 SSRF = "UNH:GEN:SSRF"
 MW = "UNH:GEN:MW"
+MAG = "UNH:GEN:MAG"
 
 # Genesis palette (tools/make_cryo_screens.py)
 NAVY = (0, 53, 145)
@@ -274,7 +275,7 @@ def hist(group, key):
 
 #: time unit of each trend-history group (configs/target_physical/trend_history)
 HIST_UNITS = {"MAG": "min", "FRIDGE": "min", "PRESS": "min", "POL": "min", "SHELLS": "h",
-              "LEVEL": "min", "FLOW": "min", "CART": "min"}
+              "LEVEL": "min", "FLOW": "min", "CART": "min", "MAGNET": "min"}
 
 
 def history_plot(key, title, x, y, w, h, group, traces, axes, span):
@@ -350,8 +351,9 @@ def header():
         w.append(label(cap, x, 2, wv, 16, 9, False, WHITE))
         w.append(update(pv, x, 19, wv, 22, 10, True))
     for i, (text, bob) in enumerate((("Cryo", "genesis_cryo.bob"), ("Microwave", "genesis_microwave.bob"),
-                                     ("ssRF", "genesis_ssrf.bob"), ("NMR fitter", "genesis_ssrf_fitter.bob"))):
-        w.append(open_button(text, bob, 1426 + i * 117, 8, 110, 28))
+                                     ("ssRF", "genesis_ssrf.bob"), ("NMR fitter", "genesis_ssrf_fitter.bob"),
+                                     ("Magnet", "genesis_magnet.bob"))):
+        w.append(open_button(text, bob, 1340 + i * 111, 8, 104, 28))
     return w
 
 
@@ -835,15 +837,18 @@ def holeburning():
 
 def sc_magnet():
     x, y = 1002, 572
-    w = [card("Superconducting Magnet", x, y, 445, 166, "SCMagnet", ("Field screen", "genesis_cryo_field.bob"))]
-    w.append(placeholder("MagnetCurrent", "Current (A)", 1010, 602, 140, "Magnet power supply current"))
-    w.append(placeholder("MagnetField", "Field (T)", 1156, 602, 140, "Magnet power supply field"))
-    w.append(placeholder("NMRFreqFromField", "NMR freq. from field (MHz)", 1302, 602, 140,
-                         "Deuteron NMR frequency from the magnet field"))
-    w.append(placeholder("SwitchHeater", "Switch heater", 1010, 642, 140, "Magnet persistent-switch heater"))
+    w = [card("Superconducting Magnet", x, y, 445, 166, "SCMagnet", ("Magnet", "genesis_magnet.bob"))]
+    # the IPS120-10 supply (magnet_ioc): the magnet's own current (the supply's
+    # while driven, the persistent current while persistent) and the field from
+    # the NMR-measured equation
+    w.append(field("Magnet current (A)", f"{MAG}:MAGNET_CURRENT", 1010, 602, 140, 11, prec=4))
+    w.append(field("Field (T)", f"{MAG}:FIELD", 1156, 602, 140, 11, prec=5))
+    w.append(field("NMR freq. from field (MHz)", f"{MAG}:NMR_D", 1302, 602, 140, 11, prec=4))
+    w.append(field("Switch heater", f"{MAG}:HEATER", 1010, 642, 140, 9))
     w.append(field("Fringe field (LS455)", f"{CRYO}:FIELD:Fringe_FieldT", 1156, 642, 140, 11, prec=6))
     w.append(field("Gaussmeter reading", f"{CRYO}:FIELD:Fringe_Field", 1302, 642, 90, 11, prec=4))
     w.append(update(f"{CRYO}:FIELD:Fringe_Unit", 1394, 657, 48, 21, 10))
+    w.append(open_button("Fringe field screen", "genesis_cryo_field.bob", 1156, 688, 140, 24))
     return w
 
 

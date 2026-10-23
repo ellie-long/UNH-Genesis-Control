@@ -23,14 +23,14 @@ HIST_SETTINGS = ROOT / "configs" / "target_physical" / "trend_history" / "settin
 
 #: Genesis IOC profiles whose records the screen may show
 CONFIG_DIRS = ("configs/target_physical", "configs/commissioning/microwave_physical",
-               "configs/commissioning/ssrf_sim_active", "configs/ssrf_physical")
+               "configs/commissioning/ssrf_sim_active", "configs/ssrf_physical",
+               "configs/magnet_physical")
 
 #: instruments the DAQ shows and Genesis does not read yet
 PLACEHOLDERS = (
     "Pirani",
     "LabTrend", "BackingPumpL", "BackingPumpR", "VMETemp", "SeparatorHeater",
-    "TargetStick", "MagnetCurrent", "MagnetField", "NMRFreqFromField", "SwitchHeater",
-    "SIG", "Magic", "EPRSignal", "EPRLockIn", "EPRCoils", "EPRFieldSweep", "SlowSweep",
+    "TargetStick", "SIG", "Magic", "EPRSignal", "EPRLockIn", "EPRCoils", "EPRFieldSweep", "SlowSweep",
 )
 
 #: read by Genesis now (Utsav's flowmeter, LHe-level and Manometer-Lo IOCs):
@@ -43,6 +43,8 @@ FORMER_PLACEHOLDERS = (
     "MagnetLevelTrend", "MagnetLevelBar", "MagnetLevel", "MagnetLevelScale", "FlowTrend",
     "FridgeLevelTrend", "FridgeLevel", "VaporTemp", "ManometerLo", "SeparatorFlow",
     "RootsTotalFlow", "BackingLFlow", "BackingRFlow",
+    # the magnet supply (magnet_ioc)
+    "MagnetCurrent", "MagnetField", "NMRFreqFromField", "SwitchHeater",
 )
 
 #: top to bottom: the physical order of the sensors in the insert
@@ -90,7 +92,7 @@ def served_pvs() -> set[str]:
                     continue
                 rp = section.get("record_prefix") or ""
                 served.update(f"{prefix}:{rp}{rec}" for rec in section.get("records") or {})
-                if str(section.get("module", "")).startswith(("target_ioc.instruments", "microwave_ioc")):
+                if str(section.get("module", "")).startswith(("target_ioc.instruments", "microwave_ioc", "magnet_ioc")):
                     served.update(f"{prefix}:{h}" for h in pvlist.HEALTH)
     for table in (pvlist.CRYO_LOGIC, pvlist.MW_PVS, pvlist.SSRF_PVS):
         for prefix, names in table.items():
@@ -163,7 +165,7 @@ def test_placeholders_are_grey_and_have_no_pv():
             assert grey in ET.tostring(w, encoding="unicode").replace(" />", "/>"), name
     # every placeholder trend says so
     text = BOB.read_text(encoding="utf-8")
-    assert text.count(f"<text>{gen.NOT_YET}</text>") >= 15
+    assert text.count(f"<text>{gen.NOT_YET}</text>") >= 12      # 16 before the magnet supply
 
 
 def test_levels_flows_and_manometer_lo_are_wired():

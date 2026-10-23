@@ -98,6 +98,10 @@ def for_stack(stack: GeneratedStack, root: Path = REPO_ROOT, legs: set | None = 
         pvs.add(f"{spec.prefix}:MAN:{spec.ioc}_time")
         if spec.leg == "cryo" and (spec.emulator or spec.simulator):
             pvs.update(f"{spec.prefix}:{h}" for h in HEALTH)
+        if spec.leg == "magnet":                  # magnet_ioc: health + its settings' records
+            pvs.update(f"{spec.prefix}:{h}" for h in HEALTH)
+            settings = yaml.safe_load((Path(spec.folder) / "settings.yaml").read_text(encoding="utf-8"))
+            pvs.update(f"{spec.prefix}:{r}" for r in settings[spec.ioc].get("records") or {})
     if "cryo" in stack_legs:
         pvs.update(archiver_explicit_pvs(root))
         for prefix, names in CRYO_LOGIC.items():

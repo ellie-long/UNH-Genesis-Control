@@ -72,6 +72,16 @@ legs:
         ca: 6143
         pva: 6243
 
+  magnet:
+    # The IPS120-10 magnet supply (magnet_ioc, dev-visualizer).  Launched with
+    # the cryo leg: the trend history and the Panopticon read its PVs, and its
+    # permit reads the cryo IOCs.  The emulator starts at the record's magnet
+    # current; the IOC stays write_enabled: false, so it only reads.
+    manager: configs/magnet_physical/ioc_manager/settings.yaml
+    with_leg: cryo
+    iocs:
+      ips120:            {ca: 6136, pva: 6236, emulator: {kind: ips120, port: 16120}}
+
   history:
     # Trend history (logic_devices/trend_history.py): a NEW Genesis logic IOC,
     # not in any live IOC manager yet, so its stack entry names its canonical

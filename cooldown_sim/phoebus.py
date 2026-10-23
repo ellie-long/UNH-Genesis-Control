@@ -27,7 +27,8 @@ from . import REPO_ROOT, run_dir
 SIM_CONTROL = Path(__file__).with_name("gui") / "genesis_sim_control.bob"
 LIVE_SCREENS = {"cryo": "genesis_cryo.bob", "mw": "genesis_microwave.bob", "ssrf": "genesis_ssrf.bob",
                 "fitter": "genesis_ssrf_fitter.bob", "panopticon": "genesis_panopticon.bob",
-                "cryo_safety": "genesis_cryo_safety.bob", "cart": "genesis_pumping_cart.bob"}
+                "cryo_safety": "genesis_cryo_safety.bob", "cart": "genesis_pumping_cart.bob",
+                "magnet": "genesis_magnet.bob"}
 
 
 def find_phoebus() -> list[str] | None:

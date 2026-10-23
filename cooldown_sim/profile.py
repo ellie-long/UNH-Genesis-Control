@@ -42,6 +42,7 @@ OUTPUT_PATHS = {
     "log_file": "archive/cryo_alarm_log.csv",
     "event_log_dir": "archive/events/ssrf",
     "session_data_root": "archive/sessions",
+    "magnet_event_dir": "archive/events/magnet",
 }
 
 #: input-path key -> the run's generated file it must read instead (the trend
@@ -134,7 +135,9 @@ def leg_entries(stacks: dict, leg: str) -> list[tuple[str, dict, str | None]]:
 def canonical_to_replay(stacks: dict, offset: int = 0, root: Path = REPO_ROOT) -> dict[int, int]:
     """Canonical CA port -> replay CA port, for every IOC the replay launches."""
     mapping: dict[int, int] = {}
-    for leg in ("cryo", "ssrf", "mw"):
+    for leg in ("cryo", "ssrf", "mw", "magnet"):
+        if leg not in stacks["legs"]:
+            continue
         for name, spec, manager in leg_entries(stacks, leg):
             entry = _load(root / manager)[name]
             mapping[int(entry["ca_server_port"])] = int(spec["ca"]) + offset
