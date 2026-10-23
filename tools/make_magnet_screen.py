@@ -4,11 +4,14 @@
 Run:  python tools/make_magnet_screen.py
 
 The Phoebus tab for magnet_ioc (``UNH:GEN:MAG``), ported from the student's
-Magnet_V3 screen with the review's screen fixes (issue 14): every command that
-moves the magnet asks for confirmation; the switch heater shows its read-back
-state and has two explicit buttons instead of one toggle; HOLD never asks.
-The big red POWER OUTAGE button is review issue 19.  Opened from the
-Panopticon's Superconducting Magnet card.
+Magnet_V3 / V4 screens with the review's screen fixes (issue 14): every
+command that moves the magnet asks for confirmation; the switch heater shows
+its read-back state and has two explicit buttons instead of one toggle; HOLD
+never asks.  From V4: the SYSTEM CHECKS line, the heater ON and OFF bars, the
+R20 heater verification, the inductance check and its bypass, the low-helium
+warning; the helium level and the fringe field are read from the Genesis
+IOCs (the AMI 135, the LS455), not typed in.  The big red POWER OUTAGE
+button is review issue 19.  Opened from the Panopticon's magnet card.
 """
 
 from __future__ import annotations
@@ -82,8 +85,10 @@ def header():
     w.append(pan.update(f"{MAG}:COMM", 722, 19, 110, 22, 10, True))
     w.append(pan.label("Writes", 840, 4, 60, 16, 9, False, pan.WHITE))
     w.append(pan.update(f"{MAG}:WRITE_ENABLED", 840, 19, 130, 22, 10, True, name="WriteEnabled"))
-    w.append(pan.open_button("Panopticon", "genesis_panopticon.bob", W - 250, 8, 110, 28))
-    w.append(pan.open_button("Cryo", "genesis_cryo.bob", W - 130, 8, 110, 28))
+    w.append(pan.label("System checks", 980, 4, 120, 16, 9, False, pan.WHITE))
+    w.append(pan.update(f"{MAG}:SYSTEM_CHECK_STATE", 980, 19, 250, 22, 10, True, name="SystemCheck"))
+    w.append(pan.open_button("Panopticon", "genesis_panopticon.bob", 1238, 8, 90, 28))
+    w.append(pan.open_button("Cryo", "genesis_cryo.bob", 1334, 8, 58, 28))
     return w
 
 
@@ -103,7 +108,8 @@ def magnet_card():
     w.append(pan.label("Quench", 18, 232, 60, 16, 9, False, pan.MUTED))
     w.append(pan.led(f"{MAG}:QUENCH", 18, 250, 20))
     w.append(pan.update(f"{MAG}:SYSTEM", 44, 248, 200, 24, 11, True, name="System"))
-    w.append(fld("Trip current", f"{MAG}:TRIP_CURRENT", 290, 232, 150, 10, prec=3, bold=False))
+    w.append(fld("Trip current", f"{MAG}:TRIP_CURRENT", 250, 232, 90, 10, prec=3, bold=False))
+    w.append(fld("Fringe (LS455)", f"{MAG}:FRINGE_FIELD_G", 346, 232, 94, 10, prec=2, bold=False))
     return w
 
 
@@ -119,6 +125,7 @@ def supply_card():
                                    ("Heater", "HEATER"), ("Motion", "MOTION"), ("Limits", "LIMITS"))):
         w.append(fld(cap, f"{MAG}:{pv}", 18 + (i % 2) * 214, 444 + (i // 2) * 36, 200, 10, bold=False))
     w.append(fld("Status word", f"{MAG}:STATUS", 232, 516, 200, 10, bold=False))
+    w.append(fld("Supply - persistent", f"{MAG}:CURRENT_DIFFERENCE", 232, 402, 200, 11, prec=4))
     return w
 
 
@@ -130,9 +137,12 @@ def settings_card():
             ("Safe limit, negative R21", "SAFE_NEG", 3), ("Safe limit, positive R22", "SAFE_POS", 3))
     for i, (cap, pv, prec) in enumerate(rows):
         w.append(fld(cap, f"{MAG}:{pv}", 18 + (i % 2) * 214, 594 + (i // 2) * 42, 200, 11, prec=prec))
-    w.append(fld("Supply", f"{MAG}:VERSION", 18, 726, 414, 10, bold=False))
+    w.append(fld("Inductance check (38 +/- 0.3 H)", f"{MAG}:INDUCTANCE_CHECK", 18, 720, 200, 10))
+    w.append(pan.label("R24 check", 232, 720, 200, 15, 9, False, pan.MUTED))
+    w.append(combo(f"{MAG}:IGNORE_INDUCTANCE", 232, 735, 200, name="IgnoreInductance"))
     w.append(fld("Last event", f"{MAG}:LAST_EVENT", 18, 768, 414, 10, bold=False))
-    w.append(fld("Communication error", f"{MAG}:ERROR", 18, 810, 414, 10, bold=False))
+    w.append(fld("Supply / communication", f"{MAG}:VERSION", 18, 810, 200, 10, bold=False))
+    w.append(pan.update(f"{MAG}:ERROR", 232, 825, 200, 21, 10, False))
     return w
 
 
@@ -146,8 +156,8 @@ def ramp_card():
     w.append(entry(f"{MAG}:TARGET_FIELD", 680, 100, 200, name="TargetField",
                    tooltip="sets the target current by the field equation"))
     w.append(command("RAMP to target", f"{MAG}:RAMP", 466, 140, 200, 40,
-                     confirm="Ramp the magnet to the target current? It ramps at 3 / 2 / 1 A/min "
-                             "by band, and opens the switch first if needed.",
+                     confirm="Ramp the magnet to the target current at 3 A/min? Only in driven "
+                             "mode: the switch heater must already be ON.",
                      bg=AMBER_LIGHT, size=12, bold=True, name="RampButton"))
     w.append(command("HOLD", f"{MAG}:HOLD", 680, 140, 200, 40, bg=RED_LIGHT, size=14, bold=True,
                      name="HoldButton"))
@@ -156,8 +166,9 @@ def ramp_card():
     w.append(fld("Operation", f"{MAG}:OPERATION", 466, 248, 214, 11, bold=False))
     w.append(pan.label("Busy", 690, 248, 60, 15, 9, False, pan.MUTED))
     w.append(pan.led(f"{MAG}:BUSY", 690, 268, 18))
-    w.append(pan.label("Rates by band: 3 A/min to 20 A, 2 to 40 A, 1 above; never above 3 A/min.",
-                       466, 300, 440, 30, 9, False, pan.MUTED, wrap=True))
+    w.append(pan.label("3 A/min, never faster.  Ramps only in driven mode: from persistent, "
+                       "MATCH, then heater ON (H1), then RAMP.", 466, 296, 440, 36, 9, False,
+                       pan.MUTED, wrap=True))
     return w
 
 
@@ -166,10 +177,13 @@ def heater_card():
     w = [pan.card("Switch heater", x, y, 460, 198, "Heater")]
     w.append(pan.label("Heater", 466, 390, 60, 15, 9, False, pan.MUTED))
     w.append(pan.led(f"{MAG}:HEATER_ON", 466, 408, 22))
-    w.append(pan.update(f"{MAG}:HEATER_ON", 494, 406, 200, 26, 12, True, name="HeaterState"))
+    w.append(pan.update(f"{MAG}:HEATER_ON", 494, 406, 160, 26, 12, True, name="HeaterState"))
+    w.append(pan.label("R20 verification", 664, 390, 240, 15, 9, False, pan.MUTED))
+    w.append(pan.update(f"{MAG}:HEATER_CURRENT_STATE", 664, 406, 240, 26, 10, True,
+                        name="HeaterVerify"))
     w.append(command("Heater ON (driven)", f"{MAG}:HEATER_ON_CMD", 466, 446, 214, 32,
-                     confirm="Open the superconducting switch? Only after the supply current matches "
-                             "the persistent current; 20 s wait.", name="HeaterOnButton"))
+                     confirm="Open the superconducting switch (H1)? The supply is matched to the "
+                             "persistent current first; 20 s wait.", name="HeaterOnButton"))
     w.append(command("Heater OFF (persistent)", f"{MAG}:HEATER_OFF_CMD", 690, 446, 214, 32,
                      confirm="Close the superconducting switch and make the magnet persistent? "
                              "20 s wait; the supply stays energized (this cool-down).",
@@ -177,10 +191,13 @@ def heater_card():
     w.append(command("Match supply to magnet", f"{MAG}:MATCH", 466, 486, 214, 28,
                      confirm="Bring the supply to the persistent current (switch closed)?",
                      name="MatchButton"))
-    w.append(pan.label("Heater wait (20 s)", 690, 486, 200, 15, 9, False, pan.MUTED))
-    w.append(progress(f"{MAG}:HEATER_PROGRESS", 690, 504, 214, name="HeaterProgress"))
-    w.append(pan.label("Nothing may change the current during the 20 s after heater ON or OFF.",
-                       466, 524, 440, 28, 9, False, pan.MUTED, wrap=True))
+    w.append(pan.label("ON wait (20 s)", 690, 482, 100, 14, 8, False, pan.MUTED))
+    w.append(progress(f"{MAG}:HEATER_PROGRESS", 790, 482, 114, 14, name="HeaterProgress"))
+    w.append(pan.label("OFF wait (20 s)", 690, 500, 100, 14, 8, False, pan.MUTED))
+    w.append(progress(f"{MAG}:HEATER_OFF_PROGRESS", 790, 500, 114, 14, name="HeaterOffProgress"))
+    w.append(pan.label("R20 reads", 466, 520, 70, 16, 9, False, pan.MUTED))
+    w.append(pan.update(f"{MAG}:R20_MEANING", 536, 518, 150, 20, 9, False))
+    w.append(pan.update(f"{MAG}:HEATER_MA", 690, 518, 214, 20, 9, False, prec=2))
     return w
 
 
@@ -191,15 +208,16 @@ def permit_card():
     w.append(pan.led(f"{MAG}:PERMIT", 466, 612, 22))
     w.append(pan.update(f"{MAG}:PERMIT", 494, 610, 140, 26, 12, True, name="PermitState"))
     w.append(fld("Reason", f"{MAG}:PERMIT_REASON", 466, 646, 440, 11))
-    w.append(fld("Magnet LHe (in)", f"{CRYO}:MAG:LHE:Magnet_LI", 466, 692, 140, 12, prec=1))
+    w.append(fld("Magnet LHe (AMI 135)", f"{MAG}:HELIUM_LEVEL", 466, 692, 140, 12, prec=1))
     w.append(fld("M4 (K)", f"{CRYO}:MAG:M4_TI", 616, 692, 140, 12, prec=3))
     w.append(fld("M5 (K)", f"{CRYO}:MAG:M5_TI", 766, 692, 140, 12, prec=3))
     w.append(fld("Shells vacuum (Torr)", f"{CRYO}:ION:Ion_PI", 466, 736, 200, 12, prec=2, fmt=2))
     w.append(pan.label("LHe floor: 20 in (Expert: 16 in)", 680, 736, 226, 16, 9, False, pan.MUTED))
     w.append(pan.label("Mode", 680, 754, 60, 15, 9, False, pan.MUTED))
     w.append(combo(f"{MAG}:EXPERT", 740, 752, 166, name="ExpertMode"))
-    w.append(pan.label("HOLD, heater OFF and the outage button never need the permit.",
-                       466, 800, 440, 30, 9, False, pan.MUTED, wrap=True))
+    w.append(pan.update(f"{MAG}:HELIUM_LOW_WARNING", 466, 790, 200, 24, 11, True, name="HeliumWarning"))
+    w.append(pan.label("HOLD, heater OFF and the outage button never need the permit or the "
+                       "inductance check.", 466, 818, 440, 30, 9, False, pan.MUTED, wrap=True))
     return w
 
 

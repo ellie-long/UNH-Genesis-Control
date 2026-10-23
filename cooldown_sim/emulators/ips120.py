@@ -58,6 +58,7 @@ class IPS120(Emulator):
                  safe_limits_a: tuple[float, float] = (-0.1, 67.9),
                  fast_lead_rate_a_per_min: float = 240.0,
                  switch_open_s: float = 12.0, switch_close_s: float = 12.0,
+                 r20_mode: str = "setting", h1_match_tolerance_a: float = 0.0005,
                  initial_current_a: float = 0.0, initial_persistent: bool = False,
                  time_scale: float = 1.0, clock=time.monotonic):
         super().__init__()
@@ -68,6 +69,13 @@ class IPS120(Emulator):
         self.safe_neg, self.safe_pos = safe_limits_a
         self.fast_rate = float(fast_lead_rate_a_per_min)
         self.switch_open_s, self.switch_close_s = float(switch_open_s), float(switch_close_s)
+        # R20: the configured heater current (Sup 15, manual p52), or the
+        # measured heater current (the student's V4 reading: ~0 with the heater
+        # off).  The real supply's behaviour is not known yet, so both exist.
+        if r20_mode not in ("setting", "measured"):
+            raise ValueError("r20_mode must be 'setting' or 'measured'")
+        self.r20_mode = r20_mode
+        self.h1_tolerance = float(h1_match_tolerance_a)
         self.time_scale = float(time_scale)
         self._clock = clock
         self._lock = threading.RLock()
@@ -254,13 +262,19 @@ class IPS120(Emulator):
                         self.heater_on = False
                         self._switch_change_at = self._now() + self.switch_close_s
                     return b"H" + CR
-                if h == 1 and abs(self.output - self.persistent_current) > 0.01 and not self.switch_open:
+                if h == 1 and abs(self.output - self.persistent_current) > self.h1_tolerance \
+                        and not self.switch_open:
                     return refuse                      # the supply's own current-match check
                 if not self.heater_on:
                     self.heater_on = True
                     self._switch_change_at = self._now() + self.switch_open_s
                 return b"H" + CR
             return refuse
+
+    def _r20(self) -> float:
+        if self.r20_mode == "setting":
+            return self.heater_ma
+        return self.heater_ma if self.heater_on else 0.0
 
     def _read(self, arg: str, refuse: bytes) -> bytes:
         try:
@@ -275,7 +289,7 @@ class IPS120(Emulator):
             16: self.persistent_current, 17: self.trip_current,
             18: self.persistent_current / self.amps_per_tesla,
             19: self.trip_current / self.amps_per_tesla,
-            20: self.heater_ma, 21: self.safe_neg, 22: self.safe_pos,
+            20: self._r20(), 21: self.safe_neg, 22: self.safe_pos,
             23: self.r_leads * 1000.0, 24: self.L,
         }
         if n not in values:

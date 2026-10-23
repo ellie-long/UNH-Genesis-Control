@@ -31,21 +31,31 @@ ips120:
 
   # ---- limits and rates (AMI specification; Ells 2026-10-22) -------------
   max_current: 65.0                 # A; AMI rated 67.9 A for 70 kG
-  # (upper current of the band, A; rate, A/min).  Seen in the records since
-  # 2021-09; the source is open question 90.
-  rate_bands: [[20.0, 3.0], [40.0, 2.0], [65.0, 1.0]]
+  # (upper current of the band, A; rate, A/min).  The student's V4: one fixed
+  # 3 A/min for every ramp, no 20 A / 40 A segments.  V3 (and the records
+  # since 2021-09, question 90) used [[20, 3], [40, 2], [65, 1]].
+  rate_bands: [[65.0, 3.0]]
   max_sweep_rate: 3.0               # independent cap (Ells); AMI max 3.02 A/min
   current_tolerance: 0.01
   match_tolerance: 0.01
+  h1_match_tolerance: 0.0005        # V4: supply on the persistent current before H1
   heater_wait_s: 20.0               # after heater ON and after heater OFF (Ells)
   poll_s: 1.0
   inductance_h: 38.0                # AMI
-  inductance_tolerance: 0.10        # R24 vs 38 H (question 92: provisional)
+  inductance_tolerance_h: 0.3       # R24 vs 38 H (V4; question 92)
   measured_inductance_tolerance: 0.25   # V / dI/dt while ramping (question 92)
   observed_rate_margin: 0.25        # backstop on the rate seen in R0 (the cap is exact on S / R6)
   observed_rate_window_s: 30.0
-  heater_ma: 40.0                   # AMI switch heater current
+  heater_ma: 40.0                   # AMI switch heater current (a warning if R20 differs)
   heater_ma_tolerance: 5.0
+  heater_on_min_ma: 1.0             # V4: heater ON needs R20 above this
+  heater_off_max_ma: 0.5            # V4: heater OFF, R20 measured: below this
+  # R20 is the heater current setting (the manual, p52) or the measured
+  # current (V4); "auto" decides the first time the heater is seen OFF
+  r20_meaning: auto
+  # V4: a ramp never opens the switch: match and heater ON are separate
+  # operator steps (true = V3: a ramp from persistent opens it itself)
+  ramp_opens_switch: false
   # this cool-down (Ells 2026-10-22, may be revisited): keep the supply
   # energized while persistent; "run_down" would take the leads to zero
   persistent_supply: hold
@@ -87,7 +97,7 @@ ips120:
     SETPOINT: {DESC: Target current R5, EGU: A}
     SWEEP_RATE: {DESC: Current sweep rate R6, EGU: A/min}
     TRIP_CURRENT: {DESC: Current at the last trip R17, EGU: A}
-    HEATER_MA: {DESC: Switch heater current setting R20, EGU: mA}
+    HEATER_MA: {DESC: Switch heater current R20, EGU: mA}
     SAFE_NEG: {DESC: Safe current limit negative R21, EGU: A}
     SAFE_POS: {DESC: Safe current limit positive R22, EGU: A}
     LEAD_RES: {DESC: Lead resistance stored R23, EGU: mohm}
@@ -113,7 +123,20 @@ ips120:
     STATE: {DESC: Magnet operation state}
     OPERATION: {DESC: Operation in progress}
     BUSY: {DESC: An operation is running}
-    HEATER_PROGRESS: {DESC: Switch heater wait progress, EGU: '%'}
+    HEATER_PROGRESS: {DESC: Switch heater ON wait progress, EGU: '%'}
+    HEATER_OFF_PROGRESS: {DESC: Switch heater OFF wait progress, EGU: '%'}
+    XMN: {DESC: Status system and limit digits}
+    XMN_MEANING: {DESC: Status system and limit meaning}
+    CURRENT_DIFFERENCE: {DESC: Supply minus persistent current, EGU: A}
+    INDUCTANCE_CHECK: {DESC: R24 inductance check result}
+    IGNORE_INDUCTANCE: {DESC: Operator bypass of the R24 check}
+    HEATER_CURRENT_STATE: {DESC: Switch heater verification}
+    R20_MEANING: {DESC: What R20 reports}
+    SYSTEM_CHECK_STATE: {DESC: System checks summary}
+    HELIUM_LEVEL: {DESC: Magnet LHe level (AMI 135), EGU: in}
+    HELIUM_LOW_WARNING: {DESC: Magnet LHe below the floor}
+    FRINGE_FIELD_T: {DESC: Fringe field (LS455), EGU: T}
+    FRINGE_FIELD_G: {DESC: Fringe field (LS455), EGU: G}
     PERMIT: {DESC: Cryogenics permit for magnet moves}
     PERMIT_REASON: {DESC: Why the permit is blocked}
     VERSION: {DESC: Supply version string}

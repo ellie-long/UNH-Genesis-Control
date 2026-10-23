@@ -12,11 +12,19 @@ kind on connect; command PVs start idle and are never restored).
 PVs (``UNH:GEN:MAG:``)
 -----------------------
 Read-backs, every poll:  CURRENT (R0, demand), CURRENT_MEAS (R2), VOLTAGE (R1),
-    PERSISTENT_CURRENT (R16), SETPOINT (R5), SWEEP_RATE (R6), STATUS and its
-    decoded SYSTEM / LIMITS / ACTIVITY / CONTROL / HEATER / MOTION, HEATER_ON,
-    QUENCH, CLAMPED.
-Every 10th poll:  TRIP_CURRENT (R17), HEATER_MA (R20), SAFE_NEG / SAFE_POS
-    (R21 / R22), LEAD_RES (R23), INDUCTANCE (R24).
+    PERSISTENT_CURRENT (R16), SETPOINT (R5), SWEEP_RATE (R6), HEATER_MA (R20),
+    STATUS and its decoded SYSTEM / LIMITS / ACTIVITY / CONTROL / HEATER /
+    MOTION, XMN / XMN_MEANING (V4), HEATER_ON, QUENCH, CLAMPED,
+    CURRENT_DIFFERENCE (R0 - R16, V4).
+Every 10th poll:  TRIP_CURRENT (R17), SAFE_NEG / SAFE_POS (R21 / R22),
+    LEAD_RES (R23), INDUCTANCE (R24).
+From the Genesis cryo IOCs (V4 typed these in; Ells: read them):
+    HELIUM_LEVEL (the AMI 135), HELIUM_LOW_WARNING, FRINGE_FIELD_T /
+    FRINGE_FIELD_G (the LS455).
+V4 checks:  INDUCTANCE_CHECK (R24 within 0.3 H of 38 H, read at connect),
+    IGNORE_INDUCTANCE (the operator's bypass, off at every start-up),
+    HEATER_CURRENT_STATE and R20_MEANING (the heater read-back),
+    SYSTEM_CHECK_STATE (one-line summary), HEATER_OFF_PROGRESS.
 Derived:  MAGNET_CURRENT (the supply's current while driven, R16 while
     persistent: review issue 9), FIELD (B = FIELD_SLOPE x I + FIELD_OFFSET,
     Ells's NMR-measured equation), FIELD_SOURCE, NMR_D / NMR_P (MHz),
@@ -27,13 +35,15 @@ Commands:  TARGET_CURRENT, TARGET_FIELD (sets TARGET_CURRENT by the field
     red button), EXPERT (allows ramps down to 16" of magnet LHe).
 
 Every operator request and what came of it goes to an event log (JSONL,
-review issue 16), and every PV is listed in settings.yaml so the master
-archiver records it.
+review issue 16); every poll's current, voltage and status go to a CSV log
+(V4's columns, then the magnet current, field and heater); every PV is listed
+in settings.yaml so the master archiver records it.
 """
 
 from __future__ import annotations
 
 import asyncio
+import csv
 import datetime as dt
 import json
 import logging
@@ -47,7 +57,7 @@ from genesis_common.base_device import GenesisBaseDevice
 from genesis_common.serial_tcp_base import SerialTcpConnection
 
 from .interlocks import CryoPermit, PermitConfig
-from .ips120_protocol import IPSClient, IPSError
+from .ips120_protocol import IPSClient, IPSError, decode_xmn, get_xmn_status
 from .ips120_sequences import MagnetConfig, MagnetSequencer
 
 log = logging.getLogger(__name__)
@@ -95,22 +105,31 @@ class Device(GenesisBaseDevice):
                 ("SAFE_POS", "A", 3), ("LEAD_RES", "mohm", 2), ("INDUCTANCE", "H", 2),
                 ("INDUCTANCE_MEAS", "H", 1), ("MAGNET_CURRENT", "A", 4), ("FIELD", "T", 5),
                 ("FIELD_SLOPE", "T/A", 7), ("FIELD_OFFSET", "T", 8), ("NMR_D", "MHz", 4),
-                ("NMR_P", "MHz", 3), ("HEATER_PROGRESS", "%", 0)):
+                ("NMR_P", "MHz", 3), ("HEATER_PROGRESS", "%", 0),
+                ("HEATER_OFF_PROGRESS", "%", 0), ("CURRENT_DIFFERENCE", "A", 4),
+                ("HELIUM_LEVEL", "in", 2), ("FRINGE_FIELD_T", "T", 8), ("FRINGE_FIELD_G", "G", 4)):
             p[name] = ai(name, egu, prec)
         for name in ("STATUS", "SYSTEM", "LIMITS", "ACTIVITY", "CONTROL", "HEATER", "MOTION",
-                     "FIELD_SOURCE", "STATE", "OPERATION", "PERMIT_REASON", "VERSION"):
+                     "FIELD_SOURCE", "STATE", "OPERATION", "PERMIT_REASON", "VERSION",
+                     "XMN", "XMN_MEANING", "INDUCTANCE_CHECK", "HEATER_CURRENT_STATE",
+                     "R20_MEANING", "SYSTEM_CHECK_STATE"):
             p[name] = b.stringIn(name)
         p["HEATER_ON"] = b.boolIn("HEATER_ON", ZNAM="Off (switch closed)", ONAM="On (switch open)")
         p["QUENCH"] = b.boolIn("QUENCH", ZNAM="Normal", ONAM="QUENCHED", OSV="MAJOR")
         p["CLAMPED"] = b.boolIn("CLAMPED", ZNAM="Unclamped", ONAM="Clamped")
         p["BUSY"] = b.boolIn("BUSY", ZNAM="Idle", ONAM="Busy")
         p["PERMIT"] = b.boolIn("PERMIT", ZNAM="Blocked", ONAM="Permitted", ZSV="MINOR")
+        p["HELIUM_LOW_WARNING"] = b.boolIn("HELIUM_LOW_WARNING", ZNAM="Helium OK",
+                                           ONAM="LOW HELIUM", OSV="MAJOR")
         p["TARGET_CURRENT"] = b.aOut("TARGET_CURRENT", EGU="A", PREC=4, DRVL=0.0,
                                      DRVH=self.cfg.max_current - 0.001, initial_value=0.0)
         p["TARGET_FIELD"] = b.aOut("TARGET_FIELD", EGU="T", PREC=5, initial_value=0.0,
                                    on_update=self._set_target_field)
         p["EXPERT"] = b.boolOut("EXPERT", ZNAM="Normal", ONAM="Expert", initial_value=0,
                                 on_update=self._set_expert)
+        # V4: the operator's bypass of the R24 check; never on at start-up
+        p["IGNORE_INDUCTANCE"] = b.boolOut("IGNORE_INDUCTANCE", ZNAM="Check", ONAM="BYPASSED",
+                                           initial_value=0, on_update=self._set_ignore_inductance)
         for name, handler in (("RAMP", self._cmd_ramp), ("HOLD", self._cmd_hold),
                               ("HEATER_ON_CMD", self._cmd_heater_on),
                               ("HEATER_OFF_CMD", self._cmd_heater_off),
@@ -120,6 +139,11 @@ class Device(GenesisBaseDevice):
         p["FIELD_OFFSET"].set(self.field_offset)
         p["STATE"].set("IDLE")
         p["PERMIT_REASON"].set("not checked yet")
+        p["INDUCTANCE_CHECK"].set("NOT CHECKED")
+        p["HEATER_CURRENT_STATE"].set("NOT VERIFIED")
+        p["R20_MEANING"].set(self.cfg.r20_meaning)
+        p["SYSTEM_CHECK_STATE"].set("STARTUP CHECKS")
+        p["XMN"].set("X??")
 
     def _create_connection(self):
         s = self.settings
@@ -131,10 +155,17 @@ class Device(GenesisBaseDevice):
     def _post_connect(self):
         """Reads only (issue 18)."""
         self.pvs["VERSION"].set(str(self.t.read_version())[:39])
+        override = self.sequencer.inductance_override if self.sequencer else False
         self.sequencer = MagnetSequencer(
             self.t, self.cfg, permit=self._check_permit, event=self._event,
             state=lambda text: self.pvs["STATE"].set(str(text)[:39]),
-            progress=lambda pct: self.pvs["HEATER_PROGRESS"].set(float(pct)))
+            progress=lambda pct: self.pvs["HEATER_PROGRESS"].set(float(pct)),
+            progress_off=lambda pct: self.pvs["HEATER_OFF_PROGRESS"].set(float(pct)),
+            heater=lambda text: self.pvs["HEATER_CURRENT_STATE"].set(str(text)[:39]))
+        self.sequencer.inductance_override = override
+        # V4's start-up inductance check: R24, a read only
+        self.sequencer.note_inductance(self.t.read_inductance())
+        self.pvs["INDUCTANCE_CHECK"].set(self.sequencer.inductance_text()[:39])
 
     # ------------------------------------------------------------ recording
     def _event(self, kind: str, message: str, **data):
@@ -205,9 +236,77 @@ class Device(GenesisBaseDevice):
         else:
             self.pvs["TARGET_FIELD"].set_alarm(severity=alarm.MAJOR_ALARM, alarm=alarm.WRITE_ALARM)
 
+    def _set_ignore_inductance(self, value):
+        on = bool(int(value))
+        if self.sequencer is not None:
+            self.sequencer.inductance_override = on
+            self.pvs["INDUCTANCE_CHECK"].set(self.sequencer.inductance_text()[:39])
+        self._event("inductance", "R24 check BYPASSED by the operator" if on
+                    else "R24 check restored")
+
     def _set_expert(self, value):
         self._expert = bool(int(value))
         self._event("expert", "Expert mode " + ("ON (LHe floor 16 in)" if self._expert else "OFF"))
+
+    # ------------------------------------------------------------ V4 read-backs
+    def _publish_cryo(self):
+        """HELIUM_LEVEL and FRINGE_FIELD from the Genesis cryo IOCs (V4 had
+        them typed in by hand; Ells 2026-10-23: read them)."""
+        level = self.permit.value(self.permit_cfg.lhe_pv)
+        floor = self.permit_cfg.lhe_min_expert_in if self._expert else self.permit_cfg.lhe_min_in
+        if math.isfinite(level):
+            self.pvs["HELIUM_LEVEL"].set(level)
+            self.pvs["HELIUM_LOW_WARNING"].set(1 if level < floor else 0)
+        else:
+            self.pvs["HELIUM_LEVEL"].set_alarm(severity=alarm.INVALID_ALARM, alarm=alarm.READ_ALARM)
+            self.pvs["HELIUM_LOW_WARNING"].set(1)
+        tesla = self.permit.value(self.permit_cfg.fringe_pv)
+        if math.isfinite(tesla):
+            self.pvs["FRINGE_FIELD_T"].set(tesla)
+            self.pvs["FRINGE_FIELD_G"].set(tesla * 1.0e4)
+        else:
+            for name in ("FRINGE_FIELD_T", "FRINGE_FIELD_G"):
+                self.pvs[name].set_alarm(severity=alarm.INVALID_ALARM, alarm=alarm.READ_ALARM)
+
+    def _system_check(self, st) -> str:
+        """V4's SYSTEM CHECKS line, most serious first."""
+        seq = self.sequencer
+        if seq is not None and seq.inductance_ok is False and not seq.inductance_override:
+            return "CONTROLS BLOCKED - INDUCTANCE"
+        text = st.text()
+        if st.system != "0":
+            return f"MAGNET FAULT - {text['system']}"
+        if st.limits != "0":
+            return f"WARNING - {text['limits']}"
+        if self.pvs["HELIUM_LOW_WARNING"].get():
+            return "WARNING - LOW HELIUM LEVEL"
+        if not self.pvs["PERMIT"].get():
+            return "BLOCKED - " + str(self.pvs["PERMIT_REASON"].get())
+        if seq is not None and seq.inductance_override:
+            return "INDUCTANCE BYPASS ACTIVE"
+        return "SYSTEM READY"
+
+    def _log_csv(self, values: dict, st, field_t: float):
+        """Every poll: V4's columns (DateTime, Current_A, Voltage_V, Xmn,
+        Xmn_Meaning), then the magnet current, field and heater.  One file a
+        day; logging never stops the IOC."""
+        now = dt.datetime.now()
+        path = self._event_dir / f"magnet_log_{now:%Y-%m-%d}.csv"
+        try:
+            self._event_dir.mkdir(parents=True, exist_ok=True)
+            new = not path.exists()
+            with open(path, "a", newline="", encoding="utf-8") as fh:
+                w = csv.writer(fh)
+                if new:
+                    w.writerow(["DateTime", "Current_A", "Voltage_V", "Xmn", "Xmn_Meaning",
+                                "MagnetCurrent_A", "Field_T", "Persistent_A", "Heater_mA", "Heater"])
+                w.writerow([now.strftime("%Y-%m-%d %H:%M:%S.%f")[:-3], f"{values['CURRENT']:.4f}",
+                            f"{values['VOLTAGE']:.6f}", get_xmn_status(st.raw), decode_xmn(st.raw),
+                            f"{self.pvs['MAGNET_CURRENT'].get():.4f}", f"{field_t:.6f}",
+                            f"{values['PERSISTENT_CURRENT']:.4f}", f"{values['HEATER_MA']:.2f}",
+                            st.text()["heater"]])
+        except OSError as exc:
+            log.error("magnet CSV log: %s", exc)
 
     # ------------------------------------------------------------ polling
     def field_from_current(self, amps: float) -> float:
@@ -219,10 +318,11 @@ class Device(GenesisBaseDevice):
         st = t.read_status()
         out = {"st": st, "CURRENT": t.read_demand_current(), "VOLTAGE": t.read_voltage(),
                "CURRENT_MEAS": t.read_measured_current(), "SETPOINT": t.read_setpoint(),
-               "SWEEP_RATE": t.read_sweep_rate(), "PERSISTENT_CURRENT": t.read_persistent_current()}
+               "SWEEP_RATE": t.read_sweep_rate(), "PERSISTENT_CURRENT": t.read_persistent_current(),
+               "HEATER_MA": t.read_heater_current()}
         if self._poll % SLOW_EVERY == 0:
-            out.update(TRIP_CURRENT=t.read_trip_current(), HEATER_MA=t.read_heater_current(),
-                       LEAD_RES=t.read_lead_resistance(), INDUCTANCE=t.read_inductance())
+            out.update(TRIP_CURRENT=t.read_trip_current(), LEAD_RES=t.read_lead_resistance(),
+                       INDUCTANCE=t.read_inductance())
             out["SAFE_NEG"], out["SAFE_POS"] = t.read_safe_limits()
         return out
 
@@ -246,6 +346,9 @@ class Device(GenesisBaseDevice):
             self.pvs[name].set(value)
         text = st.text()
         self.pvs["STATUS"].set(st.raw)
+        self.pvs["XMN"].set(get_xmn_status(st.raw))
+        self.pvs["XMN_MEANING"].set(decode_xmn(st.raw)[:39])
+        self.pvs["CURRENT_DIFFERENCE"].set(values["CURRENT"] - values["PERSISTENT_CURRENT"])
         for key in ("system", "limits", "activity", "control", "heater", "motion"):
             self.pvs[key.upper()].set(text[key][:39])
         self.pvs["HEATER_ON"].set(1 if st.heater_on else 0)
@@ -268,6 +371,12 @@ class Device(GenesisBaseDevice):
             self.pvs["OPERATION"].set(seq.operation[:39])
             if math.isfinite(seq.last_inductance_h):
                 self.pvs["INDUCTANCE_MEAS"].set(seq.last_inductance_h)
+            if "INDUCTANCE" in values:
+                seq.note_inductance(values["INDUCTANCE"])
+            self.pvs["INDUCTANCE_CHECK"].set(seq.inductance_text()[:39])
+            if not seq.busy:                        # a running operation reports its own
+                self.pvs["HEATER_CURRENT_STATE"].set(seq.heater_text(st, values["HEATER_MA"])[:39])
+            self.pvs["R20_MEANING"].set(seq.r20_meaning or "auto: not decided")
         # issue 2: a quench reported by the supply stops whatever is running
         if st.fault and not self._last_quench:
             self._event("fault", f"supply status {text['system']}", trip_current=values.get(
@@ -277,6 +386,9 @@ class Device(GenesisBaseDevice):
         self._last_quench = st.fault
         if not (seq is not None and seq.busy):
             await self._check_permit()
+        self._publish_cryo()
+        self.pvs["SYSTEM_CHECK_STATE"].set(self._system_check(st)[:39])
+        self._log_csv(values, st, field)
         self.pvs["LAST_OK"].set(time.time())
         self._set_comm(True)
         return True

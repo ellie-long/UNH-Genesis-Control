@@ -15,6 +15,10 @@ Checks (every threshold is a setting; provisional ones name their question):
 * the magnet thermometers are not warming (question 87: which, how warm);
 * the shells' vacuum is not in alarm: 1e-5 Torr with the magnet's bottom
   below 80 K, 1e-4 Torr above (Ells, question 3).
+
+The same fetch also brings the fringe-field gaussmeter (LS455), which is
+shown, never checked: the student's V4 had the LHe level and the fringe field
+typed in by hand; Ells (2026-10-23): read them from the existing Genesis IOCs.
 """
 
 from __future__ import annotations
@@ -48,6 +52,8 @@ class PermitConfig:
     shells_max_cold_torr: float = 1e-5        # magnet bottom below shells_cold_below_k
     shells_max_warm_torr: float = 1e-4
     shells_cold_below_k: float = 80.0
+    #: display only (the student's FRINGE_FIELD_T / _G): the LS455 IOC
+    fringe_pv: str = f"{P}:FIELD:Fringe_FieldT"
 
     @classmethod
     def from_settings(cls, s: dict | None) -> "PermitConfig":
@@ -60,7 +66,8 @@ class PermitConfig:
 
     def pvs(self) -> list[str]:
         return list(dict.fromkeys([self.lhe_pv, *self.heartbeats.values(),
-                                   *self.magnet_temps.values(), self.shells_pv]))
+                                   *self.magnet_temps.values(), self.shells_pv,
+                                   self.fringe_pv]))
 
 
 @dataclass(frozen=True)
@@ -124,6 +131,10 @@ class CryoPermit:
         self.cfg, self.clock = cfg, clock
         self._fetch = fetch or self._ca_fetch
         self.last = (False, "not checked yet")
+        #: the latest fetch (PV -> Reading): the device shows the LHe level
+        #: and the fringe field from it
+        self.readings: dict = {}
+        self.fetched_at = math.nan
 
     async def _ca_fetch(self, pvs):
         import aioca
@@ -139,7 +150,13 @@ class CryoPermit:
         try:
             readings = await self._fetch(self.cfg.pvs())
         except Exception as exc:                 # noqa: BLE001 - no data: blocked
+            self.readings, self.fetched_at = {}, self.clock()
             self.last = (False, f"cryo readings failed: {exc}"[:60])
             return self.last
+        self.readings, self.fetched_at = readings, self.clock()
         self.last = evaluate(self.cfg, readings, self.clock(), expert)
         return self.last
+
+    def value(self, pv: str) -> float:
+        """The latest fetched value of ``pv`` (NaN when not connected)."""
+        return _num(self.readings.get(pv))

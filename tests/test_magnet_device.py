@@ -25,7 +25,7 @@ def healthy(cfg):
     async def fetch(pvs):
         from magnet_ioc import interlocks
         now = time.time()
-        vals = {cfg.lhe_pv: 25.0, cfg.shells_pv: 3e-7}
+        vals = {cfg.lhe_pv: 25.0, cfg.shells_pv: 3e-7, cfg.fringe_pv: 1.25e-3}
         vals.update({pv: 4.2 for pv in cfg.magnet_temps.values()})
         vals.update({pv: now - 1 for pv in cfg.heartbeats.values()})
         return {pv: interlocks.Reading(v, now - 0.5) for pv, v in vals.items()}
@@ -82,6 +82,51 @@ def test_poll_publishes_field_from_the_nmr_equation(device):
     assert recs["NMR_D"].value == pytest.approx(recs["FIELD"].value * 6.53590365)
     assert recs["FIELD_SOURCE"].value.startswith("supply")
     assert recs["INDUCTANCE"].value == 38.0 and recs["PERMIT"].value == 1
+
+
+def test_helium_and_gaussmeter_come_from_the_genesis_iocs(device):
+    # V4 had both typed in; Ells: read them from the existing IOCs
+    dev, _, recs = device()
+    asyncio.run(dev.do_reads())
+    assert recs["HELIUM_LEVEL"].value == 25.0 and recs["HELIUM_LOW_WARNING"].value == 0
+    assert recs["FRINGE_FIELD_T"].value == pytest.approx(1.25e-3)
+    assert recs["FRINGE_FIELD_G"].value == pytest.approx(12.5)
+    assert recs["SYSTEM_CHECK_STATE"].value == "SYSTEM READY"
+    assert recs["INDUCTANCE_CHECK"].value.startswith("OK") and recs["XMN"].value == "X00"
+    for name in ("HELIUM_LEVEL", "FRINGE_FIELD_G", "FRINGE_FIELD_T"):
+        assert not hasattr(recs[name], "on_update") or recs[name].on_update is None
+
+
+def test_low_helium_warns(device):
+    dev, _, recs = device()
+
+    async def low(pvs):
+        from magnet_ioc import interlocks
+        now = time.time()
+        return {dev.permit_cfg.lhe_pv: interlocks.Reading(18.5, now)}
+    dev.permit._fetch = low
+    asyncio.run(dev.do_reads())
+    assert recs["HELIUM_LOW_WARNING"].value == 1 and recs["PERMIT"].value == 0
+    assert recs["SYSTEM_CHECK_STATE"].value == "WARNING - LOW HELIUM LEVEL"
+
+
+def test_every_poll_is_logged_to_csv(device, tmp_path):
+    dev, emu, recs = device()
+    emu.output = emu.magnet = 3.0
+    asyncio.run(dev.do_reads())
+    asyncio.run(dev.do_reads())
+    rows = [line.split(",") for f in (tmp_path / "events").glob("magnet_log_*.csv")
+            for line in f.read_text().splitlines()]
+    assert rows[0][:5] == ["DateTime", "Current_A", "Voltage_V", "Xmn", "Xmn_Meaning"]
+    assert len(rows) == 3 and rows[-1][1] == "3.0000" and rows[-1][3] == "X00"
+
+
+def test_inductance_bypass_starts_off_and_is_recorded(device):
+    dev, _, recs = device()
+    assert recs["IGNORE_INDUCTANCE"].value == 0 and dev.sequencer.inductance_override is False
+    dev._set_ignore_inductance(1)
+    assert dev.sequencer.inductance_override and recs["INDUCTANCE_CHECK"].value == "BYPASS"
+    assert recs["LAST_EVENT"].value.startswith("inductance: R24 check BYPASSED")
 
 
 def test_persistent_field_comes_from_the_persistent_current(device):

@@ -20,6 +20,7 @@ Manual references are to the 2006 edition (pp36-40).
 from __future__ import annotations
 
 import math
+import re
 import threading
 from dataclasses import dataclass
 
@@ -90,14 +91,36 @@ class Status:
         }
 
 
+_STATUS = re.compile(r"X(\d)(\d)A(\d)C(\d)H(\d)M(\d)(\d)P(\d)(\d)")
+
+
 def decode_status(status: str) -> Status:
-    """Decode ``XmnAnCnHnMmnPmn`` (fixed 15 characters)."""
+    """Decode ``XmnAnCnHnMmnPmn`` (p39).  The fields are found by their
+    letters, so a reply with extra trailing characters still decodes;
+    anything without every field is refused."""
     s = status.strip()
-    if len(s) != 15 or s[0] != "X" or s[3] != "A" or s[5] != "C" or s[7] != "H" or s[9] != "M" \
-            or s[12] != "P":
+    m = _STATUS.match(s)
+    if not m:
         raise IPSError(f"not an IPS status word: {status!r}")
-    return Status(raw=s, system=s[1], limits=s[2], activity=s[4], control=s[6], heater=s[8],
-                  mode=s[10], motion=s[11])
+    system, limits, activity, control, heater, mode, motion = m.groups()[:7]
+    return Status(raw=s, system=system, limits=limits, activity=activity, control=control,
+                  heater=heater, mode=mode, motion=motion)
+
+
+def get_xmn_status(status) -> str:
+    """The student's (V4) ``Xmn``: the leading system / limit digits."""
+    s = str(status).strip()
+    return s[:3] if len(s) >= 3 and s.startswith("X") else "X??"
+
+
+def decode_xmn(status) -> str:
+    """The student's (V4) ``XMN_MEANING``, with the manual's codes (p32:
+    m 1 / 2 / 4 / 8, n 1 / 2 / 4 / 8; V4 numbers them 1-4 in sequence)."""
+    xmn = get_xmn_status(status)
+    if "?" in xmn:
+        return "UNKNOWN"
+    return (f"{SYSTEM_MEANING.get(xmn[1], f'UNKNOWN m={xmn[1]}')} | "
+            f"{LIMIT_MEANING.get(xmn[2], f'UNKNOWN n={xmn[2]}')}")
 
 
 # the student's accessors, kept for parity
@@ -246,5 +269,8 @@ class IPSClient:
     def heater_off(self):                            # H0
         self.query("H0")
 
-    def heater_on_unchecked(self):                   # H2 (no current-match check)
+    def heater_on(self):                             # H1: the supply's own current-match check (V4)
+        self.query("H1")
+
+    def heater_on_unchecked(self):                   # H2: no check (V3; V4 never sends it)
         self.query("H2")

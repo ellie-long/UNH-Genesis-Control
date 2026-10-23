@@ -16,8 +16,8 @@ from cooldown_sim.emulators.base import LoopbackServer
 from cooldown_sim.emulators.ips120 import IPS120
 from genesis_common.serial_tcp_base import SerialTcpConnection
 from magnet_ioc import interlocks
-from magnet_ioc.ips120_protocol import (IPSClient, IPSError, decode_status, format_current,
-                                        parse_numeric_response)
+from magnet_ioc.ips120_protocol import (IPSClient, IPSError, decode_status, decode_xmn,
+                                        format_current, parse_numeric_response)
 from magnet_ioc.ips120_sequences import (MagnetConfig, MagnetSequencer, choose_sweep_rate,
                                          next_ramp_target)
 
@@ -42,7 +42,10 @@ class Rig:
         t = SerialTcpConnection("127.0.0.1", self.server.port, timeout=2.0)
         self.ips = IPSClient(t)
         self.events, self.states, self.permit_value = [], [], permit
-        self.cfg = MagnetConfig(**{"heater_wait_s": 20.0, "poll_s": 1.0, **cfg})
+        # the 90 s inductance window: Windows' ~16 ms timer, scaled 200x, is ~3 s
+        # of jitter per sample; the live default is 30 s
+        self.cfg = MagnetConfig(**{"heater_wait_s": 20.0, "poll_s": 1.0,
+                                   "measured_inductance_window_s": 90.0, **cfg})
         self.seq = MagnetSequencer(self.ips, self.cfg, permit=self._permit,
                                    event=lambda k, m, **d: self.events.append((k, m)),
                                    state=self.states.append, sleep=scaled_sleep, clock=scaled_clock)
@@ -94,6 +97,16 @@ def test_status_word_decodes_every_field():
     assert decode_status("X00A4C0H2M00P00").clamped
     with pytest.raises(IPSError):
         decode_status("X00A4C0H2")
+    # found by their letters, so trailing characters still decode
+    assert decode_status("X00A0C3H0M00P000").heater_off
+
+
+def test_xmn_meaning_follows_the_manual_not_v4s_numbering():
+    # p32: m = 1 / 2 / 4 / 8 and n = 1 / 2 / 4 / 8 (V4 numbers them 1-4)
+    assert decode_xmn("X00A0C3H0M00P00") == "NORMAL | NORMAL"
+    assert decode_xmn("X40A0C3H0M00P00").startswith("WARMING UP")
+    assert decode_xmn("X80A0C3H0M00P00").startswith("FAULT")
+    assert decode_xmn("X08A0C3H0M00P00").endswith("OUTSIDE POSITIVE CURRENT LIMIT")
 
 
 def test_numbers_parse_and_format_fixed_point():
@@ -135,26 +148,58 @@ def test_band_table_can_never_exceed_the_cap():
 
 
 # ------------------------------------------------------------------ ramps
-def test_ramp_from_persistent_zero_opens_the_switch_and_uses_band_rates(rig):
+def test_ramp_refuses_in_persistent_mode(rig):
+    # V4: a ramp never opens the switch; match and heater ON are operator steps
+    r = rig()
+    r.emu.heater_on = r.emu.switch_open = False
+    r.emu.persistent_current = r.emu.output = r.emu.magnet = 10.0
+
+    async def go():
+        r.seq.start("ramp", r.seq.ramp, 25.0)
+        await finish(r.seq)
+    run(go())
+    assert r.states[-1].startswith("REFUSED: persistent mode"), r.states[-3:]
+    assert not [c for c in r.commands() if c[:1] in "HIS"] and r.emu.output == 10.0
+
+
+def test_v4_sequence_from_persistent_zero(rig):
+    """Match, heater ON (H1, never H2), then one 3 A/min ramp, no segments."""
     r = rig()
     r.emu.heater_on = r.emu.switch_open = False      # persistent at zero
     r.emu.persistent_current = r.emu.output = r.emu.magnet = 0.0
 
     async def go():
-        assert r.seq.start("ramp", r.seq.ramp, 25.0)
-        await finish(r.seq)
+        for name, fn, *args in (("match", r.seq.match), ("heater on", r.seq.heater_on),
+                                ("ramp", r.seq.ramp, 25.0)):
+            assert r.seq.start(name, fn, *args)
+            await finish(r.seq)
     run(go())
     assert r.states[-1] == "COMPLETE / HOLD", r.events
     assert abs(r.emu.output - 25.0) < 0.011 and r.emu.switch_open
     cmds = r.commands()
-    # the ramp opened the switch itself (issue 7) after the H2 check
-    assert "H2" in cmds and cmds.index("H2") < cmds.index("S3.000")
-    seg = [c for c in cmds if c[:1] in "SI"]
-    assert seg == ["S3.000", "I20.000", "S2.000", "I25.000"]
+    assert "H1" in cmds and "H2" not in cmds and cmds.index("H1") < cmds.index("S3.000")
+    assert [c for c in cmds if c[:1] in "SI"] == ["S3.000", "I25.000"]
 
 
-def test_ramp_through_all_three_bands(rig):
+def test_heater_on_matches_the_supply_tightly_before_h1(rig):
+    # V4: the supply's own H1 check needs R0 = R16 within 0.0005 A
     r = rig()
+    r.emu.heater_on = r.emu.switch_open = False
+    r.emu.persistent_current = r.emu.magnet = 30.0
+    r.emu.output = 30.004
+
+    async def go():
+        r.seq.start("heater on", r.seq.heater_on)
+        await finish(r.seq)
+    run(go())
+    assert r.states[-1] == "HEATER ON / HOLD", r.events
+    cmds = r.commands()
+    assert "I30.000" in cmds and cmds.index("I30.000") < cmds.index("H1")
+    assert r.emu.switch_open and abs(r.emu.magnet - 30.0) < 1e-6
+
+
+def test_v3_band_rates_are_still_a_setting(rig):
+    r = rig(rate_bands=BANDS)
 
     async def go():
         r.seq.start("ramp", r.seq.ramp, 45.0)
@@ -163,6 +208,46 @@ def test_ramp_through_all_three_bands(rig):
     assert r.states[-1] == "COMPLETE / HOLD", r.events
     rates = [c for c in r.commands() if c.startswith("S")]
     assert rates == ["S3.000", "S2.000", "S1.000"]
+
+
+def test_losing_driven_mode_mid_ramp_holds(rig):
+    # V4: the heater dropping out during a ramp stops it at once
+    r = rig()
+
+    async def go():
+        r.seq.start("ramp", r.seq.ramp, 15.0)
+        await asyncio.sleep(0.3)
+        r.emu.heater_on = False                       # the heater lost power
+        await finish(r.seq)
+    run(go())
+    assert r.states[-1].startswith("STOPPED: driven mode lost"), r.states[-3:]
+    assert r.emu.activity == 0 and r.emu.output < 15.0
+
+
+@pytest.mark.parametrize("mode", ["setting", "measured"])
+def test_heater_off_is_verified_whatever_r20_reports(rig, mode):
+    r = rig(emu=IPS120(clock=time.monotonic, time_scale=SCALE, r20_mode=mode))
+    r.emu.output = r.emu.magnet = r.emu.target = 12.0
+
+    async def go():
+        r.seq.start("heater off", r.seq.heater_off)
+        await finish(r.seq)
+    run(go())
+    assert r.states[-1] == "PERSISTENT / SUPPLY HELD", r.events
+    assert r.seq.r20_meaning == mode                  # "auto" decided it
+    assert any("SWITCH HEATER OFF" in m or "switch closed" in m for _, m in r.events)
+
+
+def test_heater_off_not_verified_when_measured_r20_stays_up(rig):
+    r = rig(r20_meaning="measured",
+            emu=IPS120(clock=time.monotonic, time_scale=SCALE, r20_mode="setting"))
+    r.emu.output = r.emu.magnet = r.emu.target = 12.0
+
+    async def go():
+        r.seq.start("heater off", r.seq.heater_off)
+        await finish(r.seq)
+    run(go())
+    assert r.states[-1].startswith("STOPPED: heater OFF not verified"), r.states[-3:]
 
 
 def test_permit_blocks_a_ramp_before_anything_moves(rig):
@@ -200,7 +285,9 @@ def test_a_quench_stops_the_ramp(rig):
         await finish(r.seq)
     run(go())
     assert r.states[-1].startswith("STOPPED"), r.states[-3:]
-    assert any("QUENCHED" in m for _, m in r.events)
+    # stopped on the status word, or a poll earlier on the current collapsing
+    assert any("QUENCHED" in m or "current changing" in m for k, m in r.events if k == "stopped")
+    assert r.emu.activity == 0
 
 
 def test_wrong_stored_inductance_refuses(rig):
@@ -210,7 +297,42 @@ def test_wrong_stored_inductance_refuses(rig):
         r.seq.start("ramp", r.seq.ramp, 5.0)
         await finish(r.seq)
     run(go())
-    assert "inductance 20 H" in r.states[-1]
+    assert "inductance mismatch: R24 20 H" in r.states[-1]
+    assert not [c for c in r.commands() if c[:1] in "HIS"]
+
+
+@pytest.mark.parametrize("stored, ok", [(38.0, True), (37.75, True), (38.29, True),
+                                        (37.6, False), (38.5, False)])
+def test_inductance_tolerance_is_v4s_0_3_h(rig, stored, ok):
+    r = rig(emu=IPS120(clock=time.monotonic, time_scale=SCALE, inductance_h=stored))
+    assert run(r.seq.check_inductance()) is ok
+
+
+def test_ignore_inductance_lets_a_ramp_through_and_hold_never_needs_it(rig):
+    # R24 37 H: outside V4's 0.3 H, inside the 25 % seen while ramping
+    r = rig(emu=IPS120(clock=time.monotonic, time_scale=SCALE, inductance_h=37.0))
+
+    async def go():
+        await r.seq.hold()                            # V4 blocks HOLD here; we never do
+        assert r.states[-1] == "HOLD"
+        r.seq.inductance_override = True
+        r.seq.start("ramp", r.seq.ramp, 2.0)
+        await finish(r.seq)
+    run(go())
+    assert r.states[-1] == "COMPLETE / HOLD", r.events
+    assert any("bypassed" in m for _, m in r.events)
+
+
+def test_bypass_does_not_switch_off_the_inductance_seen_while_ramping(rig):
+    # the bypass is for R24 only: a magnet that really is 20 H is still caught
+    r = rig(emu=IPS120(clock=time.monotonic, time_scale=SCALE, inductance_h=20.0))
+    r.seq.inductance_override = True
+
+    async def go():
+        r.seq.start("ramp", r.seq.ramp, 10.0)          # long enough for the 90 s window
+        await finish(r.seq)
+    run(go())
+    assert r.states[-1].startswith("STOPPED: inductance") and "while ramping" in r.events[-1][1]
 
 
 def test_one_operation_at_a_time(rig):
