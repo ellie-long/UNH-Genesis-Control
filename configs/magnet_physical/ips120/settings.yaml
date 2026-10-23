@@ -12,7 +12,7 @@ general:
   log_dir: logs
   # the cryogenics IOCs the permit reads: LS224 magnet (5117), IONIVAC (5114),
   # magnet LHe level (5127)
-  epics_addr_list: 127.0.0.1:5117 127.0.0.1:5114 127.0.0.1:5127
+  epics_addr_list: 127.0.0.1:5117 127.0.0.1:5114 127.0.0.1:5127 127.0.0.1:5115
   delay: 1.0
 
 ips120:
