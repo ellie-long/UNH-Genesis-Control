@@ -230,6 +230,16 @@ def test_tpg262_unit_can_be_set_like_the_controller():
         TPG262(("Pump", "OVC"), lambda ch: 1.0, unit="9")
 
 
+def test_validators_use_the_tpg_emulators_unit():
+    # the round-trip and map checks convert served Torr to what the PV shows
+    # with the emulator's own unit, so changing the emulator cannot leave them behind
+    from cooldown_sim.validate import mapcheck, roundtrip
+    factor = TPG262.UNIT_FROM_TORR[TPG262.DEFAULT_UNIT]
+    assert roundtrip.TOLERANCE["tpg262"][1] == factor
+    assert mapcheck.BACK["tpg262"] * factor == pytest.approx(1.0)
+    assert TPG262.DEFAULT_UNIT == "1"                     # Torr, as the live controller
+
+
 # ---------------------------------------------------------------- IONIVAC
 def test_ionivac_stream_and_silence():
     settings = profile("ionivac")

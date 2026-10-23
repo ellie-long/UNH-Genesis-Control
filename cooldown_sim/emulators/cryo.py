@@ -161,9 +161,11 @@ class TPG262(Emulator):
 
     #: display unit code -> factor from Torr
     UNIT_FROM_TORR = {"0": conversions.TORR_TO_MBAR, "1": 1.0, "2": 133.322368}
+    #: the unit the emulator starts in (the validators convert with it)
+    DEFAULT_UNIT = "1"
 
     def __init__(self, channels: tuple[str, str], source: Source, nan_status: str = "4",
-                 unit: str = "1"):
+                 unit: str = DEFAULT_UNIT):
         super().__init__()
         if unit not in self.UNIT_FROM_TORR:
             raise ValueError(f"TPG 262 unit code {unit!r}: 0 mbar, 1 Torr or 2 Pa")
