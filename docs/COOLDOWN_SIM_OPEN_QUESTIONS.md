@@ -148,6 +148,23 @@ named in each item. Numbers are stable: answered items move to *Settled*.
       keep-energized rule: is that right? Or only HOLD + persistent, leads
       left energized? Should a UPS "on battery" signal press it
       automatically? Is the supply on a UPS long enough to finish (~1 min)?
+- [ ] 95. **IPS120 R2 reads ~1.03 A above R0 (live test 2026-10-23):** with
+      the supply at 0 A demand R2 ("measured current") read 1.04 A, at 0.10 A
+      it read 1.11-1.13 A; the front panel and R0 agreed with the command.
+      Genesis now takes the magnet current and field from R0 (fe6add0) and
+      shows R2 separately. Is R2 a calibration offset to correct, or does it
+      only misbehave with no magnet on the leads (the supply was not on the
+      magnet tonight)? Recheck once it is.
+- [ ] 96. **Magnet ramp rate, V4 vs the records:** the student's V4 ramps at
+      one fixed 3 A/min (no 20 A / 40 A segments); V3 and the records since
+      2021-09 used 3 / 2 / 1 A/min below 20 / 40 / 65 A (question 90). Genesis
+      follows V4 (`rate_bands: [[65, 3.0]]`); the bands are one setting
+      away. Which should it be?
+- [ ] 97. **Manometer-Lo bridge on the cryo Pi (192.168.1.24, live test
+      2026-10-23):** after `pi_cryo_bridges/ubuntu_control.sh start` both
+      bridges report UP, but TCP 5030 (Manometer-Lo) refuses connections and
+      the Pi's "SERIAL DEVICES" list is empty; 5010 (right-Roots flow)
+      accepts. Is the manometer's USB-serial adapter plugged into that Pi?
 - [ ] 75. **Converter, `NMR Status`:** filled with pyNMR's free-text event
       `label` (default "None"). The old values were Baseline / Polarization /
       TE / Tuning / Scanning, and the McClellan reader sorts sweeps by them.
@@ -299,6 +316,15 @@ named in each item. Numbers are stable: answered items move to *Settled*.
 
 ## Notes (findings, not questions; Ells 2026-10-22)
 
+- **Live test, 2026-10-23 (the laptop as the lab machine, dev-visualizer
+  fe6add0):** the IPS120-10 answers V "IPS120-10 Version 3.07"; after a
+  mains cycle X = `X00A4C0H0M00P04` (clamped, local/locked, as the manual
+  says). **R20 is the heater current setting** (40 mA with the heater OFF),
+  so the student's V4 OFF check (R20 <= 0.5 mA) would always fail on the real
+  supply; Genesis's `r20_meaning: auto` recorded "setting". R24 = 38 H. The
+  TXI017 serial server takes one TCP session per port (5001 timed out while
+  something else held it; it opened after a power cycle). Ells controlled
+  the supply from the Phoebus Magnet tab (heater ON via H1, 0.10 A).
 - 60. **Fridge He Level zero:** the record's `Fridge He Level (")` is
       NEGATIVE most of the time the fridge runs (2026-06-17: -9 to -26 in;
       2022-05 down to -87, where `Fridge He Level Raw` is negative too) and
