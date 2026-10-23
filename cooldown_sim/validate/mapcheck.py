@@ -20,12 +20,13 @@ from ..channel_map import ChannelMap
 from ..clock import wall_to_sim
 from ..data.records import lab_tz
 from ..data.timeline import Timeline
+from ..emulators.cryo import TPG262
 from ..profile import GeneratedStack
 from ..pvlist import device_channel_pvs
 from . import loaders
 
 #: kind -> factor converting the PV value back to recorded units
-BACK = {"tpg262": conversions.MBAR_TO_TORR}
+BACK = {"tpg262": 1.0 / TPG262.UNIT_FROM_TORR[TPG262.DEFAULT_UNIT]}   # Torr on the wire: 1
 
 
 def write(run: Path, stack: GeneratedStack, cmap: ChannelMap, timeline: Timeline,

@@ -1,7 +1,10 @@
 description: Operator takes the microwaves from the autopilot and turns RF off early; P relaxes instead of spinning up
 source: synthetic
 start: "2000-01-01 02:00"
-duration_min: 60
+# 80 min (was 60 until 2026-10-22): the fitter autopilot calibrates at ~22 min and the
+# calibration takes ~35-45 s of wall time, so at speed 60 a 60-min run ended before
+# CALIBRATED landed and the fitter check read INFO (Windows, after Utsav's c088cdb).
+duration_min: 80
 speed: 60
 legs: [cryo, mw, nmr]
 deviates_from_record: true

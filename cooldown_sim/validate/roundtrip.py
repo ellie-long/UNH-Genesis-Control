@@ -18,6 +18,7 @@ import pandas as pd
 import yaml
 
 from .. import conversions
+from ..emulators.cryo import TPG262
 from ..profile import GeneratedStack
 from ..pvlist import device_channel_pvs
 from . import Check, loaders
@@ -27,7 +28,8 @@ from . import Check, loaders
 TOLERANCE = {
     "ls224": (3e-5, 1.0),                          # 7-digit ohms through the inverse curve
     "mks902b": (6e-4, 1.0),                        # '%.3E' on the wire
-    "tpg262": (6e-5, conversions.TORR_TO_MBAR),    # '%.4E' mbar on the wire
+    # '%.4E' in the emulator's display unit (Torr, UNI = 1, as live)
+    "tpg262": (6e-5, TPG262.UNIT_FROM_TORR[TPG262.DEFAULT_UNIT]),
     "ionivac": (conversions.IONIVAC_REL_QUANTUM * 1.05, 1.0),
     "ls455": (1e-5, 1.0),                          # '%+.5E' on the wire
     "flowmeter_pi": (1e-9, 1.0, 1e-6),             # '%.6f' raw slm x 28/19

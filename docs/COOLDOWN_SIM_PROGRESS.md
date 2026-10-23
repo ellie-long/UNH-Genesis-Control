@@ -63,6 +63,15 @@ lab answers are in `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`.
   tests/test_phoebus_launcher.py tests/test_ssrf_fitter_gui_static.py
   tests/test_cryo_*.py tests/test_target_cryo_integration.py` 446 passed
   (102 subtests).
+* Scenario library on Windows (`--port-offset 700`, beside the demo
+  session): first run FAILED every scenario on the TPG round trip, caused by
+  dev-sim's own change today, not the merge: the emulator now answers Torr
+  but the round-trip and map checks still multiplied by the mbar factor.
+  Both now take the factor from the emulator's default unit (a test ties
+  them). Re-run: 9 PASS, 1 SKIPPED (protected-nmr, Linux only), 1 FAIL,
+  operator-deviation: the fitter autopilot calibrates at ~22 min and the
+  calibration takes ~35-45 s wall, so the 60-min run ended first. Lengthened
+  to 80 min: PASS (fitter within limits). So 10/10 PASS on Windows + 1 SKIPPED.
 
 ### 2026-10-22: Ells's answers (TPG Torr, vapour pressure, cart, 60-62)
 * TPG 262 in Torr always (65, 68): Genesis sets the unit to Torr if it is not
