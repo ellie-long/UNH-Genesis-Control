@@ -25,7 +25,7 @@ V4 checks:  INDUCTANCE_CHECK (R24 within 0.3 H of 38 H, read at connect),
     IGNORE_INDUCTANCE (the operator's bypass, off at every start-up),
     HEATER_CURRENT_STATE and R20_MEANING (the heater read-back),
     SYSTEM_CHECK_STATE (one-line summary), HEATER_OFF_PROGRESS.
-Derived:  MAGNET_CURRENT (the supply's current while driven, R16 while
+Derived:  MAGNET_CURRENT (R0, the supply current, while driven; R16 while
     persistent: review issue 9), FIELD (B = FIELD_SLOPE x I + FIELD_OFFSET,
     Ells's NMR-measured equation), FIELD_SOURCE, NMR_D / NMR_P (MHz),
     INDUCTANCE_MEAS (from V / dI/dt while ramping).
@@ -356,7 +356,10 @@ class Device(GenesisBaseDevice):
         self.pvs["CLAMPED"].set(1 if st.clamped else 0)
         # issue 9: the current in the magnet, right in both modes
         if st.heater_on:
-            magnet, source = values["CURRENT_MEAS"], "supply (driven)"
+            # R0, as the supply's own display and the student's code: on the
+            # real supply R2 ("measured") reads ~1.03 A above R0 (2026-10-23:
+            # 1.04 A at 0 A demand, 1.11 A at 0.10 A), so it is shown, not used
+            magnet, source = values["CURRENT"], "supply (driven)"
         else:
             magnet, source = values["PERSISTENT_CURRENT"], "persistent"
         field = self.field_from_current(magnet)
