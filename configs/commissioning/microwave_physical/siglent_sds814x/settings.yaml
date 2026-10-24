@@ -1,0 +1,40 @@
+general:
+  prefix: UNH:GEN:MW:SCOPE
+  log_dir: logs
+  epics_addr_list: None
+  delay: 0.01
+
+siglent_sds814x:
+  module: microwave_ioc.siglent_sds814x.toolkit_device
+  ip: 192.168.1.31
+  port: 5025
+  timeout: 2.0
+  delay: 0.01
+  channels:
+    - SIG
+  update_hz: 5.0
+  reconnect_delay: 3.0
+  archive_records:
+    - SIG_VI
+    - SIG_Comm_Status
+    - SIG_Data_Valid
+    - SIG_Acq_Status
+    - SIG_Frame_Epoch
+    - SIG_Data_Age
+  records:
+    SIG_VI:
+      DESC: Latest scope CH1 sample
+      EGU: V
+      PREC: 6
+    SIG_Comm_Status:
+      DESC: Scope communication state
+    SIG_Data_Valid:
+      DESC: Scope live data validity
+    SIG_Acq_Status:
+      DESC: Scope trigger state
+    SIG_Frame_Epoch:
+      DESC: Most recent waveform receipt epoch
+    SIG_Data_Age:
+      DESC: Seconds since most recent waveform
+      EGU: s
+      PREC: 3

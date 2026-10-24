@@ -1,0 +1,242 @@
+<?xml version='1.0' encoding='utf-8'?>
+<display version="2.0.0">
+  <name>Genesis Cryo LHe Levels</name>
+  <width>1280</width>
+  <height>720</height>
+  <widget type="rectangle" version="2.0.0">
+    <name>Page</name>
+    <x>0</x>
+    <y>0</y>
+    <width>1280</width>
+    <height>720</height>
+    <line_width>0</line_width>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>Header</name>
+    <x>0</x>
+    <y>0</y>
+    <width>1280</width>
+    <height>70</height>
+    <line_width>0</line_width>
+    <background_color>
+      <color red="0" green="36" blue="92" alpha="255" />
+    </background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Title</name>
+    <x>24</x>
+    <y>18</y>
+    <width>900</width>
+    <height>30</height>
+    <text>UNH Genesis - Liquid Helium Levels</text>
+    <transparent>true</transparent>
+    <horizontal_alignment>0</horizontal_alignment>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="22.0" />
+    </font>
+    <foreground_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>Trend_Card</name>
+    <x>20</x>
+    <y>208</y>
+    <width>1240</width>
+    <height>427</height>
+    <line_width>0</line_width>
+    <corner_width>8</corner_width>
+    <corner_height>8</corner_height>
+    <background_color>
+      <color red="245" green="248" blue="252" alpha="255" />
+    </background_color>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>Trend_Header</name>
+    <x>20</x>
+    <y>208</y>
+    <width>1240</width>
+    <height>38</height>
+    <line_width>0</line_width>
+    <corner_width>8</corner_width>
+    <corner_height>8</corner_height>
+    <background_color>
+      <color red="220" green="231" blue="243" alpha="255" />
+    </background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Trend_Title</name>
+    <x>34</x>
+    <y>215</y>
+    <width>1212</width>
+    <height>24</height>
+    <text>LIVE LHe LEVEL TRENDS (INCH)</text>
+    <transparent>true</transparent>
+    <horizontal_alignment>0</horizontal_alignment>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="15.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="databrowser" version="2.0.0">
+    <name>LHeTrend</name>
+    <x>40</x>
+    <y>256</y>
+    <width>1195</width>
+    <height>354</height>
+    <file>genesis_cryo_lhe.plt</file>
+    <show_toolbar>true</show_toolbar>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Back</name>
+    <x>1040</x>
+    <y>655</y>
+    <width>195</width>
+    <height>34</height>
+    <actions>
+      <action type="open_display">
+        <file>genesis_cryo_data.bob</file>
+        <target>tab</target>
+        <description>Open &lt; Cryo Overview</description>
+      </action>
+    </actions>
+    <text>&lt; Trends</text>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>FridgeLevelLabel</name>
+    <x>45</x>
+    <y>106</y>
+    <width>165</width>
+    <height>22</height>
+    <text>Fridge LHe (inch)</text>
+    <transparent>true</transparent>
+    <horizontal_alignment>0</horizontal_alignment>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="11.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>FridgeLevel</name>
+    <x>210</x>
+    <y>104</y>
+    <width>265</width>
+    <height>27</height>
+    <pv_name>ca://UNH:GEN:CRYO:FRIDGE:LHE:Fridge_LI</pv_name>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="12.0" />
+    </font>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>MagnetLevelLabel</name>
+    <x>650</x>
+    <y>106</y>
+    <width>165</width>
+    <height>22</height>
+    <text>Magnet LHe (inch)</text>
+    <transparent>true</transparent>
+    <horizontal_alignment>0</horizontal_alignment>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="11.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>MagnetLevel</name>
+    <x>815</x>
+    <y>104</y>
+    <width>265</width>
+    <height>27</height>
+    <pv_name>ca://UNH:GEN:CRYO:MAG:LHE:Magnet_LI</pv_name>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="12.0" />
+    </font>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>FridgeStatusLabel</name>
+    <x>45</x>
+    <y>151</y>
+    <width>165</width>
+    <height>22</height>
+    <text>Fridge status</text>
+    <transparent>true</transparent>
+    <horizontal_alignment>0</horizontal_alignment>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="11.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>FridgeStatus</name>
+    <x>210</x>
+    <y>149</y>
+    <width>265</width>
+    <height>27</height>
+    <pv_name>ca://UNH:GEN:CRYO:FRIDGE:LHE:Fridge_Status</pv_name>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="12.0" />
+    </font>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>MagnetStatusLabel</name>
+    <x>650</x>
+    <y>151</y>
+    <width>165</width>
+    <height>22</height>
+    <text>Magnet status</text>
+    <transparent>true</transparent>
+    <horizontal_alignment>0</horizontal_alignment>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="11.0" />
+    </font>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>MagnetStatus</name>
+    <x>815</x>
+    <y>149</y>
+    <width>265</width>
+    <height>27</height>
+    <pv_name>ca://UNH:GEN:CRYO:MAG:LHE:Magnet_Status</pv_name>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="12.0" />
+    </font>
+    <background_color>
+      <color red="255" green="255" blue="255" alpha="255" />
+    </background_color>
+    <foreground_color>
+      <color red="28" green="38" blue="48" alpha="255" />
+    </foreground_color>
+  </widget>
+</display>

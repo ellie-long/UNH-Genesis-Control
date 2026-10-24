@@ -2851,6 +2851,52 @@ print(
     "[PASS] Cryo BOB navigation targets exist"
 )
 
+
+# Preserve the LHe navigation link after final GUI generation.
+# This adds no IOC, PV, or instrument access.
+import copy as _copy
+import xml.etree.ElementTree as _ET
+
+_lhe_data_path = GUI / "genesis_cryo_data.bob"
+_lhe_source = _lhe_data_path.read_text(encoding="utf-8")
+_lhe_root = _ET.fromstring(_lhe_source)
+
+_lhe_existing = [
+    w for w in _lhe_root.findall("widget")
+    if w.findtext("name") == "LHeTrendLink"
+]
+
+if not _lhe_existing:
+    _lhe_templates = [
+        w for w in _lhe_root.findall("widget")
+        if w.findtext("name") == "FieldTrend"
+    ]
+    if len(_lhe_templates) != 1:
+        raise RuntimeError("Missing FieldTrend template")
+
+    _lhe_button = _copy.deepcopy(_lhe_templates[0])
+    _lhe_button.find("name").text = "LHeTrendLink"
+    _lhe_button.find("x").text = "655"
+    _lhe_button.find("y").text = "655"
+    _lhe_button.find("text").text = "LHe Levels"
+    _lhe_button.find("./actions/action/file").text = "genesis_cryo_lhe.bob"
+    _lhe_button.find("./actions/action/description").text = (
+        "Open Liquid Helium Levels"
+    )
+
+    if not (GUI / "genesis_cryo_lhe.bob").is_file():
+        raise RuntimeError("Missing LHe monitoring GUI")
+
+    _lhe_source = _lhe_source.replace(
+        "</display>",
+        "  " + _ET.tostring(_lhe_button, encoding="unicode")
+        + "\n</display>",
+        1,
+    )
+    _lhe_data_path.write_text(_lhe_source, encoding="utf-8")
+
+print("[PASS] LHe navigation preserved")
+
 print(
     "[DONE] Genesis Cryo GUI suite generated"
 )

@@ -363,4 +363,21 @@
     <text>Flow Monitoring</text>
   </widget>
 
+  <widget type="action_button" version="3.0.0">
+    <name>LHeTrendLink</name>
+    <x>655</x>
+    <y>655</y>
+    <width>190</width>
+    <height>34</height>
+    <actions>
+      <action type="open_display">
+        <file>genesis_cryo_lhe.bob</file>
+        <target>tab</target>
+        <description>Open Liquid Helium Levels</description>
+      </action>
+    </actions>
+    <text>LHe Levels</text>
+  </widget>
+
+
 </display>

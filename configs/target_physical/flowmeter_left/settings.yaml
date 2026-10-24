@@ -17,12 +17,12 @@ flowmeter_left:
   timeout: 3
   delay: 2
   request: F
-  correction: 1.4736842105
+  correction: 1.0
   channels:
   - LPump
   records:
     LPump_SLM:
-      DESC: Left pump flow, corrected
+      DESC: Left pump flow, uncorrected
       EGU: slm
       PREC: 4
     LPump_Raw:
