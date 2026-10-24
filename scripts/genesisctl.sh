@@ -116,6 +116,9 @@ MICROWAVE PHYSICAL OPERATION
   mw-status             Read-only status of the Microwave physical stack.
   mw-rf-ready           Verify the Microwave RF-control readiness conditions.
   mw-stop               Run the verified Microwave safe shutdown workflow.
+  mw-scope-start        Start only the optional SIG oscilloscope IOC.
+  mw-scope-status       Read SIG IOC and acquisition status.
+  mw-scope-stop         Stop only the optional SIG oscilloscope IOC.
 
 CRYOGENIC TARGET PHYSICAL OPERATION
   cryo-start            Start the physical Cryogenic Target stack.
@@ -885,6 +888,112 @@ mw_physical_stop() {
 }
 
 
+
+# Optional Microwave SIG scope. Never starts or stops the physical MW stack.
+mw_scope_command() {
+    local operation="$1"
+    require_env
+
+    EPICS_CA_AUTO_ADDR_LIST=NO \
+    EPICS_CA_ADDR_LIST="127.0.0.1:5094 127.0.0.1:5095" \
+    python - "$operation" <<'PY_SCOPE'
+import asyncio
+import re
+import subprocess
+import sys
+
+from aioca import caget, caput
+
+operation = sys.argv[1]
+control = "UNH:GEN:MAN:mw_siglent_sds814x_control"
+prefix = "UNH:GEN:MW:SCOPE:SIG_"
+
+async def read(pv, timeout=1.5):
+    try:
+        return await caget(pv, timeout=timeout)
+    except Exception:
+        return None
+
+async def main():
+    state = await read(control)
+
+    if operation in ("start", "stop"):
+        if state is None:
+            raise SystemExit(
+                "[STOP] Microwave IOC manager unavailable. "
+                "No scope command sent."
+            )
+
+        state = int(state)
+        requested = 1 if operation == "start" else 0
+
+        if state == requested:
+            print(
+                f"[NO-OP] Scope manager already reports "
+                f"{'Run' if requested else 'Stop'}"
+            )
+        else:
+            if operation == "start":
+                # The existing IOC manager restarts a named Screen
+                # if one already exists. Refuse an ambiguous owner.
+                result = subprocess.run(
+                    ["screen", "-ls"],
+                    capture_output=True,
+                    text=True,
+                )
+                listing = result.stdout + result.stderr
+                if re.search(
+                    r"(?m)^\s*\d+\.mw_siglent_sds814x\s+\(",
+                    listing,
+                ):
+                    raise SystemExit(
+                        "[STOP] Named scope Screen already exists "
+                        "but manager reports Stop. Inspect ownership."
+                    )
+
+            await caput(
+                control, requested, wait=True, timeout=3
+            )
+            print(
+                f"[REQUESTED] Scope "
+                f"{'start' if requested else 'stop'}"
+            )
+            state = await read(control)
+
+    elif operation != "status":
+        raise SystemExit("Unknown scope operation")
+
+    print(
+        "Manager command:",
+        "unavailable" if state is None
+        else "Run" if int(state) == 1
+        else "Stop" if int(state) == 0
+        else f"state {int(state)}",
+    )
+
+    for name in (
+        "Comm_Status",
+        "Data_Valid",
+        "Acq_Status",
+        "VI",
+        "Data_Age",
+    ):
+        value = await read(prefix + name)
+        print(
+            f"{name}:",
+            value if value is not None else "unavailable",
+        )
+
+    print(
+        "[INFO] Manager state does not establish "
+        "physical IOC or instrument readiness."
+    )
+
+asyncio.run(main())
+PY_SCOPE
+}
+
+
 cryo_physical_start() {
     require_env
     require_file "${CRYO_PHYSICAL_SCRIPT}"
@@ -1059,6 +1168,15 @@ case "${cmd}" in
         ;;
     mw-stop)
         mw_physical_stop
+        ;;
+    mw-scope-start)
+        mw_scope_command start
+        ;;
+    mw-scope-status)
+        mw_scope_command status
+        ;;
+    mw-scope-stop)
+        mw_scope_command stop
         ;;
 
     cryo-start)

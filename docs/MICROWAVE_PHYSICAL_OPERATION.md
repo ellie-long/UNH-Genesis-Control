@@ -213,3 +213,32 @@ Outstanding physical acceptance:
 - Validate RF-enabled frequency sweeping separately.
 - Complete robot referencing, limits, and motion acceptance.
 - Confirm controlled shutdown and restart from the finalized main.
+
+## Optional SIG Oscilloscope
+
+The SIGLENT SDS814X HD monitors the Microwave reflected
+signal. It operates independently of RF, robot, supervisor,
+and interlock controls.
+
+From the accepted Ubuntu Genesis deployment, activate
+the genesis-p1 environment and use:
+
+    ./scripts/genesisctl.sh mw-scope-start
+    ./scripts/genesisctl.sh mw-scope-status
+    ./scripts/genesisctl.sh mw-scope-stop
+
+The Microwave IOC manager must already be running.
+These commands do not start or stop the Microwave
+physical stack.
+
+Open Microwave GUI > SIG Scope to view the readout.
+
+Stop the scope individually before mw-stop.
+If the IOC manager is unavailable, do not restart
+Microwave hardware merely to recover the scope.
+
+Scope IOC CA port: 5095.
+Instrument: 192.168.1.31:5025.
+
+The master registry retains the scope PVs even when
+the oscilloscope IOC is offline.
