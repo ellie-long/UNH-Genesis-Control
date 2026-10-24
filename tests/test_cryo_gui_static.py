@@ -328,7 +328,8 @@ def test_cryo_gui_headers_and_final_schematic():
         gui.glob("genesis_cryo*.bob")
     )
 
-    assert len(bobs) == 13
+    assert len(bobs) == 14
+    assert gui / "genesis_cryo_lhe.bob" in bobs
 
     for path in bobs:
         root = ET.parse(path).getroot()
