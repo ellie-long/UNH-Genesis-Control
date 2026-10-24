@@ -165,6 +165,25 @@ named in each item. Numbers are stable: answered items move to *Settled*.
       bridges report UP, but TCP 5030 (Manometer-Lo) refuses connections and
       the Pi's "SERIAL DEVICES" list is empty; 5010 (right-Roots flow)
       accepts. Is the manometer's USB-serial adapter plugged into that Pi?
+- [ ] 98. **UCA supply (SPD1305X, 192.168.1.19) raw socket refuses (for
+      Utsav; microwave tests paused 2026-10-23):** Genesis's UCA IOC talks raw
+      SCPI on TCP 5025. Tonight 5025 worked until ~20:04, then every
+      connection was accepted and reset at once, through a front-panel power
+      cycle and a hard reboot, with no other client connected (both Pis and
+      this laptop checked). VXI-11 (TCPIP0::192.168.1.19::inst0::INSTR) still
+      answers normally. Earlier the IOC refused the supply because its
+      voltage setpoint was 5.100 V (above the 5.0 V UCA limit); it was set to
+      5.000 V by SCPI (output left off). What turns the socket server off
+      (an I/O / LAN setting, remote lock)? Should the driver support VXI-11?
+      Also: the first start attempts left the microwave IOC manager and the
+      UCA IOC running and `microwave_physical.sh stop` refused to stop them
+      (safety verification could not read the UCA), so they were killed by
+      hand.
+- [ ] 99. **NMR supply (Siglent SPD3303X-E):** not in Genesis. It answers at
+      192.168.1.17 (VXI-11 *IDN?); its sticker says 192.168.1.5, which
+      answers pings but has no instrument ports (not a Siglent MAC). Which
+      outputs feed what, and should Genesis read / control it (a new IOC and
+      Phoebus panel)? 192.168.1.31 is a Siglent SDS814X HD oscilloscope.
 - [ ] 75. **Converter, `NMR Status`:** filled with pyNMR's free-text event
       `label` (default "None"). The old values were Baseline / Polarization /
       TE / Tuning / Scanning, and the McClellan reader sorts sweeps by them.
@@ -325,6 +344,15 @@ named in each item. Numbers are stable: answered items move to *Settled*.
   TXI017 serial server takes one TCP session per port (5001 timed out while
   something else held it; it opened after a power cycle). Ells controlled
   the supply from the Phoebus Magnet tab (heater ON via H1, 0.10 A).
+  Also that night: the LS455 reports in tesla, so its IOC's fixed
+  `tesla_scale: 1e-4` (gauss -> tesla) made `Fringe_FieldT` 1e4 too small
+  (set to 1.0 in the live copy; Utsav's driver should take the scale from
+  `UNIT?`). PyNMR (`unh` branch, JLab NMR 192.168.0.72, SMA100A
+  192.168.0.50; the laptop needed a second 192.168.0.x address) streamed to
+  the Genesis online fitter and the Panopticon's NMR card; PyNMR logs
+  `'NoneType' object has no attribute 'write'` on every finished event from
+  `core/event_bus_service.py` (its own eventfile is never opened; the main
+  window's event file is written correctly).
 - 60. **Fridge He Level zero:** the record's `Fridge He Level (")` is
       NEGATIVE most of the time the fridge runs (2026-06-17: -9 to -26 in;
       2022-05 down to -87, where `Fridge He Level Raw` is negative too) and
