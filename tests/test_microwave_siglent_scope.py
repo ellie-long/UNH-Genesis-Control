@@ -64,10 +64,19 @@ def test_unavailable_measurement_is_never_reported_as_valid(result):
         Controller(transport).read_ch1_voltage()
 
 
-def test_scope_gui_has_only_scalar_readbacks_and_no_plots():
+def test_scope_gui_has_scalar_ch1_live_trend_without_waveform_pvs():
     gui = ROOT / 'gui/genesis_mw_scope.bob'
     tree = ET.parse(gui)
     assert not list(tree.iter('xyplot'))
+    plots = list(tree.iter('widget'))
+    stripcharts = [w for w in plots if w.attrib.get('type') == 'stripchart']
+    assert len(stripcharts) == 1
+    trend = stripcharts[0]
+    assert trend.findtext('time_range') == '5 minutes'
+    assert [pv.text for pv in trend.iter('y_pv')] == [
+        'ca://$(P):$(C)_VI'
+    ]
+    assert not list(trend.iter('x_pv'))
     bound = {p.text for p in tree.iter('pv_name')}
     assert bound == {
         'ca://$(P):$(C)_VI',
@@ -75,7 +84,9 @@ def test_scope_gui_has_only_scalar_readbacks_and_no_plots():
         'ca://$(P):$(C)_Data_Valid',
         'ca://$(P):$(C)_Last_Error',
     }
-    assert all('Wave_' not in item and 'History_' not in item for item in bound)
+    assert all('Wave_' not in item and 'History_' not in item
+               for item in bound | {pv.text for pv in trend.iter('y_pv')})
+    assert int(tree.getroot().findtext('height')) >= 600
 
 
 def test_scope_settings_archive_only_scalar_values():
