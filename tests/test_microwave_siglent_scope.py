@@ -91,3 +91,42 @@ def test_initialize_preserves_acquisition_controls():
         "CHDR OFF",
         ":WAV:SOUR C1;:WAV:WIDT WORD;:WAV:BYT LSB",
     ]
+
+
+def test_scope_gui_has_waveform_and_history_plots():
+    from pathlib import Path
+    import xml.etree.ElementTree as ET
+
+    gui = Path(__file__).resolve().parents[1] / "gui/genesis_mw_scope.bob"
+    root = ET.parse(gui).getroot()
+
+    plots = [
+        w for w in root.iter("widget")
+        if w.attrib.get("type") == "xyplot"
+    ]
+
+    assert len(plots) == 2
+
+    bindings = {
+        (
+            w.findtext("./traces/trace/x_pv"),
+            w.findtext("./traces/trace/y_pv"),
+        )
+        for w in plots
+    }
+
+    assert bindings == {
+        (
+            "ca://$(P):$(C)_Wave_Time",
+            "ca://$(P):$(C)_Wave_Volts",
+        ),
+        (
+            "ca://$(P):$(C)_History_Time",
+            "ca://$(P):$(C)_History_Reading",
+        ),
+    }
+
+    assert all(
+        int(w.findtext("y")) + int(w.findtext("height")) <= 670
+        for w in plots
+    )

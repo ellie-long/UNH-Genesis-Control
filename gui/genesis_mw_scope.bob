@@ -127,20 +127,65 @@
     <pv_name>ca://$(P):$(C)_Data_Age</pv_name>
   </widget>
   <widget type="xyplot" version="3.0.0">
-    <name>CH1 history</name>
+    <name>CH1 waveform</name>
     <x>20</x>
     <y>190</y>
     <width>1060</width>
-    <height>430</height>
+    <height>205</height>
     <show_toolbar>true</show_toolbar>
     <show_legend>false</show_legend>
-    <title>Latest CH1 sample from each snapshot</title>
+    <title>Latest CH1 waveform</title>
+    <x_axis>
+      <title>Time (s)</title>
+      <autoscale>true</autoscale>
+      <log_scale>false</log_scale>
+      <show_grid>true</show_grid>
+      <minimum>-0.005</minimum>
+      <maximum>0.005</maximum>
+    </x_axis>
+    <y_axes>
+      <axis>
+        <title>Voltage (V)</title>
+        <autoscale>true</autoscale>
+        <minimum>-0.7</minimum>
+        <maximum>0.7</maximum>
+        <log_scale>false</log_scale>
+        <show_grid>true</show_grid>
+      </axis>
+    </y_axes>
+    <traces>
+      <trace>
+        <name>CH1 waveform volts</name>
+        <x_pv>ca://$(P):$(C)_Wave_Time</x_pv>
+        <y_pv>ca://$(P):$(C)_Wave_Volts</y_pv>
+        <err_pv />
+        <axis>0</axis>
+        <trace_type>1</trace_type>
+        <color>
+          <color red="0" green="102" blue="204" />
+        </color>
+        <line_width>2</line_width>
+        <line_style>0</line_style>
+        <point_type>0</point_type>
+        <visible>true</visible>
+      </trace>
+    </traces>
+  </widget>
+  <widget type="xyplot" version="3.0.0">
+    <name>CH1 history</name>
+    <x>20</x>
+    <y>405</y>
+    <width>1060</width>
+    <height>215</height>
+    <show_toolbar>true</show_toolbar>
+    <show_legend>false</show_legend>
+    <title>CH1 voltage history - last 5 minutes</title>
     <x_axis>
       <title>Seconds before now</title>
       <autoscale>false</autoscale>
       <log_scale>false</log_scale>
       <show_grid>true</show_grid>
-      <minimum>-60</minimum>
+      <minimum>-300</minimum>
       <maximum>0</maximum>
     </x_axis>
     <y_axes>
