@@ -974,9 +974,8 @@ async def main():
     for name in (
         "Comm_Status",
         "Data_Valid",
-        "Acq_Status",
         "VI",
-        "Data_Age",
+        "Last_Error",
     ):
         value = await read(prefix + name)
         print(

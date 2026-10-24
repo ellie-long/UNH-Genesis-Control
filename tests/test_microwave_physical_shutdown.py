@@ -266,6 +266,38 @@ class Lifecycle(unittest.IsolatedAsyncioTestCase):
 
 
 class Detection(unittest.TestCase):
+    def test_lsof_race_skips_only_exited_process(self):
+        """No hidden owner accepted when ps PID dies before lsof."""
+        outputs = [
+            subprocess.CompletedProcess([], 1,
+                'No Sockets found in /run/screen/S-test.\n', ''),
+            subprocess.CompletedProcess([], 0,
+                '424242 1 python master_ioc.py -s '
+                'configs/commissioning/microwave_physical/pcl602 -i pcl602\n', ''),
+            subprocess.CompletedProcess([], 1, '', ''),
+        ]
+        with patch.object(shutdown.subprocess, 'run', side_effect=outputs), \
+                patch.object(shutdown.os, 'kill', side_effect=ProcessLookupError):
+            sessions, parents, owned, shared = shutdown.LocalRuntime(ROOT).snapshot()
+        self.assertEqual(sessions, {})
+        self.assertEqual(owned, {})
+        self.assertEqual(shared, {})
+        self.assertIn(424242, parents)
+
+    def test_lsof_failure_for_live_process_fails_closed(self):
+        outputs = [
+            subprocess.CompletedProcess([], 1,
+                'No Sockets found in /run/screen/S-test.\n', ''),
+            subprocess.CompletedProcess([], 0,
+                '424242 1 python master_ioc.py -s '
+                'configs/commissioning/microwave_physical/pcl602 -i pcl602\n', ''),
+            subprocess.CompletedProcess([], 1, '', 'access denied'),
+        ]
+        with patch.object(shutdown.subprocess, 'run', side_effect=outputs), \
+                patch.object(shutdown.os, 'kill', return_value=None):
+            with self.assertRaisesRegex(RuntimeError, 'Cannot establish cwd'):
+                shutdown.LocalRuntime(ROOT).snapshot()
+
     def test_exact_names(self):
         sessions = shutdown.screen_sessions(' 12.mw_vaunix_lms-extra (Detached)\n 13.ioc-manager (Detached)\n')
         self.assertNotIn('mw_vaunix_lms', sessions)

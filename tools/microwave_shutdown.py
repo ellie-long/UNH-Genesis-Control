@@ -4,6 +4,7 @@ Hardware commands are issued only by run(), after local ownership inspection.
 Importing this module performs no EPICS, network, or process operations.
 """
 import asyncio
+import os
 from pathlib import Path
 import re
 import shlex
@@ -79,7 +80,19 @@ class LocalRuntime:
             # Relative script/profile paths are meaningful only with a proven cwd.
             if not Path(script).is_absolute() or not Path(settings).is_absolute():
                 cwd = subprocess.run(['lsof', '-a', '-p', pid, '-d', 'cwd', '-Fn'],
-                                     capture_output=True, text=True, check=True, timeout=5)
+                                     capture_output=True, text=True, check=False, timeout=5)
+                if cwd.returncode:
+                    if cwd.returncode == 1:
+                        # ps may have listed a process that exited before lsof.
+                        # Signal 0 only checks process existence; it sends no signal.
+                        try:
+                            os.kill(int(pid), 0)
+                        except ProcessLookupError:
+                            continue
+                    # A living PID with an unverifiable cwd remains unowned;
+                    # abort rather than weakening the safety ownership gate.
+                    raise RuntimeError(f'Cannot establish cwd for live IOC PID {pid}: '
+                                       f'lsof exit {cwd.returncode}; {cwd.stderr.strip()}')
                 paths = [s[1:] for s in cwd.stdout.splitlines() if s.startswith('n')]
                 if paths != [str(self.root)]:
                     continue

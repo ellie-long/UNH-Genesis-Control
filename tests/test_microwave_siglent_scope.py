@@ -1,132 +1,102 @@
-"""Hardware-free regression tests for the optional SIGLENT scope."""
+"""Hardware-free regression tests: scalar-only SIGLENT CH1 integration."""
+from pathlib import Path
+import xml.etree.ElementTree as ET
 
-import struct
-
-import numpy as np
 import pytest
+import yaml
 
 from microwave_ioc.siglent_sds814x.toolkit_device import (
     Controller,
-    SCPIError,
-    decode_waveform,
-    parse_preamble,
-    simulator_preamble,
+    MeasurementUnavailable,
 )
 
-
-def test_signed_word_voltage_and_time_conversion():
-    preamble = simulator_preamble(count=3)
-    payload = struct.pack("<3h", -6400, 0, 6400)
-
-    seconds, volts = decode_waveform(
-        preamble, payload, timebase=0.001
-    )
-
-    np.testing.assert_allclose(volts, [-1.0, 0.0, 1.0])
-    np.testing.assert_allclose(
-        seconds,
-        [-0.005, -0.004999, -0.004998],
-        atol=1e-12,
-    )
+ROOT = Path(__file__).resolve().parents[1]
 
 
-def test_invalid_descriptor_rejected():
-    with pytest.raises(ValueError, match="WAVEDESC"):
-        parse_preamble(bytes(346))
+class FakeTransport:
+    def __init__(self, source='C1', reading='2.4375E-02'):
+        self.source = source
+        self.reading = reading
+        self.commands = []
+
+    def write(self, command):
+        self.commands.append(('write', command))
+
+    def query(self, command):
+        self.commands.append(('query', command))
+        if command == '*IDN?':
+            return 'Siglent Technologies,SDS814X HD,TEST,1.0'
+        if command == ':MEAS:SIMP:SOUR?':
+            return self.source
+        if command == ':MEAS:SIMP:VAL? MEAN':
+            return self.reading
+        raise AssertionError('Unexpected SCPI command: ' + command)
 
 
-def test_invalid_word_payload_rejected():
-    preamble = simulator_preamble()
-
-    with pytest.raises(ValueError, match="payload"):
-        decode_waveform(preamble, b"\x01", 0.001)
-
-
-def test_invalid_timebase_rejected():
-    preamble = simulator_preamble()
-
-    with pytest.raises(ValueError, match="timebase"):
-        decode_waveform(preamble, b"\x00\x00", 0)
-
-
-def test_sequence_mode_rejected_without_waveform_request():
-    class FakeTransport:
-        def __init__(self):
-            self.commands = []
-
-        def query_many(self, commands):
-            self.commands.append(tuple(commands))
-            return ["ON", "10000", "0.001"]
-
-        def write(self, command):
-            raise AssertionError("Unexpected scope write")
-
-        def query(self, command, binary=False):
-            raise AssertionError("Unexpected waveform query")
-
+def test_scalar_ch1_read_uses_no_acquisition_or_waveform_commands():
     transport = FakeTransport()
-
-    with pytest.raises(SCPIError, match="sequence"):
-        Controller(transport).snapshot()
-
-    assert len(transport.commands) == 1
-
-
-def test_initialize_preserves_acquisition_controls():
-    class FakeTransport:
-        def __init__(self):
-            self.writes = []
-
-        def write(self, command):
-            self.writes.append(command)
-
-        def query(self, command):
-            assert command == "*IDN?"
-            return "Siglent Technologies,SDS814X HD,TEST,1.0"
-
-    transport = FakeTransport()
-    Controller(transport).initialize()
-
-    assert transport.writes == [
-        "CHDR OFF",
-        ":WAV:SOUR C1;:WAV:WIDT WORD;:WAV:BYT LSB",
+    controller = Controller(transport)
+    assert controller.initialize().startswith('Siglent Technologies')
+    assert controller.read_ch1_voltage() == pytest.approx(0.024375)
+    assert transport.commands == [
+        ('write', 'CHDR OFF'),
+        ('query', '*IDN?'),
+        ('query', ':MEAS:SIMP:SOUR?'),
+        ('query', ':MEAS:SIMP:VAL? MEAN'),
     ]
+    assert not any(('WAV' in cmd or ':ACQ' in cmd or ':TRIG' in cmd)
+                   for _, cmd in transport.commands)
 
 
-def test_scope_gui_has_waveform_and_history_plots():
-    from pathlib import Path
-    import xml.etree.ElementTree as ET
+def test_wrong_source_fails_closed_without_querying_reading():
+    transport = FakeTransport(source='C2')
+    with pytest.raises(MeasurementUnavailable, match='C1'):
+        Controller(transport).read_ch1_voltage()
+    assert transport.commands == [('query', ':MEAS:SIMP:SOUR?')]
 
-    gui = Path(__file__).resolve().parents[1] / "gui/genesis_mw_scope.bob"
-    root = ET.parse(gui).getroot()
 
-    plots = [
-        w for w in root.iter("widget")
-        if w.attrib.get("type") == "xyplot"
+@pytest.mark.parametrize('result', [
+    'The number of measurements is zero', 'nan', 'inf', '-inf', '9.9e37', ''
+])
+def test_unavailable_measurement_is_never_reported_as_valid(result):
+    transport = FakeTransport(reading=result)
+    with pytest.raises(MeasurementUnavailable):
+        Controller(transport).read_ch1_voltage()
+
+
+def test_scope_gui_has_only_scalar_readbacks_and_no_plots():
+    gui = ROOT / 'gui/genesis_mw_scope.bob'
+    tree = ET.parse(gui)
+    assert not list(tree.iter('xyplot'))
+    bound = {p.text for p in tree.iter('pv_name')}
+    assert bound == {
+        'ca://$(P):$(C)_VI',
+        'ca://$(P):$(C)_Comm_Status',
+        'ca://$(P):$(C)_Data_Valid',
+        'ca://$(P):$(C)_Last_Error',
+    }
+    assert all('Wave_' not in item and 'History_' not in item for item in bound)
+
+
+def test_scope_settings_archive_only_scalar_values():
+    config = yaml.safe_load((ROOT / 'configs/commissioning/microwave_physical/'
+                             'siglent_sds814x/settings.yaml').read_text())
+    scope = config['siglent_sds814x']
+    assert scope['archive_records'] == [
+        'SIG_VI', 'SIG_Comm_Status', 'SIG_Data_Valid'
     ]
+    assert not any('Frame' in item or 'Wave' in item or 'History' in item
+                   for item in scope['archive_records'])
+    driver = (ROOT / 'microwave_ioc/siglent_sds814x/toolkit_device.py').read_text()
+    assert ':WAV:' not in driver
+    assert 'WaveformIn' not in driver
+    assert 'snapshot(' not in driver
 
-    assert len(plots) == 2
 
-    bindings = {
-        (
-            w.findtext("./traces/trace/x_pv"),
-            w.findtext("./traces/trace/y_pv"),
-        )
-        for w in plots
-    }
-
-    assert bindings == {
-        (
-            "ca://$(P):$(C)_Wave_Time",
-            "ca://$(P):$(C)_Wave_Volts",
-        ),
-        (
-            "ca://$(P):$(C)_History_Time",
-            "ca://$(P):$(C)_History_Reading",
-        ),
-    }
-
-    assert all(
-        int(w.findtext("y")) + int(w.findtext("height")) <= 670
-        for w in plots
-    )
+def test_scope_status_command_does_not_request_removed_pvs():
+    script = (ROOT / 'scripts/genesisctl.sh').read_text()
+    section = script.split('mw_scope_command() {', 1)[1].split('\n}\n', 1)[0]
+    for name in ('"Comm_Status"', '"Data_Valid"', '"VI"', '"Last_Error"'):
+        assert name in section
+    assert '"Data_Age"' not in section
+    assert '"Acq_Status"' not in section
