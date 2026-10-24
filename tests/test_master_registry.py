@@ -14,16 +14,31 @@ def test_complete_configured_registry():
     assert report["counts"] == {
         "Cryo": 168,
         "ssRF": 97,
-        "Microwave": 113,
+        "Microwave": 120,
     }
 
-    assert len(registry) == 378
-    assert report["total"] == 378
+    assert len(registry) == 385
+    assert report["total"] == 385
 
     assert all(
         data["transport"] == "unverified"
         for data in registry.values()
     )
+
+    scope_pvs = {
+        name for name in registry
+        if name.startswith("UNH:GEN:MW:SCOPE:")
+    }
+    assert scope_pvs == {
+        "UNH:GEN:MW:SCOPE:SIG_VI",
+        "UNH:GEN:MW:SCOPE:SIG_Comm_Status",
+        "UNH:GEN:MW:SCOPE:SIG_Data_Valid",
+        "UNH:GEN:MW:SCOPE:SIG_Acq_Status",
+        "UNH:GEN:MW:SCOPE:SIG_Frame_Epoch",
+        "UNH:GEN:MW:SCOPE:SIG_Data_Age",
+        "UNH:GEN:MW:SCOPE:MAN:siglent_sds814x_time",
+    }
+
 
 
 def test_important_physical_channels():
@@ -76,7 +91,7 @@ def test_genuinely_undefined_archive_reference_reported(monkeypatch):
 
     registry, report = module.build_registry()
 
-    assert len(registry) == 378
+    assert len(registry) == 385
     assert report["invalid_archive_references"] == [{
         "ioc": "mw_supervisor",
         "record": "UNVERIFIED_ARCHIVE_RECORD",

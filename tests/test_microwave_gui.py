@@ -208,7 +208,7 @@ class MicrowaveGUI(unittest.TestCase):
 
         self.assertEqual(
             len(targets),
-            5,
+            6,
         )
 
         self.assertEqual(
@@ -234,6 +234,10 @@ class MicrowaveGUI(unittest.TestCase):
         )
         self.assertIn(
             "genesis_mw_robot.bob",
+            files,
+        )
+        self.assertIn(
+            "genesis_mw_scope.bob",
             files,
         )
 
