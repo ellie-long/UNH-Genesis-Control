@@ -213,3 +213,59 @@ Outstanding physical acceptance:
 - Validate RF-enabled frequency sweeping separately.
 - Complete robot referencing, limits, and motion acceptance.
 - Confirm controlled shutdown and restart from the finalized main.
+
+## Optional SIG Oscilloscope
+
+The SIGLENT SDS814X HD monitors the Microwave reflected
+signal. It operates independently of RF, robot, supervisor,
+and interlock controls.
+
+From the accepted Ubuntu Genesis deployment, activate
+the genesis-p1 environment and use:
+
+    ./scripts/genesisctl.sh mw-scope-start
+    ./scripts/genesisctl.sh mw-scope-status
+    ./scripts/genesisctl.sh mw-scope-stop
+
+The Microwave IOC manager must already be running.
+These commands do not start or stop the Microwave
+physical stack.
+
+Open Microwave GUI > SIG Scope to view the readout.
+
+Stop the scope individually before mw-stop.
+If the IOC manager is unavailable, do not restart
+Microwave hardware merely to recover the scope.
+
+Scope IOC CA port: 5095.
+Instrument: 192.168.1.31:5025.
+
+The master registry retains the scope PVs even when
+the oscilloscope IOC is offline.
+
+### Scalar-only CH1 scope readout (offline revision; hardware not yet reaccepted)
+
+The optional SIG Scope IOC provides only `SIG_VI` (CH1 Simple **MEAN**
+voltage in V), `SIG_Comm_Status`, `SIG_Data_Valid`, `SIG_Last_Error`
+and `SIG_Identity`. Its GUI presents only the CH1 value and diagnostics.
+No waveform acquisition, binary block parsing, frame or history PVs,
+plots, trigger setup, or waveform settings remain.
+
+This is a change in reading semantics: the old `SIG_VI` was the final
+sample of a waveform; the new `SIG_VI` is the scope's CH1 mean measurement.
+The instrument must *already* have Simple measurement source `C1` and
+measurement item `MEAN` enabled in its saved setup. The IOC only queries
+`:MEAS:SIMP:SOUR?` and `:MEAS:SIMP:VAL? MEAN`; it will never enable
+measurements or adjust acquisition settings. If the measurement is not
+configured or returns a nonnumeric result, `Data_Valid` is false and
+`SIG_VI` is NaN, even if SCPI connection remains healthy. Do not treat a
+connected status as proof of a valid reading. Its independent archive
+records contain only scalar `SIG_VI`, connection and validity states.
+
+The code changes were produced and checked **offline only**, while the
+laboratory hardware was unavailable. No scope, Microwave RF, or robot
+hardware validation has been performed on this revision. The old
+implementation cannot be used as evidence that this scalar measurement
+works on the physical scope or matches Ben's independently configured GUI.
+The exact legacy Ben readout method must be confirmed before labeling the
+scalar channel equivalent.

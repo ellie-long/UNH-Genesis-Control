@@ -1,0 +1,28 @@
+general:
+  prefix: UNH:GEN:MW:SCOPE
+  log_dir: logs
+  epics_addr_list: None
+  delay: 0.01
+siglent_sds814x:
+  module: microwave_ioc.siglent_sds814x.toolkit_device
+  ip: 192.168.1.31
+  port: 5025
+  timeout: 2.0
+  delay: 0.01
+  channels:
+  - SIG
+  update_hz: 2.0
+  reconnect_delay: 3.0
+  archive_records:
+  - SIG_VI
+  - SIG_Comm_Status
+  - SIG_Data_Valid
+  records:
+    SIG_VI:
+      DESC: CH1 Simple MEAN voltage
+      EGU: V
+      PREC: 6
+    SIG_Comm_Status:
+      DESC: Scope SCPI connected
+    SIG_Data_Valid:
+      DESC: CH1 mean measurement valid

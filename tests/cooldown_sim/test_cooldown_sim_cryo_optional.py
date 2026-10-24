@@ -179,7 +179,10 @@ def test_generated_profiles_build_the_matching_emulators(tmp_path):
         emu = host.build(spec, settings, lambda ch: 1.0)
         kinds[spec.name] = type(emu).__name__
         if isinstance(emu, HastingsFlowmeter):
-            assert emu.correction == pytest.approx(28 / 19)
+            # 28/19 on the right Roots only (Ells, question 49 d; Utsav's
+            # cryo-mw-integration sets the left and separator meters to 1.0)
+            expected = 28 / 19 if spec.name == "flowmeter_pi" else 1.0
+            assert emu.correction == pytest.approx(expected)
             assert emu.via_pi == (spec.name == "flowmeter_pi")
     assert kinds == {"flowmeter_pi": "HastingsFlowmeter", "flowmeter_left": "HastingsFlowmeter",
                      "flowmeter_sep": "HastingsFlowmeter", "lhe_fridge": "AMI1700",

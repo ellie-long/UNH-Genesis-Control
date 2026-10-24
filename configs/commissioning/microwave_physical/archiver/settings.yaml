@@ -3,13 +3,17 @@ general:
   log_dir: logs
   epics_addr_list: 127.0.0.1:5094 127.0.0.1:5066 127.0.0.1:5067 127.0.0.1:5068 127.0.0.1:5069
     127.0.0.1:5070 127.0.0.1:5071 127.0.0.1:5072 127.0.0.1:5073 127.0.0.1:5074 127.0.0.1:5085
-    127.0.0.1:5087
+    127.0.0.1:5087 127.0.0.1:5095
   delay: 0.5
 archiver:
   module: logic_devices.archiver
   autostart: false
   archive_path: archive/subsystems/pv_csv
   settings_file: configs/commissioning/microwave_physical/ioc_manager/settings.yaml
+  always_monitor_pvs:
+    - UNH:GEN:MW:SCOPE:SIG_VI
+    - UNH:GEN:MW:SCOPE:SIG_Comm_Status
+    - UNH:GEN:MW:SCOPE:SIG_Data_Valid
   deadband: 0.01
   time_increment: 1
   delay: 5

@@ -507,6 +507,15 @@ equipment:
     map: "-"
     sim: microwave_sim robot profile (no motion modelled)
     confidence: high
+  - genesis: mw_siglent_sds814x
+    equipment: Siglent SDS814X HD oscilloscope (the SIG reflector signal, CH1)
+    role: Independent SIG readout; read-only CH1 mean voltage (Utsav, 2026-10-24)
+    link: LAN 192.168.1.31, SCPI TCP 5025
+    prefix: UNH:GEN:MW:SCOPE
+    control: none (queries only)
+    map: "-"
+    sim: not emulated (excluded in stacks.yaml)
+    confidence: high
   - genesis: (mmWaveRobot.local)
     equipment: Raspberry Pi
     role: Hosts the Vaunix and PCL602 shims

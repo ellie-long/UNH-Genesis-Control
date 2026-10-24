@@ -332,6 +332,9 @@ class Device(BaseDevice):
         except Exception as e:
             print(f"Error discovering PVs: {e}")
 
+        # Monitor optional IOC PVs even if their IOC starts later.
+        pv_list.extend(self.settings.get('always_monitor_pvs', []))
+
         # Deduplicate while preserving configuration order.
         pv_list = list(dict.fromkeys(pv_list))
 

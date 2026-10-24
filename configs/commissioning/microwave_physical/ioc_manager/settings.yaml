@@ -2,7 +2,7 @@ general:
   prefix: UNH:GEN
   log_dir: logs
   epics_addr_list: 127.0.0.1:5094 127.0.0.1:5066 127.0.0.1:5067 127.0.0.1:5069 127.0.0.1:5085
-    127.0.0.1:5087
+    127.0.0.1:5087 127.0.0.1:5095
   manager_ca_server_port: 5094
   manager_pva_server_port: 5075
   delay: 0.5
@@ -34,6 +34,14 @@ mw_pcl602:
   heartbeat_pv: UNH:GEN:MW:ROBOT:MAN:pcl602_time
   ca_server_port: 5087
   pva_server_port: 5088
+mw_siglent_sds814x:
+  autostart: false
+  settings_folder: configs/commissioning/microwave_physical/siglent_sds814x
+  ioc: siglent_sds814x
+  heartbeat_pv: UNH:GEN:MW:SCOPE:MAN:siglent_sds814x_time
+  ca_server_port: 5095
+  pva_server_port: 5096
+
 archiver:
   autostart: false
   settings_folder: configs/commissioning/microwave_physical/archiver

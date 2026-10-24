@@ -112,6 +112,7 @@ excluded:
   configs/commissioning/microwave_physical/ioc_manager/settings.yaml:
     mw_pcl602: physical robot; the microwave_sim robot is launched instead
     archiver: Microwave CSV archiver; cooldown_sim.probe records all MW PVs
+    mw_siglent_sds814x: the SIG oscilloscope (read-only, optional); not emulated
   configs/commissioning/microwave_sim/ioc_manager/settings.yaml:
     mw_vaunix_lms: sim Vaunix; the physical IOC runs against the real shim on a simulated brick
     mw_supervisor: sim supervisor fakes its safety readbacks; the physical supervisor is launched

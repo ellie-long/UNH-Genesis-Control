@@ -17,12 +17,12 @@ flowmeter_sep:
   timeout: 3
   delay: 2
   request: F
-  correction: 1.4736842105
+  correction: 1.0
   channels:
   - SepFlow
   records:
     SepFlow_SLM:
-      DESC: Separate flowmeter, corrected
+      DESC: Separate flowmeter, uncorrected
       EGU: slm
       PREC: 4
     SepFlow_Raw:

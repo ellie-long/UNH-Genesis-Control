@@ -193,8 +193,7 @@ verify_vaunix_deployment() {
 
 check_vaunix_service() {
     ssh unhpoltarg@"${MW_PI_HOST:-192.168.1.23}" \
-        'systemctl --user restart vaunix-shim.service &&
-         sleep 2 &&
+        'systemctl --user is-active --quiet vaunix-shim.service &&
          systemctl --user --no-pager --full status vaunix-shim.service |
          sed -n "1,18p"'
 
