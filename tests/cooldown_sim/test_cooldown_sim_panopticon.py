@@ -603,6 +603,10 @@ def test_elena_long_screen_choices_2026_10_24():
     cup = widgets["Target_Cup"]
     assert cup.findtext("transparent") == "true" and cup.findtext("line_width") == "0"
     assert "Shape_Separator" in widgets
+    # the gaussmeter readouts: scientific notation, 4 significant figures
+    for pv in ("UNH:GEN:CRYO:FIELD:Fringe_FieldT", "UNH:GEN:CRYO:FIELD:Fringe_Field"):
+        (w,) = [w for w in _widgets() if w.findtext("pv_name") == f"ca://{pv}"]
+        assert (w.findtext("format"), w.findtext("precision")) == ("2", "3"), pv
     c = widgets["Trend_FridgeLevel"].find("traces/trace/color/color")
     assert (int(c.get("red")), int(c.get("green")), int(c.get("blue"))) == gen.LHE_BLUE
     axes = list(widgets["Trend_FridgeThermometry"].iter("y_axis"))

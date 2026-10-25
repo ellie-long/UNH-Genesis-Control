@@ -844,8 +844,9 @@ def sc_magnet():
     w.append(field("Field (T)", f"{MAG}:FIELD", 1156, 602, 140, 11, prec=5))
     w.append(field("NMR freq. from field (MHz)", f"{MAG}:NMR_D", 1302, 602, 140, 11, prec=4))
     w.append(field("Switch heater", f"{MAG}:HEATER", 1010, 642, 140, 9))
-    w.append(field("Fringe field (LS455)", f"{CRYO}:FIELD:Fringe_FieldT", 1156, 642, 140, 11, prec=6))
-    w.append(field("Gaussmeter reading", f"{CRYO}:FIELD:Fringe_Field", 1302, 642, 90, 11, prec=4))
+    # scientific notation, 4 significant figures (Elena Long, 2026-10-24)
+    w.append(field("Fringe field (LS455)", f"{CRYO}:FIELD:Fringe_FieldT", 1156, 642, 140, 11, prec=3, fmt=2))
+    w.append(field("Gaussmeter reading", f"{CRYO}:FIELD:Fringe_Field", 1302, 642, 90, 11, prec=3, fmt=2))
     w.append(update(f"{CRYO}:FIELD:Fringe_Unit", 1394, 657, 48, 21, 10))
     w.append(open_button("Fringe field screen", "genesis_cryo_field.bob", 1156, 688, 140, 24))
     return w
