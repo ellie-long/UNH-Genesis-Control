@@ -79,8 +79,6 @@ DEWAR = (204, 226, 246)
 STEEL = (64, 70, 80)
 INSERT = (246, 248, 251)
 BAFFLE = (240, 140, 30)
-CUP = (215, 192, 245)
-CUP_LINE = (110, 50, 180)
 COIL = (250, 205, 40)
 COIL_LINE = (170, 130, 0)
 
@@ -717,7 +715,6 @@ def _insert_drawing():
                       (a - BORE_HALF, support_y), (a - BORE_HALF, bottom), (a + BORE_HALF, bottom),
                       (a + BORE_HALF, support_y), (a + BELLY_HALF, support_y), (a + BELLY_HALF, b),
                       (a + NECK_HALF, b), (a + NECK_HALF, n)], DEWAR, NAVY, 2, name="Magnet_LHe_Space"))
-    w.append(label("magnet LHe", a - BELLY_HALF + 3, b + 3, 62, 12, 8, False, NAVY))
     for inch in range(0, 31, 5):
         yy = level_y(inch)
         w.append(rect(762, yy, 10, 1, NAVY))
@@ -760,7 +757,6 @@ def _insert_drawing():
                           name=f"Baffle_{stack}{i + 1}"))
     sx, sy, sw, sh = SEPARATOR
     w.append(rect(sx, sy, sw, sh, (165, 171, 181), (70, 76, 86), 2, corner=6, name="Shape_Separator"))
-    w.append(label("separator", sx - 6, sy + sh // 2 - 8, sw + 12, 15, 8, True, TEXT, align=1))
     # magnet-space baffles: 5 in the neck (ring from the wall to the insert),
     # and the magnet-support baffle at 16.5"
     for i, by in enumerate(neck_baffle_ys()):
@@ -773,8 +769,9 @@ def _insert_drawing():
     w.append(rect(a + 54, support_y - 6, NECK_HALF - 56, 5, STEEL, name="Magnet_Baffle_Support"))
     # nose (tail) and target cup
     w.append(rect(873, 832, 54, 214, INSERT, MUTED, name="Shape_Nose"))
-    w.append(rect(879, 900, 42, 140, CUP, CUP_LINE, 2, name="Target_Cup"))
-    w.append(label("cup", 879, 1040, 42, 12, 8, True, CUP_LINE, align=1))
+    # the target cup is not drawn (Elena Long, 2026-10-24); this invisible box
+    # keeps its position, where T1 / T3 sit at the magnet centre
+    w.append(rect(879, 900, 42, 140, None, name="Target_Cup", transparent=True))
     # the alarm and magnet-top lines go over the coils
     w.append(rect(a - BELLY_HALF, alarm_y, 2 * BELLY_HALF, 2, RED, name="Level_Alarm_Line"))
     w.append(label('20" alarm', 726, alarm_y - 6, 46, 12, 8, True, RED))

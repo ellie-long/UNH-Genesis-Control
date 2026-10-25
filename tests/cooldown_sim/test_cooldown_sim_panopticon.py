@@ -597,6 +597,12 @@ def test_elena_long_screen_choices_2026_10_24():
     text = BOB.read_text(encoding="utf-8")
     assert "markers: sensor positions" not in text and "Shape_Fridge_Liquid" not in text
     assert not [w for w in _widgets() if w.findtext("text") == "fridge"]
+    # no "magnet LHe", "cup" or "separator" labels; the cup is not drawn (an
+    # invisible box keeps its position), the separator box stays: it is real
+    assert not [w for w in _widgets() if w.findtext("text") in ("magnet LHe", "cup", "separator")]
+    cup = widgets["Target_Cup"]
+    assert cup.findtext("transparent") == "true" and cup.findtext("line_width") == "0"
+    assert "Shape_Separator" in widgets
     c = widgets["Trend_FridgeLevel"].find("traces/trace/color/color")
     assert (int(c.get("red")), int(c.get("green")), int(c.get("blue"))) == gen.LHE_BLUE
     axes = list(widgets["Trend_FridgeThermometry"].iter("y_axis"))
