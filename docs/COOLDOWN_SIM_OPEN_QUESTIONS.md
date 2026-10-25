@@ -179,6 +179,20 @@ named in each item. Numbers are stable: answered items move to *Settled*.
       UCA IOC running and `microwave_physical.sh stop` refused to stop them
       (safety verification could not read the UCA), so they were killed by
       hand.
+      **2026-10-24 update:** 5025 works again (12/12 from Windows and 12/12
+      from WSL, setpoint 5.000 V, output 5.001 V), with nothing changed on
+      the supply. Two leads: (a) the laptop's second address had been
+      192.168.0.232/**22**, which overlaps 192.168.1.x, so WSL traffic was at
+      times sent from .232 and 192.168.1.x replies went to the gateway; it
+      is now /24 and WSL TCP to the instruments is steady (apart from a
+      ~1-minute dropout of five 1.x hosts about 70 s into each soak test,
+      still unexplained). (b) **Oddity to keep:** the first ping to
+      192.168.1.19 after a quiet spell twice came back with **TTL 128** (a
+      Windows host's value) while every later reply has the Siglent's TTL
+      255 and the ARP hardware address stays the Siglent's
+      (74-5b-c5-25-08-7d). If the UCA socket trouble returns, check for
+      another device answering for 192.168.1.19 (an address conflict or
+      proxy ARP).
 - [ ] 99. **NMR supply (Siglent SPD3303X-E):** not in Genesis. It answers at
       192.168.1.17 (VXI-11 *IDN?); its sticker says 192.168.1.5, which
       answers pings but has no instrument ports (not a Siglent MAC). Which
