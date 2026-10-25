@@ -26,9 +26,16 @@ class Device:
         self.source = settings["source_pvs"]
         self.settings["rf_safety"] = dict(settings["rf_safety"], **settings["interlock"])
         limits = settings["frequency"]
+        # Expert mode (Elena Long, 2026-10-24): a confirmed operator unlock widens
+        # the window from output_min/max (138-142 GHz) to expert_min/max
+        # (134-144 GHz).  Always Normal at start-up; back to Normal on Lock
+        # and, by default, whenever RF goes OFF (expert_lock_on_rf_off).
         self.conversion = FrequencyConversion(
             limits["multiplier"], limits["output_min_ghz"],
-            limits["output_max_ghz"])
+            limits["output_max_ghz"], limits.get("expert_min_ghz"),
+            limits.get("expert_max_ghz"))
+        self.expert_lock_on_rf_off = bool(limits.get("expert_lock_on_rf_off", True))
+        self._last_rf_actual = False
         self.dopants = settings.get("dopants", [])
         # the target's dopant is chosen with the material on the Cryo Safety
         # screen (UNH:GEN:CRYO:STATE:dopant); the supervisor adopts each change
@@ -65,9 +72,20 @@ class Device:
         p["InterlockMessage"] = builder.stringIn(prefix + "InterlockMessage")
         p["LastError"] = builder.stringIn(prefix + "LastError")
         low, high = self.conversion.minimum, self.conversion.maximum
+        # the record's drive limits are the widest (expert) window; the
+        # active window is enforced in validate_output on every command
         p["OutputFrequency"] = builder.aOut(
-            prefix + "OutputFrequency", EGU="GHz", PREC=6, DRVL=low, DRVH=high,
+            prefix + "OutputFrequency", EGU="GHz", PREC=6,
+            DRVL=self.conversion.expert_minimum, DRVH=self.conversion.expert_maximum,
             on_update_name=self._set_frequency, always_update=True)
+        p["ExpertMode"] = builder.boolIn(prefix + "ExpertMode", ZNAM="Normal", ONAM="EXPERT",
+                                         OSV="MINOR")
+        p["ExpertUnlock"] = builder.Action(prefix + "ExpertUnlock", on_update=self._expert_unlock)
+        p["ExpertLock"] = builder.Action(prefix + "ExpertLock", on_update=self._expert_lock_command)
+        p["FrequencyLimits"] = builder.stringIn(prefix + "FrequencyLimits")
+        p["FrequencyLimitLow"] = builder.aIn(prefix + "FrequencyLimitLow", EGU="GHz", PREC=3)
+        p["FrequencyLimitHigh"] = builder.aIn(prefix + "FrequencyLimitHigh", EGU="GHz", PREC=3)
+        p["ExpertStatus"] = builder.stringIn(prefix + "ExpertStatus")
         p["OutputFrequencyRBV"] = builder.aIn(prefix + "OutputFrequencyRBV", EGU="GHz", PREC=6)
         p["CentralFrequency"] = builder.aOut(prefix + "CentralFrequency", EGU="GHz", PREC=6)
         names = [item["name"] for item in self.dopants] or ["UNCONFIGURED"]
@@ -122,10 +140,19 @@ class Device:
                 raise ValueError("startup OFF not confirmed")
             if not self._rf_valid:
                 raise ValueError("vendor RF state UNKNOWN")
-            validate_on(self._snapshot, self.settings["rf_safety"], self.simulation)
+            validate_on(self._snapshot, self._rf_safety_window(), self.simulation)
             return True, "RF ON permitted"
         except Exception as exc:
             return False, str(exc)
+
+    def _rf_safety_window(self):
+        """The RF-ON safety settings, with the carrier window widened to the
+        expert range (in Vaunix GHz) while Expert mode is on."""
+        safety = dict(self.settings["rf_safety"])
+        if self.conversion.expert:
+            safety["frequency_min_ghz"] = self.conversion.expert_minimum / self.conversion.multiplier
+            safety["frequency_max_ghz"] = self.conversion.expert_maximum / self.conversion.multiplier
+        return safety
 
     def _publish(self):
         permitted, message = self._permissive()
@@ -142,6 +169,44 @@ class Device:
         self.pvs["ControlOwned"].set(bool(self._snapshot.get("control_owned", False)))
         self.pvs["OutputFrequencyRBV"].set(self._output_frequency)
         self.pvs["SweepState"].set(self._sweep_state)
+        self.pvs["ExpertMode"].set(1 if self.conversion.expert else 0)
+        self._set_string("FrequencyLimits", self.conversion.limits_text())
+        self.pvs["FrequencyLimitLow"].set(self.conversion.minimum)
+        self.pvs["FrequencyLimitHigh"].set(self.conversion.maximum)
+
+    # ------------------------------------------------------------ expert mode
+    def _expert_status(self, message):
+        stamped = f"{time.strftime('%H:%M:%S')} {message}"
+        self._set_string("ExpertStatus", stamped)
+        print(f"[microwave supervisor] {stamped}", flush=True)
+
+    def _expert_unlock(self, _value):
+        """The operator answered Yes to "Are you a microwave expert?"."""
+        if (self.conversion.expert_minimum == self.conversion.normal_minimum
+                and self.conversion.expert_maximum == self.conversion.normal_maximum):
+            self._expert_status("Expert range not configured")
+            return
+        self.conversion.expert = True
+        self._expert_status(f"Expert unlocked: {self.conversion.minimum:g}-"
+                            f"{self.conversion.maximum:g} GHz")
+        self._publish()
+
+    async def _expert_lock_command(self, _value):
+        await self._expert_lock("Lock pressed")
+
+    async def _expert_lock(self, reason):
+        """Back to the normal window.  A sweep is cancelled, and RF is turned
+        OFF if the output is outside the normal window."""
+        if not self.conversion.expert:
+            return
+        self.conversion.expert = False
+        if self._sweep_state == 1:
+            self._cancel_sweep()
+        self._expert_status(f"Normal limits ({reason})")
+        self._publish()
+        if self._rf_request and not self.conversion.within_normal(self._output_frequency):
+            await self._set_rf(False)
+            self._error("RF OFF: output outside the normal window")
 
     async def _put(self, key, value):
         if self.simulation:
@@ -207,6 +272,9 @@ class Device:
         await self._put("vaunix_rf", 0)  # IOC independently stops hardware sweep.
         await self._confirm_rf(False, after)
         self._startup_off = False
+        if self.conversion.expert and self.expert_lock_on_rf_off:
+            self.conversion.expert = False
+            self._expert_status("Normal limits (RF OFF)")
 
     async def _abort_rf(self, _value):
         await self._set_rf(False)
@@ -388,6 +456,12 @@ class Device:
         try:
             changed = await self._read_sources()
             rf_observed = self._rf_valid and self._vaunix_connected
+            # RF seen going OFF by any route ends Expert mode (Elena Long)
+            if (self._last_rf_actual and rf_observed and not self._rf_actual
+                    and self.conversion.expert and self.expert_lock_on_rf_off):
+                await self._expert_lock("RF OFF")
+            if rf_observed:
+                self._last_rf_actual = self._rf_actual
             communications = self._uca_connected and self._vaunix_connected and self._rf_valid and bool(self._snapshot.get("control_owned"))
             # Output enable is a continuous hard interlock. Voltage remains an
             # ON-edge check so operators can adjust attenuation while RF is ON.

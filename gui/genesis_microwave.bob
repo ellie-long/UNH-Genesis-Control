@@ -1956,4 +1956,54 @@
   </widget>
 <widget type="action_button" version="3.0.0"><name>Open_SIG_Scope</name><x>780</x><y>52</y><width>190</width><height>32</height><actions><action type="open_display"><file>genesis_mw_scope.bob</file><target>tab</target><description>Open Microwave Reflector Scope</description></action></actions><text>SIG Scope</text></widget>
 
+  <!-- Microwave Expert mode (Elena Long, 2026-10-24): a confirmed unlock widens
+       the frequency window from 138-142 GHz to 134-144 GHz; Normal again on
+       Lock, at start-up, and whenever RF goes OFF -->
+  <widget type="action_button" version="3.0.0">
+    <name>MW_Expert_Unlock</name>
+    <x>400</x><y>52</y><width>180</width><height>32</height>
+    <actions>
+      <action type="write_pv">
+        <pv_name>ca://UNH:GEN:MW:SUP:ExpertUnlock</pv_name>
+        <value>1</value>
+        <description>Microwave Expert Unlock</description>
+      </action>
+    </actions>
+    <text>Microwave Expert Unlock</text>
+    <background_color><color red="255" green="200" blue="120" alpha="255"/></background_color>
+    <show_confirm_dialog>true</show_confirm_dialog>
+    <confirm_message>Are you a microwave expert?</confirm_message>
+    <tooltip>Widens the frequency limits to 134-144 GHz until Lock, an IOC restart, or RF OFF</tooltip>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>MW_Expert_Lock</name>
+    <x>588</x><y>52</y><width>180</width><height>32</height>
+    <actions>
+      <action type="write_pv">
+        <pv_name>ca://UNH:GEN:MW:SUP:ExpertLock</pv_name>
+        <value>1</value>
+        <description>Lock (normal limits)</description>
+      </action>
+    </actions>
+    <text>Lock (normal limits)</text>
+    <tooltip>Back to 138-142 GHz</tooltip>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>MW_Limits_L</name>
+    <x>640</x><y>238</y><width>120</width><height>24</height>
+    <text>Frequency limits:</text>
+    <foreground_color><color red="255" green="255" blue="255" alpha="255"/></foreground_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>MW_Limits_V</name>
+    <pv_name>ca://UNH:GEN:MW:SUP:FrequencyLimits</pv_name>
+    <x>760</x><y>236</y><width>180</width><height>26</height>
+    <tooltip>Active output frequency window (EXPERT after a confirmed unlock)</tooltip>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>MW_Expert_Status</name>
+    <pv_name>ca://UNH:GEN:MW:SUP:ExpertStatus</pv_name>
+    <x>945</x><y>236</y><width>205</width><height>26</height>
+    <tooltip>Last Expert mode change</tooltip>
+  </widget>
 </display>

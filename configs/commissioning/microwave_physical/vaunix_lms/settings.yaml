@@ -48,18 +48,18 @@ vaunix_lms:
     MW_FI:
       DESC: Synthesizer frequency readback
       EGU: GHz
-      LOPR: 11.5
-      HOPR: 11.8333333333
+      LOPR: 11.1666666667
+      HOPR: 12.0
     MW_FC:
       DESC: Synthesizer frequency command
       EGU: GHz
-      DRVL: 11.5
-      DRVH: 11.8333333333
+      DRVL: 11.1666666667
+      DRVH: 12.0
     MW_OutFI:
       DESC: Microwave output frequency readback
       EGU: GHz
-      LOPR: 138.0
-      HOPR: 142.0
+      LOPR: 134.0
+      HOPR: 144.0
     MW_PWRI:
       DESC: Source power readback
       EGU: dBm
@@ -105,23 +105,23 @@ vaunix_lms:
     MW_SweepStartI:
       DESC: Sweep start frequency readback
       EGU: GHz
-      LOPR: 11.5
-      HOPR: 11.8333333333
+      LOPR: 11.1666666667
+      HOPR: 12.0
     MW_SweepStartC:
       DESC: Sweep start frequency command
       EGU: GHz
-      DRVL: 11.5
-      DRVH: 11.8333333333
+      DRVL: 11.1666666667
+      DRVH: 12.0
     MW_SweepEndI:
       DESC: Sweep end frequency readback
       EGU: GHz
-      LOPR: 11.5
-      HOPR: 11.8333333333
+      LOPR: 11.1666666667
+      HOPR: 12.0
     MW_SweepEndC:
       DESC: Sweep end frequency command
       EGU: GHz
-      DRVL: 11.5
-      DRVH: 11.8333333333
+      DRVL: 11.1666666667
+      DRVH: 12.0
     MW_SweepStepI:
       DESC: Sweep step readback
       EGU: GHz
@@ -153,6 +153,10 @@ vaunix_lms:
   power_max_dbm: 10.0
 
   rf_safety:
+    # Expert mode window (Elena Long, 2026-10-24): 134-144 GHz / 12, used
+    # only while the supervisor reports ExpertMode
+    expert_frequency_min_ghz: 11.1666666667
+    expert_frequency_max_ghz: 12.0
     required_voltage: 5.0
     tolerance: 0.1
     maximum_readback_age: 4.0
@@ -179,6 +183,7 @@ vaunix_lms:
     session: UNH:GEN:MW:SRC:MW_CONTROL_SESSION
     supervisor_request: UNH:GEN:MW:SUP:RFEnable
     supervisor_time: UNH:GEN:MW:SUP:MAN:microwave_supervisor_time
+    supervisor_expert: UNH:GEN:MW:SUP:ExpertMode
     rf_error: UNH:GEN:MW:SRC:MW_RF_ERROR
     rf_ready: UNH:GEN:MW:SRC:MW_RF_READY
     rf_done_time: UNH:GEN:MW:SRC:MW_RF_DONE_TIME

@@ -83,11 +83,13 @@ class VaunixLocalSimulation(unittest.TestCase):
     def test_limits_reject_out_of_range_commands(self):
         sim = self.new_sim()
 
+        # the simulated shim models the Pi shim's Expert envelope,
+        # 134-144 GHz / 12 (Elena Long, 2026-10-24)
         with self.assertRaises(ShimRejected):
-            sim.set_frequency(11.4)
+            sim.set_frequency(11.1)
 
         with self.assertRaises(ShimRejected):
-            sim.set_frequency(12.0)
+            sim.set_frequency(12.1)
 
         with self.assertRaises(ShimRejected):
             sim.set_power(-41.0)

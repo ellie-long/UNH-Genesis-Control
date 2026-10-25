@@ -3,6 +3,11 @@ import logging
 import asyncio
 
 from microwave_ioc.rf_safety import read_snapshot, validate_on, fresh, flag, finite
+
+#: the synthesizer envelope: the expert output range 134-144 GHz / 12
+#: (Elena Long, 2026-10-24); configuration can only narrow it
+ENVELOPE_MIN_GHZ = 134.0 / 12.0
+ENVELOPE_MAX_GHZ = 144.0 / 12.0
 import socket
 import subprocess
 import threading
@@ -137,12 +142,13 @@ class LocalSimulationConnection:
         self.settings = settings
         self.closed = False
 
-        self.frequency_min = float(
-            settings.get("frequency_min_ghz", 11.5)
-        )
-        self.frequency_max = float(
-            settings.get("frequency_max_ghz", 11.8333333333)
-        )
+        # stands in for the Pi shim, whose hard limit is the expert range
+        # (Elena Long, 2026-10-24); the IOC enforces the active window itself
+        safety = settings.get("rf_safety", {})
+        self.frequency_min = float(safety.get(
+            "expert_frequency_min_ghz", settings.get("frequency_min_ghz", 11.5)))
+        self.frequency_max = float(safety.get(
+            "expert_frequency_max_ghz", settings.get("frequency_max_ghz", 11.8333333333)))
         self.power_min = float(
             settings.get("power_min_dbm", -40.0)
         )
@@ -326,15 +332,29 @@ class Device(BaseDevice):
         self._session = 0
         self._off_confirmed = False
         self._supervisor_ok = False
-        # Configuration may narrow the existing operating envelope, never widen it.
+        self._expert = False
+        # Configuration may narrow the operating envelope, never widen it.
+        # Elena Long (2026-10-24): the envelope is the expert range, 134-144 GHz
+        # output (11.1667-12.0 GHz at the synthesizer); the configured normal
+        # window (138-142 GHz) applies unless the supervisor's confirmed
+        # Expert mode is on.  This rule supersedes the earlier fixed
+        # 138-142 GHz envelope.
         safety = dict(self.settings["rf_safety"])
-        for kind, lower, upper in (("frequency", 11.5, 11.8333333333), ("power", -40.0, 10.0)):
+        for kind, lower, upper in (("frequency", ENVELOPE_MIN_GHZ, ENVELOPE_MAX_GHZ),
+                                   ("power", -40.0, 10.0)):
             unit = "ghz" if kind == "frequency" else "dbm"
             lo, hi = f"{kind}_min_{unit}", f"{kind}_max_{unit}"
             safety[lo] = max(lower, finite(self.settings.get(lo, lower), lo), finite(safety[lo], lo))
             safety[hi] = min(upper, finite(self.settings.get(hi, upper), hi), finite(safety[hi], hi))
             if safety[lo] > safety[hi]:
                 raise ValueError(f"invalid {kind} limits")
+        lo = max(ENVELOPE_MIN_GHZ, finite(safety.get("expert_frequency_min_ghz", safety["frequency_min_ghz"]),
+                                          "expert_frequency_min_ghz"))
+        hi = min(ENVELOPE_MAX_GHZ, finite(safety.get("expert_frequency_max_ghz", safety["frequency_max_ghz"]),
+                                          "expert_frequency_max_ghz"))
+        if not (lo <= safety["frequency_min_ghz"] and safety["frequency_max_ghz"] <= hi):
+            raise ValueError("expert frequency range must contain the normal range")
+        safety["expert_frequency_min_ghz"], safety["expert_frequency_max_ghz"] = lo, hi
         self.settings["rf_safety"] = safety
         self.channel = channels[0]
         self.multiplier = float(self.settings.get("multiplier", 1))
@@ -543,7 +563,9 @@ class Device(BaseDevice):
                 if not self._off_confirmed:
                     raise ValueError("safe OFF baseline not confirmed")
                 values = await read_snapshot(self.settings["rf_safety_pvs"], self.settings.get("ca_timeout", 2.0))
-                validate_on(values, self.settings["rf_safety"], self.simulation)
+                if "supervisor_expert" in values:
+                    self._expert = flag(values["supervisor_expert"], "supervisor expert mode")
+                validate_on(values, self._active_safety(), self.simulation)
                 if not flag(values["supervisor_request"], "supervisor request"):
                     raise ValueError("Supervisor authorization required")
                 fresh(values["supervisor_time"], self.settings["rf_safety"].get("maximum_readback_age", 4.0), "Supervisor")
@@ -552,7 +574,7 @@ class Device(BaseDevice):
                 if self.t is None or not self.t.owned():
                     raise ValueError("control not owned")
                 actual = self.t.read()
-                limits = self.settings["rf_safety"]
+                limits = self._active_safety()
                 if not limits["frequency_min_ghz"] <= actual[0] <= limits["frequency_max_ghz"]:
                     raise ValueError("carrier outside configured limits")
                 if not limits["power_min_dbm"] <= actual[1] <= limits["power_max_dbm"]:
@@ -589,6 +611,16 @@ class Device(BaseDevice):
                 # Completion is distinct from periodic read freshness. A poll
                 # cannot substitute for execution of a repeated OFF command.
                 self.pvs[self.channel + "_RF_DONE_TIME"].set(time.time())
+
+    def _active_safety(self):
+        """The RF-safety settings with the frequency window in force now:
+        the normal window, or the expert window while the supervisor reports
+        Expert mode."""
+        safety = dict(self.settings["rf_safety"])
+        if self._expert:
+            safety["frequency_min_ghz"] = safety["expert_frequency_min_ghz"]
+            safety["frequency_max_ghz"] = safety["expert_frequency_max_ghz"]
+        return safety
 
     def _apply(self, values, include_setpoints=False):
         frequency, power, rf, reference, lock = values
@@ -646,7 +678,8 @@ class Device(BaseDevice):
         name = pv.rsplit(":", 1)[-1]
         try:
             if name.endswith("_FC"):
-                if not self.settings["rf_safety"]["frequency_min_ghz"] <= float(new_value) <= self.settings["rf_safety"]["frequency_max_ghz"]:
+                window = self._active_safety()
+                if not window["frequency_min_ghz"] <= float(new_value) <= window["frequency_max_ghz"]:
                     raise ShimRejected("frequency outside configured limits")
                 achieved = self.t.set_frequency(new_value)
                 self.pvs[self.channel + "_FI"].set(achieved)
@@ -704,19 +737,31 @@ class Device(BaseDevice):
             # replay ON; a fresh supervisor request is necessary.
             if not self.simulation:
                 try:
-                    status = await read_snapshot({"time": self.settings["rf_safety_pvs"]["supervisor_time"],
-                                                  "request": self.settings["rf_safety_pvs"]["supervisor_request"]},
-                                                 self.settings.get("ca_timeout", 2.0))
+                    wanted = {"time": self.settings["rf_safety_pvs"]["supervisor_time"],
+                              "request": self.settings["rf_safety_pvs"]["supervisor_request"]}
+                    if "supervisor_expert" in self.settings["rf_safety_pvs"]:
+                        wanted["expert"] = self.settings["rf_safety_pvs"]["supervisor_expert"]
+                    status = await read_snapshot(wanted, self.settings.get("ca_timeout", 2.0))
                     fresh(status["time"], self.settings["rf_safety"].get("maximum_readback_age", 4.0), "Supervisor")
+                    self._expert = bool("expert" in status and flag(status["expert"], "Supervisor expert mode"))
                     if not flag(status["request"], "Supervisor request") and self.pvs[self.channel + "_RF_CMD"].get():
                         self._off()
                     self._supervisor_ok = True
                 except Exception:
+                    self._expert = False                # no supervisor: normal limits
                     if self._supervisor_ok or self.pvs[self.channel + "_RF_CMD"].get():
                         self._rf_generation += 1
                         self._off()
                     self._supervisor_ok = False
-            self._apply(self.t.read())
+            values = self.t.read()
+            self._apply(values)
+            # outside Expert mode, RF ON outside the normal window is turned OFF
+            window = self._active_safety()
+            if values[2] and not window["frequency_min_ghz"] <= values[0] <= window["frequency_max_ghz"]:
+                LOG.warning("RF ON at %.6g GHz outside the active window: RF OFF", values[0])
+                self._rf_generation += 1
+                self._off()
+                self.pvs[self.channel + "_RF_ERROR"].set("RF OFF: outside the frequency window")
             self._apply_sweep(self.t.sweep())
             self.pvs[self.channel + "_Connected"].set(True)
             self.remove_alarm(self.channel)

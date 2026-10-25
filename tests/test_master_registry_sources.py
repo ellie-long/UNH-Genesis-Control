@@ -78,10 +78,10 @@ def test_existing_physical_coverage_unchanged():
     assert report["counts"] == {
         "Cryo": 168,
         "ssRF": 97,
-        "Microwave": 117,
+        "Microwave": 124,           # + 7 Expert-mode supervisor records
         "Magnet": 59,           # magnet_ioc (IPS120-10, V4 port), dev-visualizer
     }
 
-    assert report["total"] == 441
+    assert report["total"] == 448
     assert len(report["invalid_archive_references"]) == 0
-    assert len(registry) == 441
+    assert len(registry) == 448

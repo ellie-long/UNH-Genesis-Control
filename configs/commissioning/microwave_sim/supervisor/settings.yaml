@@ -22,6 +22,12 @@ microwave_supervisor:
     multiplier: 12.0
     output_min_ghz: 138.0
     output_max_ghz: 142.0
+    # Expert mode (Elena Long, 2026-10-24): after the operator confirms
+    # "Are you a microwave expert?" the window widens to 134-144 GHz;
+    # Normal again on Lock, at start-up, and whenever RF goes OFF
+    expert_min_ghz: 134.0
+    expert_max_ghz: 144.0
+    expert_lock_on_rf_off: true
   interlock:
     required_voltage: 5.0
     tolerance: 0.1
@@ -65,6 +71,9 @@ microwave_supervisor:
   - RFValid
   - RFState
   - ControlOwned
+  - ExpertMode
+  - FrequencyLimits
+  - ExpertStatus
   records:
     SystemConnected:
       DESC: Microwave subsystem connectivity
@@ -84,6 +93,20 @@ microwave_supervisor:
       DESC: Microwave output frequency command
     OutputFrequencyRBV:
       DESC: Microwave output frequency readback
+    ExpertMode:
+      DESC: Microwave Expert mode (wide limits)
+    ExpertUnlock:
+      DESC: Unlock Expert mode (confirmed)
+    ExpertLock:
+      DESC: Back to the normal limits
+    FrequencyLimits:
+      DESC: Active output frequency window
+    FrequencyLimitLow:
+      DESC: Active window low edge
+    FrequencyLimitHigh:
+      DESC: Active window high edge
+    ExpertStatus:
+      DESC: Last Expert mode change
     CentralFrequency:
       DESC: Central frequency for Magic calculation
     Dopant:

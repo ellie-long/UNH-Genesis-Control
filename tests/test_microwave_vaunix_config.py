@@ -83,15 +83,14 @@ class VaunixGenesisConfiguration(unittest.TestCase):
 
     def test_current_phase1_frequency_window(self):
         records = self.settings["vaunix_lms"]["records"]
+        safety = self.settings["vaunix_lms"]["rf_safety"]
 
-        self.assertEqual(
-            records["MW_OutFI"]["LOPR"],
-            138.0,
-        )
-        self.assertEqual(
-            records["MW_OutFI"]["HOPR"],
-            142.0,
-        )
+        # Elena Long (2026-10-24): the display range is the Expert envelope,
+        # 134-144 GHz; the normal operating window stays 138-142 GHz
+        self.assertEqual(records["MW_OutFI"]["LOPR"], 134.0)
+        self.assertEqual(records["MW_OutFI"]["HOPR"], 144.0)
+        self.assertAlmostEqual(safety["frequency_min_ghz"] * 12, 138.0, places=6)
+        self.assertAlmostEqual(safety["frequency_max_ghz"] * 12, 142.0, places=6)
 
     def test_power_command_window(self):
         record = self.settings["vaunix_lms"]["records"]["MW_PWRC"]
