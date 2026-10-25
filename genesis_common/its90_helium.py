@@ -42,13 +42,30 @@ reports Torr.  Getting this wrong does not produce an obvious error - it
 produces a plausible wrong temperature, which is worse.  `torr_to_kelvin()`
 exists so the conversion happens in one place.
 
-Outside the band: NaN
----------------------
+Below 1.25 K: Elena Long's Donnelly-Barenghi branch
+---------------------------------------------------
+ITS-90 stops at 1.25 K (0.8606 Torr), and this fridge runs colder.  Below
+that, the module uses the branch from Elena Long's reliquefier analysis
+(reliquefierAnalysis/example/reliquifierAnalysisDAQ.py), which takes it from
+R.J. Donnelly and C.F. Barenghi, J. Phys. Chem. Ref. Data 27, 1217 (1998),
+pp. 1267-1268:
+
+    T = 2 L0 / (5 R W(z)),   z = 2 L0 exp(2 i0 / 5) / (5 R (10 P)^(2/5))
+
+where W is the Lambert W function, i0 = 12.2440, L0 = 59.83 J/mol,
+R = 8.314510 J/(mol K), and P is in pascals.  The factor of 10 is her
+correction: their equation, run forwards, gives 10 P rather than P.  The
+inverse is ln(10 P) = i0 + (5/2) ln T - L0 / (R T).  It meets the ITS-90 He-II
+equation at 1.25 K to within 5 microkelvin, so the join is seamless.
+It covers 0.5 K .. 1.25 K.
+
+Outside the bands: NaN
+----------------------
 A polynomial outside its fit does not degrade, it diverges.  At 1 Pa the
 He-II equation returns 2.03 K and the He-I equation returns 573 K; neither is
 a temperature, and both look like numbers.  So anything outside
-0.8606 Torr .. 1470.3 Torr (1.25 K .. 5.0 K) returns NaN, with a reason the
-caller can publish.
+0.5 K .. 5.0 K (1.55e-5 Torr .. 1470.3 Torr) returns NaN, with a reason
+the caller can publish.
 
 Reference
 ---------
@@ -95,13 +112,38 @@ HE4_NORMAL = {
     "p_min": LAMBDA_PA, "p_max": P_MAX_PA,
 }
 
+#: Elena Long's sub-1.25 K branch (Donnelly & Barenghi 1998), constants as in
+#: her reliquefierAnalysisDAQ.py.
+DONNELLY_I0 = 12.2440
+DONNELLY_L0 = 59.83          # J/mol
+DONNELLY_R = 8.314510        # J/(mol K)
+DONNELLY_T_LOW = 0.5         # K, the bottom of the branch
+
+
+def _donnelly_pascals(kelvin):
+    """P (Pa) at T, the closed-form inverse of the branch (the /10 is her fix)."""
+    return (kelvin ** 2.5 * math.exp(DONNELLY_I0 - DONNELLY_L0 / (DONNELLY_R * kelvin))
+            / 10.0)
+
+
+P_LOW_PA = _donnelly_pascals(DONNELLY_T_LOW)       # T = 0.5 K, about 2.1e-3 Pa
+
+HE4_LOW = {
+    "name": "He-II low",
+    "kind": "donnelly",
+    "t_low": DONNELLY_T_LOW, "t_high": 1.25,
+    # Tried after He-II, so at exactly 1.25 K the ITS-90 band answers.
+    "p_min": P_LOW_PA, "p_max": P_MIN_PA,
+}
+
 LAMBDA_TORR = LAMBDA_PA / TORR_TO_PA               # 37.8167 Torr
-P_MIN_TORR = P_MIN_PA / TORR_TO_PA                 # 0.8606 Torr
+P_MIN_TORR = P_MIN_PA / TORR_TO_PA                 # 0.8606 Torr, the ITS-90 floor
 P_MAX_TORR = P_MAX_PA / TORR_TO_PA                 # 1470.3 Torr
 
+BUILT_IN_BANDS = (HE4_SUPERFLUID, HE4_NORMAL, HE4_LOW)
 
 #: bands in the order they are tried.  Replaced wholesale by load_bands().
-BANDS = [HE4_SUPERFLUID, HE4_NORMAL]
+BANDS = list(BUILT_IN_BANDS)
 
 #: where a band file lives when settings.yaml does not name one
 DEFAULT_BAND_FILE = "calibration/vapor_pressure_he4.csv"
@@ -114,14 +156,14 @@ def load_bands(path):
     are comments, because the provenance of these numbers matters more than
     the numbers look like it does.
 
-    A row REPLACES a built-in band of the same name and is otherwise added.
-    This is how the sub-1.25 K branch gets in: ITS-90 simply does not define
-    one, so it has to come from the lab's own LabVIEW VI, and that is a data
-    edit rather than a code change.
+    A row REPLACES a built-in band of the same name and is otherwise added,
+    so a band can be corrected or added without a code change.  The
+    sub-1.25 K branch is built in (HE4_LOW); a CSV row named "He-II low"
+    would replace it with a polynomial.
     """
     import csv
-    bands = {b["name"]: dict(b) for b in (HE4_SUPERFLUID, HE4_NORMAL)}
-    order = [b["name"] for b in (HE4_SUPERFLUID, HE4_NORMAL)]
+    bands = {b["name"]: dict(b) for b in BUILT_IN_BANDS}
+    order = [b["name"] for b in BUILT_IN_BANDS]
     with open(path, newline="", encoding="utf-8-sig") as fh:
         rows = (line for line in fh if not line.lstrip().startswith("#"))
         for row in csv.DictReader(rows):
@@ -157,8 +199,36 @@ def use_bands(bands):
     return BANDS
 
 
+def _lambert_w(z):
+    """Principal branch of the Lambert W function for z > 0 (Halley's method),
+    so the module needs nothing beyond the standard library."""
+    if not z > 0.0:
+        raise ValueError("Lambert W here is only for z > 0")
+    w = math.log1p(z)
+    if z > 3.0:                                    # better start for large z
+        w = math.log(z) - math.log(math.log(z))
+    for _ in range(100):
+        ew = math.exp(w)
+        f = w * ew - z
+        step = f / (ew * (w + 1.0) - (w + 2.0) * f / (2.0 * w + 2.0))
+        w -= step
+        if abs(step) <= 1e-15 * (1.0 + abs(w)):
+            break
+    return w
+
+
+def _donnelly_kelvin(pascals):
+    """Elena Long's sub-1.25 K branch, as written in her reliquefier code."""
+    p_eq = pascals * 10.0                          # her factor-of-10 correction
+    z = ((2.0 * DONNELLY_L0 * math.exp(2.0 * DONNELLY_I0 / 5.0))
+         / (5.0 * DONNELLY_R * p_eq ** 0.4))
+    return 2.0 * DONNELLY_L0 / (5.0 * DONNELLY_R * _lambert_w(z))
+
+
 def _evaluate(equation, pascals):
-    """One ITS-90 band, no range checking.  Exposed for the tests."""
+    """One band, no range checking.  Exposed for the tests."""
+    if equation.get("kind") == "donnelly":
+        return _donnelly_kelvin(pascals)
     x = (math.log(pascals) - equation["B"]) / equation["C"]
     return sum(a * x ** i for i, a in enumerate(equation["coeffs"]))
 
@@ -203,8 +273,7 @@ def pascals_to_kelvin(pascals):
         # Short enough to survive EPICS' 39-character string records intact:
         # a message whose point is cut off ("...scale (be") is no message.
         # Name the pressure, so it is obvious the gauge is fine and the SCALE
-        # is what ran out - on this fridge that is the usual case, ITS-90
-        # stopping at 1.25 K while the fridge runs colder.
+        # is what ran out.
         if pascals < low:
             return float("nan"), f"P below scale ({low / TORR_TO_PA:.4g} Torr)"
         return float("nan"), f"P above scale ({high / TORR_TO_PA:.4g} Torr)"
@@ -241,7 +310,7 @@ def phase_of(torr):
         return "no reading"
     if not math.isfinite(torr) or torr <= 0.0:
         return "no reading"
-    if torr < P_MIN_TORR:
+    if torr < min(b.get("p_min", P_MIN_PA) for b in BANDS) / TORR_TO_PA:
         return "below scale"
     if torr <= LAMBDA_TORR:
         return "He-II superfluid"
@@ -261,9 +330,13 @@ def kelvin_to_torr(kelvin, tolerance=1e-9):
         kelvin = float(kelvin)
     except (TypeError, ValueError):
         return float("nan")
-    if not math.isfinite(kelvin) or not (1.25 <= kelvin <= 5.0):
+    low = min(b.get("p_min", P_MIN_PA) for b in BANDS)
+    high = max(b.get("p_max", P_MAX_PA) for b in BANDS)
+    t_low, why_low = pascals_to_kelvin(low)
+    t_high, why_high = pascals_to_kelvin(high)
+    if (why_low or why_high or not math.isfinite(kelvin)
+            or not (t_low - 1e-9 <= kelvin <= t_high + 1e-9)):
         return float("nan")
-    low, high = P_MIN_PA, P_MAX_PA
     for _ in range(200):
         middle = math.sqrt(low * high)
         value, status = pascals_to_kelvin(middle)

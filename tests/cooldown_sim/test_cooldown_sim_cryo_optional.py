@@ -133,9 +133,10 @@ def test_manometer_low_stream_and_vapor_temperature(monkeypatch):
         assert value(dev, "Mano_PI") == pytest.approx(0.2001, rel=6e-5)
         assert value(dev, "Mano_Status") == "OK"
         assert value(dev, "Mano_Raw").startswith("Pr: ")
-        # 0.2 Torr is ~1.05 K: below the ITS-90 scale the driver publishes no temperature
-        assert math.isnan(value(dev, "Mano_VapT"))
-        assert value(dev, "Mano_VapStatus").startswith("P below scale")
+        # 0.2 Torr is ~1.08 K: below ITS-90, so Elena Long's Donnelly branch answers
+        assert value(dev, "Mano_VapT") == pytest.approx(he._donnelly_kelvin(0.2001 * he.TORR_TO_PA), abs=1e-4)
+        assert 1.0 < value(dev, "Mano_VapT") < 1.25
+        assert value(dev, "Mano_VapStatus") == "OK"
         state["Mano"] = 4.2
         time.sleep(0.3)
         assert read(dev) is True

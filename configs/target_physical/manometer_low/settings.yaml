@@ -31,7 +31,7 @@ manometer_low:
     Mano_Raw:
       DESC: Manometer Low raw line
     Mano_VapT:
-      DESC: Vapor pressure temperature (ITS-90)
+      DESC: He-4 vapor pressure temperature
       EGU: K
       PREC: 4
     Mano_VapPhase:

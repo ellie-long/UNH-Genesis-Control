@@ -49,6 +49,17 @@ lab answers are in `docs/COOLDOWN_SIM_OPEN_QUESTIONS.md`.
 
 ## Log
 
+### 2026-10-24: vapour-pressure temperature below 1.25 K (dev-visualizer)
+
+- On the live run, Manometer-Lo read about 0.5 Torr, below the ITS-90 floor (0.8606 Torr, 1.25 K), so _VapT was blank.
+- `genesis_common/its90_helium.py` now has a built-in "He-II low" band for 0.5 K to 1.25 K. It uses Elena Long's Donnelly-Barenghi branch from `reliquefierAnalysisDAQ.py`: the Lambert-W form with her factor-of-10 correction on P. A small Halley solver means scipy isn't needed.
+  - It meets ITS-90 at 1.25 K within 5 microkelvin.
+  - The live 0.572 Torr reading gives 1.1907 K.
+- Tests: `test_cryo_manometer_conversion.py` covers the formula, the join, monotonicity, phase and the inverse. The sim's Manometer-Lo test now expects a temperature at 0.2 Torr, not "below scale".
+  - 103/103 tests pass in the vapour, cryo and Panopticon files.
+  - A full-suite run stopped at `test_cryo_data_landscape`, a cryo GUI layout test this change doesn't touch.
+- Not yet in the live copy, which was shut down for the night.
+
 ### 2026-10-23: magnet IOC, Magnet tab and Panopticon card (dev-visualizer)
 * Ells: implement the student's magnet controls as a new magnet IOC and tab
   in the full system with the Panopticon, directly on dev-visualizer.  The

@@ -50,16 +50,17 @@ here it is one call on the number the gauge just sent.
 
 This is not a second-best thermometer.  Below the lambda point the saturated
 vapour pressure IS the temperature scale, and it needs no calibration, so
-_VapT is the reading to trust when it disagrees with a resistor.  It is NaN
-outside 0.86 Torr .. 1470 Torr (1.25 K .. 5 K), where the ITS-90 polynomials
-are not defined, with the reason in _VapStatus.
+_VapT is the reading to trust when it disagrees with a resistor.  ITS-90
+covers 1.25 K .. 5 K; below 1.25 K (0.86 Torr) it uses Elena Long's
+Donnelly-Barenghi branch, down to 0.5 K.  Outside 0.5 K .. 5 K it is NaN, with
+the reason in _VapStatus.
 
 PVs per channel (channel 'Mano' -> UNH:Mano_PI, ...)
 
     _PI        Torr   pressure, the number the gauge just sent
     _Status    text   OK, or why the last line did not yield one
     _Raw       text   the line itself, for when the parse looks wrong
-    _VapT      K      ITS-90 vapour-pressure temperature  (vapor_pressure: True)
+    _VapT      K      He-4 vapour-pressure temperature  (vapor_pressure: True)
     _VapPhase  text   He-II superfluid / He-I normal / below or above scale
     _VapStatus text   OK, or why there is no temperature for this pressure
 
@@ -130,8 +131,8 @@ class Device(CryoReadOnlyHealth, SerialTcpDevice):
         """Load the vapour-pressure bands once, at start-up.
 
         `vapor_bands:` names a CSV of (Name, Pmin_Pa, Pmax_Pa, B, C, A0..A9).
-        It is how a band ITS-90 does not define - anything below 1.25 K, which
-        is where this fridge actually runs - gets added without touching code.
+        It is how a band gets corrected or added without touching code.  The
+        sub-1.25 K branch is built into its90_helium.
         """
         super().read_outs() if hasattr(super(), "read_outs") else None
         if not self._wants_vapor():

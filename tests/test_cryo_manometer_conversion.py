@@ -8,6 +8,8 @@ import math
 import re
 from pathlib import Path
 
+import pytest
+
 from genesis_common import its90_helium as he
 
 
@@ -182,3 +184,52 @@ def test_missing_manometer_reply_raises_oserror():
 
     assert connection.discards == 1
     assert connection.terminators == [b"\n"]
+
+
+# ---------------------------------------------- below 1.25 K: Donnelly branch
+def test_low_branch_is_elena_longs_donnelly_formula():
+    """Below ITS-90's 1.25 K floor the module uses Elena Long's branch from
+    reliquefierAnalysisDAQ.py: T = 2 L0 / (5 R W(z)) with her x10 on P.  Its
+    closed-form inverse is ln(10 P) = i0 + 2.5 ln T - L0 / (R T)."""
+    original = list(he.BANDS)
+    try:
+        he.use_bands(he.load_bands(str(CSV)))
+        for kelvin in (0.5, 0.7, 0.9, 1.0, 1.1, 1.2, 1.249):
+            pascals = 10 ** -1 * kelvin ** 2.5 * math.exp(
+                he.DONNELLY_I0 - he.DONNELLY_L0 / (he.DONNELLY_R * kelvin))
+            temp, why = he.pascals_to_kelvin(pascals)
+            assert why == "", (kelvin, why)
+            assert temp == pytest.approx(kelvin, abs=1e-9)
+        # the live reading on 2026-10-24: 0.572 Torr -> 1.1907 K (her script,
+        # with 133.3 Pa/Torr instead of 133.322, gives 1.1906 K)
+        assert he.torr_to_kelvin(0.572)[0] == pytest.approx(1.19067, abs=1e-5)
+    finally:
+        he.use_bands(original)
+
+
+def test_low_branch_joins_its90_at_1p25_K():
+    original = list(he.BANDS)
+    try:
+        he.use_bands(he.load_bands(str(CSV)))
+        below = he.pascals_to_kelvin(he.P_MIN_PA * (1 - 1e-9))[0]
+        at = he.pascals_to_kelvin(he.P_MIN_PA)[0]
+        assert below == pytest.approx(1.25, abs=2e-5)
+        assert at == pytest.approx(1.25, abs=2e-5)
+        assert abs(below - at) < 2e-5
+        # monotonic across the join and through the whole low branch
+        ps = [he.P_LOW_PA * (he.P_MIN_PA * 1.5 / he.P_LOW_PA) ** (i / 400) for i in range(401)]
+        ts = [he.pascals_to_kelvin(p)[0] for p in ps]
+        assert all(b > a for a, b in zip(ts, ts[1:]))
+        assert he.phase_of(0.5) == "He-II superfluid"
+        assert he.phase_of(1e-6) == "below scale"
+        assert he.kelvin_to_torr(0.9) == pytest.approx(
+            he._donnelly_pascals(0.9) / he.TORR_TO_PA, rel=1e-6)
+        assert math.isnan(he.kelvin_to_torr(0.4))
+    finally:
+        he.use_bands(original)
+
+
+def test_lambert_w():
+    for z in (1e-6, 0.1, 1.0, math.e, 10.0, 29.3, 1e3, 1e8):
+        w = he._lambert_w(z)
+        assert w * math.exp(w) == pytest.approx(z, rel=1e-12)

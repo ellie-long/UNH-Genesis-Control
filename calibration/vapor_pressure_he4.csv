@@ -14,20 +14,14 @@
 # here REPLACES a built-in band of the same name.
 #
 # ---------------------------------------------------------------------------
-# STILL MISSING: the band below 1.25 K.
+# BELOW 1.25 K: built into the module as band "He-II low".
 #
 # ITS-90 does not define the 4He vapour-pressure scale below 1.25 K (114.73 Pa,
-# 0.8606 Torr), and this fridge runs colder than that - Mano.Lo reading
-# 0.0465 Torr is about 6 Pa, near 0.9 K.  So during normal running there is no
-# ITS-90 temperature and _VapT is NaN by design.
-#
-# The lab's LabVIEW VI already has a low branch (its "Range Vapor" indicator
-# reads Low / Med / High).  To make the IOC agree with it, add one row here
-# with that branch's own A0..A9, B and C, and its pressure limits:
-#
-#   LabVIEW-low,<Pmin_Pa>,<Pmax_Pa>,<B>,<C>,<A0>,<A1>,...,<A9>
-#
-# Nothing else needs to change.
+# 0.8606 Torr), and this fridge runs colder than that.  The module covers
+# 0.5 K .. 1.25 K with Elena Long's Donnelly-Barenghi branch (Lambert W form,
+# from her reliquefierAnalysisDAQ.py); see genesis_common/its90_helium.py.  It
+# is not a polynomial, so it has no row here.  A row named "He-II low" would
+# replace it.
 # ---------------------------------------------------------------------------
 Name,Pmin_Pa,Pmax_Pa,B,C,A0,A1,A2,A3,A4,A5,A6,A7,A8,A9
 He-II,114.7343,5041.8,5.6,2.9,1.392408,0.527153,0.166756,0.050988,0.026514,0.001975,-0.017976,0.005409,0.013259,0.0
