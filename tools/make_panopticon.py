@@ -328,7 +328,9 @@ def nmr_plot(x, y, w, h):
     return (f'<widget type="xyplot" version="3.0.0"><name>NMR_Signal</name>'
             f"<x>{x}</x><y>{y}</y><width>{w}</width><height>{h}</height>"
             f"<title></title><show_toolbar>true</show_toolbar><show_legend>false</show_legend>"
-            f"<x_axis><title>Frequency (MHz)</title><autoscale>false</autoscale><minimum>31.9</minimum>"
+            # x and y autoscale (Elena Long, 2026-10-24): the fitter pads the
+            # unused tail of FREQS_MHZ with NaN, so the range fits the sweep
+            f"<x_axis><title>Frequency (MHz)</title><autoscale>true</autoscale><minimum>31.9</minimum>"
             f"<maximum>33.1</maximum><log_scale>false</log_scale><show_grid>true</show_grid></x_axis>"
             f"<y_axes><y_axis><title>Signal (arb.)</title><autoscale>true</autoscale><minimum>0.0</minimum>"
             f"<maximum>1.0</maximum><log_scale>false</log_scale><show_grid>true</show_grid>"

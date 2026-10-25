@@ -392,6 +392,9 @@ def test_every_plot_can_be_zoomed_and_nmr_shows_the_processed_signal():
     assert plots and all(w.findtext("show_toolbar") == "true" for w in plots)
     nmr = _by_name()["NMR_Signal"]
     assert [t.findtext("y_pv") for t in nmr.iter("trace")] == ["ca://UNH:GEN:SSRF:FIT:DATA"]
+    # both axes autoscale by default (Elena Long, 2026-10-24)
+    assert nmr.findtext("x_axis/autoscale") == "true"
+    assert {a.findtext("autoscale") for a in nmr.iter("y_axis")} == {"true"}
 
 
 def _segments(widget):
