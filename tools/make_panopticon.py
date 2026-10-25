@@ -79,8 +79,6 @@ DEWAR = (204, 226, 246)
 STEEL = (64, 70, 80)
 INSERT = (246, 248, 251)
 BAFFLE = (240, 140, 30)
-FRIDGE = (250, 218, 241)
-FRIDGE_LINE = (200, 0, 150)
 CUP = (215, 192, 245)
 CUP_LINE = (110, 50, 180)
 COIL = (250, 205, 40)
@@ -413,11 +411,11 @@ def fridge_space():
                           [("Torr", True, 0.01, 100)], 60))
     w.append(key(12, 666, [("Mano. Hi", (230, 110, 0)), ("Mano. Lo", (0, 140, 60))], 84))
     w.append(key(12, 679, [("Roots top", (220, 0, 160)), ("Roots bot.", (120, 40, 200))], 84))
-    w.append(history_plot("FridgeThermometry", "Fridge thermometry (K, log)", 188, 314, 282, 224, "FRIDGE",
+    w.append(history_plot("FridgeThermometry", "Fridge thermometry (K)", 188, 314, 282, 224, "FRIDGE",
                           [(s, f"{s}_TI", c, 0) for s, c in FRIDGE_T.items()],
-                          [("K", True, 0.5, 300)], 40))
+                          [("K", False, 0, 300)], 40))      # linear (Elena Long, 2026-10-24)
     w.append(history_plot("FridgeLevel", "Fridge LHe level (in)", 188, 544, 282, 142, "LEVEL",
-                          [("Fridge LHe", "Fridge_LI", FRIDGE_LINE, 0)], [("in", False, 0, 10)], 360))
+                          [("Fridge LHe", "Fridge_LI", LHE_BLUE, 0)], [("in", False, 0, 10)], 360))
     for i, (kind, ref, caption, what) in enumerate(FRIDGE_READOUTS):
         yy = 314 + i * 34
         if kind == "live":
@@ -631,9 +629,9 @@ def route(mx, my, elbow, ends, boxes, taken, markers=()):
 
 def insert_cartoon():
     x, y = 618, 48
-    w = [card("Target insert", x, y, 380, 863, "Insert")]
-    w.append(label("markers: sensor positions; boxes coloured like the traces", 734, 52, 260, 20, 8, False,
-                   MUTED, align=2))
+    # Elena Long (2026-10-24): the material is set on the Cryo Safety screen;
+    # a header button gets there in one click
+    w = [card("Target insert", x, y, 380, 863, "Insert", ("Set target material", "genesis_cryo_safety.bob"))]
     # target selectors
     w.append(field("Target material", f"{CRYO}:STATE:material", 626, 76, 180, 11))
     w.append(field("Fitter material", f"{FIT}:MATERIAL_RBV", 812, 76, 180, 11))
@@ -744,7 +742,6 @@ def _insert_drawing():
     # (copper tubing staggered between the upper plates), and the separator
     w.append(rect(846, 408, 108, 424, INSERT, MUTED, name="Shape_Fridge_Can"))
     n, y0, pitch = LOWER_HX
-    w.append(rect(850, y0 - 4, 100, 830 - y0 + 4, FRIDGE, FRIDGE_LINE, name="Shape_Fridge_Liquid"))
     w.append(rect(AXIS_X - PUMP_TUBE_W // 2, 228, PUMP_TUBE_W, 604, STEEL, name="Shape_Pumping_Tube"))
     n, y0, pitch = UPPER_HX
     for i in range(n - 1):
@@ -758,7 +755,6 @@ def _insert_drawing():
     sx, sy, sw, sh = SEPARATOR
     w.append(rect(sx, sy, sw, sh, (165, 171, 181), (70, 76, 86), 2, corner=6, name="Shape_Separator"))
     w.append(label("separator", sx - 6, sy + sh // 2 - 8, sw + 12, 15, 8, True, TEXT, align=1))
-    w.append(label("fridge", 952, 812, 40, 14, 8, True, FRIDGE_LINE))
     # magnet-space baffles: 5 in the neck (ring from the wall to the insert),
     # and the magnet-support baffle at 16.5"
     for i, by in enumerate(neck_baffle_ys()):

@@ -571,3 +571,21 @@ def test_nmr_card_numbers_column_beside_stacked_plots():
     right = max(int(w.findtext("x")) + int(w.findtext("width")) for w in numbers)
     assert right <= int(nmr.findtext("x"))
     assert int(p_area.findtext("y")) == min(int(w.findtext("y")) for w in numbers)
+
+
+def test_elena_long_screen_choices_2026_10_24():
+    """Elena Long (2026-10-24): a one-click way to the target material, no pink
+    fridge shape or label, the fridge LHe trace blue like the magnet's, and
+    fridge thermometry on a linear scale."""
+    gen = _generator()
+    widgets = _by_name()
+    link = widgets["Card_Insert_Link"]
+    assert link.findtext("actions/action/file") == "genesis_cryo_safety.bob"
+    assert link.findtext("text") == "Set target material"
+    text = BOB.read_text(encoding="utf-8")
+    assert "markers: sensor positions" not in text and "Shape_Fridge_Liquid" not in text
+    assert not [w for w in _widgets() if w.findtext("text") == "fridge"]
+    c = widgets["Trend_FridgeLevel"].find("traces/trace/color/color")
+    assert (int(c.get("red")), int(c.get("green")), int(c.get("blue"))) == gen.LHE_BLUE
+    axes = list(widgets["Trend_FridgeThermometry"].iter("y_axis"))
+    assert {a.findtext("log_scale") for a in axes} == {"false"}
