@@ -794,6 +794,13 @@ class FitterEpicsInterface:
             arr = self._array(values)
             if arr.size > MAX_NMR_POINTS:
                 arr = arr[:MAX_NMR_POINTS]
+            if name == "FREQS_MHZ":
+                # Phoebus reads a waveform at its full length (MAX_NMR_POINTS),
+                # the unused tail as 0 MHz, so an autoscaled x axis started at
+                # 0.  A NaN tail is skipped instead (Elena Long, 2026-10-24).
+                padded = np.full(MAX_NMR_POINTS, np.nan, dtype=np.float32)
+                padded[:arr.size] = arr
+                arr = padded
             p[name].set(arr)
 
         error = msg.get("error")

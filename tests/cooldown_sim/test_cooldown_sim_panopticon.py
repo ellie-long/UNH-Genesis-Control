@@ -505,7 +505,7 @@ def test_trends_have_the_daq_windows_and_log_pressures():
     # the DAQ windows: x from -window to 0 (now); the shells vacuum in hours
     span = {"Trend_MagnetThermometry": (-15, "min"), "Trend_FridgeThermometry": (-40, "min"),
             "Trend_FridgePressures": (-60, "min"), "Trend_Polarization": (-180, "min"),
-            "Trend_ShellsVacuum": (-48, "h"), "Trend_MagnetLevel": (-40, "min"),
+            "Trend_ShellsVacuum": (-60, "min"), "Trend_MagnetLevel": (-40, "min"),
             "Trend_FridgeLevel": (-360, "min"), "Trend_Flows": (-60, "min")}
     hist = yaml.safe_load(HIST_SETTINGS.read_text(encoding="utf-8"))["trend_history"]
     for name, (lo, unit) in span.items():
@@ -527,9 +527,18 @@ def test_trends_have_the_daq_windows_and_log_pressures():
     assert [a.findtext("title") for a in charts["Trend_FridgePressures"].iter("y_axis")] == ["Torr"]
     pol = {t.findtext("y_pv").rsplit(":", 1)[-1] for t in charts["Trend_Polarization"].iter("trace")}
     assert pol == {"P_AREA", "P_FIT", "Q_FIT", "Q_EQ"}
-    for w in charts.values():                    # log axes must not autoscale (a 0 reading breaks them)
+    # log axes autoscale only where the group turns readings <= 0 into gaps
+    # (a 0 reading breaks Phoebus's log autoscale); Pressures does (Elena Long)
+    for w in charts.values():
+        group = w.find("traces/trace/y_pv").text.removeprefix("ca://").split(":")[3]
+        safe = bool(hist["groups"][group].get("positive_only"))
         for a in w.iter("y_axis"):
-            assert not (a.findtext("log_scale") == "true" and a.findtext("autoscale") == "true"), w.findtext("name")
+            if a.findtext("log_scale") == "true" and a.findtext("autoscale") == "true":
+                assert safe, w.findtext("name")
+    # Elena Long (2026-10-24): Pressures on a fixed 1-1000 Torr log scale
+    (p_axis,) = charts["Trend_FridgePressures"].iter("y_axis")
+    assert (p_axis.findtext("log_scale"), p_axis.findtext("autoscale")) == ("true", "false")
+    assert (float(p_axis.findtext("minimum")), float(p_axis.findtext("maximum"))) == (1.0, 1000.0)
 
 
 def test_polarization_headline_is_the_area_method():

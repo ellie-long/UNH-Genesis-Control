@@ -239,7 +239,7 @@ def test_device_publishes_every_configured_array(th, tmp_path):
     assert np.nanmax(m1) == 4.0 and np.count_nonzero(np.isfinite(m1)) == 300   # 1 h at 12 s
     assert recs["MAG:T_REF"].value == now
     assert recs["PRESS:Pump_Torr"].value[-1] == pytest.approx(0.750062)       # mbar -> Torr
-    assert recs["SHELLS:TIME"].EGU == "h" and len(recs["SHELLS:TIME"].value) == 1440
+    assert recs["SHELLS:TIME"].EGU == "min" and len(recs["SHELLS:TIME"].value) == 1920   # 2 days at 90 s
     assert recs["Hist_Backfilled"].value == dev.backfilled > 0
     assert recs["Hist_Sources"].value == 37                                     # 33 + the magnet supply
     assert {"MAGNET:FIELD", "MAGNET:CURRENT", "MAGNET:TIME"} <= set(recs)
@@ -348,3 +348,21 @@ def test_device_samples_monitor_updates(th, tmp_path):
     assert math.isnan(recs["MAG:M1_TI"].value[-1]) and recs["Hist_Connected"].value == 0
     assert recs["MAG:TIME"].value[-1] == 0 and recs["MAG:TIME"].value[-2] == pytest.approx(-0.2)
     assert recs["Hist_Status"].value == 1
+
+
+def test_positive_only_group_publishes_zeros_as_gaps(th):
+    # Elena Long (2026-10-24): readings <= 0 become gaps, so a log-scale
+    # pressure plot never meets a 0 (which breaks Phoebus's log autoscale)
+    groups = th.parse_groups({"groups": {"PRESS": {"positive_only": True, "sources": {"P": "X:P"}},
+                                         "LIN": {"sources": {"V": "X:V"}}}})
+    press, lin = groups
+    assert press.positive_only and not lin.positive_only
+    for value in (5.0, 0.0, -1.0, 7.0):
+        press.update("P", value)
+        lin.update("V", value)
+        press.sample(press.buffer.last_time() + 12 if press.buffer.count else 1000.0)
+        lin.sample(lin.buffer.last_time() + 12 if lin.buffer.count else 1000.0)
+    _, (p,) = press.arrays(1100.0)
+    _, (v,) = lin.arrays(1100.0)
+    assert list(p[-4:][[0, 3]]) == [5.0, 7.0] and np.isnan(p[-3]) and np.isnan(p[-2])
+    assert list(v[-4:]) == [5.0, 0.0, -1.0, 7.0]

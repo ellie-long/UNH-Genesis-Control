@@ -314,6 +314,9 @@ class Group:
     raw: dict = field(default_factory=dict)          # latest value before the unit factor
     factor: dict = field(default_factory=dict)       # current unit factor per source
     next_due: float = 0.0
+    #: publish readings <= 0 as gaps (NaN): a log-scale plot can then autoscale
+    #: (Phoebus's log autoscale breaks on a 0; Elena Long, 2026-10-24)
+    positive_only: bool = False
 
     def __post_init__(self):
         if self.time_unit not in TIME_UNITS:
@@ -414,6 +417,8 @@ class Group:
         for i in range(len(self.sources)):
             col = np.full(cap, np.nan, dtype=np.float32)
             col[pad:] = v[i]
+            if self.positive_only:
+                col[col <= 0] = np.nan
             out.append(col)
         return rel, out
 
@@ -440,7 +445,8 @@ def parse_groups(settings: dict) -> list:
         if not sources:
             raise ValueError(f"trend history group {name} has no sources")
         groups.append(Group(str(name), sources, float(spec.get('window', window)),
-                            float(spec.get('interval', interval)), spec.get('time_unit', unit)))
+                            float(spec.get('interval', interval)), spec.get('time_unit', unit),
+                            positive_only=bool(spec.get('positive_only', False))))
     return groups
 
 

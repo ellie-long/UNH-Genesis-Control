@@ -272,7 +272,7 @@ def hist(group, key):
 
 
 #: time unit of each trend-history group (configs/target_physical/trend_history)
-HIST_UNITS = {"MAG": "min", "FRIDGE": "min", "PRESS": "min", "POL": "min", "SHELLS": "h",
+HIST_UNITS = {"MAG": "min", "FRIDGE": "min", "PRESS": "min", "POL": "min", "SHELLS": "min",
               "LEVEL": "min", "FLOW": "min", "CART": "min", "MAGNET": "min"}
 
 
@@ -290,11 +290,15 @@ def history_plot(key, title, x, y, w, h, group, traces, axes, span):
     xa = (f"<x_axis><title>Time ({unit}, 0 = now)</title><autoscale>false</autoscale>"
           f"<log_scale>false</log_scale><minimum>{-span}.0</minimum><maximum>0.0</maximum>"
           f"<show_grid>true</show_grid>{fonts}<visible>true</visible></x_axis>")
-    ax = "".join(
-        f"<y_axis><title>{escape(t)}</title><autoscale>{str(not log).lower()}</autoscale>"
-        f"<log_scale>{str(log).lower()}</log_scale>"
-        f"<minimum>{lo}</minimum><maximum>{hi}</maximum><show_grid>true</show_grid>{fonts}"
-        f"<visible>true</visible></y_axis>" for t, log, lo, hi in axes)
+    def axis(t, log, lo, hi, auto=None):
+        # a log axis autoscales only when asked: its group must publish
+        # readings <= 0 as gaps (trend history positive_only)
+        auto = (not log) if auto is None else auto
+        return (f"<y_axis><title>{escape(t)}</title><autoscale>{str(auto).lower()}</autoscale>"
+                f"<log_scale>{str(log).lower()}</log_scale>"
+                f"<minimum>{lo}</minimum><maximum>{hi}</maximum><show_grid>true</show_grid>{fonts}"
+                f"<visible>true</visible></y_axis>")
+    ax = "".join(axis(*a) for a in axes)
     tr = "".join(
         f"<trace><name>{escape(n)}</name><x_pv>ca://{hist(group, 'TIME')}</x_pv>"
         f"<y_pv>ca://{hist(group, k)}</y_pv><axis>{a}</axis><trace_type>1</trace_type>"
@@ -408,7 +412,7 @@ def fridge_space():
                            ("Mano. Lo", "Mano_PI", (0, 140, 60), 0),
                            ("Roots top", "Pump_Torr", (220, 0, 160), 0),
                            ("Roots bottom", "OVC_Torr", (120, 40, 200), 0)],
-                          [("Torr", True, 0.01, 100)], 60))
+                          [("Torr", True, 1, 1000)], 60))   # 1-1000 Torr, log (Elena Long, 2026-10-24)
     w.append(key(12, 666, [("Mano. Hi", (230, 110, 0)), ("Mano. Lo", (0, 140, 60))], 84))
     w.append(key(12, 679, [("Roots top", (220, 0, 160)), ("Roots bot.", (120, 40, 200))], 84))
     w.append(history_plot("FridgeThermometry", "Fridge thermometry (K)", 188, 314, 282, 224, "FRIDGE",
@@ -432,7 +436,7 @@ def shells_space():
     w = [card("Shells Space", x, y, 304, 213, "Shells")]
     w.append(history_plot("ShellsVacuum", "Shells (insulating) vacuum, log", 12, 728, 214, 176, "SHELLS",
                           [("IONIVAC", "Ion_PI", (110, 50, 200), 0)],
-                          [("Torr", True, 1e-8, 1e-3)], 48))
+                          [("Torr", True, 1e-8, 1e-3)], 60))
     w.append(field("IONIVAC", f"{CRYO}:ION:Ion_PI", 232, 728, 72, 10, prec=2, fmt=2))
     w.append(field("Gauge comm", f"{CRYO}:ION:COMM", 232, 772, 72, 9, bold=False))
     return w

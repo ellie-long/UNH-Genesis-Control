@@ -55,6 +55,8 @@ trend_history:
         T1_TI: UNH:GEN:CRYO:MAG:T1_TI
         T3_TI: UNH:GEN:CRYO:MAG:T3_TI
     PRESS:
+      # zeros / negatives become gaps so the log plot can autoscale (Elena Long)
+      positive_only: true
       sources:
         Cell_PI: {pv: UNH:GEN:CRYO:CELL:Cell_PI, egu: Torr}
         Mano_PI: {pv: UNH:GEN:CRYO:VAC:LOW:Mano_PI, egu: Torr}
@@ -89,10 +91,11 @@ trend_history:
       sources:
         Ion_PI: {pv: UNH:GEN:CRYO:ION:PUMP:Ion_PI, egu: Torr}
     SHELLS:
-      # the DAQ trends the insulating vacuum over 2 days
+      # two days of insulating vacuum (the DAQ's span), shown in minutes like
+      # the other trends (Elena Long, 2026-10-24); 90 s fits 2 days in 2000 points
       window: 172800
-      interval: 120
-      time_unit: h
+      interval: 90
+      time_unit: min
       sources:
         Ion_PI: {pv: UNH:GEN:CRYO:ION:Ion_PI, egu: Torr}
     POL:
