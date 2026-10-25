@@ -933,7 +933,7 @@
     <name>SUP_Error_V</name>
     <x>170</x>
     <y>493</y>
-    <width>710</width>
+    <width>440</width>
     <height>25</height>
     <pv_name>ca://UNH:GEN:MW:SUP:LastError</pv_name>
     <format>6</format>
@@ -1939,7 +1939,7 @@
   <widget type="action_button" version="3.0.0"><name>Open_MW_Visualization</name><x>978</x><y>52</y><width>190</width><height>32</height><actions><action type="open_display"><file>genesis_mw_visualization.bob</file><target>tab</target><description>Open MW Live Visualization</description></action></actions><text>MW Live Visualization</text></widget>
   <widget type="label" version="2.0.0">
     <name>SUP_Dopant_L</name>
-    <x>900</x>
+    <x>630</x>
     <y>495</y>
     <width>70</width>
     <height>24</height>
@@ -1947,9 +1947,9 @@
   </widget>
   <widget type="combo" version="2.0.0">
     <name>SUP_Dopant_CMD</name>
-    <x>970</x>
+    <x>700</x>
     <y>491</y>
-    <width>170</width>
+    <width>180</width>
     <height>30</height>
     <pv_name>pva://UNH:GEN:MW:SUP:Dopant</pv_name>
     <tooltip>Target dopant (sets which Magic +/- constants the supervisor uses)</tooltip>
