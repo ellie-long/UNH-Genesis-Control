@@ -274,7 +274,7 @@ HIST_UNITS = {"MAG": "min", "FRIDGE": "min", "PRESS": "min", "POL": "min", "SHEL
               "LEVEL": "min", "FLOW": "min", "CART": "min", "MAGNET": "min"}
 
 
-def history_plot(key, title, x, y, w, h, group, traces, axes, span):
+def history_plot(key, title, x, y, w, h, group, traces, axes, span, script=None):
     """An XY plot of trend-history arrays: x = the group's TIME (relative to
     now, negative, in HIST_UNITS[group]), shown from -span to 0.
 
@@ -307,7 +307,43 @@ def history_plot(key, title, x, y, w, h, group, traces, axes, span):
             f"<title>{escape(title)}</title>"
             f'<title_font><font family="Liberation Sans" style="BOLD" size="10.0"/></title_font>'
             f"<show_toolbar>true</show_toolbar><show_legend>false</show_legend>"
-            f"{xa}<y_axes>{ax}</y_axes><traces>{tr}</traces></widget>")
+            f"{xa}<y_axes>{ax}</y_axes><traces>{tr}</traces>{script or ''}</widget>")
+
+
+#: Elena Long (2026-10-24): on load, the fridge thermometry plot shows 0.5-10 K
+#: when the lowest reading in its visible window is below 10 K, otherwise it
+#: autoscales.  Runs once per screen load (the first time data is there), so
+#: the operator's own zoom is never overridden.
+FRIDGE_RANGE_SCRIPT = """from org.csstudio.display.builder.runtime.script import PVUtil
+import math
+if widget.getUserData("fridge_range_done") is None:
+    times = PVUtil.getDoubleArray(pvs[0])
+    start = widget.getPropertyValue("x_axis.minimum")
+    lowest = None
+    for pv in pvs[1:]:
+        try:
+            values = PVUtil.getDoubleArray(pv)
+        except Exception:
+            continue
+        for i in range(min(len(values), len(times))):
+            v = values[i]
+            if times[i] >= start and not math.isnan(v) and not math.isinf(v) and v > 0:
+                if lowest is None or v < lowest:
+                    lowest = v
+    if lowest is not None:
+        widget.setUserData("fridge_range_done", True)
+        if lowest < 10.0:
+            widget.setPropertyValue("y_axes[0].autoscale", False)
+            widget.setPropertyValue("y_axes[0].minimum", 0.5)
+            widget.setPropertyValue("y_axes[0].maximum", 10.0)
+"""
+
+
+def fridge_range_script():
+    pvs = [f'<pv_name trigger="true">ca://{hist("FRIDGE", "TIME")}</pv_name>']
+    pvs += [f'<pv_name trigger="false">ca://{hist("FRIDGE", f"{s}_TI")}</pv_name>' for s in FRIDGE_T]
+    return (f'<scripts><script file="EmbeddedPy"><text>{escape(FRIDGE_RANGE_SCRIPT)}</text>'
+            f'{"".join(pvs)}</script></scripts>')
 
 
 def key(x, y, items, wid):
@@ -316,13 +352,14 @@ def key(x, y, items, wid):
 
 
 def nmr_plot(x, y, w, h):
-    # The processed NMR signal only.  Points, not lines: Phoebus reads the
-    # fitter's waveforms at their full length, so the unused tail (zeros)
-    # would draw a line back to 0 MHz.
+    # The processed NMR signal only, as a line (Elena Long, 2026-10-24).
+    # Phoebus reads the fitter's waveforms at their full length; the fitter
+    # pads FREQS_MHZ with NaN, so the line ends with the sweep (it used to be
+    # points, when the zero tail drew a line back to 0 MHz).
     def trace(name, pv, rgb, size):
         return (f"<trace><name>{name}</name><x_pv>ca://{FIT}:FREQS_MHZ</x_pv><y_pv>ca://{FIT}:{pv}</y_pv>"
-                f"<axis>0</axis><trace_type>0</trace_type><color>{col(rgb)}</color>"
-                f"<point_type>1</point_type><point_size>{size}</point_size></trace>")
+                f"<axis>0</axis><trace_type>1</trace_type><color>{col(rgb)}</color>"
+                f"<line_width>2</line_width><point_type>0</point_type><point_size>{size}</point_size></trace>")
     return (f'<widget type="xyplot" version="3.0.0"><name>NMR_Signal</name>'
             f"<x>{x}</x><y>{y}</y><width>{w}</width><height>{h}</height>"
             f"<title></title><show_toolbar>true</show_toolbar><show_legend>false</show_legend>"
@@ -417,7 +454,8 @@ def fridge_space():
     w.append(key(12, 679, [("Roots top", (220, 0, 160)), ("Roots bot.", (120, 40, 200))], 84))
     w.append(history_plot("FridgeThermometry", "Fridge thermometry (K)", 188, 314, 282, 224, "FRIDGE",
                           [(s, f"{s}_TI", c, 0) for s, c in FRIDGE_T.items()],
-                          [("K", False, 0, 300)], 40))      # linear (Elena Long, 2026-10-24)
+                          [("K", False, 0, 300)], 40,       # linear (Elena Long, 2026-10-24)
+                          script=fridge_range_script()))
     w.append(history_plot("FridgeLevel", "Fridge LHe level (in)", 188, 544, 282, 142, "LEVEL",
                           [("Fridge LHe", "Fridge_LI", LHE_BLUE, 0)], [("in", False, 0, 10)], 360))
     for i, (kind, ref, caption, what) in enumerate(FRIDGE_READOUTS):

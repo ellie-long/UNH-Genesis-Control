@@ -611,3 +611,58 @@ def test_elena_long_screen_choices_2026_10_24():
     assert (int(c.get("red")), int(c.get("green")), int(c.get("blue"))) == gen.LHE_BLUE
     axes = list(widgets["Trend_FridgeThermometry"].iter("y_axis"))
     assert {a.findtext("log_scale") for a in axes} == {"false"}
+
+
+def _run_fridge_range_script(gen, times, series, x_min=-40.0, runs=1):
+    """Run the fridge-plot script as Phoebus would, with stand-ins for the
+    widget and PVUtil (its logic only; Phoebus's API is not available here)."""
+    import sys
+    import types
+
+    class Widget:
+        def __init__(self):
+            self.props, self.user = {"x_axis.minimum": x_min}, {}
+
+        def getPropertyValue(self, name): return self.props[name]
+        def setPropertyValue(self, name, value): self.props[name] = value
+        def getUserData(self, key): return self.user.get(key)
+        def setUserData(self, key, value): self.user[key] = value
+
+    mod = types.ModuleType("org.csstudio.display.builder.runtime.script")
+    mod.PVUtil = types.SimpleNamespace(getDoubleArray=lambda pv: pv)
+    for name in ("org", "org.csstudio", "org.csstudio.display", "org.csstudio.display.builder",
+                 "org.csstudio.display.builder.runtime"):
+        sys.modules.setdefault(name, types.ModuleType(name))
+    sys.modules["org.csstudio.display.builder.runtime.script"] = mod
+    widget = Widget()
+    try:
+        for _ in range(runs):
+            exec(gen.FRIDGE_RANGE_SCRIPT, {"widget": widget, "pvs": [times] + series})
+    finally:
+        del sys.modules["org.csstudio.display.builder.runtime.script"]
+    return widget
+
+
+def test_fridge_plot_range_script_logic():
+    """Elena Long (2026-10-24): the lowest reading in the visible window < 10 K
+    -> 0.5-10 K; otherwise autoscale; once per load."""
+    gen = _generator()
+    nan = float("nan")
+    times = [-300.0, -50.0, -30.0, -10.0, 0.0]
+    cold = _run_fridge_range_script(gen, times, [[300, 300, 250, 200, 150], [nan, 1.5, 1.6, 1.52, nan]])
+    assert (cold.props.get("y_axes[0].autoscale"), cold.props.get("y_axes[0].minimum"),
+            cold.props.get("y_axes[0].maximum")) == (False, 0.5, 10.0)
+    warm = _run_fridge_range_script(gen, times, [[300, 300, 250, 200, 150], [4.0, 4.0, 40.0, 30.0, 20.0]])
+    assert "y_axes[0].autoscale" not in warm.props          # the 4 K points are outside the window
+    assert warm.getUserData("fridge_range_done")            # decided once: no later override
+    empty = _run_fridge_range_script(gen, times, [[nan] * 5])
+    assert empty.getUserData("fridge_range_done") is None   # no data yet: tries again on the next update
+    w = gen.history_plot("X", "x", 0, 0, 10, 10, "FRIDGE", [("F1", "F1_TI", (0, 0, 0), 0)],
+                         [("K", False, 0, 300)], 40, script=gen.fridge_range_script())
+    assert "<scripts>" in w and 'trigger="true">ca://UNH:GEN:HIST:FRIDGE:TIME' in w
+
+
+def test_nmr_spectrum_is_a_line():
+    nmr = _by_name()["NMR_Signal"]
+    (trace,) = nmr.iter("trace")
+    assert (trace.findtext("trace_type"), trace.findtext("point_type")) == ("1", "0")
