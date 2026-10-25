@@ -148,6 +148,56 @@ named in each item. Numbers are stable: answered items move to *Settled*.
       keep-energized rule: is that right? Or only HOLD + persistent, leads
       left energized? Should a UPS "on battery" signal press it
       automatically? Is the supply on a UPS long enough to finish (~1 min)?
+- [ ] 95. **IPS120 R2 reads ~1.03 A above R0 (live test 2026-10-23):** with
+      the supply at 0 A demand R2 ("measured current") read 1.04 A, at 0.10 A
+      it read 1.11-1.13 A; the front panel and R0 agreed with the command.
+      Genesis now takes the magnet current and field from R0 (fe6add0) and
+      shows R2 separately. Is R2 a calibration offset to correct, or does it
+      only misbehave with no magnet on the leads (the supply was not on the
+      magnet tonight)? Recheck once it is.
+- [ ] 96. **Magnet ramp rate, V4 vs the records:** the student's V4 ramps at
+      one fixed 3 A/min (no 20 A / 40 A segments); V3 and the records since
+      2021-09 used 3 / 2 / 1 A/min below 20 / 40 / 65 A (question 90). Genesis
+      follows V4 (`rate_bands: [[65, 3.0]]`); the bands are one setting
+      away. Which should it be?
+- [ ] 97. **Manometer-Lo bridge on the cryo Pi (192.168.1.24, live test
+      2026-10-23):** after `pi_cryo_bridges/ubuntu_control.sh start` both
+      bridges report UP, but TCP 5030 (Manometer-Lo) refuses connections and
+      the Pi's "SERIAL DEVICES" list is empty; 5010 (right-Roots flow)
+      accepts. Is the manometer's USB-serial adapter plugged into that Pi?
+- [ ] 98. **UCA supply (SPD1305X, 192.168.1.19) raw socket refuses (for
+      Utsav; microwave tests paused 2026-10-23):** Genesis's UCA IOC talks raw
+      SCPI on TCP 5025. Tonight 5025 worked until ~20:04, then every
+      connection was accepted and reset at once, through a front-panel power
+      cycle and a hard reboot, with no other client connected (both Pis and
+      this laptop checked). VXI-11 (TCPIP0::192.168.1.19::inst0::INSTR) still
+      answers normally. Earlier the IOC refused the supply because its
+      voltage setpoint was 5.100 V (above the 5.0 V UCA limit); it was set to
+      5.000 V by SCPI (output left off). What turns the socket server off
+      (an I/O / LAN setting, remote lock)? Should the driver support VXI-11?
+      Also: the first start attempts left the microwave IOC manager and the
+      UCA IOC running and `microwave_physical.sh stop` refused to stop them
+      (safety verification could not read the UCA), so they were killed by
+      hand.
+      **2026-10-24 update:** 5025 works again (12/12 from Windows and 12/12
+      from WSL, setpoint 5.000 V, output 5.001 V), with nothing changed on
+      the supply. Two leads: (a) the laptop's second address had been
+      192.168.0.232/**22**, which overlaps 192.168.1.x, so WSL traffic was at
+      times sent from .232 and 192.168.1.x replies went to the gateway; it
+      is now /24 and WSL TCP to the instruments is steady (apart from a
+      ~1-minute dropout of five 1.x hosts about 70 s into each soak test,
+      still unexplained). (b) **Oddity to keep:** the first ping to
+      192.168.1.19 after a quiet spell twice came back with **TTL 128** (a
+      Windows host's value) while every later reply has the Siglent's TTL
+      255 and the ARP hardware address stays the Siglent's
+      (74-5b-c5-25-08-7d). If the UCA socket trouble returns, check for
+      another device answering for 192.168.1.19 (an address conflict or
+      proxy ARP).
+- [ ] 99. **NMR supply (Siglent SPD3303X-E):** not in Genesis. It answers at
+      192.168.1.17 (VXI-11 *IDN?); its sticker says 192.168.1.5, which
+      answers pings but has no instrument ports (not a Siglent MAC). Which
+      outputs feed what, and should Genesis read / control it (a new IOC and
+      Phoebus panel)? 192.168.1.31 is a Siglent SDS814X HD oscilloscope.
 - [ ] 75. **Converter, `NMR Status`:** filled with pyNMR's free-text event
       `label` (default "None"). The old values were Baseline / Polarization /
       TE / Tuning / Scanning, and the McClellan reader sorts sweeps by them.
@@ -299,6 +349,24 @@ named in each item. Numbers are stable: answered items move to *Settled*.
 
 ## Notes (findings, not questions; Ells 2026-10-22)
 
+- **Live test, 2026-10-23 (the laptop as the lab machine, dev-visualizer
+  fe6add0):** the IPS120-10 answers V "IPS120-10 Version 3.07"; after a
+  mains cycle X = `X00A4C0H0M00P04` (clamped, local/locked, as the manual
+  says). **R20 is the heater current setting** (40 mA with the heater OFF),
+  so the student's V4 OFF check (R20 <= 0.5 mA) would always fail on the real
+  supply; Genesis's `r20_meaning: auto` recorded "setting". R24 = 38 H. The
+  TXI017 serial server takes one TCP session per port (5001 timed out while
+  something else held it; it opened after a power cycle). Ells controlled
+  the supply from the Phoebus Magnet tab (heater ON via H1, 0.10 A).
+  Also that night: the LS455 reports in tesla, so its IOC's fixed
+  `tesla_scale: 1e-4` (gauss -> tesla) made `Fringe_FieldT` 1e4 too small
+  (set to 1.0 in the live copy; Utsav's driver should take the scale from
+  `UNIT?`). PyNMR (`unh` branch, JLab NMR 192.168.0.72, SMA100A
+  192.168.0.50; the laptop needed a second 192.168.0.x address) streamed to
+  the Genesis online fitter and the Panopticon's NMR card; PyNMR logs
+  `'NoneType' object has no attribute 'write'` on every finished event from
+  `core/event_bus_service.py` (its own eventfile is never opened; the main
+  window's event file is written correctly).
 - 60. **Fridge He Level zero:** the record's `Fridge He Level (")` is
       NEGATIVE most of the time the fridge runs (2026-06-17: -9 to -26 in;
       2022-05 down to -87, where `Fridge He Level Raw` is negative too) and
