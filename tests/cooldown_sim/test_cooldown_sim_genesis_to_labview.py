@@ -135,8 +135,13 @@ def test_convert_layout_values_and_sweeps(recording):
     # vapour pressure: Hi until Manometer-Lo reads, then Lo
     assert data[0][_col("Vapor Pressure Range")] == "Hi: He-II superfluid"   # 20 Torr < lambda
     assert 1.9 < float(data[0][_col("Vapor Pressure Temp (K)")]) < 2.0
-    assert data[4][_col("Vapor Pressure Range")] == "Lo: below scale"
-    assert data[4][_col("Vapor Pressure Temp (K)")] == "NaN"
+    # Lo recorded 0.5 Torr with a blank temperature (as on 2026-10-24): the
+    # converter works it out from the pressure, Elena Long's low branch included
+    from genesis_common import its90_helium as he
+    assert data[4][_col("Vapor Pressure Range")] == "Lo: He-II superfluid"
+    assert float(data[4][_col("Vapor Pressure Temp (K)")]) == pytest.approx(
+        he.torr_to_kelvin(0.5)[0], abs=1e-5)
+    assert 1.1 < float(data[4][_col("Vapor Pressure Temp (K)")]) < 1.25
 
     # sweeps: row 1 gets the first, row 4 the later of the two that ended in
     # its second; the old sweep is two hours before any row
@@ -227,3 +232,28 @@ def test_command_lines(recording, capsys):
 
 def test_report_lists_every_column_source():
     assert all(g2l.source_text(src) for _, src in g2l.COLUMNS)
+
+
+def test_vapor_uses_recorded_lo_temperature_when_present():
+    from genesis_common import its90_helium as he
+
+    class Row:
+        def __init__(self, values):
+            self.values = values
+
+        def num(self, pv):
+            try:
+                return float(self.values.get(pv, "nan"))
+            except ValueError:
+                return math.nan
+
+        def text(self, pv):
+            return self.values.get(pv, "")
+
+    recorded = Row({g2l._LO_P: "0.5", g2l._LO_T: "1.2345", g2l._LO_PHASE: "He-II superfluid"})
+    assert g2l._vapor(recorded, he) == (1.2345, "Lo: He-II superfluid")
+    blank = Row({g2l._LO_P: "0.5", g2l._LO_T: "", g2l._LO_PHASE: "below scale"})
+    kelvin, label = g2l._vapor(blank, he)
+    assert kelvin == pytest.approx(he.torr_to_kelvin(0.5)[0]) and label == "Lo: He-II superfluid"
+    gone = Row({g2l._LO_P: "1e-9", g2l._LO_T: ""})                  # below 0.5 K: still NaN
+    assert math.isnan(g2l._vapor(gone, he)[0])

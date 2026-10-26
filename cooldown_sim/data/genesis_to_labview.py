@@ -706,8 +706,14 @@ def _area_or_p(r: _Row, sweep, rep) -> str:
 def _vapor(r: _Row, its90) -> tuple[float, str]:
     lo = r.num(_LO_P)
     if math.isfinite(lo):
-        phase = r.text(_LO_PHASE) or its90.phase_of(lo)
-        return r.num(_LO_T), f"Lo: {phase}"
+        kelvin = r.num(_LO_T)
+        if math.isfinite(kelvin):
+            return kelvin, f"Lo: {r.text(_LO_PHASE) or its90.phase_of(lo)}"
+        # No recorded temperature (e.g. the 2026-10-24 run, when the IOC still
+        # stopped at ITS-90's 1.25 K): work it out from the recorded pressure
+        # with the IOC's current conversion, Elena Long's low branch included.
+        kelvin, _ = its90.torr_to_kelvin(lo)
+        return kelvin, f"Lo: {its90.phase_of(lo)}"
     hi = r.num(_HI_P)
     if math.isfinite(hi):
         kelvin, _ = its90.torr_to_kelvin(hi)

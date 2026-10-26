@@ -87,6 +87,10 @@ Reading the files:
 - `NOT_IN_GENESIS` means Genesis does not record that column yet (for
   example the magnet current, EPR, the lock-in, Pirani). `NaN` means
   Genesis has the channel but had no usable reading at that second.
+- `Vapor Pressure Temp (K)`: Genesis's recorded Manometer-Lo temperature.
+  Where that is blank but the pressure was recorded (the 2026-10-24 run,
+  before the sub-1.25 K branch was in the IOC), the converter works it out
+  from the pressure with the same function the IOC now uses.
 - `Vapor Pressure Range` says which manometer the vapour-pressure
   temperature came from: `Lo: He-II superfluid` (Manometer-Lo) or
   `Hi: He-I normal` (Manometer-Hi).
